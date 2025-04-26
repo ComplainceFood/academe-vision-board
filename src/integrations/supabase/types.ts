@@ -9,7 +9,162 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          course: string
+          date: string
+          description: string
+          id: string
+          receipt: boolean | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          category: string
+          course: string
+          date: string
+          description: string
+          id?: string
+          receipt?: boolean | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          course?: string
+          date?: string
+          description?: string
+          id?: string
+          receipt?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      meetings: {
+        Row: {
+          action_items: string[] | null
+          attendees: string[]
+          date: string
+          duration: string
+          id: string
+          location: string
+          notes: string | null
+          status: string
+          time: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_items?: string[] | null
+          attendees: string[]
+          date: string
+          duration: string
+          id?: string
+          location: string
+          notes?: string | null
+          status: string
+          time: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_items?: string[] | null
+          attendees?: string[]
+          date?: string
+          duration?: string
+          id?: string
+          location?: string
+          notes?: string | null
+          status?: string
+          time?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notes: {
+        Row: {
+          content: string
+          course: string
+          date: string | null
+          id: string
+          starred: boolean | null
+          student: string | null
+          tags: string[] | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          course: string
+          date?: string | null
+          id?: string
+          starred?: boolean | null
+          student?: string | null
+          tags?: string[] | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          course?: string
+          date?: string | null
+          id?: string
+          starred?: boolean | null
+          student?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      supplies: {
+        Row: {
+          category: string
+          cost: number | null
+          course: string
+          current_count: number
+          id: string
+          last_restocked: string | null
+          name: string
+          threshold: number
+          total_count: number
+          user_id: string
+        }
+        Insert: {
+          category: string
+          cost?: number | null
+          course: string
+          current_count: number
+          id?: string
+          last_restocked?: string | null
+          name: string
+          threshold: number
+          total_count: number
+          user_id: string
+        }
+        Update: {
+          category?: string
+          cost?: number | null
+          course?: string
+          current_count?: number
+          id?: string
+          last_restocked?: string | null
+          name?: string
+          threshold?: number
+          total_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
