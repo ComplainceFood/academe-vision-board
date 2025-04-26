@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -24,6 +24,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import type { Database } from "@/integrations/supabase/types";
 
 interface Note {
   id: string;
@@ -36,75 +40,6 @@ interface Note {
   student?: string;
   starred?: boolean;
 }
-
-const mockNotes: Note[] = [
-  {
-    id: "1",
-    title: "Project Extension",
-    content: "Promised 2-week extension for final project to CS101 students who attended workshop.",
-    type: "promise",
-    course: "CS101",
-    date: "2025-04-22",
-    tags: ["extension", "project"],
-    starred: true
-  },
-  {
-    id: "2",
-    title: "Lab Equipment Order",
-    content: "Need to order 5 more Raspberry Pi kits for the robotics lab by next Monday.",
-    type: "note",
-    course: "CS202",
-    date: "2025-04-20",
-    tags: ["supplies", "lab"]
-  },
-  {
-    id: "3",
-    title: "Midterm Format Change",
-    content: "Agreed to change midterm format to include more practical problems after student feedback.",
-    type: "promise",
-    course: "CS101",
-    date: "2025-04-19",
-    tags: ["exam", "format"]
-  },
-  {
-    id: "4",
-    title: "Research Mentoring",
-    content: "Promised to review Jane Smith's research proposal by this Friday.",
-    type: "promise",
-    course: "Research",
-    date: "2025-04-18",
-    tags: ["research", "mentoring"],
-    student: "Jane Smith"
-  },
-  {
-    id: "5",
-    title: "Lab Access",
-    content: "Need to arrange extended lab access hours for senior project teams.",
-    type: "note",
-    course: "CS404",
-    date: "2025-04-16",
-    tags: ["lab", "access"]
-  },
-  {
-    id: "6",
-    title: "Lecture Recording",
-    content: "Promised to post recording of today's lecture due to technical issues during class.",
-    type: "promise",
-    course: "CS202",
-    date: "2025-04-15",
-    tags: ["lecture", "recording"],
-    starred: true
-  },
-  {
-    id: "7",
-    title: "Office Hours Extension",
-    content: "Agreed to additional office hours before final project deadline.",
-    type: "promise",
-    course: "CS101",
-    date: "2025-04-14",
-    tags: ["office hours"]
-  },
-];
 
 const NoteCard = ({ note }: { note: Note }) => (
   <Card className="mb-4 glassmorphism">
@@ -137,7 +72,7 @@ const NoteCard = ({ note }: { note: Note }) => (
       <p className="text-sm mb-3">{note.content}</p>
       
       <div className="flex flex-wrap gap-2 mb-2">
-        {note.tags.map((tag) => (
+        {note.tags && note.tags.map((tag) => (
           <span key={tag} className="text-xs bg-accent/15 text-accent px-2 py-1 rounded-full">
             {tag}
           </span>
@@ -161,15 +96,54 @@ const NoteCard = ({ note }: { note: Note }) => (
 );
 
 const NotesPage = () => {
+  const { user, loading: authLoading } = useAuth();
+  const [notes, setNotes] = useState<Note[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
   
-  const filteredNotes = mockNotes.filter(note => {
+  useEffect(() => {
+    const fetchNotes = async () => {
+      if (!user) return;
+      
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('notes')
+          .select('*')
+          .eq('user_id', user.id);
+          
+        if (error) {
+          throw error;
+        }
+        
+        if (data) {
+          setNotes(data as Note[]);
+        }
+      } catch (error) {
+        console.error('Error fetching notes:', error);
+        toast({
+          title: "Error fetching notes",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    if (!authLoading && user) {
+      fetchNotes();
+    }
+  }, [user, authLoading, toast]);
+  
+  const filteredNotes = notes.filter(note => {
     // Filter by search query
     const matchesSearch = 
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+      (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
       
     // Filter by tab
     const matchesTab = 
@@ -180,6 +154,14 @@ const NotesPage = () => {
       
     return matchesSearch && matchesTab;
   });
+
+  const handleCreateNote = async () => {
+    // This is just a placeholder for now
+    toast({
+      title: "Feature coming soon",
+      description: "Note creation will be implemented in the next update."
+    });
+  };
   
   return (
     <MainLayout>
@@ -190,7 +172,7 @@ const NotesPage = () => {
             <p className="text-muted-foreground">Track your class promises and notes</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2" onClick={handleCreateNote}>
               <Plus className="h-4 w-4" />
               <span>New Note</span>
             </Button>
@@ -225,78 +207,87 @@ const NotesPage = () => {
               <TabsTrigger value="all" className="flex items-center gap-1">
                 <List className="h-4 w-4" />
                 <span className="hidden sm:inline">All</span>
-                <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">{mockNotes.length}</span>
+                <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">{notes.length}</span>
               </TabsTrigger>
               <TabsTrigger value="promises" className="flex items-center gap-1">
                 <BookText className="h-4 w-4" />
                 <span className="hidden sm:inline">Promises</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {mockNotes.filter(note => note.type === "promise").length}
+                  {notes.filter(note => note.type === "promise").length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="notes" className="flex items-center gap-1">
                 <BookText className="h-4 w-4" />
                 <span className="hidden sm:inline">Notes</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {mockNotes.filter(note => note.type === "note").length}
+                  {notes.filter(note => note.type === "note").length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="starred" className="flex items-center gap-1">
                 <Star className="h-4 w-4" />
                 <span className="hidden sm:inline">Starred</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {mockNotes.filter(note => note.starred).length}
+                  {notes.filter(note => note.starred).length}
                 </span>
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="all" className="mt-4">
-              {filteredNotes.length > 0 ? (
-                filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
-              ) : (
-                <div className="text-center py-12">
-                  <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="text-lg font-medium mb-1">No notes found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search or filters</p>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="promises" className="mt-4">
-              {filteredNotes.length > 0 ? (
-                filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
-              ) : (
-                <div className="text-center py-12">
-                  <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="text-lg font-medium mb-1">No promises found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search or filters</p>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="notes" className="mt-4">
-              {filteredNotes.length > 0 ? (
-                filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
-              ) : (
-                <div className="text-center py-12">
-                  <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="text-lg font-medium mb-1">No notes found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search or filters</p>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="starred" className="mt-4">
-              {filteredNotes.length > 0 ? (
-                filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
-              ) : (
-                <div className="text-center py-12">
-                  <Star className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="text-lg font-medium mb-1">No starred items</h3>
-                  <p className="text-muted-foreground">Star important notes to find them quickly</p>
-                </div>
-              )}
-            </TabsContent>
+            {isLoading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                <p className="text-muted-foreground">Loading notes...</p>
+              </div>
+            ) : (
+              <>
+                <TabsContent value="all" className="mt-4">
+                  {filteredNotes.length > 0 ? (
+                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                  ) : (
+                    <div className="text-center py-12">
+                      <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                      <h3 className="text-lg font-medium mb-1">No notes found</h3>
+                      <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="promises" className="mt-4">
+                  {filteredNotes.length > 0 ? (
+                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                  ) : (
+                    <div className="text-center py-12">
+                      <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                      <h3 className="text-lg font-medium mb-1">No promises found</h3>
+                      <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="notes" className="mt-4">
+                  {filteredNotes.length > 0 ? (
+                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                  ) : (
+                    <div className="text-center py-12">
+                      <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                      <h3 className="text-lg font-medium mb-1">No notes found</h3>
+                      <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="starred" className="mt-4">
+                  {filteredNotes.length > 0 ? (
+                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                  ) : (
+                    <div className="text-center py-12">
+                      <Star className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                      <h3 className="text-lg font-medium mb-1">No starred items</h3>
+                      <p className="text-muted-foreground">Star important notes to find them quickly</p>
+                    </div>
+                  )}
+                </TabsContent>
+              </>
+            )}
           </Tabs>
         </div>
       </div>
