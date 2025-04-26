@@ -1,17 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { AppSidebar } from "./AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 interface MainLayoutProps {
   children: React.ReactNode;
 }
-
-export function MainLayout({ children }: MainLayoutProps) {
+export function MainLayout({
+  children
+}: MainLayoutProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
-
   useEffect(() => {
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
@@ -19,20 +17,17 @@ export function MainLayout({ children }: MainLayoutProps) {
       document.documentElement.classList.remove('dark');
     }
   }, [isDarkMode]);
-
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
   };
-
-  return (
-    <SidebarProvider>
+  return <SidebarProvider>
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           <header className="h-16 border-b px-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
-              <h1 className="text-xl font-semibold">AcademeVision</h1>
+              <h1 className="text-xl font-semibold">Academia Vision</h1>
             </div>
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
@@ -45,6 +40,5 @@ export function MainLayout({ children }: MainLayoutProps) {
           </main>
         </div>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>;
 }
