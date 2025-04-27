@@ -33,6 +33,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface SupplyItem {
   id: string;
@@ -56,169 +74,218 @@ interface Expense {
   receipt?: boolean;
 }
 
-const mockSupplies: SupplyItem[] = [
-  {
-    id: "1",
-    name: "Whiteboard Markers",
-    category: "Office",
-    currentCount: 8,
-    totalCount: 20,
-    threshold: 5,
-    course: "All",
-    lastRestocked: "2025-04-10",
-    cost: 1.75
-  },
-  {
-    id: "2",
-    name: "Lab Notebooks",
-    category: "Lab",
-    currentCount: 4,
-    totalCount: 30,
-    threshold: 10,
-    course: "CS202",
-    lastRestocked: "2025-04-05",
-    cost: 3.50
-  },
-  {
-    id: "3",
-    name: "Raspberry Pi Kits",
-    category: "Electronics",
-    currentCount: 3,
-    totalCount: 15,
-    threshold: 5,
-    course: "CS404",
-    lastRestocked: "2025-03-15",
-    cost: 45.00
-  },
-  {
-    id: "4",
-    name: "Printer Paper",
-    category: "Office",
-    currentCount: 2,
-    totalCount: 10,
-    threshold: 3,
-    course: "All",
-    lastRestocked: "2025-04-12",
-    cost: 5.25
-  },
-  {
-    id: "5",
-    name: "USB Flash Drives",
-    category: "Electronics",
-    currentCount: 12,
-    totalCount: 25,
-    threshold: 8,
-    course: "CS101",
-    lastRestocked: "2025-03-28",
-    cost: 8.99
-  },
-  {
-    id: "6",
-    name: "Lab Coats",
-    category: "Lab",
-    currentCount: 15,
-    totalCount: 20,
-    threshold: 5,
-    course: "CS202",
-    lastRestocked: "2025-02-20",
-    cost: 24.50
-  },
-  {
-    id: "7",
-    name: "Safety Goggles",
-    category: "Lab",
-    currentCount: 18,
-    totalCount: 25,
-    threshold: 10,
-    course: "CS202",
-    lastRestocked: "2025-02-20",
-    cost: 6.75
-  },
-];
-
-const mockExpenses: Expense[] = [
-  {
-    id: "1",
-    date: "2025-04-15",
-    description: "Whiteboard Markers (4 packs)",
-    amount: 28.00,
-    category: "Office Supplies",
-    course: "All",
-    receipt: true
-  },
-  {
-    id: "2",
-    date: "2025-04-12",
-    description: "Printer Paper (5 reams)",
-    amount: 26.25,
-    category: "Office Supplies",
-    course: "All",
-    receipt: true
-  },
-  {
-    id: "3",
-    date: "2025-04-05",
-    description: "Lab Notebooks (15)",
-    amount: 52.50,
-    category: "Lab Supplies",
-    course: "CS202",
-    receipt: true
-  },
-  {
-    id: "4",
-    date: "2025-03-30",
-    description: "Student Project Materials",
-    amount: 124.75,
-    category: "Project Supplies",
-    course: "CS404",
-    receipt: false
-  },
-  {
-    id: "5",
-    date: "2025-03-28",
-    description: "USB Flash Drives (10)",
-    amount: 89.90,
-    category: "Electronics",
-    course: "CS101",
-    receipt: true
-  },
-  {
-    id: "6",
-    date: "2025-03-15",
-    description: "Raspberry Pi Kits (5)",
-    amount: 225.00,
-    category: "Electronics",
-    course: "CS404",
-    receipt: true
-  },
-];
-
 const SuppliesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("inventory");
+  const [supplies, setSupplies] = useState<SupplyItem[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<SupplyItem | null>(null);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+  const [updatedCount, setUpdatedCount] = useState<number>(0);
+  const { toast } = useToast();
+  const { user } = useAuth();
+  
+  // Fetch data from Supabase instead of using mock data
+  const fetchData = async () => {
+    setIsLoading(true);
+    
+    if (!user) {
+      setIsLoading(false);
+      return;
+    }
+    
+    // Fetch supplies
+    const { data: suppliesData, error: suppliesError } = await supabase
+      .from('supplies')
+      .select('*')
+      .eq('user_id', user.id);
+    
+    if (suppliesError) {
+      console.error('Error fetching supplies:', suppliesError);
+      toast({
+        title: "Error",
+        description: "Failed to fetch supplies data",
+        variant: "destructive",
+      });
+    } else {
+      // Transform Supabase data to match our interface
+      const transformedSupplies = suppliesData.map(item => ({
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        currentCount: item.current_count,
+        totalCount: item.total_count,
+        threshold: item.threshold,
+        course: item.course,
+        lastRestocked: item.last_restocked,
+        cost: item.cost
+      }));
+      
+      setSupplies(transformedSupplies);
+    }
+    
+    // Fetch expenses
+    const { data: expensesData, error: expensesError } = await supabase
+      .from('expenses')
+      .select('*')
+      .eq('user_id', user.id);
+    
+    if (expensesError) {
+      console.error('Error fetching expenses:', expensesError);
+      toast({
+        title: "Error",
+        description: "Failed to fetch expenses data",
+        variant: "destructive",
+      });
+    } else {
+      // Transform Supabase data to match our interface
+      const transformedExpenses = expensesData.map(item => ({
+        id: item.id,
+        date: item.date,
+        description: item.description,
+        amount: item.amount,
+        category: item.category,
+        course: item.course,
+        receipt: item.receipt
+      }));
+      
+      setExpenses(transformedExpenses);
+    }
+    
+    setIsLoading(false);
+  };
+  
+  // Load data on component mount
+  useState(() => {
+    fetchData();
+  }, [user]);
+  
+  // Handle supply actions
+  const handleDeleteSupply = async () => {
+    if (!itemToDelete) return;
+    
+    const { error } = await supabase
+      .from('supplies')
+      .delete()
+      .eq('id', itemToDelete);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete item",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Item deleted successfully",
+      });
+      
+      // Update local state
+      setSupplies(supplies.filter(item => item.id !== itemToDelete));
+    }
+    
+    setItemToDelete(null);
+  };
+  
+  const handleUpdateStock = async () => {
+    if (!editingItem || updatedCount === 0) {
+      setEditingItem(null);
+      return;
+    }
+    
+    const { error } = await supabase
+      .from('supplies')
+      .update({ current_count: updatedCount, last_restocked: new Date().toISOString() })
+      .eq('id', editingItem.id);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to update stock",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Stock updated successfully",
+      });
+      
+      // Update local state
+      setSupplies(supplies.map(item => 
+        item.id === editingItem.id ? 
+        { ...item, currentCount: updatedCount, lastRestocked: new Date().toISOString() } : 
+        item
+      ));
+    }
+    
+    setEditingItem(null);
+    setUpdatedCount(0);
+  };
+  
+  const handleAddToShoppingList = (item: SupplyItem) => {
+    // This would typically add to a shopping list table or state
+    toast({
+      title: "Added to Shopping List",
+      description: `${item.name} has been added to your shopping list`,
+    });
+  };
+  
+  // Handle expense actions
+  const handleDeleteExpense = async () => {
+    if (!expenseToDelete) return;
+    
+    const { error } = await supabase
+      .from('expenses')
+      .delete()
+      .eq('id', expenseToDelete);
+    
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to delete expense",
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Success",
+        description: "Expense deleted successfully",
+      });
+      
+      // Update local state
+      setExpenses(expenses.filter(expense => expense.id !== expenseToDelete));
+    }
+    
+    setExpenseToDelete(null);
+  };
   
   // Filter supplies based on search query
-  const filteredSupplies = mockSupplies.filter(item => 
+  const filteredSupplies = supplies.filter(item => 
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
     item.course.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
   // Filter expenses based on search query
-  const filteredExpenses = mockExpenses.filter(expense => 
+  const filteredExpenses = expenses.filter(expense => 
     expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     expense.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
     expense.course.toLowerCase().includes(searchQuery.toLowerCase())
   );
   
   // Calculate warning items
-  const warningItems = mockSupplies.filter(item => item.currentCount <= item.threshold);
+  const warningItems = supplies.filter(item => item.currentCount <= item.threshold);
   
   // Sort supplies by current/total ratio (ascending)
-  filteredSupplies.sort((a, b) => (a.currentCount / a.totalCount) - (b.currentCount / b.totalCount));
+  const sortedSupplies = [...filteredSupplies].sort((a, b) => 
+    (a.currentCount / a.totalCount) - (b.currentCount / b.totalCount)
+  );
   
   // Calculate total expenses
-  const totalExpenses = mockExpenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   
   return (
     <MainLayout>
@@ -268,7 +335,7 @@ const SuppliesPage = () => {
                   <PackageOpen className="h-5 w-5" />
                 </div>
                 <div>
-                  <div className="text-3xl font-bold">{mockSupplies.length}</div>
+                  <div className="text-3xl font-bold">{supplies.length}</div>
                   <p className="text-sm text-muted-foreground">Different items tracked</p>
                 </div>
               </div>
@@ -335,7 +402,11 @@ const SuppliesPage = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {filteredSupplies.length > 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-12">
+                    <p>Loading inventory data...</p>
+                  </div>
+                ) : sortedSupplies.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -347,7 +418,7 @@ const SuppliesPage = () => {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {filteredSupplies.map(item => (
+                      {sortedSupplies.map(item => (
                         <TableRow key={item.id}>
                           <TableCell>
                             <div className="font-medium">{item.name}</div>
@@ -377,10 +448,23 @@ const SuppliesPage = () => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
-                                <DropdownMenuItem>Update Stock</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => {
+                                  setEditingItem(item);
+                                  setUpdatedCount(item.currentCount);
+                                }}>
+                                  Update Stock
+                                </DropdownMenuItem>
                                 <DropdownMenuItem>Edit Details</DropdownMenuItem>
-                                <DropdownMenuItem>Add to Shopping List</DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleAddToShoppingList(item)}>
+                                  Add to Shopping List
+                                </DropdownMenuItem>
                                 <DropdownMenuItem>View History</DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="text-destructive"
+                                  onClick={() => setItemToDelete(item.id)}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -417,7 +501,11 @@ const SuppliesPage = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {filteredExpenses.length > 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-12">
+                    <p>Loading expense data...</p>
+                  </div>
+                ) : filteredExpenses.length > 0 ? (
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -460,7 +548,12 @@ const SuppliesPage = () => {
                                 <DropdownMenuItem>View Details</DropdownMenuItem>
                                 <DropdownMenuItem>Edit</DropdownMenuItem>
                                 <DropdownMenuItem>Upload Receipt</DropdownMenuItem>
-                                <DropdownMenuItem>Delete</DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="text-destructive"
+                                  onClick={() => setExpenseToDelete(expense.id)}
+                                >
+                                  Delete
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </TableCell>
@@ -486,6 +579,72 @@ const SuppliesPage = () => {
           </TabsContent>
         </Tabs>
       </div>
+      
+      {/* Confirmation dialogs and popovers */}
+      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this item from your inventory.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteSupply} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <AlertDialog open={!!expenseToDelete} onOpenChange={(open) => !open && setExpenseToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete this expense record.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteExpense} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <Popover open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+        <PopoverContent className="w-80">
+          <div className="grid gap-4">
+            <div className="space-y-2">
+              <h4 className="font-medium leading-none">Update Stock</h4>
+              <p className="text-sm text-muted-foreground">
+                Update the current stock level for {editingItem?.name}
+              </p>
+            </div>
+            <div className="grid gap-2">
+              <div className="grid grid-cols-3 items-center gap-4">
+                <label htmlFor="current">Current Count:</label>
+                <Input
+                  id="current"
+                  type="number"
+                  className="col-span-2"
+                  value={updatedCount}
+                  onChange={(e) => setUpdatedCount(Number(e.target.value))}
+                  max={editingItem?.totalCount || 0}
+                  min={0}
+                />
+              </div>
+              <div className="flex justify-between mt-4">
+                <Button variant="outline" onClick={() => setEditingItem(null)}>Cancel</Button>
+                <Button onClick={handleUpdateStock}>Save Changes</Button>
+              </div>
+            </div>
+          </div>
+        </PopoverContent>
+      </Popover>
     </MainLayout>
   );
 };
