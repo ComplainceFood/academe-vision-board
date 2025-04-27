@@ -35,6 +35,7 @@ const Index = () => {
             <CardContent>
               <p className="mb-4">
                 To get started quickly, you can populate your account with sample data.
+                This will add sample data to all tables (notes, meetings, supplies, and expenses).
               </p>
               <SeedDataButton />
             </CardContent>
