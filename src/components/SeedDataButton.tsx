@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
-// Mock data for all tables
+// Mock data definitions are kept the same
 const mockNotes = [
   {
     title: "Project Extension",
@@ -225,6 +226,7 @@ export function SeedDataButton() {
   const [isSeeding, setIsSeeding] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   async function seedMockData() {
     if (!user) {
@@ -284,6 +286,16 @@ export function SeedDataButton() {
       if (errors.length > 0) {
         throw new Error(`Errors occurred while seeding data: ${errors.join(', ')}`);
       }
+      
+      // Invalidate queries to refresh UI data across the app
+      queryClient.invalidateQueries({ queryKey: ['notes'] });
+      queryClient.invalidateQueries({ queryKey: ['meetings'] });
+      queryClient.invalidateQueries({ queryKey: ['supplies'] });
+      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      
+      // Create a custom event that other components can listen for
+      const seedDataEvent = new CustomEvent('seedDataCompleted', { detail: { userId: user.id } });
+      window.dispatchEvent(seedDataEvent);
       
       toast({
         title: "Success!",

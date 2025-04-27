@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
@@ -159,7 +159,7 @@ const SuppliesPage = () => {
   };
   
   // Load data on component mount
-  useState(() => {
+  useEffect(() => {
     fetchData();
   }, [user]);
   
