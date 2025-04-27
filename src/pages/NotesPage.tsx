@@ -1,17 +1,13 @@
-
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CreateNoteDialog } from "@/components/notes/CreateNoteDialog";
 import { 
   Search, 
-  Plus, 
-  Mic, 
-  Calendar, 
-  Tag, 
-  User,
+  Mic,
   Filter,
   BookText,
   List,
@@ -24,22 +20,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useDataFetching } from "@/hooks/useDataFetching";
 import type { Database } from "@/integrations/supabase/types";
 
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  type: string;
-  course: string;
-  date: string;
-  tags: string[];
-  student?: string;
-  starred?: boolean;
-}
+type Note = Database['public']['Tables']['notes']['Row'];
 
 const NoteCard = ({ note }: { note: Note }) => (
   <Card className="mb-4 glassmorphism">
@@ -96,56 +80,16 @@ const NoteCard = ({ note }: { note: Note }) => (
 );
 
 const NotesPage = () => {
-  const { user, loading: authLoading } = useAuth();
-  const [notes, setNotes] = useState<Note[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const [isLoading, setIsLoading] = useState(true);
-  const { toast } = useToast();
-  
-  useEffect(() => {
-    const fetchNotes = async () => {
-      if (!user) return;
-      
-      try {
-        setIsLoading(true);
-        const { data, error } = await supabase
-          .from('notes')
-          .select('*')
-          .eq('user_id', user.id);
-          
-        if (error) {
-          throw error;
-        }
-        
-        if (data) {
-          setNotes(data as Note[]);
-        }
-      } catch (error) {
-        console.error('Error fetching notes:', error);
-        toast({
-          title: "Error fetching notes",
-          description: "Please try again later",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
-    if (!authLoading && user) {
-      fetchNotes();
-    }
-  }, [user, authLoading, toast]);
+  const { data: notes, isLoading } = useDataFetching<Note>({ table: 'notes' });
   
   const filteredNotes = notes.filter(note => {
-    // Filter by search query
     const matchesSearch = 
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
       
-    // Filter by tab
     const matchesTab = 
       activeTab === "all" || 
       (activeTab === "promises" && note.type === "promise") ||
@@ -155,14 +99,6 @@ const NotesPage = () => {
     return matchesSearch && matchesTab;
   });
 
-  const handleCreateNote = async () => {
-    // This is just a placeholder for now
-    toast({
-      title: "Feature coming soon",
-      description: "Note creation will be implemented in the next update."
-    });
-  };
-  
   return (
     <MainLayout>
       <div className="animate-fade-in">
@@ -172,10 +108,7 @@ const NotesPage = () => {
             <p className="text-muted-foreground">Track your class promises and notes</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
-            <Button className="flex items-center gap-2" onClick={handleCreateNote}>
-              <Plus className="h-4 w-4" />
-              <span>New Note</span>
-            </Button>
+            <CreateNoteDialog />
             <Button variant="outline" className="flex items-center gap-2">
               <Mic className="h-4 w-4" />
               <span>Record</span>

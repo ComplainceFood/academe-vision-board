@@ -4,8 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
+type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses';
+
 interface FetchOptions {
-  table: string;
+  table: TableName;
   transform?: (data: any) => any;
   enabled?: boolean;
 }
@@ -37,7 +39,6 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
         throw new Error(`Failed to fetch ${table}: ${fetchError.message}`);
       }
 
-      // Transform data if transform function is provided
       const transformedData = transform ? fetchedData.map(transform) : fetchedData;
       setData(transformedData);
     } catch (err) {
@@ -53,7 +54,6 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
     }
   };
 
-  // Listen for seed data events
   useEffect(() => {
     const handleSeedData = () => {
       if (enabled) {
@@ -68,12 +68,10 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
     };
   }, [user, enabled]);
 
-  // Fetch data on initial load
   useEffect(() => {
     fetchData();
   }, [user, enabled]);
 
-  // Function to refresh data
   const refetch = () => fetchData();
 
   return { data, isLoading, error, refetch };
