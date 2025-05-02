@@ -1,4 +1,5 @@
 
+import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -20,7 +21,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
+import { useDataFetching } from "@/hooks/useDataFetching";
+import { CreateMeetingDialog } from "@/components/meetings/CreateMeetingDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface Meeting {
   id: string;
@@ -36,104 +40,9 @@ interface Meeting {
   action_items?: string[];
 }
 
-const mockMeetings: Meeting[] = [
-  {
-    id: "1",
-    title: "Academic Advisory Meeting",
-    type: "1:1",
-    status: "scheduled",
-    date: "2025-04-28",
-    time: "10:00 AM",
-    duration: "30 min",
-    attendees: ["John Smith"],
-    location: "Office 302",
-  },
-  {
-    id: "2",
-    title: "Project Guidance",
-    type: "1:1",
-    status: "scheduled",
-    date: "2025-04-27",
-    time: "2:00 PM",
-    duration: "45 min",
-    attendees: ["Emily Johnson"],
-    location: "Online (Zoom)",
-  },
-  {
-    id: "3",
-    title: "Research Discussion",
-    type: "1:1",
-    status: "completed",
-    date: "2025-04-20",
-    time: "11:30 AM",
-    duration: "60 min",
-    attendees: ["Michael Brown"],
-    location: "Lab 204",
-    notes: "Discussed progress on the machine learning project. Michael has made significant progress on the data preprocessing steps.",
-    action_items: [
-      "Share research papers on neural networks by email",
-      "Provide access to the department GPU server",
-      "Schedule follow-up meeting next week"
-    ]
-  },
-  {
-    id: "4",
-    title: "Grade Review",
-    type: "1:1",
-    status: "completed",
-    date: "2025-04-18",
-    time: "9:15 AM",
-    duration: "15 min",
-    attendees: ["Sarah Davis"],
-    location: "Office 302",
-    notes: "Reviewed midterm exam results. Sarah had questions about the algorithm complexity question.",
-    action_items: [
-      "Provide additional practice problems",
-      "Review concepts during next lecture"
-    ]
-  },
-  {
-    id: "5",
-    title: "Career Advising",
-    type: "1:1",
-    status: "scheduled",
-    date: "2025-04-30",
-    time: "3:30 PM",
-    duration: "45 min",
-    attendees: ["David Wilson"],
-    location: "Office 302",
-  },
-  {
-    id: "6",
-    title: "Course Selection",
-    type: "1:1",
-    status: "cancelled",
-    date: "2025-04-22",
-    time: "1:00 PM",
-    duration: "30 min",
-    attendees: ["Jessica Thompson"],
-    location: "Online (Zoom)",
-  },
-  {
-    id: "7",
-    title: "Thesis Review",
-    type: "1:1",
-    status: "completed",
-    date: "2025-04-15",
-    time: "4:00 PM",
-    duration: "60 min",
-    attendees: ["Robert Miller"],
-    location: "Conference Room",
-    notes: "Reviewed current thesis structure and methodology section. Robert needs to expand the literature review.",
-    action_items: [
-      "Send template for methodology section",
-      "Connect with statistics department for analysis help",
-      "Schedule follow-up in two weeks"
-    ]
-  },
-];
-
 const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
+  const { toast } = useToast();
+  
   const statusColors = {
     scheduled: "bg-primary/15 text-primary",
     completed: "bg-secondary/15 text-secondary",
@@ -142,6 +51,32 @@ const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
   
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  };
+  
+  const handleStatusChange = async (id: string, newStatus: "scheduled" | "completed" | "cancelled") => {
+    try {
+      const { error } = await supabase
+        .from("meetings")
+        .update({ status: newStatus })
+        .eq("id", id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Status updated",
+        description: `Meeting ${newStatus === "completed" ? "marked as complete" : newStatus === "cancelled" ? "cancelled" : "rescheduled"}`,
+      });
+      
+      // Trigger a refresh
+      window.dispatchEvent(new Event("seedDataCompleted"));
+    } catch (error) {
+      console.error("Error updating meeting status:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update meeting status",
+        variant: "destructive",
+      });
+    }
   };
   
   return (
@@ -166,8 +101,24 @@ const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem>View Details</DropdownMenuItem>
               <DropdownMenuItem>Edit</DropdownMenuItem>
-              <DropdownMenuItem>{meeting.status === "completed" ? "Mark Incomplete" : "Mark Complete"}</DropdownMenuItem>
-              <DropdownMenuItem className="text-destructive">Cancel</DropdownMenuItem>
+              {meeting.status !== "completed" && (
+                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "completed")}>
+                  Mark Complete
+                </DropdownMenuItem>
+              )}
+              {meeting.status === "completed" && (
+                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "scheduled")}>
+                  Mark Incomplete
+                </DropdownMenuItem>
+              )}
+              {meeting.status !== "cancelled" && (
+                <DropdownMenuItem 
+                  className="text-destructive"
+                  onClick={() => handleStatusChange(meeting.id, "cancelled")}
+                >
+                  Cancel
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -185,7 +136,7 @@ const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
           </div>
           <div className="flex items-center gap-2">
             <User className="h-4 w-4 text-muted-foreground" />
-            <span>{meeting.attendees.join(", ")}</span>
+            <span>{meeting.attendees?.join(", ") || "No attendees"}</span>
           </div>
         </div>
         
@@ -224,12 +175,24 @@ const MeetingCard = ({ meeting }: { meeting: Meeting }) => {
 const MeetingsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("upcoming");
+  
+  const { data: meetings = [], isLoading } = useDataFetching<Meeting>({ 
+    table: "meetings",
+    transform: (meeting) => ({
+      ...meeting,
+      id: meeting.id,
+      attendees: Array.isArray(meeting.attendees) ? meeting.attendees : [],
+      action_items: Array.isArray(meeting.action_items) ? meeting.action_items : []
+    })
+  });
 
-  const filteredMeetings = mockMeetings.filter(meeting => {
+  const filteredMeetings = meetings.filter(meeting => {
     // Filter by search query
     const matchesSearch = 
       meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      meeting.attendees.some(attendee => attendee.toLowerCase().includes(searchQuery.toLowerCase()));
+      (meeting.attendees && meeting.attendees.some(attendee => 
+        attendee.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
       
     // Filter by tab
     const matchesTab = 
@@ -241,7 +204,7 @@ const MeetingsPage = () => {
   });
 
   // Sort meetings by date
-  filteredMeetings.sort((a, b) => {
+  const sortedMeetings = [...filteredMeetings].sort((a, b) => {
     if (activeTab === "upcoming") {
       return new Date(a.date).getTime() - new Date(b.date).getTime();
     } else {
@@ -258,10 +221,7 @@ const MeetingsPage = () => {
             <p className="text-muted-foreground">Schedule and manage your meetings</p>
           </div>
           <div className="mt-4 md:mt-0">
-            <Button className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              <span>Schedule Meeting</span>
-            </Button>
+            <CreateMeetingDialog />
           </div>
         </div>
 
@@ -286,28 +246,30 @@ const MeetingsPage = () => {
                 <ArrowUp className="h-4 w-4" />
                 <span>Upcoming</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {mockMeetings.filter(m => m.status === "scheduled").length}
+                  {meetings.filter(m => m.status === "scheduled").length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="past" className="flex items-center gap-1">
                 <ArrowDown className="h-4 w-4" />
                 <span>Past</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {mockMeetings.filter(m => m.status === "completed").length}
+                  {meetings.filter(m => m.status === "completed").length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="all" className="flex items-center gap-1">
                 <MessageSquare className="h-4 w-4" />
                 <span>All</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {mockMeetings.length}
+                  {meetings.length}
                 </span>
               </TabsTrigger>
             </TabsList>
             
             <TabsContent value="upcoming" className="mt-4">
-              {filteredMeetings.length > 0 ? (
-                filteredMeetings.map(meeting => (
+              {isLoading ? (
+                <div className="text-center py-12">Loading meetings...</div>
+              ) : sortedMeetings.length > 0 ? (
+                sortedMeetings.map(meeting => (
                   <MeetingCard key={meeting.id} meeting={meeting} />
                 ))
               ) : (
@@ -315,17 +277,16 @@ const MeetingsPage = () => {
                   <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
                   <h3 className="text-lg font-medium mb-1">No upcoming meetings</h3>
                   <p className="text-muted-foreground">Schedule a new meeting to get started</p>
-                  <Button className="mt-4">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Schedule Meeting
-                  </Button>
+                  <CreateMeetingDialog />
                 </div>
               )}
             </TabsContent>
             
             <TabsContent value="past" className="mt-4">
-              {filteredMeetings.length > 0 ? (
-                filteredMeetings.map(meeting => (
+              {isLoading ? (
+                <div className="text-center py-12">Loading meetings...</div>
+              ) : sortedMeetings.length > 0 ? (
+                sortedMeetings.map(meeting => (
                   <MeetingCard key={meeting.id} meeting={meeting} />
                 ))
               ) : (
@@ -338,8 +299,10 @@ const MeetingsPage = () => {
             </TabsContent>
             
             <TabsContent value="all" className="mt-4">
-              {filteredMeetings.length > 0 ? (
-                filteredMeetings.map(meeting => (
+              {isLoading ? (
+                <div className="text-center py-12">Loading meetings...</div>
+              ) : sortedMeetings.length > 0 ? (
+                sortedMeetings.map(meeting => (
                   <MeetingCard key={meeting.id} meeting={meeting} />
                 ))
               ) : (
