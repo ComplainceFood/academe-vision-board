@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, MapPin, FileText, Bell, Check, X } from "lucide-react";
+import { Calendar, Clock, User, MapPin, FileText, Bell, Check, X, Repeat } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -104,6 +104,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
     try {
       setIsUpdating(true);
       
+      // Get the current participant status or initialize it
       const updatedStatuses = { ...(meeting.participant_status || {}) };
       updatedStatuses[participant] = status;
       
