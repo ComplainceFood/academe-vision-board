@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,8 @@ import {
   List,
   Star,
   MoreVertical,
+  Calendar as CalendarIcon,
+  User as UserIcon,
 } from "lucide-react";
 import { 
   DropdownMenu,
@@ -65,12 +68,12 @@ const NoteCard = ({ note }: { note: Note }) => (
       
       <div className="flex justify-between items-center text-xs text-muted-foreground mt-2">
         <div className="flex items-center gap-1">
-          <Calendar className="h-3 w-3" />
-          <span>{new Date(note.date).toLocaleDateString()}</span>
+          <CalendarIcon className="h-3 w-3" />
+          <span>{new Date(note.date || '').toLocaleDateString()}</span>
         </div>
         {note.student && (
           <div className="flex items-center gap-1">
-            <User className="h-3 w-3" />
+            <UserIcon className="h-3 w-3" />
             <span>{note.student}</span>
           </div>
         )}

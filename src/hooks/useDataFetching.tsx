@@ -40,7 +40,8 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
       }
 
       const transformedData = transform ? fetchedData.map(transform) : fetchedData;
-      setData(transformedData);
+      setData(transformedData || []);
+      console.log(`Fetched ${table} data:`, transformedData);
     } catch (err) {
       console.error(`Error fetching ${table}:`, err);
       setError(err instanceof Error ? err : new Error('An unknown error occurred'));
@@ -54,9 +55,34 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
     }
   };
 
+  // Subscribe to real-time changes
+  useEffect(() => {
+    if (!user || !enabled) return;
+
+    const channel = supabase
+      .channel(`${table}_changes`)
+      .on('postgres_changes', 
+        { 
+          event: '*', 
+          schema: 'public', 
+          table 
+        }, 
+        () => {
+          console.log(`Received real-time update for ${table}`);
+          fetchData();
+        })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, table, enabled]);
+
+  // Listen for seed data event
   useEffect(() => {
     const handleSeedData = () => {
       if (enabled) {
+        console.log(`Handling seed data event for ${table}`);
         fetchData();
       }
     };
@@ -68,11 +94,15 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
     };
   }, [user, enabled]);
 
+  // Initial data fetch
   useEffect(() => {
     fetchData();
   }, [user, enabled]);
 
-  const refetch = () => fetchData();
+  const refetch = () => {
+    console.log(`Manually refetching ${table} data`);
+    fetchData();
+  };
 
   return { data, isLoading, error, refetch };
 }

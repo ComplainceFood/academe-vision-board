@@ -16,14 +16,24 @@ export function CreateNoteDialog() {
   const [content, setContent] = useState("");
   const [course, setCourse] = useState("");
   const [type, setType] = useState<"note" | "promise">("note");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  const resetForm = () => {
+    setTitle("");
+    setContent("");
+    setCourse("");
+    setType("note");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
 
     try {
+      setIsSubmitting(true);
+
       const { error } = await supabase.from("notes").insert([
         {
           title,
@@ -32,6 +42,8 @@ export function CreateNoteDialog() {
           type,
           user_id: user.id,
           date: new Date().toISOString(),
+          starred: false,
+          tags: [],
         },
       ]);
 
@@ -43,24 +55,31 @@ export function CreateNoteDialog() {
       });
 
       setIsOpen(false);
-      setTitle("");
-      setContent("");
-      setCourse("");
-      setType("note");
+      resetForm();
       
       // Trigger a refresh of the notes list
       window.dispatchEvent(new Event("seedDataCompleted"));
     } catch (error) {
+      console.error("Error creating note:", error);
       toast({
         title: "Error",
         description: "Failed to create note",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open) {
+      resetForm();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button className="gap-2">
           <Plus className="h-4 w-4" />
@@ -111,8 +130,12 @@ export function CreateNoteDialog() {
               required
             />
           </div>
-          <Button type="submit" className="w-full">
-            Create Note
+          <Button 
+            type="submit" 
+            className="w-full"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Creating..." : "Create Note"}
           </Button>
         </form>
       </DialogContent>
