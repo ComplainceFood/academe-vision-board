@@ -45,12 +45,18 @@ export type Database = {
       meetings: {
         Row: {
           action_items: string[] | null
+          agenda: string | null
           attendees: string[]
           date: string
           duration: string
           id: string
+          is_recurring: boolean | null
           location: string
           notes: string | null
+          participant_status: Json | null
+          recurring_type: string | null
+          reminder_enabled: boolean | null
+          reminder_time: string | null
           status: string
           time: string
           title: string
@@ -59,12 +65,18 @@ export type Database = {
         }
         Insert: {
           action_items?: string[] | null
+          agenda?: string | null
           attendees: string[]
           date: string
           duration: string
           id?: string
+          is_recurring?: boolean | null
           location: string
           notes?: string | null
+          participant_status?: Json | null
+          recurring_type?: string | null
+          reminder_enabled?: boolean | null
+          reminder_time?: string | null
           status: string
           time: string
           title: string
@@ -73,12 +85,18 @@ export type Database = {
         }
         Update: {
           action_items?: string[] | null
+          agenda?: string | null
           attendees?: string[]
           date?: string
           duration?: string
           id?: string
+          is_recurring?: boolean | null
           location?: string
           notes?: string | null
+          participant_status?: Json | null
+          recurring_type?: string | null
+          reminder_enabled?: boolean | null
+          reminder_time?: string | null
           status?: string
           time?: string
           title?: string

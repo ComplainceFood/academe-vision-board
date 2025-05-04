@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -108,6 +107,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       const updatedStatuses = { ...(meeting.participant_status || {}) };
       updatedStatuses[participant] = status;
       
+      // Using the correct type for the update operation
       const { error } = await supabase
         .from("meetings")
         .update({ participant_status: updatedStatuses })
