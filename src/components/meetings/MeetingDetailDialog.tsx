@@ -1,12 +1,14 @@
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, User, MapPin, FileText, Bell, Check, X, Repeat } from "lucide-react";
+import { Calendar, Clock, User, MapPin, FileText, Bell, Check, X, Repeat, Trash2, Edit } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Participant {
   name: string;
@@ -43,6 +45,17 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = useState(false);
   const [newActionItem, setNewActionItem] = useState("");
+  const [meetingNotes, setMeetingNotes] = useState("");
+  const [isEditingNotes, setIsEditingNotes] = useState(false);
+
+  useEffect(() => {
+    if (meeting?.notes) {
+      setMeetingNotes(meeting.notes);
+    } else {
+      setMeetingNotes("");
+    }
+    setIsEditingNotes(false);
+  }, [meeting]);
 
   if (!meeting) return null;
 
@@ -99,6 +112,39 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
     }
   };
 
+  const handleDeleteActionItem = async (index: number) => {
+    try {
+      setIsUpdating(true);
+      
+      const updatedActionItems = [...(meeting.action_items || [])];
+      updatedActionItems.splice(index, 1);
+      
+      const { error } = await supabase
+        .from("meetings")
+        .update({ action_items: updatedActionItems })
+        .eq("id", meeting.id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Action item removed",
+      });
+      
+      // Trigger a refresh
+      window.dispatchEvent(new Event("seedDataCompleted"));
+    } catch (error) {
+      console.error("Error removing action item:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove action item",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   const updateParticipantStatus = async (participant: string, status: string) => {
     try {
       setIsUpdating(true);
@@ -127,6 +173,38 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       toast({
         title: "Error",
         description: "Failed to update participant status",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleSaveNotes = async () => {
+    try {
+      setIsUpdating(true);
+      
+      const { error } = await supabase
+        .from("meetings")
+        .update({ notes: meetingNotes })
+        .eq("id", meeting.id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Meeting notes saved",
+      });
+      
+      setIsEditingNotes(false);
+      
+      // Trigger a refresh
+      window.dispatchEvent(new Event("seedDataCompleted"));
+    } catch (error) {
+      console.error("Error saving meeting notes:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save meeting notes",
         variant: "destructive",
       });
     } finally {
@@ -258,13 +336,20 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
           <div>
             <h3 className="text-md font-semibold mb-2">Action Items</h3>
             {meeting.action_items && meeting.action_items.length > 0 ? (
-              <ul className="list-disc list-inside space-y-1 pl-2">
+              <ul className="space-y-2">
                 {meeting.action_items.map((item, index) => (
-                  <li key={index} className="text-sm">
-                    <div className="flex items-start gap-2">
-                      <Check className="h-4 w-4 text-secondary mt-0.5" />
-                      <span>{item}</span>
-                    </div>
+                  <li key={index} className="flex items-start gap-2 bg-muted/50 p-2 rounded-md">
+                    <Check className="h-4 w-4 text-secondary mt-1" />
+                    <span className="flex-1">{item}</span>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => handleDeleteActionItem(index)}
+                      disabled={isUpdating}
+                      className="h-6 w-6 text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </li>
                 ))}
               </ul>
@@ -290,14 +375,56 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
             </div>
           </div>
           
-          {meeting.notes && (
-            <div>
-              <h3 className="text-md font-semibold mb-2">Notes</h3>
-              <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
-                {meeting.notes}
-              </div>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="text-md font-semibold">Meeting Notes</h3>
+              {!isEditingNotes ? (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setIsEditingNotes(true)}
+                  className="flex items-center gap-1"
+                >
+                  <Edit className="h-3 w-3" />
+                  Edit Notes
+                </Button>
+              ) : (
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => {
+                      setMeetingNotes(meeting.notes || "");
+                      setIsEditingNotes(false);
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    onClick={handleSaveNotes}
+                    disabled={isUpdating}
+                  >
+                    Save
+                  </Button>
+                </div>
+              )}
             </div>
-          )}
+            
+            {isEditingNotes ? (
+              <Textarea
+                value={meetingNotes}
+                onChange={(e) => setMeetingNotes(e.target.value)}
+                placeholder="Enter meeting notes here..."
+                className="min-h-[150px]"
+                disabled={isUpdating}
+              />
+            ) : (
+              <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap min-h-[100px]">
+                {meeting.notes || "No meeting notes yet. Click 'Edit Notes' to add some."}
+              </div>
+            )}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

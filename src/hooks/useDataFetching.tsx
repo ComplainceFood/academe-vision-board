@@ -10,9 +10,14 @@ interface FetchOptions {
   table: TableName;
   transform?: (data: any) => any;
   enabled?: boolean;
+  filters?: {
+    column: string;
+    value: any;
+    operator?: string;
+  }[];
 }
 
-export function useDataFetching<T>({ table, transform, enabled = true }: FetchOptions) {
+export function useDataFetching<T>({ table, transform, enabled = true, filters = [] }: FetchOptions) {
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -30,10 +35,42 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
       setIsLoading(true);
       setError(null);
 
-      const { data: fetchedData, error: fetchError } = await supabase
+      let query = supabase
         .from(table)
         .select('*')
         .eq('user_id', user.id);
+      
+      // Apply any additional filters
+      filters.forEach(filter => {
+        const { column, value, operator = 'eq' } = filter;
+        switch (operator) {
+          case 'eq':
+            query = query.eq(column, value);
+            break;
+          case 'neq':
+            query = query.neq(column, value);
+            break;
+          case 'gt':
+            query = query.gt(column, value);
+            break;
+          case 'lt':
+            query = query.lt(column, value);
+            break;
+          case 'gte':
+            query = query.gte(column, value);
+            break;
+          case 'lte':
+            query = query.lte(column, value);
+            break;
+          case 'in':
+            query = query.in(column, Array.isArray(value) ? value : [value]);
+            break;
+          default:
+            query = query.eq(column, value);
+        }
+      });
+
+      const { data: fetchedData, error: fetchError } = await query;
 
       if (fetchError) {
         throw new Error(`Failed to fetch ${table}: ${fetchError.message}`);
@@ -65,10 +102,11 @@ export function useDataFetching<T>({ table, transform, enabled = true }: FetchOp
         { 
           event: '*', 
           schema: 'public', 
-          table 
+          table,
+          filter: `user_id=eq.${user.id}`
         }, 
-        () => {
-          console.log(`Received real-time update for ${table}`);
+        (payload) => {
+          console.log(`Received real-time update for ${table}:`, payload);
           fetchData();
         })
       .subscribe();

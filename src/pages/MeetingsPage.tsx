@@ -18,17 +18,20 @@ import {
   Bell,
   MapPin,
   Repeat,
-  Check
+  Check,
+  Edit,
+  Trash2
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { CreateMeetingDialog } from "@/components/meetings/CreateMeetingDialog";
 import { MeetingDetailDialog } from "@/components/meetings/MeetingDetailDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO, isValid } from "date-fns";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 
 interface Meeting {
   id: string;
@@ -52,6 +55,7 @@ interface Meeting {
 
 const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetails: (meeting: Meeting) => void }) => {
   const { toast } = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const statusColors = {
     scheduled: "bg-primary/15 text-primary",
@@ -94,6 +98,36 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
         description: "Failed to update meeting status",
         variant: "destructive",
       });
+    }
+  };
+
+  const handleDeleteMeeting = async () => {
+    try {
+      setIsDeleting(true);
+      
+      const { error } = await supabase
+        .from("meetings")
+        .delete()
+        .eq("id", meeting.id);
+        
+      if (error) throw error;
+      
+      toast({
+        title: "Meeting deleted",
+        description: "The meeting has been permanently deleted",
+      });
+      
+      // Trigger a refresh
+      window.dispatchEvent(new Event("seedDataCompleted"));
+    } catch (error) {
+      console.error("Error deleting meeting:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete meeting",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -144,27 +178,61 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onViewDetails(meeting)}>View Details</DropdownMenuItem>
-              <DropdownMenuItem>Edit</DropdownMenuItem>
+            <DropdownMenuContent align="end" className="w-[200px]">
+              <DropdownMenuItem onClick={() => onViewDetails(meeting)}>
+                <FileText className="h-4 w-4 mr-2" /> View Details
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Edit className="h-4 w-4 mr-2" /> Edit Meeting
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
               {meeting.status !== "completed" && (
                 <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "completed")}>
-                  Mark Complete
+                  <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> Mark Complete
                 </DropdownMenuItem>
               )}
               {meeting.status === "completed" && (
                 <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "scheduled")}>
-                  Mark Incomplete
+                  <ArrowUp className="h-4 w-4 mr-2 text-blue-500" /> Mark Incomplete
                 </DropdownMenuItem>
               )}
               {meeting.status !== "cancelled" && (
-                <DropdownMenuItem 
-                  className="text-destructive"
-                  onClick={() => handleStatusChange(meeting.id, "cancelled")}
-                >
-                  Cancel
+                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "cancelled")}>
+                  <XCircle className="h-4 w-4 mr-2 text-yellow-500" /> Cancel Meeting
                 </DropdownMenuItem>
               )}
+              {meeting.status === "cancelled" && (
+                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "scheduled")}>
+                  <Calendar className="h-4 w-4 mr-2 text-blue-500" /> Reschedule
+                </DropdownMenuItem>
+              )}
+              
+              <DropdownMenuSeparator />
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                    <Trash2 className="h-4 w-4 mr-2" /> Delete Meeting
+                  </DropdownMenuItem>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete the meeting "{meeting.title}" and all associated data.
+                      This action cannot be undone.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteMeeting} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                      {isDeleting ? "Deleting..." : "Delete"}
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

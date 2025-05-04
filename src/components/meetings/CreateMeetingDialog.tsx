@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +12,7 @@ import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CreateMeetingDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -29,14 +29,23 @@ export function CreateMeetingDialog() {
   const [recurringType, setRecurringType] = useState<"daily" | "weekly" | "monthly" | "custom">("weekly");
   const [reminder, setReminder] = useState<boolean>(false);
   const [reminderTime, setReminderTime] = useState<"5min" | "15min" | "30min" | "1hour" | "1day">("15min");
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Initialize the time field with the current time rounded to nearest 15 minutes
+  useEffect(() => {
+    const now = new Date();
+    now.setMinutes(Math.ceil(now.getMinutes() / 15) * 15);
+    now.setSeconds(0);
+    setTime(now.toTimeString().substring(0, 5));
+  }, []);
 
   const resetForm = () => {
     setTitle("");
     setType("1:1");
     setDate(new Date());
-    setTime("");
+    // Keep time as is
     setDuration("30 min");
     setAttendees("");
     setLocation("");
@@ -45,11 +54,35 @@ export function CreateMeetingDialog() {
     setRecurringType("weekly");
     setReminder(false);
     setReminderTime("15min");
+    setFormErrors({});
+  };
+
+  const validateForm = () => {
+    const errors: Record<string, string> = {};
+    
+    if (!title.trim()) errors.title = "Title is required";
+    if (!date) errors.date = "Date is required";
+    if (!time) errors.time = "Time is required";
+    if (!location.trim()) errors.location = "Location is required";
+    if (!attendees.trim()) errors.attendees = "At least one attendee is required";
+    
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !date) return;
+    
+    // Validate the form
+    if (!validateForm()) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill out all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setIsSubmitting(true);
@@ -134,37 +167,53 @@ export function CreateMeetingDialog() {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Meeting Title</Label>
+            <Label htmlFor="title" className="flex items-center">
+              Meeting Title
+              <span className="text-destructive ml-1">*</span>
+            </Label>
             <Input
               id="title"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
+              onChange={(e) => {
+                setTitle(e.target.value);
+                if (e.target.value.trim()) {
+                  setFormErrors({...formErrors, title: ""});
+                }
+              }}
+              className={formErrors.title ? "border-destructive" : ""}
             />
+            {formErrors.title && (
+              <p className="text-destructive text-sm">{formErrors.title}</p>
+            )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
-            <select
-              id="type"
+            <Select
               value={type}
-              onChange={(e) => setType(e.target.value as "1:1" | "group")}
-              className="w-full p-2 border rounded-md"
-              required
+              onValueChange={(value) => setType(value as "1:1" | "group")}
             >
-              <option value="1:1">One-on-One</option>
-              <option value="group">Group Meeting</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select meeting type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1:1">One-on-One</SelectItem>
+                <SelectItem value="group">Group Meeting</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
+              <Label htmlFor="date" className="flex items-center">
+                Date
+                <span className="text-destructive ml-1">*</span>
+              </Label>
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant={"outline"}
-                    className="w-full justify-start text-left font-normal"
+                    className={`w-full justify-start text-left font-normal ${formErrors.date ? "border-destructive" : ""}`}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ? format(date, "PPP") : <span>Pick a date</span>}
@@ -174,63 +223,102 @@ export function CreateMeetingDialog() {
                   <Calendar
                     mode="single"
                     selected={date}
-                    onSelect={setDate}
+                    onSelect={(date) => {
+                      setDate(date);
+                      setFormErrors({...formErrors, date: ""});
+                    }}
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
+              {formErrors.date && (
+                <p className="text-destructive text-sm">{formErrors.date}</p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="time">Time</Label>
+              <Label htmlFor="time" className="flex items-center">
+                Time
+                <span className="text-destructive ml-1">*</span>
+              </Label>
               <Input
                 id="time"
                 type="time"
                 value={time}
-                onChange={(e) => setTime(e.target.value)}
-                required
+                onChange={(e) => {
+                  setTime(e.target.value);
+                  setFormErrors({...formErrors, time: ""});
+                }}
+                className={formErrors.time ? "border-destructive" : ""}
               />
+              {formErrors.time && (
+                <p className="text-destructive text-sm">{formErrors.time}</p>
+              )}
             </div>
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="duration">Duration</Label>
-            <select
-              id="duration"
+            <Select
               value={duration}
-              onChange={(e) => setDuration(e.target.value)}
-              className="w-full p-2 border rounded-md"
-              required
+              onValueChange={setDuration}
             >
-              <option value="15 min">15 minutes</option>
-              <option value="30 min">30 minutes</option>
-              <option value="45 min">45 minutes</option>
-              <option value="60 min">1 hour</option>
-              <option value="90 min">1.5 hours</option>
-              <option value="120 min">2 hours</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select duration" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="15 min">15 minutes</SelectItem>
+                <SelectItem value="30 min">30 minutes</SelectItem>
+                <SelectItem value="45 min">45 minutes</SelectItem>
+                <SelectItem value="60 min">1 hour</SelectItem>
+                <SelectItem value="90 min">1.5 hours</SelectItem>
+                <SelectItem value="120 min">2 hours</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="attendees">Attendees (comma-separated)</Label>
+            <Label htmlFor="attendees" className="flex items-center">
+              Attendees (comma-separated)
+              <span className="text-destructive ml-1">*</span>
+            </Label>
             <Input
               id="attendees"
               value={attendees}
-              onChange={(e) => setAttendees(e.target.value)}
+              onChange={(e) => {
+                setAttendees(e.target.value);
+                if (e.target.value.trim()) {
+                  setFormErrors({...formErrors, attendees: ""});
+                }
+              }}
               placeholder="John Smith, Jane Doe"
-              required
+              className={formErrors.attendees ? "border-destructive" : ""}
             />
+            {formErrors.attendees && (
+              <p className="text-destructive text-sm">{formErrors.attendees}</p>
+            )}
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location" className="flex items-center">
+              Location
+              <span className="text-destructive ml-1">*</span>
+            </Label>
             <Input
               id="location"
               value={location}
-              onChange={(e) => setLocation(e.target.value)}
+              onChange={(e) => {
+                setLocation(e.target.value);
+                if (e.target.value.trim()) {
+                  setFormErrors({...formErrors, location: ""});
+                }
+              }}
               placeholder="Office 302 or Online (Zoom)"
-              required
+              className={formErrors.location ? "border-destructive" : ""}
             />
+            {formErrors.location && (
+              <p className="text-destructive text-sm">{formErrors.location}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -256,17 +344,20 @@ export function CreateMeetingDialog() {
           {isRecurring && (
             <div className="space-y-2 pl-6">
               <Label htmlFor="recurringType">Repeat</Label>
-              <select
-                id="recurringType"
+              <Select
                 value={recurringType}
-                onChange={(e) => setRecurringType(e.target.value as "daily" | "weekly" | "monthly" | "custom")}
-                className="w-full p-2 border rounded-md"
+                onValueChange={(value) => setRecurringType(value as "daily" | "weekly" | "monthly" | "custom")}
               >
-                <option value="daily">Daily</option>
-                <option value="weekly">Weekly</option>
-                <option value="monthly">Monthly</option>
-                <option value="custom">Custom</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select frequency" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="custom">Custom</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
 
@@ -282,28 +373,35 @@ export function CreateMeetingDialog() {
           {reminder && (
             <div className="space-y-2 pl-6">
               <Label htmlFor="reminderTime">Remind Before</Label>
-              <select
-                id="reminderTime"
+              <Select
                 value={reminderTime}
-                onChange={(e) => setReminderTime(e.target.value as "5min" | "15min" | "30min" | "1hour" | "1day")}
-                className="w-full p-2 border rounded-md"
+                onValueChange={(value) => setReminderTime(value as "5min" | "15min" | "30min" | "1hour" | "1day")}
               >
-                <option value="5min">5 minutes</option>
-                <option value="15min">15 minutes</option>
-                <option value="30min">30 minutes</option>
-                <option value="1hour">1 hour</option>
-                <option value="1day">1 day</option>
-              </select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select reminder time" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5min">5 minutes</SelectItem>
+                  <SelectItem value="15min">15 minutes</SelectItem>
+                  <SelectItem value="30min">30 minutes</SelectItem>
+                  <SelectItem value="1hour">1 hour</SelectItem>
+                  <SelectItem value="1day">1 day</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           )}
           
-          <Button 
-            type="submit" 
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? "Scheduling..." : "Schedule Meeting"}
-          </Button>
+          <div className="pt-2">
+            <p className="text-sm text-muted-foreground mb-4">Fields marked with <span className="text-destructive">*</span> are required</p>
+            
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Scheduling..." : "Schedule Meeting"}
+            </Button>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
