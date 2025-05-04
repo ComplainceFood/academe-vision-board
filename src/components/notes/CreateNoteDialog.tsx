@@ -9,6 +9,7 @@ import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CreateNoteDialog() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +17,8 @@ export function CreateNoteDialog() {
   const [content, setContent] = useState("");
   const [course, setCourse] = useState("");
   const [type, setType] = useState<"note" | "promise">("note");
+  const [student, setStudent] = useState("");
+  const [tags, setTags] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -25,14 +28,29 @@ export function CreateNoteDialog() {
     setContent("");
     setCourse("");
     setType("note");
+    setStudent("");
+    setTags("");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create notes",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setIsSubmitting(true);
+      
+      // Parse tags from comma-separated string
+      const parsedTags = tags
+        .split(",")
+        .map(tag => tag.trim())
+        .filter(tag => tag.length > 0);
 
       const { error } = await supabase.from("notes").insert([
         {
@@ -43,7 +61,8 @@ export function CreateNoteDialog() {
           user_id: user.id,
           date: new Date().toISOString(),
           starred: false,
-          tags: [],
+          tags: parsedTags,
+          student: student || null,
         },
       ]);
 
@@ -51,7 +70,7 @@ export function CreateNoteDialog() {
 
       toast({
         title: "Success",
-        description: "Note created successfully",
+        description: `${type === "note" ? "Note" : "Promise"} created successfully`,
       });
 
       setIsOpen(false);
@@ -88,20 +107,23 @@ export function CreateNoteDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Note</DialogTitle>
+          <DialogTitle>Create New {type === "note" ? "Note" : "Promise"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
-            <select
-              id="type"
+            <Select
               value={type}
-              onChange={(e) => setType(e.target.value as "note" | "promise")}
-              className="w-full p-2 border rounded-md"
+              onValueChange={(value) => setType(value as "note" | "promise")}
             >
-              <option value="note">Note</option>
-              <option value="promise">Promise</option>
-            </select>
+              <SelectTrigger>
+                <SelectValue placeholder="Select type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="note">Note</SelectItem>
+                <SelectItem value="promise">Promise</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
@@ -130,12 +152,32 @@ export function CreateNoteDialog() {
               required
             />
           </div>
+          {type === "promise" && (
+            <div className="space-y-2">
+              <Label htmlFor="student">Student (Optional)</Label>
+              <Input
+                id="student"
+                value={student}
+                onChange={(e) => setStudent(e.target.value)}
+                placeholder="Student name if applicable"
+              />
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="tags">Tags (comma-separated)</Label>
+            <Input
+              id="tags"
+              value={tags}
+              onChange={(e) => setTags(e.target.value)}
+              placeholder="e.g., important, follow-up, urgent"
+            />
+          </div>
           <Button 
             type="submit" 
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Creating..." : "Create Note"}
+            {isSubmitting ? "Creating..." : `Create ${type === "note" ? "Note" : "Promise"}`}
           </Button>
         </form>
       </DialogContent>

@@ -1,11 +1,12 @@
 
 import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CreateNoteDialog } from "@/components/notes/CreateNoteDialog";
+import { NoteCard } from "@/components/notes/NoteCard";
 import { 
   Search, 
   Mic,
@@ -13,79 +14,16 @@ import {
   BookText,
   List,
   Star,
-  MoreVertical,
-  Calendar as CalendarIcon,
-  User as UserIcon,
 } from "lucide-react";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import type { Database } from "@/integrations/supabase/types";
 
 type Note = Database['public']['Tables']['notes']['Row'];
 
-const NoteCard = ({ note }: { note: Note }) => (
-  <Card className="mb-4 glassmorphism">
-    <CardHeader className="pb-2 flex flex-row justify-between items-start">
-      <div className="flex-1">
-        <div className="flex items-center gap-2">
-          <span className={`px-2 py-1 text-xs rounded ${note.type === 'promise' ? 'bg-primary/15 text-primary' : 'bg-secondary/15 text-secondary'}`}>
-            {note.type}
-          </span>
-          <span className="text-xs bg-muted px-2 py-1 rounded">{note.course}</span>
-          {note.starred && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
-        </div>
-        <CardTitle className="text-lg mt-2">{note.title}</CardTitle>
-      </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <MoreVertical className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem>Edit</DropdownMenuItem>
-          <DropdownMenuItem>Delete</DropdownMenuItem>
-          <DropdownMenuItem>Mark as Complete</DropdownMenuItem>
-          <DropdownMenuItem>{note.starred ? 'Unstar' : 'Star'}</DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </CardHeader>
-    <CardContent>
-      <p className="text-sm mb-3">{note.content}</p>
-      
-      <div className="flex flex-wrap gap-2 mb-2">
-        {note.tags && note.tags.map((tag) => (
-          <span key={tag} className="text-xs bg-accent/15 text-accent px-2 py-1 rounded-full">
-            {tag}
-          </span>
-        ))}
-      </div>
-      
-      <div className="flex justify-between items-center text-xs text-muted-foreground mt-2">
-        <div className="flex items-center gap-1">
-          <CalendarIcon className="h-3 w-3" />
-          <span>{new Date(note.date || '').toLocaleDateString()}</span>
-        </div>
-        {note.student && (
-          <div className="flex items-center gap-1">
-            <UserIcon className="h-3 w-3" />
-            <span>{note.student}</span>
-          </div>
-        )}
-      </div>
-    </CardContent>
-  </Card>
-);
-
 const NotesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
-  const { data: notes, isLoading } = useDataFetching<Note>({ table: 'notes' });
+  const { data: notes, isLoading, refetch } = useDataFetching<Note>({ table: 'notes' });
   
   const filteredNotes = notes.filter(note => {
     const matchesSearch = 
@@ -101,6 +39,10 @@ const NotesPage = () => {
       
     return matchesSearch && matchesTab;
   });
+
+  const handleNoteUpdate = () => {
+    refetch();
+  };
 
   return (
     <MainLayout>
@@ -177,7 +119,9 @@ const NotesPage = () => {
               <>
                 <TabsContent value="all" className="mt-4">
                   {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                    filteredNotes.map(note => (
+                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
+                    ))
                   ) : (
                     <div className="text-center py-12">
                       <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
@@ -189,7 +133,9 @@ const NotesPage = () => {
                 
                 <TabsContent value="promises" className="mt-4">
                   {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                    filteredNotes.map(note => (
+                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
+                    ))
                   ) : (
                     <div className="text-center py-12">
                       <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
@@ -201,7 +147,9 @@ const NotesPage = () => {
                 
                 <TabsContent value="notes" className="mt-4">
                   {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                    filteredNotes.map(note => (
+                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
+                    ))
                   ) : (
                     <div className="text-center py-12">
                       <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
@@ -213,7 +161,9 @@ const NotesPage = () => {
                 
                 <TabsContent value="starred" className="mt-4">
                   {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => <NoteCard key={note.id} note={note} />)
+                    filteredNotes.map(note => (
+                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
+                    ))
                   ) : (
                     <div className="text-center py-12">
                       <Star className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
