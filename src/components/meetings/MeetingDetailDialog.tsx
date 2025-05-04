@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { useRefreshContext } from "@/App";
 
 interface Participant {
   name: string;
@@ -47,6 +47,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
   const [newActionItem, setNewActionItem] = useState("");
   const [meetingNotes, setMeetingNotes] = useState("");
   const [isEditingNotes, setIsEditingNotes] = useState(false);
+  const { triggerRefresh } = useRefreshContext();
 
   useEffect(() => {
     if (meeting?.notes) {
@@ -98,8 +99,8 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       
       setNewActionItem("");
       
-      // Trigger a refresh
-      window.dispatchEvent(new Event("seedDataCompleted"));
+      // Trigger a refresh using the RefreshContext
+      triggerRefresh('meetings');
     } catch (error) {
       console.error("Error adding action item:", error);
       toast({
@@ -131,8 +132,8 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
         description: "Action item removed",
       });
       
-      // Trigger a refresh
-      window.dispatchEvent(new Event("seedDataCompleted"));
+      // Trigger a refresh using the RefreshContext
+      triggerRefresh('meetings');
     } catch (error) {
       console.error("Error removing action item:", error);
       toast({
@@ -166,8 +167,8 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
         description: `Participant status updated`,
       });
       
-      // Trigger a refresh
-      window.dispatchEvent(new Event("seedDataCompleted"));
+      // Trigger a refresh using the RefreshContext
+      triggerRefresh('meetings');
     } catch (error) {
       console.error("Error updating participant status:", error);
       toast({
@@ -198,8 +199,8 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       
       setIsEditingNotes(false);
       
-      // Trigger a refresh
-      window.dispatchEvent(new Event("seedDataCompleted"));
+      // Trigger a refresh using the RefreshContext
+      triggerRefresh('meetings');
     } catch (error) {
       console.error("Error saving meeting notes:", error);
       toast({

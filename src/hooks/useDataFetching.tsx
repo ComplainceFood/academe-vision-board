@@ -41,7 +41,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         .eq('user_id', user.id);
       
       // Apply any additional filters
-      filters.forEach(filter => {
+      for (const filter of filters) {
         const { column, value, operator = 'eq' } = filter;
         switch (operator) {
           case 'eq':
@@ -68,7 +68,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
           default:
             query = query.eq(column, value);
         }
-      });
+      }
 
       const { data: fetchedData, error: fetchError } = await query;
 
@@ -127,10 +127,21 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
 
     window.addEventListener('seedDataCompleted', handleSeedData);
     
+    // Listen for refresh events - for auto-refresh after actions
+    const handleRefreshData = (event: CustomEvent) => {
+      if (enabled && (!event.detail?.table || event.detail.table === table)) {
+        console.log(`Handling refresh event for ${table}`);
+        fetchData();
+      }
+    };
+
+    window.addEventListener('refreshData', handleRefreshData as EventListener);
+    
     return () => {
       window.removeEventListener('seedDataCompleted', handleSeedData);
+      window.removeEventListener('refreshData', handleRefreshData as EventListener);
     };
-  }, [user, enabled]);
+  }, [user, enabled, table]);
 
   // Initial data fetch
   useEffect(() => {

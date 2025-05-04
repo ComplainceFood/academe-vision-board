@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { createContext, useContext } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import NotesPage from "./pages/NotesPage";
@@ -13,7 +14,30 @@ import SuppliesPage from "./pages/SuppliesPage";
 import PlanningPage from "./pages/PlanningPage";
 import AuthPage from "./pages/AuthPage";
 
-const queryClient = new QueryClient();
+// Create a query client with automatic data refresh configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
+      staleTime: 60000, // 1 minute
+    },
+  },
+});
+
+// Create a context for global refresh functionality
+export const RefreshContext = createContext({
+  triggerRefresh: (table?: string) => {},
+});
+
+export const useRefreshContext = () => useContext(RefreshContext);
+
+// Helper function to trigger refresh events
+const triggerRefresh = (table?: string) => {
+  window.dispatchEvent(
+    new CustomEvent("refreshData", { detail: { table } })
+  );
+};
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
@@ -31,56 +55,58 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth" element={<AuthPage />} />
-          <Route
-            path="/"
-            element={
-              <ProtectedRoute>
-                <Index />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notes"
-            element={
-              <ProtectedRoute>
-                <NotesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/meetings"
-            element={
-              <ProtectedRoute>
-                <MeetingsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/supplies"
-            element={
-              <ProtectedRoute>
-                <SuppliesPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/planning"
-            element={
-              <ProtectedRoute>
-                <PlanningPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <RefreshContext.Provider value={{ triggerRefresh }}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<AuthPage />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Index />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/notes"
+              element={
+                <ProtectedRoute>
+                  <NotesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/meetings"
+              element={
+                <ProtectedRoute>
+                  <MeetingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/supplies"
+              element={
+                <ProtectedRoute>
+                  <SuppliesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/planning"
+              element={
+                <ProtectedRoute>
+                  <PlanningPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </RefreshContext.Provider>
   </QueryClientProvider>
 );
 

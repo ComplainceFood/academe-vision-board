@@ -51,16 +51,17 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useDataFetching } from "@/hooks/useDataFetching";
 
 interface SupplyItem {
   id: string;
   name: string;
   category: string;
-  currentCount: number;
-  totalCount: number;
+  current_count: number;
+  total_count: number;
   threshold: number;
   course: string;
-  lastRestocked?: string;
+  last_restocked?: string;
   cost?: number;
 }
 
@@ -74,12 +75,16 @@ interface Expense {
   receipt?: boolean;
 }
 
+// Helper function to trigger refresh events
+const triggerRefresh = (table?: string) => {
+  window.dispatchEvent(
+    new CustomEvent("refreshData", { detail: { table } })
+  );
+};
+
 const SuppliesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("inventory");
-  const [supplies, setSupplies] = useState<SupplyItem[]>([]);
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<SupplyItem | null>(null);
@@ -88,142 +93,103 @@ const SuppliesPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   
-  // Fetch data from Supabase instead of using mock data
-  const fetchData = async () => {
-    setIsLoading(true);
-    
-    if (!user) {
-      setIsLoading(false);
-      return;
-    }
-    
-    // Fetch supplies
-    const { data: suppliesData, error: suppliesError } = await supabase
-      .from('supplies')
-      .select('*')
-      .eq('user_id', user.id);
-    
+  // Use the useDataFetching hook instead of direct Supabase queries
+  const { 
+    data: supplies, 
+    isLoading: isLoadingSupplies, 
+    error: suppliesError 
+  } = useDataFetching<SupplyItem>({ table: 'supplies' });
+  
+  const { 
+    data: expenses, 
+    isLoading: isLoadingExpenses, 
+    error: expensesError 
+  } = useDataFetching<Expense>({ table: 'expenses' });
+  
+  useEffect(() => {
     if (suppliesError) {
-      console.error('Error fetching supplies:', suppliesError);
       toast({
         title: "Error",
         description: "Failed to fetch supplies data",
         variant: "destructive",
       });
-    } else {
-      // Transform Supabase data to match our interface
-      const transformedSupplies = suppliesData.map(item => ({
-        id: item.id,
-        name: item.name,
-        category: item.category,
-        currentCount: item.current_count,
-        totalCount: item.total_count,
-        threshold: item.threshold,
-        course: item.course,
-        lastRestocked: item.last_restocked,
-        cost: item.cost
-      }));
-      
-      setSupplies(transformedSupplies);
     }
     
-    // Fetch expenses
-    const { data: expensesData, error: expensesError } = await supabase
-      .from('expenses')
-      .select('*')
-      .eq('user_id', user.id);
-    
     if (expensesError) {
-      console.error('Error fetching expenses:', expensesError);
       toast({
         title: "Error",
         description: "Failed to fetch expenses data",
         variant: "destructive",
       });
-    } else {
-      // Transform Supabase data to match our interface
-      const transformedExpenses = expensesData.map(item => ({
-        id: item.id,
-        date: item.date,
-        description: item.description,
-        amount: item.amount,
-        category: item.category,
-        course: item.course,
-        receipt: item.receipt
-      }));
-      
-      setExpenses(transformedExpenses);
     }
-    
-    setIsLoading(false);
-  };
-  
-  // Load data on component mount
-  useEffect(() => {
-    fetchData();
-  }, [user]);
+  }, [suppliesError, expensesError, toast]);
   
   // Handle supply actions
   const handleDeleteSupply = async () => {
     if (!itemToDelete) return;
     
-    const { error } = await supabase
-      .from('supplies')
-      .delete()
-      .eq('id', itemToDelete);
-    
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete item",
-        variant: "destructive",
-      });
-    } else {
+    try {
+      const { error } = await supabase
+        .from('supplies')
+        .delete()
+        .eq('id', itemToDelete);
+      
+      if (error) throw error;
+      
       toast({
         title: "Success",
         description: "Item deleted successfully",
       });
       
-      // Update local state
-      setSupplies(supplies.filter(item => item.id !== itemToDelete));
+      // Trigger refresh
+      triggerRefresh('supplies');
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete item",
+        variant: "destructive",
+      });
+    } finally {
+      setItemToDelete(null);
     }
-    
-    setItemToDelete(null);
   };
   
   const handleUpdateStock = async () => {
-    if (!editingItem || updatedCount === 0) {
+    if (!editingItem || updatedCount === editingItem.current_count) {
       setEditingItem(null);
       return;
     }
     
-    const { error } = await supabase
-      .from('supplies')
-      .update({ current_count: updatedCount, last_restocked: new Date().toISOString() })
-      .eq('id', editingItem.id);
-    
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to update stock",
-        variant: "destructive",
-      });
-    } else {
+    try {
+      const { error } = await supabase
+        .from('supplies')
+        .update({ 
+          current_count: updatedCount, 
+          last_restocked: new Date().toISOString() 
+        })
+        .eq('id', editingItem.id);
+      
+      if (error) throw error;
+      
       toast({
         title: "Success",
         description: "Stock updated successfully",
       });
       
-      // Update local state
-      setSupplies(supplies.map(item => 
-        item.id === editingItem.id ? 
-        { ...item, currentCount: updatedCount, lastRestocked: new Date().toISOString() } : 
-        item
-      ));
+      // Trigger refresh
+      triggerRefresh('supplies');
+    } catch (error) {
+      console.error("Error updating stock:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update stock",
+        variant: "destructive",
+      });
+    } finally {
+      setEditingItem(null);
+      setUpdatedCount(0);
     }
-    
-    setEditingItem(null);
-    setUpdatedCount(0);
   };
   
   const handleAddToShoppingList = (item: SupplyItem) => {
@@ -238,28 +204,31 @@ const SuppliesPage = () => {
   const handleDeleteExpense = async () => {
     if (!expenseToDelete) return;
     
-    const { error } = await supabase
-      .from('expenses')
-      .delete()
-      .eq('id', expenseToDelete);
-    
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to delete expense",
-        variant: "destructive",
-      });
-    } else {
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .eq('id', expenseToDelete);
+      
+      if (error) throw error;
+      
       toast({
         title: "Success",
         description: "Expense deleted successfully",
       });
       
-      // Update local state
-      setExpenses(expenses.filter(expense => expense.id !== expenseToDelete));
+      // Trigger refresh
+      triggerRefresh('expenses');
+    } catch (error) {
+      console.error("Error deleting expense:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete expense",
+        variant: "destructive",
+      });
+    } finally {
+      setExpenseToDelete(null);
     }
-    
-    setExpenseToDelete(null);
   };
   
   // Filter supplies based on search query
@@ -277,11 +246,11 @@ const SuppliesPage = () => {
   );
   
   // Calculate warning items
-  const warningItems = supplies.filter(item => item.currentCount <= item.threshold);
+  const warningItems = supplies.filter(item => item.current_count <= item.threshold);
   
   // Sort supplies by current/total ratio (ascending)
   const sortedSupplies = [...filteredSupplies].sort((a, b) => 
-    (a.currentCount / a.totalCount) - (b.currentCount / b.totalCount)
+    (a.current_count / a.total_count) - (b.current_count / b.total_count)
   );
   
   // Calculate total expenses
@@ -402,7 +371,7 @@ const SuppliesPage = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
+                {isLoadingSupplies ? (
                   <div className="text-center py-12">
                     <p>Loading inventory data...</p>
                   </div>
@@ -427,15 +396,15 @@ const SuppliesPage = () => {
                           <TableCell>{item.course}</TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
-                              <span className={item.currentCount <= item.threshold ? "text-destructive font-bold" : ""}>
-                                {item.currentCount}/{item.totalCount}
+                              <span className={item.current_count <= item.threshold ? "text-destructive font-bold" : ""}>
+                                {item.current_count}/{item.total_count}
                               </span>
                               <Progress 
-                                value={(item.currentCount / item.totalCount) * 100} 
+                                value={(item.current_count / item.total_count) * 100} 
                                 className="w-20 h-2"
                                 aria-label="Stock level"
                               />
-                              {item.currentCount <= item.threshold && (
+                              {item.current_count <= item.threshold && (
                                 <Badge variant="destructive" className="text-xs">Low</Badge>
                               )}
                             </div>
@@ -450,7 +419,7 @@ const SuppliesPage = () => {
                               <DropdownMenuContent align="end">
                                 <DropdownMenuItem onClick={() => {
                                   setEditingItem(item);
-                                  setUpdatedCount(item.currentCount);
+                                  setUpdatedCount(item.current_count);
                                 }}>
                                   Update Stock
                                 </DropdownMenuItem>
@@ -501,7 +470,7 @@ const SuppliesPage = () => {
                 </div>
               </CardHeader>
               <CardContent>
-                {isLoading ? (
+                {isLoadingExpenses ? (
                   <div className="text-center py-12">
                     <p>Loading expense data...</p>
                   </div>
@@ -633,7 +602,7 @@ const SuppliesPage = () => {
                   className="col-span-2"
                   value={updatedCount}
                   onChange={(e) => setUpdatedCount(Number(e.target.value))}
-                  max={editingItem?.totalCount || 0}
+                  max={editingItem?.total_count || 0}
                   min={0}
                 />
               </div>
