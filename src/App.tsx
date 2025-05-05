@@ -25,15 +25,21 @@ const queryClient = new QueryClient({
   },
 });
 
+// Define the type for the refresh context
+interface RefreshContextProps {
+  triggerRefresh: (table?: string) => void;
+}
+
 // Create a context for global refresh functionality
-export const RefreshContext = createContext({
-  triggerRefresh: (table?: string) => {},
+export const RefreshContext = createContext<RefreshContextProps>({
+  triggerRefresh: () => {},
 });
 
 export const useRefreshContext = () => useContext(RefreshContext);
 
 // Helper function to trigger refresh events
 const triggerRefresh = (table?: string) => {
+  console.log(`Triggering refresh for ${table || 'all tables'}`);
   window.dispatchEvent(
     new CustomEvent("refreshData", { detail: { table } })
   );

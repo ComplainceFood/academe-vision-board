@@ -6,15 +6,17 @@ import { useToast } from './use-toast';
 
 type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses';
 
+interface Filter {
+  column: string;
+  value: any;
+  operator?: string;
+}
+
 interface FetchOptions {
   table: TableName;
   transform?: (data: any) => any;
   enabled?: boolean;
-  filters?: {
-    column: string;
-    value: any;
-    operator?: string;
-  }[];
+  filters?: Filter[];
 }
 
 export function useDataFetching<T>({ table, transform, enabled = true, filters = [] }: FetchOptions) {
