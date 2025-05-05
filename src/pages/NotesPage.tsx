@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -23,15 +23,35 @@ const NotesPage = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [sortField, setSortField] = useState("date");
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('list');
   const [appliedFilters, setAppliedFilters] = useState<{
     type?: string;
     course?: string;
     fromDate?: Date | null;
     toDate?: Date | null;
+    tags?: string[];
+    hasAttachments?: boolean;
   }>({});
+  const [availableTags, setAvailableTags] = useState<string[]>([]);
   
   const { data: notes, isLoading, refetch } = useDataFetching<Note>({ table: 'notes' });
   
+  // Extract unique tags from all notes
+  useEffect(() => {
+    if (notes && notes.length > 0) {
+      const allTags = notes.reduce<string[]>((acc, note) => {
+        if (note.tags && Array.isArray(note.tags)) {
+          return [...acc, ...note.tags];
+        }
+        return acc;
+      }, []);
+      
+      // Get unique tags
+      const uniqueTags = Array.from(new Set(allTags));
+      setAvailableTags(uniqueTags);
+    }
+  }, [notes]);
+
   const filteredNotes = notes.filter(note => {
     // Text search filter
     const matchesSearch = 
@@ -58,8 +78,18 @@ const NotesPage = () => {
     const matchesToDate = !appliedFilters.toDate || 
       noteDate <= appliedFilters.toDate;
     
+    // Tags filter
+    const matchesTags = !appliedFilters.tags || !appliedFilters.tags.length || 
+      (note.tags && appliedFilters.tags.every(tag => 
+        note.tags?.includes(tag)
+      ));
+      
+    // Attachments filter (placeholder since we don't have attachments yet)
+    const matchesAttachments = !appliedFilters.hasAttachments;
+    
     return matchesSearch && matchesTab && matchesType && 
-           matchesCourse && matchesFromDate && matchesToDate;
+           matchesCourse && matchesFromDate && matchesToDate && 
+           matchesTags && matchesAttachments;
   });
   
   // Sort filtered notes
@@ -72,6 +102,8 @@ const NotesPage = () => {
       compareResult = a.title.localeCompare(b.title);
     } else if (sortField === "course") {
       compareResult = a.course.localeCompare(b.course);
+    } else if (sortField === "type") {
+      compareResult = a.type.localeCompare(b.type);
     }
     
     return sortDirection === 'asc' ? compareResult : -compareResult;
@@ -104,11 +136,13 @@ const NotesPage = () => {
             setSearchQuery={setSearchQuery}
             appliedFilters={appliedFilters}
             setAppliedFilters={setAppliedFilters}
+            isLoading={isLoading}
+            availableTags={availableTags}
           />
         </div>
 
         <div className="mb-6">
-          <Tabs defaultValue="all" onValueChange={setActiveTab}>
+          <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab}>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
               <TabsList className="grid w-full sm:w-auto grid-cols-4">
                 <TabsTrigger value="all" className="flex items-center gap-1">
@@ -145,6 +179,8 @@ const NotesPage = () => {
                   setSortField={setSortField}
                   sortDirection={sortDirection}
                   setSortDirection={setSortDirection}
+                  viewMode={viewMode}
+                  setViewMode={setViewMode}
                 />
               </div>
             </div>
@@ -157,59 +193,91 @@ const NotesPage = () => {
             ) : (
               <>
                 <TabsContent value="all" className="mt-4">
-                  {sortedNotes.length > 0 ? (
-                    sortedNotes.map(note => (
-                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                      <h3 className="text-lg font-medium mb-1">No notes found</h3>
-                      <p className="text-muted-foreground">Try adjusting your search or filters</p>
-                    </div>
-                  )}
+                  <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : ''}`}>
+                    {sortedNotes.length > 0 ? (
+                      sortedNotes.map(note => (
+                        <NoteCard 
+                          key={note.id} 
+                          note={note} 
+                          onUpdate={handleNoteUpdate}
+                          className={viewMode === 'compact' ? 'mb-2 py-2' : ''} 
+                          compact={viewMode === 'compact'} 
+                        />
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                        <h3 className="text-lg font-medium mb-1">No notes found</h3>
+                        <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="promises" className="mt-4">
-                  {sortedNotes.length > 0 ? (
-                    sortedNotes.map(note => (
-                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                      <h3 className="text-lg font-medium mb-1">No promises found</h3>
-                      <p className="text-muted-foreground">Try adjusting your search or filters</p>
-                    </div>
-                  )}
+                  <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : ''}`}>
+                    {sortedNotes.length > 0 ? (
+                      sortedNotes.map(note => (
+                        <NoteCard 
+                          key={note.id} 
+                          note={note} 
+                          onUpdate={handleNoteUpdate}
+                          className={viewMode === 'compact' ? 'mb-2 py-2' : ''} 
+                          compact={viewMode === 'compact'} 
+                        />
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                        <h3 className="text-lg font-medium mb-1">No promises found</h3>
+                        <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="notes" className="mt-4">
-                  {sortedNotes.length > 0 ? (
-                    sortedNotes.map(note => (
-                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                      <h3 className="text-lg font-medium mb-1">No notes found</h3>
-                      <p className="text-muted-foreground">Try adjusting your search or filters</p>
-                    </div>
-                  )}
+                  <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : ''}`}>
+                    {sortedNotes.length > 0 ? (
+                      sortedNotes.map(note => (
+                        <NoteCard 
+                          key={note.id} 
+                          note={note} 
+                          onUpdate={handleNoteUpdate}
+                          className={viewMode === 'compact' ? 'mb-2 py-2' : ''} 
+                          compact={viewMode === 'compact'} 
+                        />
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <BookText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                        <h3 className="text-lg font-medium mb-1">No notes found</h3>
+                        <p className="text-muted-foreground">Try adjusting your search or filters</p>
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
                 
                 <TabsContent value="starred" className="mt-4">
-                  {sortedNotes.length > 0 ? (
-                    sortedNotes.map(note => (
-                      <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
-                    ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <Star className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                      <h3 className="text-lg font-medium mb-1">No starred items</h3>
-                      <p className="text-muted-foreground">Star important notes to find them quickly</p>
-                    </div>
-                  )}
+                  <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : ''}`}>
+                    {sortedNotes.length > 0 ? (
+                      sortedNotes.map(note => (
+                        <NoteCard 
+                          key={note.id} 
+                          note={note} 
+                          onUpdate={handleNoteUpdate}
+                          className={viewMode === 'compact' ? 'mb-2 py-2' : ''} 
+                          compact={viewMode === 'compact'} 
+                        />
+                      ))
+                    ) : (
+                      <div className="text-center py-12">
+                        <Star className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                        <h3 className="text-lg font-medium mb-1">No starred items</h3>
+                        <p className="text-muted-foreground">Star important notes to find them quickly</p>
+                      </div>
+                    )}
+                  </div>
                 </TabsContent>
               </>
             )}
