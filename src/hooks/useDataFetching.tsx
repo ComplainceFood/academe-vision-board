@@ -130,8 +130,9 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     window.addEventListener('seedDataCompleted', handleSeedData);
     
     // Listen for refresh events - for auto-refresh after actions
-    const handleRefreshData = (event: CustomEvent) => {
-      if (enabled && (!event.detail?.table || event.detail.table === table)) {
+    const handleRefreshData = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (enabled && (!customEvent.detail?.table || customEvent.detail.table === table)) {
         console.log(`Handling refresh event for ${table}`);
         fetchData();
       }
