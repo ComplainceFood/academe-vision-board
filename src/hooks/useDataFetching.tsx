@@ -37,7 +37,8 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       setIsLoading(true);
       setError(null);
 
-      let query = supabase
+      // Type annotation to resolve infinite type instantiation
+      let query: any = supabase
         .from(table)
         .select('*')
         .eq('user_id', user.id);
