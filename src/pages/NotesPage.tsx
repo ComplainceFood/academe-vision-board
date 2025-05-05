@@ -1,16 +1,14 @@
 
 import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateNoteDialog } from "@/components/notes/CreateNoteDialog";
 import { NoteCard } from "@/components/notes/NoteCard";
+import { NoteFilters } from "@/components/notes/NoteFilters";
+import { NoteSorting } from "@/components/notes/NoteSorting";
 import { 
-  Search, 
   Mic,
-  Filter,
   BookText,
   List,
   Star,
@@ -23,21 +21,60 @@ type Note = Database['public']['Tables']['notes']['Row'];
 const NotesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [sortField, setSortField] = useState("date");
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [appliedFilters, setAppliedFilters] = useState<{
+    type?: string;
+    course?: string;
+    fromDate?: Date | null;
+    toDate?: Date | null;
+  }>({});
+  
   const { data: notes, isLoading, refetch } = useDataFetching<Note>({ table: 'notes' });
   
   const filteredNotes = notes.filter(note => {
+    // Text search filter
     const matchesSearch = 
       note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
-      
+    
+    // Tab filter
     const matchesTab = 
       activeTab === "all" || 
       (activeTab === "promises" && note.type === "promise") ||
       (activeTab === "notes" && note.type === "note") ||
       (activeTab === "starred" && note.starred);
-      
-    return matchesSearch && matchesTab;
+    
+    // Applied filters
+    const matchesType = !appliedFilters.type || note.type === appliedFilters.type;
+    const matchesCourse = !appliedFilters.course || 
+      note.course.toLowerCase().includes(appliedFilters.course.toLowerCase());
+    
+    // Date filters
+    const noteDate = new Date(note.date || '');
+    const matchesFromDate = !appliedFilters.fromDate || 
+      noteDate >= appliedFilters.fromDate;
+    const matchesToDate = !appliedFilters.toDate || 
+      noteDate <= appliedFilters.toDate;
+    
+    return matchesSearch && matchesTab && matchesType && 
+           matchesCourse && matchesFromDate && matchesToDate;
+  });
+  
+  // Sort filtered notes
+  const sortedNotes = [...filteredNotes].sort((a, b) => {
+    let compareResult = 0;
+    
+    if (sortField === "date") {
+      compareResult = new Date(a.date || '').getTime() - new Date(b.date || '').getTime();
+    } else if (sortField === "title") {
+      compareResult = a.title.localeCompare(b.title);
+    } else if (sortField === "course") {
+      compareResult = a.course.localeCompare(b.course);
+    }
+    
+    return sortDirection === 'asc' ? compareResult : -compareResult;
   });
 
   const handleNoteUpdate = () => {
@@ -62,53 +99,55 @@ const NotesPage = () => {
         </div>
 
         <div className="mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search notes..." 
-                className="pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <Button variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              <span>Filter</span>
-            </Button>
-          </div>
+          <NoteFilters
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            appliedFilters={appliedFilters}
+            setAppliedFilters={setAppliedFilters}
+          />
         </div>
 
         <div className="mb-6">
           <Tabs defaultValue="all" onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all" className="flex items-center gap-1">
-                <List className="h-4 w-4" />
-                <span className="hidden sm:inline">All</span>
-                <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">{notes.length}</span>
-              </TabsTrigger>
-              <TabsTrigger value="promises" className="flex items-center gap-1">
-                <BookText className="h-4 w-4" />
-                <span className="hidden sm:inline">Promises</span>
-                <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {notes.filter(note => note.type === "promise").length}
-                </span>
-              </TabsTrigger>
-              <TabsTrigger value="notes" className="flex items-center gap-1">
-                <BookText className="h-4 w-4" />
-                <span className="hidden sm:inline">Notes</span>
-                <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {notes.filter(note => note.type === "note").length}
-                </span>
-              </TabsTrigger>
-              <TabsTrigger value="starred" className="flex items-center gap-1">
-                <Star className="h-4 w-4" />
-                <span className="hidden sm:inline">Starred</span>
-                <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {notes.filter(note => note.starred).length}
-                </span>
-              </TabsTrigger>
-            </TabsList>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+              <TabsList className="grid w-full sm:w-auto grid-cols-4">
+                <TabsTrigger value="all" className="flex items-center gap-1">
+                  <List className="h-4 w-4" />
+                  <span className="hidden sm:inline">All</span>
+                  <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">{notes.length}</span>
+                </TabsTrigger>
+                <TabsTrigger value="promises" className="flex items-center gap-1">
+                  <BookText className="h-4 w-4" />
+                  <span className="hidden sm:inline">Promises</span>
+                  <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
+                    {notes.filter(note => note.type === "promise").length}
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="notes" className="flex items-center gap-1">
+                  <BookText className="h-4 w-4" />
+                  <span className="hidden sm:inline">Notes</span>
+                  <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
+                    {notes.filter(note => note.type === "note").length}
+                  </span>
+                </TabsTrigger>
+                <TabsTrigger value="starred" className="flex items-center gap-1">
+                  <Star className="h-4 w-4" />
+                  <span className="hidden sm:inline">Starred</span>
+                  <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
+                    {notes.filter(note => note.starred).length}
+                  </span>
+                </TabsTrigger>
+              </TabsList>
+              
+              <div className="mt-4 sm:mt-0">
+                <NoteSorting
+                  sortField={sortField}
+                  setSortField={setSortField}
+                  sortDirection={sortDirection}
+                  setSortDirection={setSortDirection}
+                />
+              </div>
+            </div>
             
             {isLoading ? (
               <div className="text-center py-12">
@@ -118,8 +157,8 @@ const NotesPage = () => {
             ) : (
               <>
                 <TabsContent value="all" className="mt-4">
-                  {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => (
+                  {sortedNotes.length > 0 ? (
+                    sortedNotes.map(note => (
                       <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
                     ))
                   ) : (
@@ -132,8 +171,8 @@ const NotesPage = () => {
                 </TabsContent>
                 
                 <TabsContent value="promises" className="mt-4">
-                  {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => (
+                  {sortedNotes.length > 0 ? (
+                    sortedNotes.map(note => (
                       <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
                     ))
                   ) : (
@@ -146,8 +185,8 @@ const NotesPage = () => {
                 </TabsContent>
                 
                 <TabsContent value="notes" className="mt-4">
-                  {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => (
+                  {sortedNotes.length > 0 ? (
+                    sortedNotes.map(note => (
                       <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
                     ))
                   ) : (
@@ -160,8 +199,8 @@ const NotesPage = () => {
                 </TabsContent>
                 
                 <TabsContent value="starred" className="mt-4">
-                  {filteredNotes.length > 0 ? (
-                    filteredNotes.map(note => (
+                  {sortedNotes.length > 0 ? (
+                    sortedNotes.map(note => (
                       <NoteCard key={note.id} note={note} onUpdate={handleNoteUpdate} />
                     ))
                   ) : (
