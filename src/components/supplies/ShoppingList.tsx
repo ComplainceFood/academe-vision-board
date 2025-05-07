@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -7,7 +6,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useDataFetching } from "@/hooks/useDataFetching";
 import { ShoppingBag, Plus, Trash2, Check, X, FileText, Save } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import {
@@ -18,17 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-interface ShoppingItem {
-  id: string;
-  name: string;
-  quantity: number;
-  purchased: boolean;
-  priority: 'low' | 'medium' | 'high';
-  notes?: string;
-  user_id: string;
-  supply_id?: string;
-}
+import { ShoppingItem } from "@/types/shoppingList";
 
 export const ShoppingList = () => {
   const [newItemName, setNewItemName] = useState("");
@@ -37,19 +25,45 @@ export const ShoppingList = () => {
   const [selectedItem, setSelectedItem] = useState<ShoppingItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editedItem, setEditedItem] = useState<Partial<ShoppingItem>>({});
+  const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Use the useDataFetching hook to fetch shopping list items
-  const { 
-    data: shoppingItems, 
-    isLoading, 
-    error,
-    refetch 
-  } = useDataFetching<ShoppingItem>({ 
-    table: 'shopping_list',
-    enabled: !!user
-  });
+  // Fetch shopping list items
+  const fetchShoppingItems = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      // Use explicit typing with the Supabase query
+      const { data, error } = await supabase
+        .from('shopping_list')
+        .select('*')
+        .eq('user_id', user.id) as { data: ShoppingItem[] | null, error: any };
+      
+      if (error) throw error;
+      
+      setShoppingItems(data || []);
+    } catch (error) {
+      console.error("Error fetching shopping list:", error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch shopping list",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Initial fetch
+  useEffect(() => {
+    if (user) {
+      fetchShoppingItems();
+    }
+  }, [user]);
 
   // Filter and sort shopping items
   const sortedItems = [...shoppingItems].sort((a, b) => {
@@ -75,7 +89,10 @@ export const ShoppingList = () => {
         user_id: user.id,
       };
       
-      const { error } = await supabase.from('shopping_list').insert(newItem);
+      // Use typed insertion
+      const { error } = await supabase
+        .from('shopping_list')
+        .insert(newItem as any);
       
       if (error) throw error;
       
@@ -88,7 +105,7 @@ export const ShoppingList = () => {
       setNewItemName("");
       setNewItemQuantity(1);
       setIsAddDialogOpen(false);
-      refetch();
+      fetchShoppingItems();
       
     } catch (error) {
       console.error("Error adding shopping list item:", error);
@@ -104,12 +121,12 @@ export const ShoppingList = () => {
     try {
       const { error } = await supabase
         .from('shopping_list')
-        .update({ purchased: !purchased })
+        .update({ purchased: !purchased } as any)
         .eq('id', id);
       
       if (error) throw error;
       
-      refetch();
+      fetchShoppingItems();
     } catch (error) {
       console.error("Error updating shopping list item:", error);
       toast({
@@ -134,7 +151,7 @@ export const ShoppingList = () => {
         description: "Item removed from shopping list",
       });
       
-      refetch();
+      fetchShoppingItems();
     } catch (error) {
       console.error("Error deleting shopping list item:", error);
       toast({
@@ -162,7 +179,7 @@ export const ShoppingList = () => {
           quantity: editedItem.quantity,
           priority: editedItem.priority,
           notes: editedItem.notes
-        })
+        } as any)
         .eq('id', selectedItem.id);
       
       if (error) throw error;
@@ -174,7 +191,7 @@ export const ShoppingList = () => {
       
       setIsEditDialogOpen(false);
       setSelectedItem(null);
-      refetch();
+      fetchShoppingItems();
     } catch (error) {
       console.error("Error updating shopping list item:", error);
       toast({

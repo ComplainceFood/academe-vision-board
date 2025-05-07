@@ -14,6 +14,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { ShoppingItem } from "@/types/shoppingList";
 
 interface SupplyItem {
   id: string;
@@ -49,7 +50,7 @@ export const AddToShoppingListDialog = ({
     if (!user || !item) return;
     
     try {
-      const newItem = {
+      const newItem: Omit<ShoppingItem, 'id' | 'created_at'> = {
         name: item.name,
         quantity,
         purchased: false,
@@ -59,7 +60,10 @@ export const AddToShoppingListDialog = ({
         supply_id: item.id
       };
       
-      const { error } = await supabase.from('shopping_list').insert(newItem);
+      // Use a cast here for now as the types aren't fully compatible
+      const { error } = await supabase
+        .from('shopping_list')
+        .insert(newItem as any);
       
       if (error) throw error;
       

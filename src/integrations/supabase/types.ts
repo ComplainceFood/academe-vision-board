@@ -144,6 +144,50 @@ export type Database = {
         }
         Relationships: []
       }
+      shopping_list: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          notes: string | null
+          priority: string
+          purchased: boolean
+          quantity: number
+          supply_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          priority: string
+          purchased?: boolean
+          quantity?: number
+          supply_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          priority?: string
+          purchased?: boolean
+          quantity?: number
+          supply_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shopping_list_supply_id_fkey"
+            columns: ["supply_id"]
+            isOneToOne: false
+            referencedRelation: "supplies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       supplies: {
         Row: {
           category: string
