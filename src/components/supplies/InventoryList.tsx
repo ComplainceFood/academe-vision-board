@@ -27,6 +27,11 @@ interface InventoryListProps {
   onUpdateStock: (item: SupplyItem) => void;
   onDeleteItem: (id: string) => void;
   onAddToShoppingList: (item: SupplyItem) => void;
+  onAddItemClick: () => void;
+  onEditItem: (item: SupplyItem) => void;
+  onViewHistory: (item: SupplyItem) => void;
+  sortOrder: string;
+  onSortChange: (sort: string) => void;
 }
 
 export const InventoryList = ({ 
@@ -34,23 +39,75 @@ export const InventoryList = ({
   isLoading,
   onUpdateStock,
   onDeleteItem,
-  onAddToShoppingList
+  onAddToShoppingList,
+  onAddItemClick,
+  onEditItem,
+  onViewHistory,
+  sortOrder = 'stock-asc',
+  onSortChange
 }: InventoryListProps) => {
   const { toast } = useToast();
   
-  // Sort supplies by current/total ratio (ascending)
-  const sortedSupplies = [...supplies].sort((a, b) => 
-    (a.current_count / a.total_count) - (b.current_count / b.total_count)
-  );
+  // Sort supplies based on selected sort order
+  const sortedSupplies = React.useMemo(() => {
+    const sorted = [...supplies];
+    
+    switch(sortOrder) {
+      case 'stock-asc':
+        return sorted.sort((a, b) => 
+          (a.current_count / a.total_count) - (b.current_count / b.total_count)
+        );
+      case 'stock-desc':
+        return sorted.sort((a, b) => 
+          (b.current_count / b.total_count) - (a.current_count / a.total_count)
+        );
+      case 'name-asc':
+        return sorted.sort((a, b) => a.name.localeCompare(b.name));
+      case 'name-desc':
+        return sorted.sort((a, b) => b.name.localeCompare(a.name));
+      case 'category':
+        return sorted.sort((a, b) => a.category.localeCompare(b.category));
+      case 'course':
+        return sorted.sort((a, b) => a.course.localeCompare(b.course));
+      default:
+        return sorted;
+    }
+  }, [supplies, sortOrder]);
+
+  // Handle sort button click - cycle through sort options
+  const handleSortClick = () => {
+    const sortOptions = ['stock-asc', 'stock-desc', 'name-asc', 'name-desc', 'category', 'course'];
+    const currentIndex = sortOptions.indexOf(sortOrder);
+    const nextIndex = (currentIndex + 1) % sortOptions.length;
+    onSortChange(sortOptions[nextIndex]);
+  };
+
+  // Get sort display name
+  const getSortDisplayName = () => {
+    switch(sortOrder) {
+      case 'stock-asc': return 'Stock ↑';
+      case 'stock-desc': return 'Stock ↓';
+      case 'name-asc': return 'Name A-Z';
+      case 'name-desc': return 'Name Z-A';
+      case 'category': return 'Category';
+      case 'course': return 'Course';
+      default: return 'Sort';
+    }
+  };
   
   return (
     <Card>
       <CardHeader className="pb-0">
         <div className="flex justify-between items-center">
           <CardTitle>Supply Inventory</CardTitle>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={handleSortClick}
+          >
             <ArrowUpDown className="h-3 w-3" />
-            <span>Sort</span>
+            <span>{getSortDisplayName()}</span>
           </Button>
         </div>
       </CardHeader>
@@ -104,11 +161,15 @@ export const InventoryList = ({
                         <DropdownMenuItem onClick={() => onUpdateStock(item)}>
                           Update Stock
                         </DropdownMenuItem>
-                        <DropdownMenuItem>Edit Details</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEditItem(item)}>
+                          Edit Details
+                        </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => onAddToShoppingList(item)}>
                           Add to Shopping List
                         </DropdownMenuItem>
-                        <DropdownMenuItem>View History</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onViewHistory(item)}>
+                          View History
+                        </DropdownMenuItem>
                         <DropdownMenuItem 
                           className="text-destructive"
                           onClick={() => onDeleteItem(item.id)}
@@ -131,7 +192,11 @@ export const InventoryList = ({
         )}
       </CardContent>
       <CardFooter>
-        <Button variant="outline" className="w-full flex items-center gap-2">
+        <Button 
+          variant="outline" 
+          className="w-full flex items-center gap-2"
+          onClick={onAddItemClick}
+        >
           <Plus className="h-4 w-4" />
           <span>Add New Item</span>
         </Button>

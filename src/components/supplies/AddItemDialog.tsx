@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,29 +16,15 @@ import {
 } from "@/components/ui/dialog";
 import { useRefreshContext } from "@/App";
 
-interface SupplyItem {
-  id: string;
-  name: string;
-  category: string;
-  current_count: number;
-  total_count: number;
-  threshold: number;
-  course: string;
-  last_restocked?: string;
-  cost?: number;
-}
-
-interface EditItemDialogProps {
+interface AddItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  item: SupplyItem | null;
 }
 
-export const EditItemDialog = ({ 
+export const AddItemDialog = ({ 
   open, 
-  onOpenChange,
-  item
-}: EditItemDialogProps) => {
+  onOpenChange
+}: AddItemDialogProps) => {
   const [itemName, setItemName] = useState("");
   const [category, setCategory] = useState("");
   const [course, setCourse] = useState("");
@@ -51,24 +37,11 @@ export const EditItemDialog = ({
   const { user } = useAuth();
   const { triggerRefresh } = useRefreshContext();
 
-  // Load item data when the dialog opens or item changes
-  useEffect(() => {
-    if (item && open) {
-      setItemName(item.name);
-      setCategory(item.category);
-      setCourse(item.course);
-      setTotalCount(item.total_count);
-      setCurrentCount(item.current_count);
-      setThreshold(item.threshold);
-      setCost(item.cost?.toString() || "");
-    }
-  }, [item, open]);
-
-  const handleEditItem = async () => {
-    if (!user || !item?.id || !itemName.trim()) return;
+  const handleAddItem = async () => {
+    if (!user || !itemName.trim()) return;
     
     try {
-      const updatedItem = {
+      const newItem = {
         name: itemName.trim(),
         category: category.trim() || "General",
         course: course.trim() || "General",
@@ -76,40 +49,55 @@ export const EditItemDialog = ({
         current_count: currentCount,
         threshold: threshold,
         cost: cost ? parseFloat(cost) : null,
+        user_id: user.id
       };
       
       const { error } = await supabase
         .from('supplies')
-        .update(updatedItem as any)
-        .eq('id', item.id);
+        .insert(newItem as any);
       
       if (error) throw error;
       
       toast({
         title: "Success",
-        description: "Item updated successfully",
+        description: "Item added to inventory",
       });
       
+      // Clear form and refresh data
+      resetForm();
       onOpenChange(false);
       triggerRefresh('supplies');
       
     } catch (error) {
-      console.error("Error updating inventory item:", error);
+      console.error("Error adding inventory item:", error);
       toast({
         title: "Error",
-        description: "Failed to update item",
+        description: "Failed to add item",
         variant: "destructive",
       });
     }
   };
 
+  const resetForm = () => {
+    setItemName("");
+    setCategory("");
+    setCourse("");
+    setTotalCount(1);
+    setCurrentCount(1);
+    setThreshold(0);
+    setCost("");
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(open) => {
+      if (!open) resetForm();
+      onOpenChange(open);
+    }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Inventory Item</DialogTitle>
+          <DialogTitle>Add New Inventory Item</DialogTitle>
           <DialogDescription>
-            Update the details for this inventory item
+            Add a new item to your inventory
           </DialogDescription>
         </DialogHeader>
         
@@ -200,14 +188,17 @@ export const EditItemDialog = ({
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => {
+            resetForm();
+            onOpenChange(false);
+          }}>
             Cancel
           </Button>
           <Button 
-            onClick={handleEditItem} 
+            onClick={handleAddItem} 
             disabled={!itemName.trim() || totalCount < 0 || currentCount < 0}
           >
-            Save Changes
+            Add Item
           </Button>
         </DialogFooter>
       </DialogContent>

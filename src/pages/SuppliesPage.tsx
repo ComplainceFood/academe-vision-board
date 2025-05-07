@@ -32,6 +32,9 @@ import { SearchAndFilter } from "@/components/supplies/SearchAndFilter";
 import { InventoryList } from "@/components/supplies/InventoryList";
 import { ExpenseList } from "@/components/supplies/ExpenseList";
 import { Input } from "@/components/ui/input";
+import { AddItemDialog } from "@/components/supplies/AddItemDialog";
+import { EditItemDialog } from "@/components/supplies/EditItemDialog";
+import { ItemHistoryDialog } from "@/components/supplies/ItemHistoryDialog";
 
 interface SupplyItem {
   id: string;
@@ -55,13 +58,6 @@ interface Expense {
   receipt?: boolean;
 }
 
-// Helper function to trigger refresh events
-const triggerRefresh = (table?: string) => {
-  window.dispatchEvent(
-    new CustomEvent("refreshData", { detail: { table } })
-  );
-};
-
 const SuppliesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("inventory");
@@ -71,27 +67,36 @@ const SuppliesPage = () => {
   const [updatedCount, setUpdatedCount] = useState<number>(0);
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const [itemToAddToList, setItemToAddToList] = useState<SupplyItem | null>(null);
+  const [isAddItemDialogOpen, setIsAddItemDialogOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<SupplyItem | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [itemForHistory, setItemForHistory] = useState<SupplyItem | null>(null);
+  const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<string>('stock-asc');
   
   const { toast } = useToast();
   const { user } = useAuth();
-  const { triggerRefresh: refreshContext } = useRefreshContext();
+  const { triggerRefresh } = useRefreshContext();
   
   // Use the useDataFetching hook for data fetching
   const { 
     data: supplies, 
     isLoading: isLoadingSupplies, 
-    error: suppliesError 
+    error: suppliesError,
+    refetch: refetchSupplies 
   } = useDataFetching<SupplyItem>({ table: 'supplies' });
   
   const { 
     data: expenses, 
     isLoading: isLoadingExpenses, 
-    error: expensesError 
+    error: expensesError,
+    refetch: refetchExpenses
   } = useDataFetching<Expense>({ table: 'expenses' });
   
   const { 
     data: shoppingItems, 
-    isLoading: isLoadingShoppingItems 
+    isLoading: isLoadingShoppingItems,
+    refetch: refetchShoppingItems 
   } = useDataFetching<any>({ 
     table: 'shopping_list',
     enabled: !!user
@@ -117,6 +122,7 @@ const SuppliesPage = () => {
       });
       
       triggerRefresh('supplies');
+      refetchSupplies();
     } catch (error) {
       console.error("Error deleting item:", error);
       toast({
@@ -152,6 +158,7 @@ const SuppliesPage = () => {
       });
       
       triggerRefresh('supplies');
+      refetchSupplies();
     } catch (error) {
       console.error("Error updating stock:", error);
       toast({
@@ -182,6 +189,7 @@ const SuppliesPage = () => {
       });
       
       triggerRefresh('expenses');
+      refetchExpenses();
     } catch (error) {
       console.error("Error deleting expense:", error);
       toast({
@@ -192,6 +200,16 @@ const SuppliesPage = () => {
     } finally {
       setExpenseToDelete(null);
     }
+  };
+
+  const handleEditItem = (item: SupplyItem) => {
+    setItemToEdit(item);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleViewHistory = (item: SupplyItem) => {
+    setItemForHistory(item);
+    setIsHistoryDialogOpen(true);
   };
   
   // Filter supplies based on search query
@@ -223,7 +241,10 @@ const SuppliesPage = () => {
             <p className="text-muted-foreground">Track your classroom supplies and expenses</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
-            <Button className="flex items-center gap-2">
+            <Button 
+              className="flex items-center gap-2"
+              onClick={() => setIsAddItemDialogOpen(true)}
+            >
               <Plus className="h-4 w-4" />
               <span>Add Item</span>
             </Button>
@@ -279,6 +300,11 @@ const SuppliesPage = () => {
               }}
               onDeleteItem={id => setItemToDelete(id)}
               onAddToShoppingList={item => setItemToAddToList(item)}
+              onAddItemClick={() => setIsAddItemDialogOpen(true)}
+              onEditItem={handleEditItem}
+              onViewHistory={handleViewHistory}
+              sortOrder={sortOrder}
+              onSortChange={setSortOrder}
             />
           </TabsContent>
           
@@ -367,8 +393,34 @@ const SuppliesPage = () => {
       {/* Add to shopping list dialog */}
       <AddToShoppingListDialog 
         open={!!itemToAddToList} 
-        onOpenChange={(open) => !open && setItemToAddToList(null)} 
+        onOpenChange={(open) => {
+          if (!open) {
+            setItemToAddToList(null);
+            // Auto-refresh shopping list after adding an item
+            refetchShoppingItems();
+          }
+        }} 
         item={itemToAddToList}
+      />
+
+      {/* Add item dialog */}
+      <AddItemDialog 
+        open={isAddItemDialogOpen} 
+        onOpenChange={setIsAddItemDialogOpen}
+      />
+
+      {/* Edit item dialog */}
+      <EditItemDialog
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        item={itemToEdit}
+      />
+
+      {/* View item history dialog */}
+      <ItemHistoryDialog
+        open={isHistoryDialogOpen}
+        onOpenChange={setIsHistoryDialogOpen}
+        item={itemForHistory}
       />
     </MainLayout>
   );

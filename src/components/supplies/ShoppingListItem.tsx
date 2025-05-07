@@ -33,7 +33,7 @@ export const ShoppingListItem = ({
       key={item.id} 
       className={`p-3 border rounded-lg flex items-center justify-between gap-4 ${
         item.purchased ? 'bg-muted/30' : 'bg-card'
-      }`}
+      } hover:bg-accent/10 transition-colors cursor-pointer`}
       onClick={() => onItemClick(item)}
     >
       <div className="flex items-center gap-3 flex-1">
@@ -41,6 +41,7 @@ export const ShoppingListItem = ({
           checked={item.purchased} 
           onCheckedChange={() => onTogglePurchased(item.id, item.purchased)}
           onClick={(e) => e.stopPropagation()}
+          className="transition-transform hover:scale-110"
         />
         <div className="flex-1">
           <div className="flex items-center gap-2">
@@ -66,7 +67,7 @@ export const ShoppingListItem = ({
         <Button 
           variant="ghost" 
           size="icon"
-          className="h-8 w-8 text-destructive"
+          className="h-8 w-8 text-destructive hover:bg-destructive/10 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             onDelete(item.id);
