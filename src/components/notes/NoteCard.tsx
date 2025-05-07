@@ -17,9 +17,11 @@ type Note = Database['public']['Tables']['notes']['Row'];
 interface NoteCardProps {
   note: Note;
   onUpdate: () => void;
+  className?: string;
+  compact?: boolean;
 }
 
-export const NoteCard = ({ note, onUpdate }: NoteCardProps) => {
+export const NoteCard = ({ note, onUpdate, className = "", compact = false }: NoteCardProps) => {
   const { toast } = useToast();
 
   const handleStarToggle = async () => {
@@ -116,8 +118,8 @@ export const NoteCard = ({ note, onUpdate }: NoteCardProps) => {
   const isCompleted = note.tags?.includes("completed");
 
   return (
-    <Card className="mb-4 glassmorphism">
-      <CardHeader className="pb-2 flex flex-row justify-between items-start">
+    <Card className={`mb-4 glassmorphism ${className} ${compact ? 'p-2' : ''}`}>
+      <CardHeader className={`pb-2 flex flex-row justify-between items-start ${compact ? 'p-2' : ''}`}>
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className={`px-2 py-1 text-xs rounded ${note.type === 'promise' ? 'bg-primary/15 text-primary' : 'bg-secondary/15 text-secondary'}`}>
@@ -131,7 +133,7 @@ export const NoteCard = ({ note, onUpdate }: NoteCardProps) => {
               </span>
             )}
           </div>
-          <CardTitle className="text-lg mt-2">{note.title}</CardTitle>
+          <CardTitle className={`${compact ? 'text-base' : 'text-lg'} mt-2`}>{note.title}</CardTitle>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -152,12 +154,13 @@ export const NoteCard = ({ note, onUpdate }: NoteCardProps) => {
           </DropdownMenuContent>
         </DropdownMenu>
       </CardHeader>
-      <CardContent>
-        <p className="text-sm mb-3">{note.content}</p>
+      <CardContent className={compact ? 'p-2' : ''}>
+        {!compact && <p className="text-sm mb-3">{note.content}</p>}
+        {compact && <p className="text-xs mb-2 line-clamp-2">{note.content}</p>}
         
         <div className="flex flex-wrap gap-2 mb-2">
           {note.tags && note.tags.filter(tag => tag !== "completed").map((tag) => (
-            <span key={tag} className="text-xs bg-accent/15 text-accent px-2 py-1 rounded-full">
+            <span key={tag} className={`text-xs bg-accent/15 text-accent px-2 py-1 rounded-full ${compact ? 'text-[10px] px-1.5 py-0.5' : ''}`}>
               {tag}
             </span>
           ))}
