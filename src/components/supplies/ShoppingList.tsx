@@ -1,22 +1,18 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { ShoppingBag, Plus, Trash2, Check, X, FileText, Save } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { ShoppingBag, Plus, Save } from "lucide-react";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ShoppingItem } from "@/types/shoppingList";
+import { ShoppingListItem } from "./ShoppingListItem";
+import { ItemDetailDialog } from "./ItemDetailDialog";
+import { EditItemDialog } from "./EditItemDialog";
 
 export const ShoppingList = () => {
   const [newItemName, setNewItemName] = useState("");
@@ -24,7 +20,6 @@ export const ShoppingList = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ShoppingItem | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [editedItem, setEditedItem] = useState<Partial<ShoppingItem>>({});
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
@@ -37,7 +32,6 @@ export const ShoppingList = () => {
     
     setIsLoading(true);
     try {
-      // Use explicit typing with the Supabase query
       const { data, error } = await supabase
         .from('shopping_list')
         .select('*')
@@ -89,7 +83,6 @@ export const ShoppingList = () => {
         user_id: user.id,
       };
       
-      // Use typed insertion
       const { error } = await supabase
         .from('shopping_list')
         .insert(newItem as any);
@@ -164,12 +157,11 @@ export const ShoppingList = () => {
 
   const handleEditItem = () => {
     if (!selectedItem) return;
-    setEditedItem({...selectedItem});
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = async () => {
-    if (!selectedItem || !editedItem) return;
+  const handleSaveEdit = async (editedItem: Partial<ShoppingItem>) => {
+    if (!selectedItem) return;
     
     try {
       const { error } = await supabase
@@ -201,13 +193,36 @@ export const ShoppingList = () => {
       });
     }
   };
-
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case 'high': return 'text-destructive bg-destructive/10';
-      case 'medium': return 'text-amber-500 bg-amber-500/10';
-      case 'low': return 'text-green-500 bg-green-500/10';
-      default: return 'text-muted-foreground bg-muted/10';
+  
+  // Implement "Clear Purchased" functionality
+  const handleClearPurchased = async () => {
+    try {
+      const purchasedIds = shoppingItems
+        .filter(item => item.purchased)
+        .map(item => item.id);
+        
+      if (purchasedIds.length === 0) return;
+      
+      const { error } = await supabase
+        .from('shopping_list')
+        .delete()
+        .in('id', purchasedIds);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: `${purchasedIds.length} purchased items cleared`,
+      });
+      
+      fetchShoppingItems();
+    } catch (error) {
+      console.error("Error clearing purchased items:", error);
+      toast({
+        title: "Error",
+        description: "Failed to clear purchased items",
+        variant: "destructive",
+      });
     }
   };
 
@@ -244,53 +259,13 @@ export const ShoppingList = () => {
           ) : (
             <div className="space-y-2">
               {sortedItems.map(item => (
-                <div 
-                  key={item.id} 
-                  className={`p-3 border rounded-lg flex items-center justify-between gap-4 ${
-                    item.purchased ? 'bg-muted/30' : 'bg-card'
-                  }`}
-                  onClick={() => setSelectedItem(item)}
-                >
-                  <div className="flex items-center gap-3 flex-1">
-                    <Checkbox 
-                      checked={item.purchased} 
-                      onCheckedChange={() => handleTogglePurchased(item.id, item.purchased)}
-                      onClick={(e) => e.stopPropagation()}
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <p className={`font-medium ${item.purchased ? 'line-through text-muted-foreground' : ''}`}>
-                          {item.name}
-                        </p>
-                        <div className={`text-xs px-2 py-0.5 rounded ${getPriorityColor(item.priority)}`}>
-                          {item.priority}
-                        </div>
-                      </div>
-                      {item.notes && (
-                        <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                          {item.notes}
-                        </p>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium">
-                      x{item.quantity}
-                    </span>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      className="h-8 w-8 text-destructive"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteItem(item.id);
-                      }}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
+                <ShoppingListItem 
+                  key={item.id}
+                  item={item}
+                  onTogglePurchased={handleTogglePurchased}
+                  onDelete={handleDeleteItem}
+                  onItemClick={setSelectedItem}
+                />
               ))}
             </div>
           )}
@@ -302,11 +277,16 @@ export const ShoppingList = () => {
           </div>
           <div className="flex gap-2">
             {shoppingItems.some(item => item.purchased) && (
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={handleClearPurchased}>
                 Clear Purchased
               </Button>
             )}
-            <Button size="sm" className="flex items-center gap-1">
+            <Button size="sm" className="flex items-center gap-1" onClick={() => {
+              toast({
+                title: "List Saved",
+                description: "Your shopping list has been saved"
+              });
+            }}>
               <Save className="h-4 w-4" />
               <span>Save List</span>
             </Button>
@@ -357,116 +337,21 @@ export const ShoppingList = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Edit Item Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
-            <DialogDescription>
-              Update details for this shopping list item
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="grid gap-4 py-4">
-            <div className="grid gap-2">
-              <Label htmlFor="editName">Item Name</Label>
-              <Input 
-                id="editName" 
-                value={editedItem.name || ''}
-                onChange={(e) => setEditedItem({...editedItem, name: e.target.value})}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="editQuantity">Quantity</Label>
-              <Input 
-                id="editQuantity" 
-                type="number" 
-                min="1"
-                value={editedItem.quantity || 1}
-                onChange={(e) => setEditedItem({...editedItem, quantity: Number(e.target.value)})}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="editPriority">Priority</Label>
-              <select 
-                id="editPriority" 
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                value={editedItem.priority || 'medium'}
-                onChange={(e) => setEditedItem({
-                  ...editedItem, 
-                  priority: e.target.value as 'low' | 'medium' | 'high'
-                })}
-              >
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-              </select>
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="editNotes">Notes (optional)</Label>
-              <Input 
-                id="editNotes" 
-                value={editedItem.notes || ''}
-                onChange={(e) => setEditedItem({...editedItem, notes: e.target.value})}
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveEdit}>
-              Save Changes
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Item Detail Dialog */}
+      <ItemDetailDialog 
+        item={selectedItem}
+        open={!!selectedItem && !isEditDialogOpen}
+        onOpenChange={(open) => !open && setSelectedItem(null)}
+        onEdit={handleEditItem}
+      />
 
-      {/* Item Details Dialog */}
-      <Dialog open={!!selectedItem && !isEditDialogOpen} onOpenChange={(open) => !open && setSelectedItem(null)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>{selectedItem?.name}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="space-y-4 py-4">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Quantity:</span>
-              <span className="font-medium">{selectedItem?.quantity}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Priority:</span>
-              <span className={`text-xs px-2 py-0.5 rounded ${selectedItem ? getPriorityColor(selectedItem.priority) : ''}`}>
-                {selectedItem?.priority}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Status:</span>
-              <span className={`text-xs px-2 py-0.5 rounded ${selectedItem?.purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                {selectedItem?.purchased ? 'Purchased' : 'Needs to buy'}
-              </span>
-            </div>
-            {selectedItem?.notes && (
-              <div>
-                <p className="text-sm text-muted-foreground mb-1">Notes:</p>
-                <p className="text-sm border rounded-md p-3 bg-muted/10">
-                  {selectedItem.notes}
-                </p>
-              </div>
-            )}
-          </div>
-          
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSelectedItem(null)}>
-              Close
-            </Button>
-            <Button onClick={handleEditItem}>
-              Edit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Edit Item Dialog */}
+      <EditItemDialog 
+        item={selectedItem}
+        open={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 };

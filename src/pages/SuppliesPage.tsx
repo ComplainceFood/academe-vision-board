@@ -1,35 +1,8 @@
-import { useEffect, useState } from "react";
+
+import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  Search, 
-  Plus, 
-  Filter, 
-  ShoppingBag, 
-  AlertTriangle, 
-  CheckCircle,
-  ArrowUpDown,
-  FileText,
-  PackageOpen,
-  MoreVertical,
-} from "lucide-react";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/components/ui/table";
-import { 
-  DropdownMenu, 
-  DropdownMenuContent, 
-  DropdownMenuItem, 
-  DropdownMenuTrigger 
-} from "@/components/ui/dropdown-menu";
+import { Plus, ShoppingBag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -54,6 +27,11 @@ import { useDataFetching } from "@/hooks/useDataFetching";
 import { ShoppingListDialog } from "@/components/supplies/ShoppingListDialog";
 import { AddToShoppingListDialog } from "@/components/supplies/AddToShoppingListDialog";
 import { useRefreshContext } from "@/App";
+import { SuppliesStats } from "@/components/supplies/SuppliesStats";
+import { SearchAndFilter } from "@/components/supplies/SearchAndFilter";
+import { InventoryList } from "@/components/supplies/InventoryList";
+import { ExpenseList } from "@/components/supplies/ExpenseList";
+import { Input } from "@/components/ui/input";
 
 interface SupplyItem {
   id: string;
@@ -90,15 +68,15 @@ const SuppliesPage = () => {
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<SupplyItem | null>(null);
-  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [updatedCount, setUpdatedCount] = useState<number>(0);
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
   const [itemToAddToList, setItemToAddToList] = useState<SupplyItem | null>(null);
+  
   const { toast } = useToast();
   const { user } = useAuth();
   const { triggerRefresh: refreshContext } = useRefreshContext();
   
-  // Use the useDataFetching hook instead of direct Supabase queries
+  // Use the useDataFetching hook for data fetching
   const { 
     data: supplies, 
     isLoading: isLoadingSupplies, 
@@ -121,25 +99,7 @@ const SuppliesPage = () => {
   
   const shoppingListCount = shoppingItems.filter((item: any) => !item.purchased).length;
   
-  useEffect(() => {
-    if (suppliesError) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch supplies data",
-        variant: "destructive",
-      });
-    }
-    
-    if (expensesError) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch expenses data",
-        variant: "destructive",
-      });
-    }
-  }, [suppliesError, expensesError, toast]);
-  
-  // Handle supply actions
+  // Handlers
   const handleDeleteSupply = async () => {
     if (!itemToDelete) return;
     
@@ -156,7 +116,6 @@ const SuppliesPage = () => {
         description: "Item deleted successfully",
       });
       
-      // Trigger refresh
       triggerRefresh('supplies');
     } catch (error) {
       console.error("Error deleting item:", error);
@@ -192,7 +151,6 @@ const SuppliesPage = () => {
         description: "Stock updated successfully",
       });
       
-      // Trigger refresh
       triggerRefresh('supplies');
     } catch (error) {
       console.error("Error updating stock:", error);
@@ -207,11 +165,6 @@ const SuppliesPage = () => {
     }
   };
   
-  const handleAddToShoppingList = (item: SupplyItem) => {
-    setItemToAddToList(item);
-  };
-  
-  // Handle expense actions
   const handleDeleteExpense = async () => {
     if (!expenseToDelete) return;
     
@@ -228,7 +181,6 @@ const SuppliesPage = () => {
         description: "Expense deleted successfully",
       });
       
-      // Trigger refresh
       triggerRefresh('expenses');
     } catch (error) {
       console.error("Error deleting expense:", error);
@@ -258,11 +210,6 @@ const SuppliesPage = () => {
   
   // Calculate warning items
   const warningItems = supplies.filter(item => item.current_count <= item.threshold);
-  
-  // Sort supplies by current/total ratio (ascending)
-  const sortedSupplies = [...filteredSupplies].sort((a, b) => 
-    (a.current_count / a.total_count) - (b.current_count / b.total_count)
-  );
   
   // Calculate total expenses
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -296,275 +243,51 @@ const SuppliesPage = () => {
           </div>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-          <Card className="glassmorphism">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Low Stock Items</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-destructive/10 text-destructive">
-                  <AlertTriangle className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-3xl font-bold">{warningItems.length}</div>
-                  <p className="text-sm text-muted-foreground">Items below threshold</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="glassmorphism">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Total Inventory</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-secondary/10 text-secondary">
-                  <PackageOpen className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-3xl font-bold">{supplies.length}</div>
-                  <p className="text-sm text-muted-foreground">Different items tracked</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card className="glassmorphism">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg">Total Expenses</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-3">
-                <div className="p-3 rounded-full bg-accent/10 text-accent">
-                  <FileText className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="text-3xl font-bold">${totalExpenses.toFixed(2)}</div>
-                  <p className="text-sm text-muted-foreground">Semester to date</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Stats Cards */}
+        <SuppliesStats 
+          warningItems={warningItems.length}
+          totalSupplies={supplies.length}
+          totalExpenses={totalExpenses}
+        />
         
-        <div className="mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder="Search items..." 
-                className="pl-9"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <Button variant="outline">
-              <Filter className="h-4 w-4 mr-2" />
-              <span>Filter</span>
-            </Button>
-          </div>
-        </div>
+        {/* Search and Filter */}
+        <SearchAndFilter 
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+        />
         
+        {/* Tab Navigation */}
         <Tabs defaultValue="inventory" onValueChange={setActiveTab} className="mb-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="inventory" className="flex items-center gap-1">
-              <PackageOpen className="h-4 w-4" />
+              <ShoppingBag className="h-4 w-4" />
               <span>Inventory</span>
             </TabsTrigger>
             <TabsTrigger value="expenses" className="flex items-center gap-1">
-              <FileText className="h-4 w-4" />
+              <ShoppingBag className="h-4 w-4" />
               <span>Expenses</span>
             </TabsTrigger>
           </TabsList>
           
           <TabsContent value="inventory" className="mt-4">
-            <Card>
-              <CardHeader className="pb-0">
-                <div className="flex justify-between items-center">
-                  <CardTitle>Supply Inventory</CardTitle>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <ArrowUpDown className="h-3 w-3" />
-                    <span>Sort</span>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isLoadingSupplies ? (
-                  <div className="text-center py-12">
-                    <p>Loading inventory data...</p>
-                  </div>
-                ) : sortedSupplies.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Item</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Course</TableHead>
-                        <TableHead>Stock</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {sortedSupplies.map(item => (
-                        <TableRow key={item.id}>
-                          <TableCell>
-                            <div className="font-medium">{item.name}</div>
-                          </TableCell>
-                          <TableCell>{item.category}</TableCell>
-                          <TableCell>{item.course}</TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-2">
-                              <span className={item.current_count <= item.threshold ? "text-destructive font-bold" : ""}>
-                                {item.current_count}/{item.total_count}
-                              </span>
-                              <Progress 
-                                value={(item.current_count / item.total_count) * 100} 
-                                className="w-20 h-2"
-                                aria-label="Stock level"
-                              />
-                              {item.current_count <= item.threshold && (
-                                <Badge variant="destructive" className="text-xs">Low</Badge>
-                              )}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem onClick={() => {
-                                  setEditingItem(item);
-                                  setUpdatedCount(item.current_count);
-                                }}>
-                                  Update Stock
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>Edit Details</DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleAddToShoppingList(item)}>
-                                  Add to Shopping List
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>View History</DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  className="text-destructive"
-                                  onClick={() => setItemToDelete(item.id)}
-                                >
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-12">
-                    <PackageOpen className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                    <h3 className="text-lg font-medium mb-1">No items found</h3>
-                    <p className="text-muted-foreground">Try adjusting your search or add new items</p>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  <span>Add New Item</span>
-                </Button>
-              </CardFooter>
-            </Card>
+            <InventoryList 
+              supplies={filteredSupplies}
+              isLoading={isLoadingSupplies}
+              onUpdateStock={item => {
+                setEditingItem(item);
+                setUpdatedCount(item.current_count);
+              }}
+              onDeleteItem={id => setItemToDelete(id)}
+              onAddToShoppingList={item => setItemToAddToList(item)}
+            />
           </TabsContent>
           
           <TabsContent value="expenses" className="mt-4">
-            <Card>
-              <CardHeader className="pb-0">
-                <div className="flex justify-between items-center">
-                  <CardTitle>Expense Tracker</CardTitle>
-                  <Button variant="outline" size="sm" className="flex items-center gap-1">
-                    <ArrowUpDown className="h-3 w-3" />
-                    <span>Sort</span>
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isLoadingExpenses ? (
-                  <div className="text-center py-12">
-                    <p>Loading expense data...</p>
-                  </div>
-                ) : filteredExpenses.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Description</TableHead>
-                        <TableHead>Category</TableHead>
-                        <TableHead>Course</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Receipt</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {filteredExpenses.map(expense => (
-                        <TableRow key={expense.id}>
-                          <TableCell>
-                            {new Date(expense.date).toLocaleDateString()}
-                          </TableCell>
-                          <TableCell>
-                            <div className="font-medium">{expense.description}</div>
-                          </TableCell>
-                          <TableCell>{expense.category}</TableCell>
-                          <TableCell>{expense.course}</TableCell>
-                          <TableCell>${expense.amount.toFixed(2)}</TableCell>
-                          <TableCell>
-                            {expense.receipt ? (
-                              <CheckCircle className="h-4 w-4 text-secondary" />
-                            ) : (
-                              <span className="text-xs text-muted-foreground">Missing</span>
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem>View Details</DropdownMenuItem>
-                                <DropdownMenuItem>Edit</DropdownMenuItem>
-                                <DropdownMenuItem>Upload Receipt</DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  className="text-destructive"
-                                  onClick={() => setExpenseToDelete(expense.id)}
-                                >
-                                  Delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-12">
-                    <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                    <h3 className="text-lg font-medium mb-1">No expenses found</h3>
-                    <p className="text-muted-foreground">Try adjusting your search or add a new expense</p>
-                  </div>
-                )}
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" className="w-full flex items-center gap-2">
-                  <Plus className="h-4 w-4" />
-                  <span>Add New Expense</span>
-                </Button>
-              </CardFooter>
-            </Card>
+            <ExpenseList 
+              expenses={filteredExpenses}
+              isLoading={isLoadingExpenses}
+              onDeleteExpense={id => setExpenseToDelete(id)}
+            />
           </TabsContent>
         </Tabs>
       </div>
