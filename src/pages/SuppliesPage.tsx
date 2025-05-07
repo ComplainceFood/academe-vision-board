@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -52,6 +51,9 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useDataFetching } from "@/hooks/useDataFetching";
+import { ShoppingListDialog } from "@/components/supplies/ShoppingListDialog";
+import { AddToShoppingListDialog } from "@/components/supplies/AddToShoppingListDialog";
+import { useRefreshContext } from "@/App";
 
 interface SupplyItem {
   id: string;
@@ -90,8 +92,11 @@ const SuppliesPage = () => {
   const [editingItem, setEditingItem] = useState<SupplyItem | null>(null);
   const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [updatedCount, setUpdatedCount] = useState<number>(0);
+  const [isShoppingListOpen, setIsShoppingListOpen] = useState(false);
+  const [itemToAddToList, setItemToAddToList] = useState<SupplyItem | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { triggerRefresh: refreshContext } = useRefreshContext();
   
   // Use the useDataFetching hook instead of direct Supabase queries
   const { 
@@ -105,6 +110,16 @@ const SuppliesPage = () => {
     isLoading: isLoadingExpenses, 
     error: expensesError 
   } = useDataFetching<Expense>({ table: 'expenses' });
+  
+  const { 
+    data: shoppingItems, 
+    isLoading: isLoadingShoppingItems 
+  } = useDataFetching<any>({ 
+    table: 'shopping_list',
+    enabled: !!user
+  });
+  
+  const shoppingListCount = shoppingItems.filter((item: any) => !item.purchased).length;
   
   useEffect(() => {
     if (suppliesError) {
@@ -193,11 +208,7 @@ const SuppliesPage = () => {
   };
   
   const handleAddToShoppingList = (item: SupplyItem) => {
-    // This would typically add to a shopping list table or state
-    toast({
-      title: "Added to Shopping List",
-      description: `${item.name} has been added to your shopping list`,
-    });
+    setItemToAddToList(item);
   };
   
   // Handle expense actions
@@ -269,9 +280,18 @@ const SuppliesPage = () => {
               <Plus className="h-4 w-4" />
               <span>Add Item</span>
             </Button>
-            <Button variant="outline" className="flex items-center gap-2">
+            <Button 
+              variant="outline" 
+              className="flex items-center gap-2"
+              onClick={() => setIsShoppingListOpen(true)}
+            >
               <ShoppingBag className="h-4 w-4" />
-              <span>Shopping List</span>
+              <span>
+                Shopping List
+                {shoppingListCount > 0 && (
+                  <Badge variant="secondary" className="ml-1">{shoppingListCount}</Badge>
+                )}
+              </span>
             </Button>
           </div>
         </div>
@@ -614,6 +634,19 @@ const SuppliesPage = () => {
           </div>
         </PopoverContent>
       </Popover>
+      
+      {/* Shopping list dialog */}
+      <ShoppingListDialog 
+        open={isShoppingListOpen} 
+        onOpenChange={setIsShoppingListOpen} 
+      />
+      
+      {/* Add to shopping list dialog */}
+      <AddToShoppingListDialog 
+        open={!!itemToAddToList} 
+        onOpenChange={(open) => !open && setItemToAddToList(null)} 
+        item={itemToAddToList}
+      />
     </MainLayout>
   );
 };

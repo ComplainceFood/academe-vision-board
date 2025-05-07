@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
-type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses';
+type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list';
 
 interface Filter {
   column: string;
