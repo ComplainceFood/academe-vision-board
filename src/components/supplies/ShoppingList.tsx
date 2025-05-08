@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -14,6 +13,19 @@ import { ShoppingListItem } from "./ShoppingListItem";
 import { ItemDetailDialog } from "./ItemDetailDialog";
 import { EditItemDialog } from "./EditItemDialog";
 import { useRefreshContext } from "@/App";
+
+// Define SupplyItem interface here to match what ItemDetailDialog expects
+interface SupplyItem {
+  id: string;
+  name: string;
+  category: string;
+  current_count: number;
+  total_count: number;
+  threshold: number;
+  course: string;
+  last_restocked?: string;
+  cost?: number;
+}
 
 // This interface is for the shopping list's internal usage, not for the inventory
 interface ShoppingEditItem extends Partial<ShoppingItem> {
@@ -269,6 +281,22 @@ export const ShoppingList = () => {
     }
   };
 
+  // Convert ShoppingItem to SupplyItem for the ItemDetailDialog
+  const convertToSupplyItem = (item: ShoppingItem): SupplyItem => {
+    return {
+      id: item.id,
+      name: item.name,
+      category: "Shopping List Item",  // Default category for shopping items
+      current_count: item.quantity,
+      total_count: item.quantity,
+      threshold: 0,
+      course: "N/A",
+      // Optional fields
+      last_restocked: item.created_at,
+      cost: 0
+    };
+  };
+
   return (
     <div className="animate-fade-in">
       <Card className="shadow-md glassmorphism">
@@ -381,7 +409,7 @@ export const ShoppingList = () => {
 
       {/* Item Detail Dialog */}
       <ItemDetailDialog 
-        item={selectedItem}
+        item={selectedItem ? convertToSupplyItem(selectedItem) : null}
         open={!!selectedItem && !isEditDialogOpen}
         onOpenChange={(open) => !open && setSelectedItem(null)}
         onEdit={handleEditItem}
