@@ -50,7 +50,7 @@ export const ItemDetailDialog = ({
         <div className="space-y-4 py-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Quantity:</span>
-            <span className="font-medium">{isShoppingItem(item) ? item.quantity : item.current_count}</span>
+            <span className="font-medium">{item.current_count}</span>
           </div>
           {(item as any)?.priority && (
             <div className="flex items-center justify-between">
@@ -60,15 +60,15 @@ export const ItemDetailDialog = ({
               </span>
             </div>
           )}
-          {isShoppingItem(item) && (
+          {(item as any)?.purchased !== undefined && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Status:</span>
-              <span className={`text-xs px-2 py-0.5 rounded ${item.purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                {item.purchased ? 'Purchased' : 'Needs to buy'}
+              <span className={`text-xs px-2 py-0.5 rounded ${(item as any).purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                {(item as any).purchased ? 'Purchased' : 'Needs to buy'}
               </span>
             </div>
           )}
-          {!isShoppingItem(item) && item.category && (
+          {item.category && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Category:</span>
               <span className="font-medium">{item.category}</span>

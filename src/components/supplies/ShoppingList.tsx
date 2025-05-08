@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -317,10 +316,7 @@ export const ShoppingList = () => {
       current_count: item.quantity,
       total_count: item.quantity,
       threshold: 0,
-      course: "N/A",
-      // Optional fields
-      last_restocked: item.created_at,
-      cost: 0
+      course: "N/A"
     };
   };
 
