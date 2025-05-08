@@ -23,19 +23,25 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [isFetching, setIsFetching] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Function to fetch data
+  // Function to fetch data with debouncing
   const fetchData = async () => {
-    if (!user || !enabled) {
+    if (!user || !enabled || isFetching) {
       setIsLoading(false);
       return;
     }
 
     try {
-      setIsLoading(true);
+      setIsFetching(true);
       setError(null);
+      
+      if (isLoading) {
+        // Only show loading state on initial load, not on subsequent fetches
+        setIsLoading(true);
+      }
 
       // Type annotation to resolve infinite type instantiation
       let query: any = supabase
@@ -92,10 +98,14 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       });
     } finally {
       setIsLoading(false);
+      // Add a small delay before allowing another fetch to prevent rapid consecutive fetches
+      setTimeout(() => {
+        setIsFetching(false);
+      }, 300);
     }
   };
 
-  // Subscribe to real-time changes
+  // Subscribe to real-time changes using a more efficient approach
   useEffect(() => {
     if (!user || !enabled) return;
 
@@ -110,7 +120,31 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         }, 
         (payload) => {
           console.log(`Received real-time update for ${table}:`, payload);
-          fetchData();
+          
+          // Update data without a full refetch when possible
+          if (payload.eventType === 'INSERT') {
+            const newItem = payload.new as T;
+            setData(current => [...current, newItem]);
+          } else if (payload.eventType === 'UPDATE') {
+            const updatedItem = payload.new as T;
+            setData(current => 
+              current.map(item => 
+                // @ts-ignore - we know id exists on the item
+                item.id === updatedItem.id ? updatedItem : item
+              )
+            );
+          } else if (payload.eventType === 'DELETE') {
+            const deletedItem = payload.old as T;
+            setData(current => 
+              current.filter(item => 
+                // @ts-ignore - we know id exists on the item
+                item.id !== deletedItem.id
+              )
+            );
+          } else {
+            // If we can't handle the change specifically, fall back to a refetch
+            fetchData();
+          }
         })
       .subscribe();
 
@@ -149,12 +183,16 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
 
   // Initial data fetch
   useEffect(() => {
-    fetchData();
+    if (!isFetching) {
+      fetchData();
+    }
   }, [user, enabled]);
 
   const refetch = () => {
-    console.log(`Manually refetching ${table} data`);
-    fetchData();
+    if (!isFetching) {
+      console.log(`Manually refetching ${table} data`);
+      fetchData();
+    }
   };
 
   return { data, isLoading, error, refetch };

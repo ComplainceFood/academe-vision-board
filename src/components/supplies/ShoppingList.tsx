@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -31,6 +32,7 @@ export const ShoppingList = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [shoppingItems, setShoppingItems] = useState<ShoppingItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const { toast } = useToast();
   const { user } = useAuth();
@@ -84,8 +86,9 @@ export const ShoppingList = () => {
   }, [shoppingItems]);
 
   const handleAddItem = async () => {
-    if (!user || !newItemName.trim()) return;
+    if (!user || !newItemName.trim() || isProcessing) return;
     
+    setIsProcessing(true);
     try {
       const newItem = {
         name: newItemName.trim(),
@@ -120,10 +123,15 @@ export const ShoppingList = () => {
         description: "Failed to add item to shopping list",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleTogglePurchased = async (id: string, purchased: boolean) => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
     try {
       const { error } = await supabase
         .from('shopping_list')
@@ -132,7 +140,14 @@ export const ShoppingList = () => {
       
       if (error) throw error;
       
-      fetchShoppingItems();
+      // Update the local state to avoid a full refetch
+      setShoppingItems(prevItems => 
+        prevItems.map(item => 
+          item.id === id ? { ...item, purchased: !purchased } : item
+        )
+      );
+      
+      // Still trigger refresh for other components
       triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error updating shopping list item:", error);
@@ -141,10 +156,17 @@ export const ShoppingList = () => {
         description: "Failed to update item",
         variant: "destructive",
       });
+      // Refetch if there's an error to ensure data is in sync
+      fetchShoppingItems();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const handleDeleteItem = async (id: string) => {
+    if (isProcessing) return;
+    
+    setIsProcessing(true);
     try {
       const { error } = await supabase
         .from('shopping_list')
@@ -158,7 +180,10 @@ export const ShoppingList = () => {
         description: "Item removed from shopping list",
       });
       
-      fetchShoppingItems();
+      // Update local state first (optimistic UI update)
+      setShoppingItems(prevItems => prevItems.filter(item => item.id !== id));
+      
+      // Still trigger refresh for other components
       triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error deleting shopping list item:", error);
@@ -167,6 +192,10 @@ export const ShoppingList = () => {
         description: "Failed to remove item",
         variant: "destructive",
       });
+      // Refetch if there's an error
+      fetchShoppingItems();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -176,8 +205,9 @@ export const ShoppingList = () => {
   };
 
   const handleSaveEdit = async (editedItem: ShoppingEditItem) => {
-    if (!selectedItem) return;
+    if (!selectedItem || isProcessing) return;
     
+    setIsProcessing(true);
     try {
       const { error } = await supabase
         .from('shopping_list')
@@ -207,12 +237,17 @@ export const ShoppingList = () => {
         description: "Failed to update item",
         variant: "destructive",
       });
+    } finally {
+      setIsProcessing(false);
     }
   };
   
   // Implement "Clear Purchased" functionality
   const handleClearPurchased = async () => {
+    if (isProcessing) return;
+    
     try {
+      setIsProcessing(true);
       const purchasedIds = shoppingItems
         .filter(item => item.purchased)
         .map(item => item.id);
@@ -231,7 +266,9 @@ export const ShoppingList = () => {
         description: `${purchasedIds.length} purchased items cleared`,
       });
       
-      fetchShoppingItems();
+      // Update local state
+      setShoppingItems(prevItems => prevItems.filter(item => !item.purchased));
+      
       triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error clearing purchased items:", error);
@@ -240,6 +277,9 @@ export const ShoppingList = () => {
         description: "Failed to clear purchased items",
         variant: "destructive",
       });
+      fetchShoppingItems();
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -286,7 +326,7 @@ export const ShoppingList = () => {
 
   return (
     <div className="animate-fade-in">
-      <Card className="shadow-md glassmorphism">
+      <Card className={`shadow-md glassmorphism ${isProcessing ? 'opacity-70 pointer-events-none' : ''}`}>
         <CardHeader className="flex flex-row items-center justify-between pb-2">
           <div className="flex items-center gap-2">
             <ShoppingBag className="h-5 w-5 text-primary" />
@@ -297,6 +337,7 @@ export const ShoppingList = () => {
             size="sm"
             className="flex items-center gap-1"
             onClick={() => setIsAddDialogOpen(true)}
+            disabled={isProcessing}
           >
             <Plus className="h-4 w-4" />
             <span>Add Item</span>
@@ -335,7 +376,12 @@ export const ShoppingList = () => {
           </div>
           <div className="flex gap-2">
             {shoppingItems.some(item => item.purchased) && (
-              <Button variant="outline" size="sm" onClick={handleClearPurchased}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleClearPurchased}
+                disabled={isProcessing}
+              >
                 Clear Purchased
               </Button>
             )}
@@ -343,6 +389,7 @@ export const ShoppingList = () => {
               size="sm" 
               className="flex items-center gap-1" 
               onClick={handleSaveList}
+              disabled={isProcessing}
             >
               <Save className="h-4 w-4" />
               <span>Save List</span>
@@ -384,10 +431,17 @@ export const ShoppingList = () => {
           </div>
           
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+            <Button 
+              variant="outline" 
+              onClick={() => setIsAddDialogOpen(false)}
+              disabled={isProcessing}
+            >
               Cancel
             </Button>
-            <Button onClick={handleAddItem} disabled={!newItemName.trim()}>
+            <Button 
+              onClick={handleAddItem} 
+              disabled={!newItemName.trim() || isProcessing}
+            >
               Add Item
             </Button>
           </DialogFooter>

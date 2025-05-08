@@ -33,17 +33,24 @@ export const ItemDetailDialog = ({
     }
   };
 
+  if (!item) return null;
+
+  // Helper function to determine if item is a shopping item (has purchased property)
+  const isShoppingItem = (item: any): item is ShoppingItem => {
+    return 'purchased' in item;
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{item?.name}</DialogTitle>
+          <DialogTitle>{item.name}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4 py-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Quantity:</span>
-            <span className="font-medium">{item?.current_count || (item as any)?.quantity}</span>
+            <span className="font-medium">{isShoppingItem(item) ? item.quantity : item.current_count}</span>
           </div>
           {(item as any)?.priority && (
             <div className="flex items-center justify-between">
@@ -53,15 +60,15 @@ export const ItemDetailDialog = ({
               </span>
             </div>
           )}
-          {(item as any)?.purchased !== undefined && (
+          {isShoppingItem(item) && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Status:</span>
-              <span className={`text-xs px-2 py-0.5 rounded ${(item as any)?.purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                {(item as any)?.purchased ? 'Purchased' : 'Needs to buy'}
+              <span className={`text-xs px-2 py-0.5 rounded ${item.purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                {item.purchased ? 'Purchased' : 'Needs to buy'}
               </span>
             </div>
           )}
-          {item?.category && (
+          {!isShoppingItem(item) && item.category && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Category:</span>
               <span className="font-medium">{item.category}</span>

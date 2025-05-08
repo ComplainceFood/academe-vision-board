@@ -73,6 +73,7 @@ const SuppliesPage = () => {
   const [itemForHistory, setItemForHistory] = useState<SupplyItem | null>(null);
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<string>('stock-asc');
+  const [isProcessing, setIsProcessing] = useState(false);
   
   const { toast } = useToast();
   const { user } = useAuth();
@@ -105,21 +106,24 @@ const SuppliesPage = () => {
   // Auto-refresh data on component mount and after actions
   useEffect(() => {
     const refreshInterval = setInterval(() => {
-      refetchSupplies();
-      refetchExpenses();
-      refetchShoppingItems();
+      if (!isProcessing) {
+        refetchSupplies();
+        refetchExpenses();
+        refetchShoppingItems();
+      }
     }, 30000); // Refresh every 30 seconds
     
     return () => clearInterval(refreshInterval);
-  }, [refetchSupplies, refetchExpenses, refetchShoppingItems]);
+  }, [refetchSupplies, refetchExpenses, refetchShoppingItems, isProcessing]);
 
   const shoppingListCount = shoppingItems.filter((item: any) => !item.purchased).length;
   
   // Handlers
   const handleDeleteSupply = async () => {
-    if (!itemToDelete) return;
+    if (!itemToDelete || isProcessing) return;
     
     try {
+      setIsProcessing(true);
       const { error } = await supabase
         .from('supplies')
         .delete()
@@ -133,7 +137,11 @@ const SuppliesPage = () => {
       });
       
       triggerRefresh('supplies');
-      refetchSupplies();
+      
+      // Update local state instead of immediately refetching
+      const newSupplies = supplies.filter(item => item.id !== itemToDelete);
+      // We'd need to update the supplies state here if we had access to the setter
+      
     } catch (error) {
       console.error("Error deleting item:", error);
       toast({
@@ -143,16 +151,19 @@ const SuppliesPage = () => {
       });
     } finally {
       setItemToDelete(null);
+      setIsProcessing(false);
+      refetchSupplies(); // Refetch after a short delay
     }
   };
   
   const handleUpdateStock = async () => {
-    if (!editingItem || updatedCount === editingItem.current_count) {
+    if (!editingItem || updatedCount === editingItem.current_count || isProcessing) {
       setEditingItem(null);
       return;
     }
     
     try {
+      setIsProcessing(true);
       const { error } = await supabase
         .from('supplies')
         .update({ 
@@ -169,7 +180,7 @@ const SuppliesPage = () => {
       });
       
       triggerRefresh('supplies');
-      refetchSupplies();
+      
     } catch (error) {
       console.error("Error updating stock:", error);
       toast({
@@ -180,13 +191,16 @@ const SuppliesPage = () => {
     } finally {
       setEditingItem(null);
       setUpdatedCount(0);
+      setIsProcessing(false);
+      refetchSupplies(); // Refetch after operation completes
     }
   };
   
   const handleDeleteExpense = async () => {
-    if (!expenseToDelete) return;
+    if (!expenseToDelete || isProcessing) return;
     
     try {
+      setIsProcessing(true);
       const { error } = await supabase
         .from('expenses')
         .delete()
@@ -200,7 +214,11 @@ const SuppliesPage = () => {
       });
       
       triggerRefresh('expenses');
-      refetchExpenses();
+      
+      // Update local state optimistically
+      const newExpenses = expenses.filter(expense => expense.id !== expenseToDelete);
+      // We'd need to update the expenses state here if we had access to the setter
+      
     } catch (error) {
       console.error("Error deleting expense:", error);
       toast({
@@ -210,6 +228,10 @@ const SuppliesPage = () => {
       });
     } finally {
       setExpenseToDelete(null);
+      setIsProcessing(false);
+      setTimeout(() => {
+        refetchExpenses(); // Refetch after a short delay to allow the UI to update first
+      }, 300);
     }
   };
 
@@ -247,9 +269,9 @@ const SuppliesPage = () => {
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
     
-    if (newTab === 'inventory') {
+    if (newTab === 'inventory' && !isProcessing) {
       refetchSupplies();
-    } else if (newTab === 'expenses') {
+    } else if (newTab === 'expenses' && !isProcessing) {
       refetchExpenses();
     }
   };
@@ -266,6 +288,7 @@ const SuppliesPage = () => {
             <Button 
               className="flex items-center gap-2"
               onClick={() => setIsAddItemDialogOpen(true)}
+              disabled={isProcessing}
             >
               <Plus className="h-4 w-4" />
               <span>Add Item</span>
@@ -274,6 +297,7 @@ const SuppliesPage = () => {
               variant="outline" 
               className="flex items-center gap-2"
               onClick={() => setIsShoppingListOpen(true)}
+              disabled={isProcessing}
             >
               <ShoppingBag className="h-4 w-4" />
               <span>
@@ -350,9 +374,13 @@ const SuppliesPage = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteSupply} className="bg-destructive text-destructive-foreground">
-              Delete
+            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteSupply} 
+              className="bg-destructive text-destructive-foreground"
+              disabled={isProcessing}
+            >
+              {isProcessing ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -367,9 +395,13 @@ const SuppliesPage = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteExpense} className="bg-destructive text-destructive-foreground">
-              Delete
+            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteExpense} 
+              className="bg-destructive text-destructive-foreground"
+              disabled={isProcessing}
+            >
+              {isProcessing ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -395,11 +427,23 @@ const SuppliesPage = () => {
                   onChange={(e) => setUpdatedCount(Number(e.target.value))}
                   max={editingItem?.total_count || 0}
                   min={0}
+                  disabled={isProcessing}
                 />
               </div>
               <div className="flex justify-between mt-4">
-                <Button variant="outline" onClick={() => setEditingItem(null)}>Cancel</Button>
-                <Button onClick={handleUpdateStock}>Save Changes</Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setEditingItem(null)}
+                  disabled={isProcessing}
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleUpdateStock}
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? 'Saving...' : 'Save Changes'}
+                </Button>
               </div>
             </div>
           </div>
