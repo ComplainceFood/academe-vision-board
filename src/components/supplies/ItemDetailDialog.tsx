@@ -10,8 +10,20 @@ import {
 } from "@/components/ui/dialog";
 import { ShoppingItem } from "@/types/shoppingList";
 
+interface SupplyItem {
+  id: string;
+  name: string;
+  category: string;
+  current_count: number;
+  total_count: number;
+  threshold: number;
+  course: string;
+  last_restocked?: string;
+  cost?: number;
+}
+
 interface ItemDetailDialogProps {
-  item: ShoppingItem | null;
+  item: SupplyItem | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onEdit: () => void;
@@ -43,25 +55,35 @@ export const ItemDetailDialog = ({
         <div className="space-y-4 py-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-muted-foreground">Quantity:</span>
-            <span className="font-medium">{item?.quantity}</span>
+            <span className="font-medium">{item?.current_count || (item as any)?.quantity}</span>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Priority:</span>
-            <span className={`text-xs px-2 py-0.5 rounded ${item ? getPriorityColor(item.priority) : ''}`}>
-              {item?.priority}
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground">Status:</span>
-            <span className={`text-xs px-2 py-0.5 rounded ${item?.purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
-              {item?.purchased ? 'Purchased' : 'Needs to buy'}
-            </span>
-          </div>
-          {item?.notes && (
+          {(item as any)?.priority && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Priority:</span>
+              <span className={`text-xs px-2 py-0.5 rounded ${getPriorityColor((item as any).priority)}`}>
+                {(item as any).priority}
+              </span>
+            </div>
+          )}
+          {(item as any)?.purchased !== undefined && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Status:</span>
+              <span className={`text-xs px-2 py-0.5 rounded ${(item as any)?.purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                {(item as any)?.purchased ? 'Purchased' : 'Needs to buy'}
+              </span>
+            </div>
+          )}
+          {item?.category && (
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Category:</span>
+              <span className="font-medium">{item.category}</span>
+            </div>
+          )}
+          {(item as any)?.notes && (
             <div>
               <p className="text-sm text-muted-foreground mb-1">Notes:</p>
               <p className="text-sm border rounded-md p-3 bg-muted/10">
-                {item.notes}
+                {(item as any).notes}
               </p>
             </div>
           )}

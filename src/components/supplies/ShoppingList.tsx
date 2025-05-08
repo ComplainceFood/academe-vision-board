@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Label } from "@/components/ui/label";
 import { ShoppingBag, Plus, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ShoppingItem } from "@/types/shoppingList";
+import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
 import { ShoppingListItem } from "./ShoppingListItem";
 import { ItemDetailDialog } from "./ItemDetailDialog";
 import { EditItemDialog } from "./EditItemDialog";
