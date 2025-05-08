@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingBag } from "lucide-react";
@@ -102,6 +102,17 @@ const SuppliesPage = () => {
     enabled: !!user
   });
   
+  // Auto-refresh data on component mount and after actions
+  useEffect(() => {
+    const refreshInterval = setInterval(() => {
+      refetchSupplies();
+      refetchExpenses();
+      refetchShoppingItems();
+    }, 30000); // Refresh every 30 seconds
+    
+    return () => clearInterval(refreshInterval);
+  }, [refetchSupplies, refetchExpenses, refetchShoppingItems]);
+
   const shoppingListCount = shoppingItems.filter((item: any) => !item.purchased).length;
   
   // Handlers
@@ -232,6 +243,17 @@ const SuppliesPage = () => {
   // Calculate total expenses
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   
+  // Handle tab change to trigger data refresh
+  const handleTabChange = (newTab: string) => {
+    setActiveTab(newTab);
+    
+    if (newTab === 'inventory') {
+      refetchSupplies();
+    } else if (newTab === 'expenses') {
+      refetchExpenses();
+    }
+  };
+  
   return (
     <MainLayout>
       <div className="animate-fade-in">
@@ -278,7 +300,7 @@ const SuppliesPage = () => {
         />
         
         {/* Tab Navigation */}
-        <Tabs defaultValue="inventory" onValueChange={setActiveTab} className="mb-6">
+        <Tabs defaultValue="inventory" onValueChange={handleTabChange} className="mb-6">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="inventory" className="flex items-center gap-1">
               <ShoppingBag className="h-4 w-4" />
@@ -398,6 +420,7 @@ const SuppliesPage = () => {
             setItemToAddToList(null);
             // Auto-refresh shopping list after adding an item
             refetchShoppingItems();
+            triggerRefresh('shopping_list');
           }
         }} 
         item={itemToAddToList}
@@ -406,13 +429,25 @@ const SuppliesPage = () => {
       {/* Add item dialog */}
       <AddItemDialog 
         open={isAddItemDialogOpen} 
-        onOpenChange={setIsAddItemDialogOpen}
+        onOpenChange={(state) => {
+          setIsAddItemDialogOpen(state);
+          if (!state) {
+            // Refresh data when dialog closes
+            refetchSupplies();
+          }
+        }}
       />
 
       {/* Edit item dialog */}
       <EditItemDialog
         open={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
+        onOpenChange={(state) => {
+          setIsEditDialogOpen(state);
+          if (!state) {
+            setItemToEdit(null);
+            refetchSupplies();
+          }
+        }}
         item={itemToEdit}
       />
 

@@ -13,6 +13,16 @@ import { ShoppingItem } from "@/types/shoppingList";
 import { ShoppingListItem } from "./ShoppingListItem";
 import { ItemDetailDialog } from "./ItemDetailDialog";
 import { EditItemDialog } from "./EditItemDialog";
+import { useRefreshContext } from "@/App";
+
+// This interface is for the shopping list's internal usage, not for the inventory
+interface ShoppingEditItem extends Partial<ShoppingItem> {
+  name?: string;
+  quantity?: number;
+  priority?: 'low' | 'medium' | 'high';
+  notes?: string;
+  purchased?: boolean;
+}
 
 export const ShoppingList = () => {
   const [newItemName, setNewItemName] = useState("");
@@ -25,6 +35,7 @@ export const ShoppingList = () => {
   
   const { toast } = useToast();
   const { user } = useAuth();
+  const { triggerRefresh } = useRefreshContext();
 
   // Fetch shopping list items
   const fetchShoppingItems = async () => {
@@ -60,16 +71,18 @@ export const ShoppingList = () => {
   }, [user]);
 
   // Filter and sort shopping items
-  const sortedItems = [...shoppingItems].sort((a, b) => {
-    // Sort by purchased status (unpurchased first)
-    if (a.purchased !== b.purchased) {
-      return a.purchased ? 1 : -1;
-    }
-    
-    // Then sort by priority
-    const priorityOrder = { high: 0, medium: 1, low: 2 };
-    return priorityOrder[a.priority] - priorityOrder[b.priority];
-  });
+  const sortedItems = React.useMemo(() => {
+    return [...shoppingItems].sort((a, b) => {
+      // Sort by purchased status (unpurchased first)
+      if (a.purchased !== b.purchased) {
+        return a.purchased ? 1 : -1;
+      }
+      
+      // Then sort by priority
+      const priorityOrder = { high: 0, medium: 1, low: 2 };
+      return priorityOrder[a.priority as 'high' | 'medium' | 'low'] - priorityOrder[b.priority as 'high' | 'medium' | 'low'];
+    });
+  }, [shoppingItems]);
 
   const handleAddItem = async () => {
     if (!user || !newItemName.trim()) return;
@@ -99,6 +112,7 @@ export const ShoppingList = () => {
       setNewItemQuantity(1);
       setIsAddDialogOpen(false);
       fetchShoppingItems();
+      triggerRefresh('shopping_list');
       
     } catch (error) {
       console.error("Error adding shopping list item:", error);
@@ -120,6 +134,7 @@ export const ShoppingList = () => {
       if (error) throw error;
       
       fetchShoppingItems();
+      triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error updating shopping list item:", error);
       toast({
@@ -145,6 +160,7 @@ export const ShoppingList = () => {
       });
       
       fetchShoppingItems();
+      triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error deleting shopping list item:", error);
       toast({
@@ -160,7 +176,7 @@ export const ShoppingList = () => {
     setIsEditDialogOpen(true);
   };
 
-  const handleSaveEdit = async (editedItem: Partial<ShoppingItem>) => {
+  const handleSaveEdit = async (editedItem: ShoppingEditItem) => {
     if (!selectedItem) return;
     
     try {
@@ -184,6 +200,7 @@ export const ShoppingList = () => {
       setIsEditDialogOpen(false);
       setSelectedItem(null);
       fetchShoppingItems();
+      triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error updating shopping list item:", error);
       toast({
@@ -216,11 +233,37 @@ export const ShoppingList = () => {
       });
       
       fetchShoppingItems();
+      triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error clearing purchased items:", error);
       toast({
         title: "Error",
         description: "Failed to clear purchased items",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Implement "Save List" functionality
+  const handleSaveList = async () => {
+    try {
+      // Here we would typically implement a more complex save functionality
+      // For now, we just indicate to the user that the list is saved
+      toast({
+        title: "List Saved",
+        description: "Your shopping list has been saved"
+      });
+      
+      // In a real application, this might involve:
+      // - Generating a PDF
+      // - Sending an email
+      // - Sharing to another device
+      // - Exporting to other formats
+    } catch (error) {
+      console.error("Error saving list:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save list",
         variant: "destructive",
       });
     }
@@ -281,12 +324,11 @@ export const ShoppingList = () => {
                 Clear Purchased
               </Button>
             )}
-            <Button size="sm" className="flex items-center gap-1" onClick={() => {
-              toast({
-                title: "List Saved",
-                description: "Your shopping list has been saved"
-              });
-            }}>
+            <Button 
+              size="sm" 
+              className="flex items-center gap-1" 
+              onClick={handleSaveList}
+            >
               <Save className="h-4 w-4" />
               <span>Save List</span>
             </Button>

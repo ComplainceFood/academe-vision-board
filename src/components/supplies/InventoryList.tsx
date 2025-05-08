@@ -69,6 +69,13 @@ export const InventoryList = ({
         return sorted.sort((a, b) => a.category.localeCompare(b.category));
       case 'course':
         return sorted.sort((a, b) => a.course.localeCompare(b.course));
+      case 'threshold':
+        // Sort by how close items are to their threshold (critical first)
+        return sorted.sort((a, b) => {
+          const aDiff = a.current_count - a.threshold;
+          const bDiff = b.current_count - b.threshold;
+          return aDiff - bDiff;
+        });
       default:
         return sorted;
     }
@@ -76,7 +83,7 @@ export const InventoryList = ({
 
   // Handle sort button click - cycle through sort options
   const handleSortClick = () => {
-    const sortOptions = ['stock-asc', 'stock-desc', 'name-asc', 'name-desc', 'category', 'course'];
+    const sortOptions = ['stock-asc', 'stock-desc', 'name-asc', 'name-desc', 'category', 'course', 'threshold'];
     const currentIndex = sortOptions.indexOf(sortOrder);
     const nextIndex = (currentIndex + 1) % sortOptions.length;
     onSortChange(sortOptions[nextIndex]);
@@ -91,6 +98,7 @@ export const InventoryList = ({
       case 'name-desc': return 'Name Z-A';
       case 'category': return 'Category';
       case 'course': return 'Course';
+      case 'threshold': return 'Critical First';
       default: return 'Sort';
     }
   };

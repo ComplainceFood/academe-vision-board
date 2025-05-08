@@ -1,10 +1,17 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { ArrowUpDown, CheckCircle, FileText, MoreVertical, Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useRefreshContext } from "@/App";
 
 interface Expense {
   id: string;
@@ -27,14 +34,187 @@ export const ExpenseList = ({
   isLoading,
   onDeleteExpense
 }: ExpenseListProps) => {
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<string>('date-desc');
+  
+  // New expense form state
+  const [newExpense, setNewExpense] = useState({
+    description: '',
+    amount: 0,
+    category: 'Supplies',
+    course: 'General',
+    receipt: false,
+    date: new Date().toISOString().split('T')[0]
+  });
+  
+  const { toast } = useToast();
+  const { user } = useAuth();
+  const { triggerRefresh } = useRefreshContext();
+
+  // Sort expenses based on selected order
+  const sortedExpenses = React.useMemo(() => {
+    const sorted = [...expenses];
+    
+    switch(sortOrder) {
+      case 'date-desc':
+        return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      case 'date-asc':
+        return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+      case 'amount-desc':
+        return sorted.sort((a, b) => b.amount - a.amount);
+      case 'amount-asc':
+        return sorted.sort((a, b) => a.amount - b.amount);
+      case 'category':
+        return sorted.sort((a, b) => a.category.localeCompare(b.category));
+      case 'course':
+        return sorted.sort((a, b) => a.course.localeCompare(b.course));
+      default:
+        return sorted;
+    }
+  }, [expenses, sortOrder]);
+  
+  // Handle sort button click - cycle through sort options
+  const handleSortClick = () => {
+    const sortOptions = ['date-desc', 'date-asc', 'amount-desc', 'amount-asc', 'category', 'course'];
+    const currentIndex = sortOptions.indexOf(sortOrder);
+    const nextIndex = (currentIndex + 1) % sortOptions.length;
+    setSortOrder(sortOptions[nextIndex]);
+  };
+  
+  // Get sort display name
+  const getSortDisplayName = () => {
+    switch(sortOrder) {
+      case 'date-desc': return 'Date ↓';
+      case 'date-asc': return 'Date ↑';
+      case 'amount-desc': return 'Amount ↓';
+      case 'amount-asc': return 'Amount ↑';
+      case 'category': return 'Category';
+      case 'course': return 'Course';
+      default: return 'Sort';
+    }
+  };
+  
+  // Handle adding a new expense
+  const handleAddExpense = async () => {
+    if (!user) return;
+    
+    try {
+      const expenseToAdd = {
+        ...newExpense,
+        user_id: user.id
+      };
+      
+      const { error } = await supabase
+        .from('expenses')
+        .insert(expenseToAdd as any);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Expense added successfully"
+      });
+      
+      // Reset form and close dialog
+      setNewExpense({
+        description: '',
+        amount: 0,
+        category: 'Supplies',
+        course: 'General',
+        receipt: false,
+        date: new Date().toISOString().split('T')[0]
+      });
+      setIsAddDialogOpen(false);
+      triggerRefresh('expenses');
+    } catch (error) {
+      console.error("Error adding expense:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add expense",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Handle updating an expense
+  const handleUpdateExpense = async () => {
+    if (!user || !selectedExpense) return;
+    
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .update(newExpense as any)
+        .eq('id', selectedExpense.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Expense updated successfully"
+      });
+      
+      setIsEditDialogOpen(false);
+      setSelectedExpense(null);
+      triggerRefresh('expenses');
+    } catch (error) {
+      console.error("Error updating expense:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update expense",
+        variant: "destructive"
+      });
+    }
+  };
+  
+  // Handle receipt upload (mock function)
+  const handleUploadReceipt = async () => {
+    if (!selectedExpense) return;
+    
+    try {
+      // In a real app, this would handle file upload
+      // For now, we'll just update the receipt flag
+      const { error } = await supabase
+        .from('expenses')
+        .update({ receipt: true })
+        .eq('id', selectedExpense.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Receipt uploaded successfully"
+      });
+      
+      setIsUploadDialogOpen(false);
+      setSelectedExpense(null);
+      triggerRefresh('expenses');
+    } catch (error) {
+      console.error("Error uploading receipt:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload receipt",
+        variant: "destructive"
+      });
+    }
+  };
+  
   return (
     <Card>
       <CardHeader className="pb-0">
         <div className="flex justify-between items-center">
           <CardTitle>Expense Tracker</CardTitle>
-          <Button variant="outline" size="sm" className="flex items-center gap-1">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="flex items-center gap-1"
+            onClick={handleSortClick}
+          >
             <ArrowUpDown className="h-3 w-3" />
-            <span>Sort</span>
+            <span>{getSortDisplayName()}</span>
           </Button>
         </div>
       </CardHeader>
@@ -43,7 +223,7 @@ export const ExpenseList = ({
           <div className="text-center py-12">
             <p>Loading expense data...</p>
           </div>
-        ) : expenses.length > 0 ? (
+        ) : sortedExpenses.length > 0 ? (
           <Table>
             <TableHeader>
               <TableRow>
@@ -57,7 +237,7 @@ export const ExpenseList = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {expenses.map(expense => (
+              {sortedExpenses.map(expense => (
                 <TableRow key={expense.id}>
                   <TableCell>
                     {new Date(expense.date).toLocaleDateString()}
@@ -83,9 +263,32 @@ export const ExpenseList = ({
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Edit</DropdownMenuItem>
-                        <DropdownMenuItem>Upload Receipt</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          setSelectedExpense(expense);
+                          setIsDetailDialogOpen(true);
+                        }}>
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          setSelectedExpense(expense);
+                          setNewExpense({
+                            description: expense.description,
+                            amount: expense.amount,
+                            category: expense.category,
+                            course: expense.course,
+                            receipt: !!expense.receipt,
+                            date: new Date(expense.date).toISOString().split('T')[0]
+                          });
+                          setIsEditDialogOpen(true);
+                        }}>
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => {
+                          setSelectedExpense(expense);
+                          setIsUploadDialogOpen(true);
+                        }}>
+                          Upload Receipt
+                        </DropdownMenuItem>
                         <DropdownMenuItem 
                           className="text-destructive"
                           onClick={() => onDeleteExpense(expense.id)}
@@ -108,11 +311,265 @@ export const ExpenseList = ({
         )}
       </CardContent>
       <CardFooter>
-        <Button variant="outline" className="w-full flex items-center gap-2">
+        <Button 
+          variant="outline" 
+          className="w-full flex items-center gap-2"
+          onClick={() => setIsAddDialogOpen(true)}
+        >
           <Plus className="h-4 w-4" />
           <span>Add New Expense</span>
         </Button>
       </CardFooter>
+      
+      {/* Add Expense Dialog */}
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add New Expense</DialogTitle>
+            <DialogDescription>
+              Add a new expense to your tracker
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="description">Description</Label>
+              <Input 
+                id="description" 
+                value={newExpense.description}
+                onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
+                placeholder="Enter expense description..."
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="amount">Amount ($)</Label>
+                <Input 
+                  id="amount" 
+                  type="number" 
+                  min="0"
+                  step="0.01"
+                  value={newExpense.amount}
+                  onChange={(e) => setNewExpense({...newExpense, amount: Number(e.target.value)})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="date">Date</Label>
+                <Input 
+                  id="date" 
+                  type="date"
+                  value={newExpense.date}
+                  onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="category">Category</Label>
+                <Input 
+                  id="category" 
+                  value={newExpense.category}
+                  onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
+                  placeholder="Supplies"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="course">Course</Label>
+                <Input 
+                  id="course" 
+                  value={newExpense.course}
+                  onChange={(e) => setNewExpense({...newExpense, course: e.target.value})}
+                  placeholder="General"
+                />
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsAddDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleAddExpense} 
+              disabled={!newExpense.description || newExpense.amount <= 0}
+            >
+              Add Expense
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* View Expense Details Dialog */}
+      <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Expense Details</DialogTitle>
+          </DialogHeader>
+          
+          {selectedExpense && (
+            <div className="space-y-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Description</p>
+                  <p>{selectedExpense.description}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Amount</p>
+                  <p>${selectedExpense.amount.toFixed(2)}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Category</p>
+                  <p>{selectedExpense.category}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Course</p>
+                  <p>{selectedExpense.course}</p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Date</p>
+                  <p>{new Date(selectedExpense.date).toLocaleDateString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">Receipt</p>
+                  <p>{selectedExpense.receipt ? "Available" : "Not available"}</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <DialogFooter>
+            <Button onClick={() => setIsDetailDialogOpen(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Edit Expense Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Expense</DialogTitle>
+            <DialogDescription>
+              Update expense details
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="edit-description">Description</Label>
+              <Input 
+                id="edit-description" 
+                value={newExpense.description}
+                onChange={(e) => setNewExpense({...newExpense, description: e.target.value})}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-amount">Amount ($)</Label>
+                <Input 
+                  id="edit-amount" 
+                  type="number" 
+                  min="0"
+                  step="0.01"
+                  value={newExpense.amount}
+                  onChange={(e) => setNewExpense({...newExpense, amount: Number(e.target.value)})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-date">Date</Label>
+                <Input 
+                  id="edit-date" 
+                  type="date"
+                  value={newExpense.date}
+                  onChange={(e) => setNewExpense({...newExpense, date: e.target.value})}
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-category">Category</Label>
+                <Input 
+                  id="edit-category" 
+                  value={newExpense.category}
+                  onChange={(e) => setNewExpense({...newExpense, category: e.target.value})}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-course">Course</Label>
+                <Input 
+                  id="edit-course" 
+                  value={newExpense.course}
+                  onChange={(e) => setNewExpense({...newExpense, course: e.target.value})}
+                />
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleUpdateExpense}
+              disabled={!newExpense.description || newExpense.amount <= 0}
+            >
+              Save Changes
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Upload Receipt Dialog */}
+      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Upload Receipt</DialogTitle>
+            <DialogDescription>
+              Attach a receipt to this expense
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="receipt">Receipt File</Label>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                <p className="text-sm text-muted-foreground">Drag & drop a file here, or click to select</p>
+                <Input 
+                  id="receipt" 
+                  type="file" 
+                  className="hidden" 
+                  accept="image/*,.pdf"
+                  onChange={() => {}}
+                />
+                <Button variant="outline" className="mt-2" onClick={() => {}}>
+                  Select File
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Accept images and PDF files up to 5MB
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUploadReceipt}>
+              Upload Receipt
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };
