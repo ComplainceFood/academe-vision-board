@@ -11,7 +11,6 @@ export interface ShoppingItem {
   created_at?: string;
 }
 
-// Add this interface to make it available for import
 export interface SupplyItem {
   id: string;
   name: string;

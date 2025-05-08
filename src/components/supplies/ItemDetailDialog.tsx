@@ -7,6 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
 
@@ -40,6 +41,9 @@ export const ItemDetailDialog = ({
       <DialogContent className="transition-all duration-300">
         <DialogHeader>
           <DialogTitle>{item.name}</DialogTitle>
+          <DialogDescription>
+            Item details
+          </DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 py-4">

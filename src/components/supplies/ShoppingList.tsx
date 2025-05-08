@@ -334,7 +334,10 @@ export const ShoppingList = () => {
       current_count: item.quantity,
       total_count: item.quantity,
       threshold: 0,
-      course: "N/A"
+      course: "N/A",
+      // Optional fields can be set to undefined
+      last_restocked: undefined,
+      cost: undefined
     };
   };
 
@@ -466,7 +469,12 @@ export const ShoppingList = () => {
       <ItemDetailDialog 
         item={selectedItem ? convertToSupplyItem(selectedItem) : null}
         open={!!selectedItem && !isEditDialogOpen}
-        onOpenChange={(open) => !open && setSelectedItem(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Important: Use setTimeout to prevent UI freeze when closing dialog
+            setTimeout(() => setSelectedItem(null), 0);
+          }
+        }}
         onEdit={handleEditItem}
       />
 
