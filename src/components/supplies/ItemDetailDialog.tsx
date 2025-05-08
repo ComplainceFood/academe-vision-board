@@ -35,14 +35,9 @@ export const ItemDetailDialog = ({
 
   if (!item) return null;
 
-  // Helper function to determine if item is a shopping item (has purchased property)
-  const isShoppingItem = (item: any): item is ShoppingItem => {
-    return 'purchased' in item;
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="transition-all duration-300">
         <DialogHeader>
           <DialogTitle>{item.name}</DialogTitle>
         </DialogHeader>

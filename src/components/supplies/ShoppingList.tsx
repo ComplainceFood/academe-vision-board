@@ -37,9 +37,9 @@ export const ShoppingList = () => {
   const { user } = useAuth();
   const { triggerRefresh } = useRefreshContext();
 
-  // Fetch shopping list items
+  // Fetch shopping list items with debouncing
   const fetchShoppingItems = async () => {
-    if (!user) return;
+    if (!user || isProcessing) return;
     
     setIsLoading(true);
     try {
@@ -130,6 +130,12 @@ export const ShoppingList = () => {
   const handleTogglePurchased = async (id: string, purchased: boolean) => {
     if (isProcessing) return;
     
+    // Optimistic update to prevent UI freeze
+    const updatedItems = shoppingItems.map(item => 
+      item.id === id ? { ...item, purchased: !purchased } : item
+    );
+    setShoppingItems(updatedItems);
+    
     setIsProcessing(true);
     try {
       const { error } = await supabase
@@ -139,15 +145,11 @@ export const ShoppingList = () => {
       
       if (error) throw error;
       
-      // Update the local state to avoid a full refetch
-      setShoppingItems(prevItems => 
-        prevItems.map(item => 
-          item.id === id ? { ...item, purchased: !purchased } : item
-        )
-      );
+      // Trigger refresh for other components with a delay
+      setTimeout(() => {
+        triggerRefresh('shopping_list');
+      }, 300);
       
-      // Still trigger refresh for other components
-      triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error updating shopping list item:", error);
       toast({
@@ -155,7 +157,7 @@ export const ShoppingList = () => {
         description: "Failed to update item",
         variant: "destructive",
       });
-      // Refetch if there's an error to ensure data is in sync
+      // Revert optimistic update on error
       fetchShoppingItems();
     } finally {
       setIsProcessing(false);
@@ -164,6 +166,10 @@ export const ShoppingList = () => {
 
   const handleDeleteItem = async (id: string) => {
     if (isProcessing) return;
+    
+    // Optimistic update
+    const updatedItems = shoppingItems.filter(item => item.id !== id);
+    setShoppingItems(updatedItems);
     
     setIsProcessing(true);
     try {
@@ -179,11 +185,11 @@ export const ShoppingList = () => {
         description: "Item removed from shopping list",
       });
       
-      // Update local state first (optimistic UI update)
-      setShoppingItems(prevItems => prevItems.filter(item => item.id !== id));
+      // Trigger refresh for other components with a delay
+      setTimeout(() => {
+        triggerRefresh('shopping_list');
+      }, 300);
       
-      // Still trigger refresh for other components
-      triggerRefresh('shopping_list');
     } catch (error) {
       console.error("Error deleting shopping list item:", error);
       toast({
@@ -191,7 +197,7 @@ export const ShoppingList = () => {
         description: "Failed to remove item",
         variant: "destructive",
       });
-      // Refetch if there's an error
+      // Revert optimistic update on error
       fetchShoppingItems();
     } finally {
       setIsProcessing(false);
@@ -208,6 +214,14 @@ export const ShoppingList = () => {
     
     setIsProcessing(true);
     try {
+      // Optimistic update
+      const updatedItems = shoppingItems.map(item => 
+        item.id === selectedItem.id 
+          ? { ...item, ...editedItem } 
+          : item
+      );
+      setShoppingItems(updatedItems);
+      
       const { error } = await supabase
         .from('shopping_list')
         .update({
@@ -227,8 +241,11 @@ export const ShoppingList = () => {
       
       setIsEditDialogOpen(false);
       setSelectedItem(null);
-      fetchShoppingItems();
-      triggerRefresh('shopping_list');
+      
+      // Trigger refresh for other components with a delay
+      setTimeout(() => {
+        triggerRefresh('shopping_list');
+      }, 300);
     } catch (error) {
       console.error("Error updating shopping list item:", error);
       toast({
@@ -236,6 +253,7 @@ export const ShoppingList = () => {
         description: "Failed to update item",
         variant: "destructive",
       });
+      fetchShoppingItems();
     } finally {
       setIsProcessing(false);
     }
@@ -312,7 +330,7 @@ export const ShoppingList = () => {
     return {
       id: item.id,
       name: item.name,
-      category: "Shopping List Item",  // Default category for shopping items
+      category: "Shopping List Item",
       current_count: item.quantity,
       total_count: item.quantity,
       threshold: 0,

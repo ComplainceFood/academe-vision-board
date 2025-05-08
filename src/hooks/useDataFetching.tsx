@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
@@ -23,25 +23,46 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const [isFetching, setIsFetching] = useState(false);
+  const isFetchingRef = useRef(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  
+  // Debounce timers
+  const debounceTimerRef = useRef<number | null>(null);
+  const lastFetchTimeRef = useRef<number>(0);
+  const MIN_FETCH_INTERVAL = 300; // milliseconds
 
   // Function to fetch data with debouncing
-  const fetchData = async () => {
-    if (!user || !enabled || isFetching) {
-      setIsLoading(false);
+  const fetchData = useCallback(async (forceRefresh = false) => {
+    if (!user || !enabled || isFetchingRef.current) {
+      return;
+    }
+
+    const now = Date.now();
+    if (!forceRefresh && now - lastFetchTimeRef.current < MIN_FETCH_INTERVAL) {
+      // Debounce rapid consecutive fetches
+      if (debounceTimerRef.current) {
+        window.clearTimeout(debounceTimerRef.current);
+      }
+      
+      debounceTimerRef.current = window.setTimeout(() => {
+        fetchData(true);
+        debounceTimerRef.current = null;
+      }, MIN_FETCH_INTERVAL);
+      
       return;
     }
 
     try {
-      setIsFetching(true);
+      isFetchingRef.current = true;
       setError(null);
       
       if (isLoading) {
         // Only show loading state on initial load, not on subsequent fetches
         setIsLoading(true);
       }
+
+      lastFetchTimeRef.current = now;
 
       // Type annotation to resolve infinite type instantiation
       let query: any = supabase
@@ -100,12 +121,12 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       setIsLoading(false);
       // Add a small delay before allowing another fetch to prevent rapid consecutive fetches
       setTimeout(() => {
-        setIsFetching(false);
+        isFetchingRef.current = false;
       }, 300);
     }
-  };
+  }, [user, table, enabled, filters, transform, isLoading, toast]);
 
-  // Subscribe to real-time changes using a more efficient approach
+  // Subscribe to real-time changes using an optimized approach
   useEffect(() => {
     if (!user || !enabled) return;
 
@@ -123,10 +144,10 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
           
           // Update data without a full refetch when possible
           if (payload.eventType === 'INSERT') {
-            const newItem = payload.new as T;
+            const newItem = transform ? transform(payload.new) : payload.new as T;
             setData(current => [...current, newItem]);
           } else if (payload.eventType === 'UPDATE') {
-            const updatedItem = payload.new as T;
+            const updatedItem = transform ? transform(payload.new) : payload.new as T;
             setData(current => 
               current.map(item => 
                 // @ts-ignore - we know id exists on the item
@@ -141,9 +162,6 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
                 item.id !== deletedItem.id
               )
             );
-          } else {
-            // If we can't handle the change specifically, fall back to a refetch
-            fetchData();
           }
         })
       .subscribe();
@@ -151,14 +169,14 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, table, enabled]);
+  }, [user, table, enabled, transform]);
 
   // Listen for seed data event
   useEffect(() => {
     const handleSeedData = () => {
       if (enabled) {
         console.log(`Handling seed data event for ${table}`);
-        fetchData();
+        fetchData(true);
       }
     };
 
@@ -169,7 +187,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       const customEvent = event as CustomEvent<{table?: string}>;
       if (enabled && (!customEvent.detail?.table || customEvent.detail.table === table)) {
         console.log(`Handling refresh event for ${table}`);
-        fetchData();
+        fetchData(true);
       }
     };
 
@@ -179,21 +197,17 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       window.removeEventListener('seedDataCompleted', handleSeedData);
       window.removeEventListener('refreshData', handleRefreshData as EventListener);
     };
-  }, [user, enabled, table]);
+  }, [enabled, table, fetchData]);
 
   // Initial data fetch
   useEffect(() => {
-    if (!isFetching) {
-      fetchData();
-    }
-  }, [user, enabled]);
+    fetchData();
+  }, [user, enabled, fetchData]);
 
-  const refetch = () => {
-    if (!isFetching) {
-      console.log(`Manually refetching ${table} data`);
-      fetchData();
-    }
-  };
+  const refetch = useCallback(() => {
+    console.log(`Manually refetching ${table} data`);
+    fetchData(true);
+  }, [fetchData, table]);
 
   return { data, isLoading, error, refetch };
 }
