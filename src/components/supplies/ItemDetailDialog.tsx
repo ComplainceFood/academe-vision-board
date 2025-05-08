@@ -8,19 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ShoppingItem } from "@/types/shoppingList";
-
-interface SupplyItem {
-  id: string;
-  name: string;
-  category: string;
-  current_count: number;
-  total_count: number;
-  threshold: number;
-  course: string;
-  last_restocked?: string;
-  cost?: number;
-}
+import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
 
 interface ItemDetailDialogProps {
   item: SupplyItem | null;

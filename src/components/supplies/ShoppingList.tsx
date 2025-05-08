@@ -14,19 +14,6 @@ import { ItemDetailDialog } from "./ItemDetailDialog";
 import { EditItemDialog } from "./EditItemDialog";
 import { useRefreshContext } from "@/App";
 
-// Define SupplyItem interface here to match what ItemDetailDialog expects
-interface SupplyItem {
-  id: string;
-  name: string;
-  category: string;
-  current_count: number;
-  total_count: number;
-  threshold: number;
-  course: string;
-  last_restocked?: string;
-  cost?: number;
-}
-
 // This interface is for the shopping list's internal usage, not for the inventory
 interface ShoppingEditItem extends Partial<ShoppingItem> {
   name?: string;
