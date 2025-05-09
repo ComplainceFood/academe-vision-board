@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -478,9 +479,9 @@ export const ShoppingList = () => {
         onEdit={handleEditItem}
       />
 
-      {/* Edit Item Dialog */}
+      {/* Edit Item Dialog - Fixed to pass the proper type */}
       <EditItemDialog 
-        item={selectedItem}
+        item={selectedItem ? convertToSupplyItem(selectedItem) : null}
         open={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
         onSave={handleSaveEdit}

@@ -36,6 +36,9 @@ export const ItemDetailDialog = ({
 
   if (!item) return null;
 
+  // Check if this is a shopping list item (has priority property)
+  const isShoppingItem = 'priority' in item;
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="transition-all duration-300">
@@ -51,7 +54,7 @@ export const ItemDetailDialog = ({
             <span className="text-sm text-muted-foreground">Quantity:</span>
             <span className="font-medium">{item.current_count}</span>
           </div>
-          {(item as any)?.priority && (
+          {isShoppingItem && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Priority:</span>
               <span className={`text-xs px-2 py-0.5 rounded ${getPriorityColor((item as any).priority)}`}>
@@ -59,7 +62,7 @@ export const ItemDetailDialog = ({
               </span>
             </div>
           )}
-          {(item as any)?.purchased !== undefined && (
+          {isShoppingItem && (item as any).purchased !== undefined && (
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">Status:</span>
               <span className={`text-xs px-2 py-0.5 rounded ${(item as any).purchased ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
