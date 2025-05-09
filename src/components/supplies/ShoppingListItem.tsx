@@ -3,10 +3,11 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2 } from "lucide-react";
-import { ShoppingItem } from "@/types/shoppingList";
+import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
 
 interface ShoppingListItemProps {
   item: ShoppingItem;
+  supplies?: SupplyItem[]; // Make supplies optional
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onDelete: (id: string) => void;
   onItemClick: (item: ShoppingItem) => void;
@@ -14,6 +15,7 @@ interface ShoppingListItemProps {
 
 export const ShoppingListItem = ({ 
   item, 
+  supplies,
   onTogglePurchased, 
   onDelete,
   onItemClick
@@ -39,7 +41,7 @@ export const ShoppingListItem = ({
       <div className="flex items-center gap-3 flex-1">
         <Checkbox 
           checked={item.purchased} 
-          onCheckedChange={() => onTogglePurchased(item.id, item.purchased)}
+          onCheckedChange={() => onTogglePurchased(item.id, !item.purchased)}
           onClick={(e) => e.stopPropagation()}
           className="transition-transform hover:scale-110"
         />

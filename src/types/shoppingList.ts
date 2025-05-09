@@ -21,6 +21,7 @@ export interface SupplyItem {
   course: string;
   last_restocked?: string;
   cost?: number;
+  user_id: string;
 }
 
 // Interface for editing a shopping item

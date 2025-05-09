@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -7,7 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ShoppingBag, Plus, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
+import { ShoppingItem, SupplyItem, ShoppingEditItem } from "@/types/shoppingList";
 import { ShoppingListItem } from "./ShoppingListItem";
 import { ItemDetailDialog } from "./ItemDetailDialog";
 import { EditItemDialog } from "./EditItemDialog";
@@ -33,6 +34,12 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
   const [selectedSupply, setSelectedSupply] = useState<SupplyItem | undefined>(undefined);
   const [isAdding, setIsAdding] = useState(false);
   const { user } = useAuth();
+
+  // States for handling item details and edit functionality
+  const [selectedItem, setSelectedItem] = useState<ShoppingItem | null>(null);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<ShoppingItem | null>(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     if (newItemSupplyId) {
@@ -63,24 +70,142 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
 
       if (error) {
         console.error("Error adding item:", error);
-        toast("Failed to add item. Please try again.", {
+        toast({
           description: error.message,
-          title: "Error",
           duration: 5000,
         });
-      } else {
-        onItemAdded(data);
+      } else if (data) {
+        // Type assertion to ensure data conforms to ShoppingItem
+        const newItem: ShoppingItem = {
+          id: data.id,
+          name: data.name,
+          quantity: data.quantity,
+          purchased: data.purchased,
+          priority: data.priority as "low" | "medium" | "high",
+          notes: data.notes || undefined,
+          user_id: data.user_id,
+          supply_id: data.supply_id || undefined,
+          created_at: data.created_at
+        };
+        
+        onItemAdded(newItem);
         setNewItemName("");
         setNewItemQuantity(1);
         setNewItemPriority("medium");
         setNewItemSupplyId(undefined);
         setOpen(false);
-        toast("Item added to shopping list!", {
+        toast({
+          description: "Item added to shopping list!",
           duration: 3000,
         });
       }
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const handleItemClick = (item: ShoppingItem) => {
+    setSelectedItem(item);
+    setIsDetailOpen(true);
+  };
+
+  const handleEditItem = (item: ShoppingItem) => {
+    setEditingItem(item);
+    setIsEditOpen(true);
+  };
+
+  const handleUpdateItem = async (updatedItem: ShoppingEditItem) => {
+    if (!editingItem) return;
+    
+    try {
+      const { error } = await supabase
+        .from('shopping_list')
+        .update({
+          name: updatedItem.name,
+          quantity: updatedItem.quantity,
+          priority: updatedItem.priority,
+          notes: updatedItem.notes,
+          purchased: updatedItem.purchased
+        })
+        .eq('id', editingItem.id);
+      
+      if (error) throw error;
+      
+      // Create updated item for UI update
+      const updated: ShoppingItem = {
+        ...editingItem,
+        name: updatedItem.name || editingItem.name,
+        quantity: updatedItem.quantity !== undefined ? updatedItem.quantity : editingItem.quantity,
+        priority: updatedItem.priority || editingItem.priority,
+        notes: updatedItem.notes,
+        purchased: updatedItem.purchased !== undefined ? updatedItem.purchased : editingItem.purchased
+      };
+      
+      onItemUpdated(updated);
+      setIsEditOpen(false);
+      setEditingItem(null);
+      toast({
+        description: "Item updated successfully",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast({
+        description: "Failed to update item",
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleTogglePurchased = async (id: string, purchased: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('shopping_list')
+        .update({ purchased })
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      // Find and update the item in the list
+      const updatedItem = items.find(item => item.id === id);
+      if (updatedItem) {
+        updatedItem.purchased = purchased;
+        onItemUpdated({...updatedItem});
+      }
+      
+      toast({
+        description: purchased ? "Item marked as purchased" : "Item marked as not purchased",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error updating item:", error);
+      toast({
+        description: "Failed to update item status",
+        duration: 5000,
+      });
+    }
+  };
+
+  const handleDeleteItem = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('shopping_list')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      onItemDeleted(id);
+      toast({
+        description: "Item deleted successfully",
+        duration: 3000,
+      });
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast({
+        description: "Failed to delete item",
+        duration: 5000,
+      });
     }
   };
 
@@ -104,9 +229,9 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
               <ShoppingListItem
                 key={item.id}
                 item={item}
-                supplies={supplies}
-                onItemUpdated={onItemUpdated}
-                onItemDeleted={onItemDeleted}
+                onTogglePurchased={handleTogglePurchased}
+                onDelete={handleDeleteItem}
+                onItemClick={handleItemClick}
               />
             ))}
           </ul>
@@ -210,6 +335,34 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {/* Item Detail Dialog */}
+      {selectedItem && (
+        <ItemDetailDialog
+          open={isDetailOpen}
+          onOpenChange={setIsDetailOpen}
+          item={selectedItem}
+          onEdit={() => {
+            setIsDetailOpen(false);
+            setEditingItem(selectedItem);
+            setIsEditOpen(true);
+          }}
+          onDelete={() => {
+            setIsDetailOpen(false);
+            handleDeleteItem(selectedItem.id);
+          }}
+        />
+      )}
+      
+      {/* Edit Item Dialog */}
+      {editingItem && (
+        <EditItemDialog
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+          item={editingItem as any}
+          onSave={handleUpdateItem}
+        />
+      )}
     </Card>
   );
 };

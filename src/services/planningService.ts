@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { useAuth } from "@/hooks/useAuth";
@@ -52,7 +51,7 @@ export interface FutureTaskFormData {
 // Hook for fetching planning events
 export const usePlanningEvents = () => {
   return useDataFetching<PlanningEvent>({
-    table: 'planning_events',
+    table: 'planning_events' as any,
     enabled: true
   });
 };
@@ -60,7 +59,7 @@ export const usePlanningEvents = () => {
 // Hook for fetching future planning tasks
 export const useFuturePlanning = () => {
   return useDataFetching<FutureTask>({
-    table: 'future_planning',
+    table: 'future_planning' as any,
     enabled: true
   });
 };
