@@ -479,7 +479,7 @@ export const ShoppingList = () => {
         onEdit={handleEditItem}
       />
 
-      {/* Edit Item Dialog - Fixed to pass the proper type */}
+      {/* Edit Item Dialog */}
       <EditItemDialog 
         item={selectedItem ? convertToSupplyItem(selectedItem) : null}
         open={isEditDialogOpen}
