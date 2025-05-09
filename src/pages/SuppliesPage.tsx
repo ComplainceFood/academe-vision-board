@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -46,6 +45,7 @@ interface SupplyItem {
   course: string;
   last_restocked?: string;
   cost?: number;
+  user_id: string;  // Adding user_id to match expected type
 }
 
 interface Expense {

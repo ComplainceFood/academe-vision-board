@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { ShoppingBag, Plus, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -70,10 +69,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
 
       if (error) {
         console.error("Error adding item:", error);
-        toast({
-          description: error.message,
-          duration: 5000,
-        });
+        toast("Error adding item: " + error.message);
       } else if (data) {
         // Type assertion to ensure data conforms to ShoppingItem
         const newItem: ShoppingItem = {
@@ -94,10 +90,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
         setNewItemPriority("medium");
         setNewItemSupplyId(undefined);
         setOpen(false);
-        toast({
-          description: "Item added to shopping list!",
-          duration: 3000,
-        });
+        toast("Item added to shopping list!");
       }
     } finally {
       setIsAdding(false);
@@ -144,16 +137,10 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
       onItemUpdated(updated);
       setIsEditOpen(false);
       setEditingItem(null);
-      toast({
-        description: "Item updated successfully",
-        duration: 3000,
-      });
+      toast("Item updated successfully");
     } catch (error) {
       console.error("Error updating item:", error);
-      toast({
-        description: "Failed to update item",
-        duration: 5000,
-      });
+      toast("Failed to update item");
     }
   };
 
@@ -173,16 +160,10 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
         onItemUpdated({...updatedItem});
       }
       
-      toast({
-        description: purchased ? "Item marked as purchased" : "Item marked as not purchased",
-        duration: 3000,
-      });
+      toast(purchased ? "Item marked as purchased" : "Item marked as not purchased");
     } catch (error) {
       console.error("Error updating item:", error);
-      toast({
-        description: "Failed to update item status",
-        duration: 5000,
-      });
+      toast("Failed to update item status");
     }
   };
 
@@ -196,16 +177,10 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
       if (error) throw error;
       
       onItemDeleted(id);
-      toast({
-        description: "Item deleted successfully",
-        duration: 3000,
-      });
+      toast("Item deleted successfully");
     } catch (error) {
       console.error("Error deleting item:", error);
-      toast({
-        description: "Failed to delete item",
-        duration: 5000,
-      });
+      toast("Failed to delete item");
     }
   };
 
@@ -229,6 +204,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
               <ShoppingListItem
                 key={item.id}
                 item={item}
+                supplies={supplies}
                 onTogglePurchased={handleTogglePurchased}
                 onDelete={handleDeleteItem}
                 onItemClick={handleItemClick}
@@ -359,7 +335,7 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
         <EditItemDialog
           open={isEditOpen}
           onOpenChange={setIsEditOpen}
-          item={editingItem as any}
+          item={editingItem}
           onSave={handleUpdateItem}
         />
       )}

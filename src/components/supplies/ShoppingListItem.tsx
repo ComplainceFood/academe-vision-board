@@ -7,7 +7,7 @@ import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
 
 interface ShoppingListItemProps {
   item: ShoppingItem;
-  supplies?: SupplyItem[]; // Make supplies optional
+  supplies?: SupplyItem[]; // Making supplies optional
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onDelete: (id: string) => void;
   onItemClick: (item: ShoppingItem) => void;
