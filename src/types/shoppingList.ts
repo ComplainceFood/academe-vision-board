@@ -22,3 +22,12 @@ export interface SupplyItem {
   last_restocked?: string;
   cost?: number;
 }
+
+// Interface for editing a shopping item
+export interface ShoppingEditItem {
+  name?: string;
+  quantity?: number;
+  priority?: 'low' | 'medium' | 'high';
+  notes?: string;
+  purchased?: boolean;
+}

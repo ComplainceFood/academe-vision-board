@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -9,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Label } from "@/components/ui/label";
 import { ShoppingBag, Plus, Save } from "lucide-react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
+import { ShoppingItem, SupplyItem, ShoppingEditItem } from "@/types/shoppingList";
 import { ShoppingListItem } from "./ShoppingListItem";
 import { ItemDetailDialog } from "./ItemDetailDialog";
 import { EditItemDialog } from "./EditItemDialog";
@@ -326,7 +325,7 @@ export const ShoppingList = () => {
     }
   };
 
-  // Convert ShoppingItem to SupplyItem for the ItemDetailDialog
+  // Convert ShoppingItem to SupplyItem for the ItemDetailDialog and EditItemDialog
   const convertToSupplyItem = (item: ShoppingItem): SupplyItem => {
     return {
       id: item.id,
@@ -479,7 +478,7 @@ export const ShoppingList = () => {
         onEdit={handleEditItem}
       />
 
-      {/* Edit Item Dialog */}
+      {/* Edit Item Dialog - Pass the converted supply item and the onSave handler */}
       <EditItemDialog 
         item={selectedItem ? convertToSupplyItem(selectedItem) : null}
         open={isEditDialogOpen}
