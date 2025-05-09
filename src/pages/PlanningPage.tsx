@@ -45,7 +45,7 @@ const PlanningPage = () => {
   const [currentTask, setCurrentTask] = useState<FutureTask | undefined>(undefined);
   
   // Tab states
-  const [activeFutureTab, setActiveFutureTab] = useState("fall2025");
+  const [activeFutureTab, setActiveFutureTab] = useState("Fall 2025");
 
   // Handle event dialog
   const handleOpenEventDialog = (event?: PlanningEvent) => {
@@ -61,7 +61,7 @@ const PlanningPage = () => {
 
   // Handle event save
   const handleEventSave = async (eventData: EventFormData) => {
-    if (currentEvent) {
+    if (currentEvent?.id) {
       await updatePlanningEvent(currentEvent.id, eventData);
     } else {
       await createPlanningEvent(eventData);
@@ -70,7 +70,7 @@ const PlanningPage = () => {
 
   // Handle task save
   const handleTaskSave = async (taskData: FutureTaskFormData) => {
-    if (currentTask) {
+    if (currentTask?.id) {
       await updateFutureTask(currentTask.id, taskData);
     } else {
       await createFutureTask(taskData);

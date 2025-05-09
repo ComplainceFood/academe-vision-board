@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -164,6 +163,49 @@ export const ShoppingList: React.FC<ShoppingListProps> = ({ items, supplies, onI
     } catch (error) {
       console.error("Error updating item:", error);
       toast("Failed to update item status");
+    }
+  };
+
+  const handleMarkAsPurchased = async (id: string, purchased: boolean) => {
+    try {
+      await supabase
+        .from('shopping_list')
+        .update({ purchased })
+        .eq('id', id);
+
+      toast({
+        description: `Item marked as ${purchased ? 'purchased' : 'not purchased'}`,
+        variant: purchased ? "default" : "destructive"
+      });
+
+      // Refresh the list to reflect the change
+      const { data, error } = await supabase
+        .from('shopping_list')
+        .select()
+        .eq('user_id', user.id);
+
+      if (error) {
+        console.error("Error refreshing list:", error);
+        toast("Failed to refresh list");
+      } else if (data) {
+        onItemUpdated(data.map(item => ({
+          id: item.id,
+          name: item.name,
+          quantity: item.quantity,
+          purchased: item.purchased,
+          priority: item.priority as "low" | "medium" | "high",
+          notes: item.notes || undefined,
+          user_id: item.user_id,
+          supply_id: item.supply_id || undefined,
+          created_at: item.created_at
+        })));
+      }
+    } catch (error) {
+      console.error('Error updating item:', error);
+      toast({
+        description: "Failed to update item",
+        variant: "destructive"
+      });
     }
   };
 
