@@ -42,6 +42,39 @@ export type Database = {
         }
         Relationships: []
       }
+      future_planning: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          estimated_hours: number | null
+          id: string
+          priority: string
+          semester: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          priority: string
+          semester: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          estimated_hours?: number | null
+          id?: string
+          priority?: string
+          semester?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           action_items: string[] | null
@@ -138,6 +171,48 @@ export type Database = {
           starred?: boolean | null
           student?: string | null
           tags?: string[] | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      planning_events: {
+        Row: {
+          completed: boolean | null
+          course: string | null
+          created_at: string | null
+          date: string
+          description: string | null
+          id: string
+          priority: string | null
+          time: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          course?: string | null
+          created_at?: string | null
+          date: string
+          description?: string | null
+          id?: string
+          priority?: string | null
+          time?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          course?: string | null
+          created_at?: string | null
+          date?: string
+          description?: string | null
+          id?: string
+          priority?: string | null
+          time?: string | null
           title?: string
           type?: string
           user_id?: string
