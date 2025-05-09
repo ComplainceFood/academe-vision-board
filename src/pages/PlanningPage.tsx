@@ -31,8 +31,12 @@ import {
 
 const PlanningPage = () => {
   // Fetch planning data
-  const { data: events = [], isLoading: eventsLoading } = usePlanningEvents();
-  const { data: futureTasks = [], isLoading: tasksLoading } = useFuturePlanning();
+  const { data: eventsData = [], isLoading: eventsLoading } = usePlanningEvents();
+  const { data: futureTasksData = [], isLoading: tasksLoading } = useFuturePlanning();
+  
+  // Ensure proper typing for our data
+  const events = eventsData as PlanningEvent[];
+  const futureTasks = futureTasksData as FutureTask[];
   
   // Event actions
   const { createPlanningEvent, updatePlanningEvent, toggleEventCompletion, deletePlanningEvent } = usePlanningEventActions();
@@ -73,12 +77,14 @@ const PlanningPage = () => {
     if (currentTask?.id) {
       await updateFutureTask(currentTask.id, taskData);
     } else {
-      await createFutureTask(taskData);
+      await createFutureTask({...taskData, semester: activeFutureTab});
     }
   };
 
-  // Handle task semester filter
-  const filteredTasks = futureTasks.filter(task => task.semester === activeFutureTab);
+  // Handle task semester filter - ensure type safety
+  const filteredTasks = futureTasks.filter(task => {
+    return task.semester === activeFutureTab;
+  });
 
   return (
     <MainLayout>
@@ -158,8 +164,8 @@ const PlanningPage = () => {
                           <FutureTaskCard 
                             key={task.id} 
                             task={task} 
-                            onEdit={handleOpenTaskDialog}
-                            onDelete={deleteFutureTask}
+                            onEdit={() => handleOpenTaskDialog(task)}
+                            onDelete={() => task.id && deleteFutureTask(task.id)}
                           />
                         ))
                       ) : (

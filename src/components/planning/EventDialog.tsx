@@ -30,7 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { EventFormData, PlanningEvent } from "@/services/planningService";
 import { useEffect } from "react";
@@ -145,7 +145,18 @@ export function EventDialog({
                         <Calendar
                           mode="single"
                           selected={field.value ? new Date(field.value) : undefined}
-                          onSelect={(date) => field.onChange(date ? format(date, "yyyy-MM-dd") : "")}
+                          onSelect={(date) => {
+                            if (date) {
+                              // Ensure we're using UTC to avoid timezone issues
+                              const selectedDate = new Date(Date.UTC(
+                                date.getFullYear(), 
+                                date.getMonth(), 
+                                date.getDate()
+                              ));
+                              const dateString = selectedDate.toISOString().split('T')[0];
+                              field.onChange(dateString);
+                            }
+                          }}
                           initialFocus
                           className={cn("p-3 pointer-events-auto")}
                         />

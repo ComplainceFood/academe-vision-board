@@ -47,84 +47,84 @@ export interface FutureTaskFormData {
 }
 
 // Base database operations
-export const getEvents = async () => {
+export const getEvents = async (): Promise<PlanningEvent[]> => {
   const { data, error } = await supabase
-    .from('planning_events' as any)
+    .from('planning_events')
     .select('*')
     .order('date', { ascending: true });
 
   if (error) throw error;
-  return data;
+  return data as PlanningEvent[];
 };
 
-export const createEvent = async (event: PlanningEvent) => {
+export const createEvent = async (event: PlanningEvent): Promise<PlanningEvent> => {
   const { data, error } = await supabase
-    .from('planning_events' as any)
+    .from('planning_events')
     .insert(event)
     .select()
     .single();
 
   if (error) throw error;
-  return data;
+  return data as PlanningEvent;
 };
 
-export const updateEvent = async (id: string, updates: Partial<PlanningEvent>) => {
+export const updateEvent = async (id: string, updates: Partial<PlanningEvent>): Promise<PlanningEvent> => {
   const { data, error } = await supabase
-    .from('planning_events' as any)
+    .from('planning_events')
     .update(updates)
     .eq('id', id)
     .select()
     .single();
 
   if (error) throw error;
-  return data;
+  return data as PlanningEvent;
 };
 
-export const deleteEvent = async (id: string) => {
+export const deleteEvent = async (id: string): Promise<void> => {
   const { error } = await supabase
-    .from('planning_events' as any)
+    .from('planning_events')
     .delete()
     .eq('id', id);
 
   if (error) throw error;
 };
 
-export const getFutureTasks = async () => {
+export const getFutureTasks = async (): Promise<FutureTask[]> => {
   const { data, error } = await supabase
-    .from('future_planning' as any)
+    .from('future_planning')
     .select('*')
     .order('priority', { ascending: false });
 
   if (error) throw error;
-  return data;
+  return data as FutureTask[];
 };
 
-export const createFutureTask = async (task: FutureTask) => {
+export const createFutureTask = async (task: FutureTask): Promise<FutureTask> => {
   const { data, error } = await supabase
-    .from('future_planning' as any)
+    .from('future_planning')
     .insert(task)
     .select()
     .single();
 
   if (error) throw error;
-  return data;
+  return data as FutureTask;
 };
 
-export const updateFutureTask = async (id: string, updates: Partial<FutureTask>) => {
+export const updateFutureTask = async (id: string, updates: Partial<FutureTask>): Promise<FutureTask> => {
   const { data, error } = await supabase
-    .from('future_planning' as any)
+    .from('future_planning')
     .update(updates)
     .eq('id', id)
     .select()
     .single();
 
   if (error) throw error;
-  return data;
+  return data as FutureTask;
 };
 
-export const deleteFutureTask = async (id: string) => {
+export const deleteFutureTask = async (id: string): Promise<void> => {
   const { error } = await supabase
-    .from('future_planning' as any)
+    .from('future_planning')
     .delete()
     .eq('id', id);
 

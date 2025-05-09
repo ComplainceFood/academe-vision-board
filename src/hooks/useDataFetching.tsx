@@ -1,3 +1,4 @@
+
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
@@ -26,24 +27,34 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Debounce timers
+  // Debounce timers and fetch queue management
   const debounceTimerRef = useRef<number | null>(null);
   const lastFetchTimeRef = useRef<number>(0);
   const MIN_FETCH_INTERVAL = 300; // milliseconds
+  const fetchQueueRef = useRef<boolean>(false);
 
-  // Function to fetch data with debouncing
+  // Function to fetch data with debouncing and queuing
   const fetchData = useCallback(async (forceRefresh = false) => {
-    if (!user || !enabled || isFetchingRef.current) {
+    if (!user || !enabled) {
       return;
     }
 
     const now = Date.now();
+    
+    // If already fetching, queue another fetch
+    if (isFetchingRef.current) {
+      fetchQueueRef.current = true;
+      return;
+    }
+    
+    // Implement rate limiting with forceRefresh override
     if (!forceRefresh && now - lastFetchTimeRef.current < MIN_FETCH_INTERVAL) {
-      // Debounce rapid consecutive fetches
+      // Clear any existing debounce timer
       if (debounceTimerRef.current) {
         window.clearTimeout(debounceTimerRef.current);
       }
       
+      // Set a new debounce timer
       debounceTimerRef.current = window.setTimeout(() => {
         fetchData(true);
         debounceTimerRef.current = null;
@@ -118,14 +129,21 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       });
     } finally {
       setIsLoading(false);
-      // Add a small delay before allowing another fetch to prevent rapid consecutive fetches
+      
+      // Short delay before allowing another fetch
       setTimeout(() => {
         isFetchingRef.current = false;
-      }, 300);
+        
+        // If a fetch was queued during this operation, execute it now
+        if (fetchQueueRef.current) {
+          fetchQueueRef.current = false;
+          fetchData(true);
+        }
+      }, 100);
     }
   }, [user, table, enabled, filters, transform, isLoading, toast]);
 
-  // Subscribe to real-time changes using an optimized approach
+  // Subscribe to real-time changes with improved state handling
   useEffect(() => {
     if (!user || !enabled) return;
 
@@ -161,16 +179,22 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
                 item.id !== deletedItem.id
               )
             );
+          } else {
+            // If we can't handle the change optimistically, do a full refetch
+            fetchData(true);
           }
         })
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`Realtime subscription status for ${table}:`, status);
+      });
 
     return () => {
+      console.log(`Removing realtime channel for ${table}`);
       supabase.removeChannel(channel);
     };
-  }, [user, table, enabled, transform]);
+  }, [user, table, enabled, transform, fetchData]);
 
-  // Listen for seed data event
+  // Listen for seed data and refresh events
   useEffect(() => {
     const handleSeedData = () => {
       if (enabled) {
@@ -198,11 +222,25 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     };
   }, [enabled, table, fetchData]);
 
-  // Initial data fetch
+  // Initial data fetch with retry mechanism
   useEffect(() => {
-    fetchData();
-  }, [user, enabled, fetchData]);
+    const attemptFetch = async (retryCount = 0) => {
+      try {
+        await fetchData();
+      } catch (err) {
+        if (retryCount < 3) {
+          console.log(`Retrying fetch for ${table}, attempt ${retryCount + 1}`);
+          setTimeout(() => attemptFetch(retryCount + 1), 1000 * (retryCount + 1));
+        }
+      }
+    };
+    
+    if (user && enabled) {
+      attemptFetch();
+    }
+  }, [user, enabled, fetchData, table]);
 
+  // Improved refetch function with queuing mechanism
   const refetch = useCallback(() => {
     console.log(`Manually refetching ${table} data`);
     fetchData(true);
