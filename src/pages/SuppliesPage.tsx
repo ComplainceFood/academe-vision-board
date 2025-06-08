@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -35,19 +34,7 @@ import { Input } from "@/components/ui/input";
 import { AddItemDialog } from "@/components/supplies/AddItemDialog";
 import { EditItemDialog } from "@/components/supplies/EditItemDialog";
 import { ItemHistoryDialog } from "@/components/supplies/ItemHistoryDialog";
-
-interface SupplyItem {
-  id: string;
-  name: string;
-  category: string;
-  current_count: number;
-  total_count: number;
-  threshold: number;
-  course: string;
-  last_restocked?: string;
-  cost?: number;
-  user_id: string;
-}
+import { SupplyItem } from "@/types/shoppingList";
 
 interface Expense {
   id: string;

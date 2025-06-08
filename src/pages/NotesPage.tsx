@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -266,10 +265,8 @@ const NotesPage = () => {
         )}
       </div>
 
-      {/* Create Note Dialog */}
+      {/* Create Note Dialog - Fixed to not pass unsupported props */}
       <CreateNoteDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
         onNoteCreated={() => {
           refetch();
           setIsCreateDialogOpen(false);

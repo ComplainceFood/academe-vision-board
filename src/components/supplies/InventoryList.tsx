@@ -8,18 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { ArrowUpDown, MoreVertical, PackageOpen, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface SupplyItem {
-  id: string;
-  name: string;
-  category: string;
-  current_count: number;
-  total_count: number;
-  threshold: number;
-  course: string;
-  last_restocked?: string;
-  cost?: number;
-}
+import { SupplyItem } from "@/types/shoppingList";
 
 interface InventoryListProps {
   supplies: SupplyItem[];

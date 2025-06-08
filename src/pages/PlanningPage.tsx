@@ -1,4 +1,3 @@
-
 import { MainLayout } from "@/components/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +65,7 @@ const PlanningPage = () => {
   // Handle event save
   const handleEventSave = async (eventData: EventFormData) => {
     if (currentEvent?.id) {
-      await updatePlanningEvent(currentEvent.id, eventData);
+      await updatePlanningEvent({ id: currentEvent.id, updates: eventData });
     } else {
       await createPlanningEvent(eventData);
     }
@@ -75,7 +74,7 @@ const PlanningPage = () => {
   // Handle task save
   const handleTaskSave = async (taskData: FutureTaskFormData) => {
     if (currentTask?.id) {
-      await updateFutureTask(currentTask.id, taskData);
+      await updateFutureTask({ id: currentTask.id, updates: taskData });
     } else {
       await createFutureTask({...taskData, semester: activeFutureTab});
     }
@@ -85,6 +84,21 @@ const PlanningPage = () => {
   const filteredTasks = futureTasks.filter(task => {
     return task.semester === activeFutureTab;
   });
+
+  // Fixed function to handle toggle completion properly
+  const handleToggleCompletion = async (id: string, completed: boolean) => {
+    await toggleEventCompletion({ id, completed });
+  };
+
+  // Fixed function to handle event deletion properly
+  const handleDeleteEvent = async (id: string) => {
+    await deletePlanningEvent(id);
+  };
+
+  // Fixed function to handle task deletion properly
+  const handleDeleteTask = async (id: string) => {
+    await deleteFutureTask(id);
+  };
 
   return (
     <MainLayout>
@@ -127,8 +141,8 @@ const PlanningPage = () => {
                   <PlanningCalendar 
                     events={events} 
                     onEditEvent={handleOpenEventDialog}
-                    onDeleteEvent={deletePlanningEvent}
-                    onToggleCompletion={toggleEventCompletion}
+                    onDeleteEvent={handleDeleteEvent}
+                    onToggleCompletion={handleToggleCompletion}
                   />
                 )}
               </CardContent>
@@ -165,7 +179,7 @@ const PlanningPage = () => {
                             key={task.id} 
                             task={task} 
                             onEdit={() => handleOpenTaskDialog(task)}
-                            onDelete={() => task.id && deleteFutureTask(task.id)}
+                            onDelete={() => task.id && handleDeleteTask(task.id)}
                           />
                         ))
                       ) : (
