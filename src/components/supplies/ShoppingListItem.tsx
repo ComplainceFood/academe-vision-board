@@ -7,10 +7,12 @@ import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
 
 interface ShoppingListItemProps {
   item: ShoppingItem;
-  supplies?: SupplyItem[]; // Making supplies optional
+  supplies?: SupplyItem[];
   onTogglePurchased: (id: string, purchased: boolean) => void;
   onDelete: (id: string) => void;
   onItemClick: (item: ShoppingItem) => void;
+  onItemUpdated?: (item: ShoppingItem) => void;
+  onItemDeleted?: (id: string) => Promise<void>;
 }
 
 export const ShoppingListItem = ({ 
@@ -18,7 +20,9 @@ export const ShoppingListItem = ({
   supplies,
   onTogglePurchased, 
   onDelete,
-  onItemClick
+  onItemClick,
+  onItemUpdated,
+  onItemDeleted
 }: ShoppingListItemProps) => {
   
   const getPriorityColor = (priority: string) => {
@@ -27,6 +31,21 @@ export const ShoppingListItem = ({
       case 'medium': return 'text-amber-500 bg-amber-500/10';
       case 'low': return 'text-green-500 bg-green-500/10';
       default: return 'text-muted-foreground bg-muted/10';
+    }
+  };
+
+  const handleTogglePurchased = () => {
+    onTogglePurchased(item.id, !item.purchased);
+    if (onItemUpdated) {
+      onItemUpdated({ ...item, purchased: !item.purchased });
+    }
+  };
+
+  const handleDelete = async () => {
+    if (onItemDeleted) {
+      await onItemDeleted(item.id);
+    } else {
+      onDelete(item.id);
     }
   };
 
@@ -41,7 +60,7 @@ export const ShoppingListItem = ({
       <div className="flex items-center gap-3 flex-1">
         <Checkbox 
           checked={item.purchased} 
-          onCheckedChange={() => onTogglePurchased(item.id, !item.purchased)}
+          onCheckedChange={handleTogglePurchased}
           onClick={(e) => e.stopPropagation()}
           className="transition-transform hover:scale-110"
         />
@@ -72,7 +91,7 @@ export const ShoppingListItem = ({
           className="h-8 w-8 text-destructive hover:bg-destructive/10 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
-            onDelete(item.id);
+            handleDelete();
           }}
         >
           <Trash2 className="h-4 w-4" />

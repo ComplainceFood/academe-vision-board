@@ -10,6 +10,8 @@ import { ShoppingListItem } from "./ShoppingListItem";
 import { useToast } from "@/hooks/use-toast";
 import { ShoppingItem, SupplyItem } from "@/types/shoppingList";
 import { useRefreshContext } from "@/App";
+import { ItemDetailDialog } from "./ItemDetailDialog";
+import { EditItemDialog } from "./EditItemDialog";
 
 interface ShoppingListProps {
   items: ShoppingItem[];
@@ -31,6 +33,10 @@ export function ShoppingList({
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [filteredItems, setFilteredItems] = useState<ShoppingItem[]>([]);
   const [filter, setFilter] = useState("all");
+  const [selectedItem, setSelectedItem] = useState<ShoppingItem | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<ShoppingItem | null>(null);
   const { user } = useAuth();
   const { toast: uiToast } = useToast();
   const { triggerRefresh } = useRefreshContext();
@@ -76,7 +82,6 @@ export function ShoppingList({
       setQuantity(1);
       setPriority("medium");
       
-      // Force refresh data
       triggerRefresh('shopping_list');
       
     } catch (error) {
@@ -106,7 +111,6 @@ export function ShoppingList({
         toast.success(purchased ? "Item marked as purchased" : "Item marked as not purchased");
       }
       
-      // Force refresh data
       triggerRefresh('shopping_list');
       
     } catch (error) {
@@ -134,8 +138,6 @@ export function ShoppingList({
       if (error) throw error;
       
       toast.success("All items marked as purchased");
-      
-      // Force refresh data
       triggerRefresh('shopping_list');
       
     } catch (error) {
@@ -158,8 +160,6 @@ export function ShoppingList({
       
       onItemDeleted(id);
       toast.success("Item removed from shopping list");
-      
-      // Force refresh data
       triggerRefresh('shopping_list');
       
     } catch (error) {
@@ -167,6 +167,52 @@ export function ShoppingList({
       uiToast({
         variant: "destructive",
         description: "Failed to delete item",
+      });
+    }
+  };
+
+  const handleItemClick = (item: ShoppingItem) => {
+    setSelectedItem(item);
+    setIsDetailDialogOpen(true);
+  };
+
+  const handleEditClick = () => {
+    if (selectedItem) {
+      setItemToEdit(selectedItem);
+      setIsDetailDialogOpen(false);
+      setIsEditDialogOpen(true);
+    }
+  };
+
+  const handleSaveEdit = async (editedData: any) => {
+    if (!itemToEdit || !user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('shopping_list')
+        .update(editedData)
+        .eq('id', itemToEdit.id);
+      
+      if (error) throw error;
+      
+      const updatedItem = { ...itemToEdit, ...editedData };
+      onItemUpdated(updatedItem);
+      
+      uiToast({
+        title: "Success",
+        description: "Item updated successfully",
+      });
+      
+      setIsEditDialogOpen(false);
+      setItemToEdit(null);
+      triggerRefresh('shopping_list');
+      
+    } catch (error) {
+      console.error("Error updating shopping list item:", error);
+      uiToast({
+        title: "Error",
+        description: "Failed to update item",
+        variant: "destructive",
       });
     }
   };
@@ -262,6 +308,9 @@ export function ShoppingList({
               key={item.id}
               item={item}
               supplies={supplies}
+              onTogglePurchased={handleTogglePurchased}
+              onDelete={handleDeleteItem}
+              onItemClick={handleItemClick}
               onItemUpdated={onItemUpdated}
               onItemDeleted={handleDeleteItem}
             />
@@ -280,6 +329,25 @@ export function ShoppingList({
           </div>
         )}
       </div>
+
+      {/* Item Detail Dialog */}
+      <ItemDetailDialog
+        item={selectedItem}
+        open={isDetailDialogOpen}
+        onOpenChange={setIsDetailDialogOpen}
+        onEdit={handleEditClick}
+      />
+
+      {/* Edit Item Dialog */}
+      <EditItemDialog
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) setItemToEdit(null);
+        }}
+        item={itemToEdit as any}
+        onSave={handleSaveEdit}
+      />
     </div>
   );
 }

@@ -236,12 +236,16 @@ const SuppliesPage = () => {
   };
 
   const handleEditItem = (item: SupplyItem) => {
-    setItemToEdit(item);
+    // Ensure the item has user_id before setting it for edit
+    const itemWithUserId = { ...item, user_id: item.user_id || user?.id || '' };
+    setItemToEdit(itemWithUserId);
     setIsEditDialogOpen(true);
   };
 
   const handleViewHistory = (item: SupplyItem) => {
-    setItemForHistory(item);
+    // Ensure the item has user_id before setting it for history view
+    const itemWithUserId = { ...item, user_id: item.user_id || user?.id || '' };
+    setItemForHistory(itemWithUserId);
     setIsHistoryDialogOpen(true);
   };
   
@@ -341,7 +345,8 @@ const SuppliesPage = () => {
               supplies={filteredSupplies}
               isLoading={isLoadingSupplies}
               onUpdateStock={item => {
-                setEditingItem(item);
+                const itemWithUserId = { ...item, user_id: item.user_id || user?.id || '' };
+                setEditingItem(itemWithUserId);
                 setUpdatedCount(item.current_count);
               }}
               onDeleteItem={id => setItemToDelete(id)}
