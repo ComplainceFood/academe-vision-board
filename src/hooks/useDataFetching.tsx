@@ -23,65 +23,37 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const [data, setData] = useState<T[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
-  const isFetchingRef = useRef(false);
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Debounce timers and fetch queue management
-  const debounceTimerRef = useRef<number | null>(null);
-  const lastFetchTimeRef = useRef<number>(0);
-  const MIN_FETCH_INTERVAL = 300; // milliseconds
-  const fetchQueueRef = useRef<boolean>(false);
+  // Stabilize the filters array to prevent unnecessary re-renders
+  const stableFilters = useRef(filters);
+  const stableTransform = useRef(transform);
+  
+  // Update refs when values change
+  useEffect(() => {
+    stableFilters.current = filters;
+    stableTransform.current = transform;
+  }, [filters, transform]);
 
-  // Function to fetch data with debouncing and queuing
-  const fetchData = useCallback(async (forceRefresh = false) => {
+  // Function to fetch data
+  const fetchData = useCallback(async () => {
     if (!user || !enabled) {
-      return;
-    }
-
-    const now = Date.now();
-    
-    // If already fetching, queue another fetch
-    if (isFetchingRef.current) {
-      fetchQueueRef.current = true;
-      return;
-    }
-    
-    // Implement rate limiting with forceRefresh override
-    if (!forceRefresh && now - lastFetchTimeRef.current < MIN_FETCH_INTERVAL) {
-      // Clear any existing debounce timer
-      if (debounceTimerRef.current) {
-        window.clearTimeout(debounceTimerRef.current);
-      }
-      
-      // Set a new debounce timer
-      debounceTimerRef.current = window.setTimeout(() => {
-        fetchData(true);
-        debounceTimerRef.current = null;
-      }, MIN_FETCH_INTERVAL);
-      
+      setIsLoading(false);
       return;
     }
 
     try {
-      isFetchingRef.current = true;
       setError(null);
-      
-      if (isLoading) {
-        // Only show loading state on initial load, not on subsequent fetches
-        setIsLoading(true);
-      }
+      setIsLoading(true);
 
-      lastFetchTimeRef.current = now;
-
-      // Type annotation to resolve infinite type instantiation
       let query: any = supabase
         .from(table)
         .select('*')
         .eq('user_id', user.id);
       
       // Apply any additional filters
-      for (const filter of filters) {
+      for (const filter of stableFilters.current) {
         const { column, value, operator = 'eq' } = filter;
         switch (operator) {
           case 'eq':
@@ -116,7 +88,9 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         throw new Error(`Failed to fetch ${table}: ${fetchError.message}`);
       }
 
-      const transformedData = transform ? fetchedData.map(transform) : fetchedData;
+      const transformedData = stableTransform.current 
+        ? fetchedData.map(stableTransform.current) 
+        : fetchedData;
       setData(transformedData || []);
       console.log(`Fetched ${table} data:`, transformedData);
     } catch (err) {
@@ -129,26 +103,24 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       });
     } finally {
       setIsLoading(false);
-      
-      // Short delay before allowing another fetch
-      setTimeout(() => {
-        isFetchingRef.current = false;
-        
-        // If a fetch was queued during this operation, execute it now
-        if (fetchQueueRef.current) {
-          fetchQueueRef.current = false;
-          fetchData(true);
-        }
-      }, 100);
     }
-  }, [user, table, enabled, filters, transform, isLoading, toast]);
+  }, [user, table, enabled, toast]);
 
-  // Subscribe to real-time changes with improved state handling
+  // Initial data fetch
+  useEffect(() => {
+    if (user && enabled) {
+      fetchData();
+    }
+  }, [fetchData]);
+
+  // Subscribe to real-time changes
   useEffect(() => {
     if (!user || !enabled) return;
 
+    console.log(`Setting up realtime subscription for ${table}`);
+    
     const channel = supabase
-      .channel(`${table}_changes`)
+      .channel(`${table}_changes_${user.id}`)
       .on('postgres_changes', 
         { 
           event: '*', 
@@ -159,12 +131,16 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         (payload) => {
           console.log(`Received real-time update for ${table}:`, payload);
           
-          // Update data without a full refetch when possible
+          // Update data optimistically
           if (payload.eventType === 'INSERT') {
-            const newItem = transform ? transform(payload.new) : payload.new as T;
+            const newItem = stableTransform.current 
+              ? stableTransform.current(payload.new) 
+              : payload.new as T;
             setData(current => [...current, newItem]);
           } else if (payload.eventType === 'UPDATE') {
-            const updatedItem = transform ? transform(payload.new) : payload.new as T;
+            const updatedItem = stableTransform.current 
+              ? stableTransform.current(payload.new) 
+              : payload.new as T;
             setData(current => 
               current.map(item => 
                 // @ts-ignore - we know id exists on the item
@@ -179,9 +155,6 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
                 item.id !== deletedItem.id
               )
             );
-          } else {
-            // If we can't handle the change optimistically, do a full refetch
-            fetchData(true);
           }
         })
       .subscribe((status) => {
@@ -189,31 +162,29 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       });
 
     return () => {
-      console.log(`Removing realtime channel for ${table}`);
+      console.log(`Cleaning up realtime channel for ${table}`);
       supabase.removeChannel(channel);
     };
-  }, [user, table, enabled, transform, fetchData]);
+  }, [user?.id, table, enabled]);
 
-  // Listen for seed data and refresh events
+  // Listen for external refresh events
   useEffect(() => {
     const handleSeedData = () => {
       if (enabled) {
         console.log(`Handling seed data event for ${table}`);
-        fetchData(true);
+        fetchData();
       }
     };
 
-    window.addEventListener('seedDataCompleted', handleSeedData);
-    
-    // Listen for refresh events - for auto-refresh after actions
     const handleRefreshData = (event: Event) => {
       const customEvent = event as CustomEvent<{table?: string}>;
       if (enabled && (!customEvent.detail?.table || customEvent.detail.table === table)) {
         console.log(`Handling refresh event for ${table}`);
-        fetchData(true);
+        fetchData();
       }
     };
 
+    window.addEventListener('seedDataCompleted', handleSeedData);
     window.addEventListener('refreshData', handleRefreshData as EventListener);
     
     return () => {
@@ -222,29 +193,11 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     };
   }, [enabled, table, fetchData]);
 
-  // Initial data fetch with retry mechanism
-  useEffect(() => {
-    const attemptFetch = async (retryCount = 0) => {
-      try {
-        await fetchData();
-      } catch (err) {
-        if (retryCount < 3) {
-          console.log(`Retrying fetch for ${table}, attempt ${retryCount + 1}`);
-          setTimeout(() => attemptFetch(retryCount + 1), 1000 * (retryCount + 1));
-        }
-      }
-    };
-    
-    if (user && enabled) {
-      attemptFetch();
-    }
-  }, [user, enabled, fetchData, table]);
-
-  // Improved refetch function with queuing mechanism
+  // Simple refetch function
   const refetch = useCallback(() => {
     console.log(`Manually refetching ${table} data`);
-    fetchData(true);
-  }, [fetchData, table]);
+    fetchData();
+  }, [fetchData]);
 
   return { data, isLoading, error, refetch };
 }
