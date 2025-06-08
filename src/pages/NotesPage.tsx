@@ -265,8 +265,10 @@ const NotesPage = () => {
         )}
       </div>
 
-      {/* Create Note Dialog - Fixed to not pass unsupported props */}
+      {/* Create Note Dialog - Now properly controlled */}
       <CreateNoteDialog
+        open={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
         onNoteCreated={() => {
           refetch();
           setIsCreateDialogOpen(false);

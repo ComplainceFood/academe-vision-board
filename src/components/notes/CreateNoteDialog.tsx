@@ -11,8 +11,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function CreateNoteDialog() {
-  const [isOpen, setIsOpen] = useState(false);
+interface CreateNoteDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  onNoteCreated?: () => void;
+}
+
+export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNoteDialogProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [course, setCourse] = useState("");
@@ -22,6 +28,10 @@ export function CreateNoteDialog() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+
+  // Use external state if provided, otherwise use internal state
+  const isOpen = open !== undefined ? open : internalOpen;
+  const handleOpenChange = onOpenChange || setInternalOpen;
 
   const resetForm = () => {
     setTitle("");
@@ -73,11 +83,15 @@ export function CreateNoteDialog() {
         description: `${type === "note" ? "Note" : "Promise"} created successfully`,
       });
 
-      setIsOpen(false);
+      handleOpenChange(false);
       resetForm();
       
-      // Trigger a refresh of the notes list
-      window.dispatchEvent(new Event("seedDataCompleted"));
+      // Call the callback if provided, otherwise trigger the default event
+      if (onNoteCreated) {
+        onNoteCreated();
+      } else {
+        window.dispatchEvent(new Event("seedDataCompleted"));
+      }
     } catch (error) {
       console.error("Error creating note:", error);
       toast({
@@ -90,21 +104,24 @@ export function CreateNoteDialog() {
     }
   };
 
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
+  const handleDialogOpenChange = (newOpen: boolean) => {
+    handleOpenChange(newOpen);
+    if (!newOpen) {
       resetForm();
     }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button className="gap-2">
-          <Plus className="h-4 w-4" />
-          New Note
-        </Button>
-      </DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={handleDialogOpenChange}>
+      {/* Only show trigger if no external control is provided */}
+      {open === undefined && (
+        <DialogTrigger asChild>
+          <Button className="gap-2">
+            <Plus className="h-4 w-4" />
+            New Note
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Create New {type === "note" ? "Note" : "Promise"}</DialogTitle>
