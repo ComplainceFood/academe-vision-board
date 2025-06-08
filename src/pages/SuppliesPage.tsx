@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -45,7 +46,7 @@ interface SupplyItem {
   course: string;
   last_restocked?: string;
   cost?: number;
-  user_id: string;  // Adding user_id to match expected type
+  user_id: string;
 }
 
 interface Expense {
@@ -236,16 +237,12 @@ const SuppliesPage = () => {
   };
 
   const handleEditItem = (item: SupplyItem) => {
-    // Ensure the item has user_id before setting it for edit
-    const itemWithUserId = { ...item, user_id: item.user_id || user?.id || '' };
-    setItemToEdit(itemWithUserId);
+    setItemToEdit(item);
     setIsEditDialogOpen(true);
   };
 
   const handleViewHistory = (item: SupplyItem) => {
-    // Ensure the item has user_id before setting it for history view
-    const itemWithUserId = { ...item, user_id: item.user_id || user?.id || '' };
-    setItemForHistory(itemWithUserId);
+    setItemForHistory(item);
     setIsHistoryDialogOpen(true);
   };
   
@@ -345,8 +342,7 @@ const SuppliesPage = () => {
               supplies={filteredSupplies}
               isLoading={isLoadingSupplies}
               onUpdateStock={item => {
-                const itemWithUserId = { ...item, user_id: item.user_id || user?.id || '' };
-                setEditingItem(itemWithUserId);
+                setEditingItem(item);
                 setUpdatedCount(item.current_count);
               }}
               onDeleteItem={id => setItemToDelete(id)}

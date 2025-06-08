@@ -1,5 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/useAuth";
 
 export interface PlanningEvent {
   id?: string;
@@ -24,6 +26,24 @@ export interface FutureTask {
   estimated_hours?: number;
   user_id?: string;
   created_at?: string;
+}
+
+export interface EventFormData {
+  title: string;
+  date: string;
+  time?: string;
+  type: string;
+  course?: string;
+  description?: string;
+  priority?: string;
+}
+
+export interface FutureTaskFormData {
+  title: string;
+  description?: string;
+  semester: string;
+  priority: string;
+  estimated_hours?: number;
 }
 
 export const planningService = {
@@ -150,4 +170,102 @@ export const planningService = {
     if (error) throw error;
     return data || [];
   }
+};
+
+// Custom hooks
+export const usePlanningEvents = () => {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ['planning-events', user?.id],
+    queryFn: () => planningService.getEvents(user?.id || ''),
+    enabled: !!user?.id,
+  });
+};
+
+export const useFuturePlanning = () => {
+  const { user } = useAuth();
+  
+  return useQuery({
+    queryKey: ['future-planning', user?.id],
+    queryFn: () => planningService.getFutureTasks(user?.id || ''),
+    enabled: !!user?.id,
+  });
+};
+
+export const usePlanningEventActions = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  const createPlanningEvent = useMutation({
+    mutationFn: (eventData: EventFormData) => 
+      planningService.createEvent(eventData, user?.id || ''),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+    },
+  });
+
+  const updatePlanningEvent = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<PlanningEvent> }) =>
+      planningService.updateEvent(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+    },
+  });
+
+  const deletePlanningEvent = useMutation({
+    mutationFn: (id: string) => planningService.deleteEvent(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+    },
+  });
+
+  const toggleEventCompletion = useMutation({
+    mutationFn: ({ id, completed }: { id: string; completed: boolean }) =>
+      planningService.updateEvent(id, { completed }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+    },
+  });
+
+  return {
+    createPlanningEvent: createPlanningEvent.mutateAsync,
+    updatePlanningEvent: updatePlanningEvent.mutateAsync,
+    deletePlanningEvent: deletePlanningEvent.mutateAsync,
+    toggleEventCompletion: toggleEventCompletion.mutateAsync,
+  };
+};
+
+export const useFutureTaskActions = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  const createFutureTask = useMutation({
+    mutationFn: (taskData: FutureTaskFormData) => 
+      planningService.createFutureTask(taskData, user?.id || ''),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['future-planning'] });
+    },
+  });
+
+  const updateFutureTask = useMutation({
+    mutationFn: ({ id, updates }: { id: string; updates: Partial<FutureTask> }) =>
+      planningService.updateFutureTask(id, updates),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['future-planning'] });
+    },
+  });
+
+  const deleteFutureTask = useMutation({
+    mutationFn: (id: string) => planningService.deleteFutureTask(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['future-planning'] });
+    },
+  });
+
+  return {
+    createFutureTask: createFutureTask.mutateAsync,
+    updateFutureTask: updateFutureTask.mutateAsync,
+    deleteFutureTask: deleteFutureTask.mutateAsync,
+  };
 };

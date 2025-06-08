@@ -29,11 +29,17 @@ interface Note {
 
 const NotesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedType, setSelectedType] = useState("all");
-  const [selectedCourse, setSelectedCourse] = useState("all");
-  const [showStarredOnly, setShowStarredOnly] = useState(false);
-  const [sortBy, setSortBy] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [appliedFilters, setAppliedFilters] = useState<{
+    type?: string;
+    course?: string;
+    fromDate?: Date | null;
+    toDate?: Date | null;
+    tags?: string[];
+    hasAttachments?: boolean;
+  }>({});
+  const [sortField, setSortField] = useState("date");
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('grid');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   
   const { toast } = useToast();
@@ -56,15 +62,28 @@ const NotesPage = () => {
                          note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesType = selectedType === "all" || note.type === selectedType;
-    const matchesCourse = selectedCourse === "all" || note.course === selectedCourse;
-    const matchesStarred = !showStarredOnly || note.starred;
+    const matchesType = !appliedFilters.type || note.type === appliedFilters.type;
+    const matchesCourse = !appliedFilters.course || note.course.toLowerCase().includes(appliedFilters.course.toLowerCase());
     
-    return matchesSearch && matchesType && matchesCourse && matchesStarred;
+    let matchesDateRange = true;
+    if (appliedFilters.fromDate || appliedFilters.toDate) {
+      const noteDate = new Date(note.date);
+      if (appliedFilters.fromDate) {
+        matchesDateRange = matchesDateRange && noteDate >= appliedFilters.fromDate;
+      }
+      if (appliedFilters.toDate) {
+        matchesDateRange = matchesDateRange && noteDate <= appliedFilters.toDate;
+      }
+    }
+    
+    const matchesTags = !appliedFilters.tags?.length || 
+                       appliedFilters.tags.some(tag => note.tags.includes(tag));
+    
+    return matchesSearch && matchesType && matchesCourse && matchesDateRange && matchesTags;
   }).sort((a, b) => {
     let comparison = 0;
     
-    switch (sortBy) {
+    switch (sortField) {
       case "title":
         comparison = a.title.localeCompare(b.title);
         break;
@@ -80,12 +99,13 @@ const NotesPage = () => {
         break;
     }
     
-    return sortOrder === "asc" ? comparison : -comparison;
+    return sortDirection === "asc" ? comparison : -comparison;
   });
 
   // Get unique courses and types for filters
   const courses = [...new Set(notes.map(note => note.course))];
   const types = [...new Set(notes.map(note => note.type))];
+  const allTags = [...new Set(notes.flatMap(note => note.tags))];
 
   // Stats
   const totalNotes = notes.length;
@@ -164,38 +184,33 @@ const NotesPage = () => {
         {/* Search and Filters */}
         <div className="flex flex-col lg:flex-row gap-4 mb-6">
           <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search notes, content, or tags..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <NoteFilters
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              appliedFilters={appliedFilters}
+              setAppliedFilters={setAppliedFilters}
+              isLoading={isLoading}
+              availableTags={allTags}
+            />
           </div>
           <div className="flex gap-2">
-            <NoteFilters
-              selectedType={selectedType}
-              selectedCourse={selectedCourse}
-              showStarredOnly={showStarredOnly}
-              types={types}
-              courses={courses}
-              onTypeChange={setSelectedType}
-              onCourseChange={setSelectedCourse}
-              onStarredChange={setShowStarredOnly}
-            />
             <NoteSorting
-              sortBy={sortBy}
-              sortOrder={sortOrder}
-              onSortByChange={setSortBy}
-              onSortOrderChange={setSortOrder}
+              sortField={sortField}
+              setSortField={setSortField}
+              sortDirection={sortDirection}
+              setSortDirection={setSortDirection}
+              viewMode={viewMode}
+              setViewMode={setViewMode}
             />
           </div>
         </div>
 
         {/* Notes Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className={`grid gap-4 ${
+          viewMode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' :
+          viewMode === 'list' ? 'grid-cols-1' :
+          'md:grid-cols-2 lg:grid-cols-4'
+        }`}>
           {isLoading ? (
             // Loading skeleton
             Array.from({ length: 6 }).map((_, i) => (
@@ -212,7 +227,10 @@ const NotesPage = () => {
             filteredNotes.map((note) => (
               <NoteCard
                 key={note.id}
-                note={note}
+                note={{
+                  ...note,
+                  student: note.student || ''
+                }}
                 onUpdate={() => refetch()}
               />
             ))
@@ -221,7 +239,7 @@ const NotesPage = () => {
               <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">No notes found</h3>
               <p className="text-muted-foreground mb-4">
-                {searchQuery || selectedType !== "all" || selectedCourse !== "all" || showStarredOnly
+                {searchQuery || Object.keys(appliedFilters).length > 0
                   ? "Try adjusting your search or filters"
                   : "Get started by creating your first note"}
               </p>
