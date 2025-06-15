@@ -5,8 +5,10 @@ import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, Sett
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useProfile } from "@/hooks/useProfile";
 export function AppSidebar() {
   const [activeItem, setActiveItem] = useState("dashboard");
+  const { profile } = useProfile();
   const navigationItems = [{
     id: "dashboard",
     title: "Dashboard",
@@ -61,18 +63,30 @@ export function AppSidebar() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
-              <AvatarImage src="" />
-              <AvatarFallback className="bg-primary text-primary-foreground">DP</AvatarFallback>
+              <AvatarImage src={profile?.avatar_url || ""} />
+              <AvatarFallback className="bg-primary text-primary-foreground">
+                {profile?.display_name?.charAt(0)?.toUpperCase() || 
+                 profile?.first_name?.charAt(0)?.toUpperCase() || 
+                 "U"}
+              </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">Dr. Medagam</span>
-              <span className="text-xs text-muted-foreground">Assistant Professor</span>
+              <span className="text-sm font-medium">
+                {profile?.display_name || 
+                 `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || 
+                 "User"}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {profile?.position || "Academic"}
+              </span>
             </div>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" className="w-full">
-            <Settings className="h-4 w-4" />
+          <Button variant="outline" size="icon" className="w-full" asChild>
+            <Link to="/settings">
+              <Settings className="h-4 w-4" />
+            </Link>
           </Button>
           <Button variant="outline" size="icon" className="w-full">
             <LogOut className="h-4 w-4" />

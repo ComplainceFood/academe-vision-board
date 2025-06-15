@@ -13,6 +13,7 @@ import MeetingsPage from "./pages/MeetingsPage";
 import SuppliesPage from "./pages/SuppliesPage";
 import PlanningPage from "./pages/PlanningPage";
 import AuthPage from "./pages/AuthPage";
+import SettingsPage from "./pages/SettingsPage";
 
 // Create a query client with automatic data refresh configuration
 const queryClient = new QueryClient({
@@ -105,6 +106,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PlanningPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <SettingsPage />
                 </ProtectedRoute>
               }
             />
