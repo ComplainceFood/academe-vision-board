@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      calendar_sync_history: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          errors: Json | null
+          id: string
+          successful_syncs: number
+          sync_time: string
+          total_internal_events: number
+          total_outlook_events: number
+          total_users: number
+          triggered_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          errors?: Json | null
+          id?: string
+          successful_syncs?: number
+          sync_time?: string
+          total_internal_events?: number
+          total_outlook_events?: number
+          total_users?: number
+          triggered_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          errors?: Json | null
+          id?: string
+          successful_syncs?: number
+          sync_time?: string
+          total_internal_events?: number
+          total_outlook_events?: number
+          total_users?: number
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
@@ -434,33 +473,42 @@ export type Database = {
       outlook_integration: {
         Row: {
           access_token_encrypted: string | null
+          auto_sync_enabled: boolean | null
           created_at: string
           id: string
           is_connected: boolean | null
+          last_auto_sync: string | null
           last_sync: string | null
           refresh_token_encrypted: string | null
+          sync_frequency: string | null
           token_expires_at: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           access_token_encrypted?: string | null
+          auto_sync_enabled?: boolean | null
           created_at?: string
           id?: string
           is_connected?: boolean | null
+          last_auto_sync?: string | null
           last_sync?: string | null
           refresh_token_encrypted?: string | null
+          sync_frequency?: string | null
           token_expires_at?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           access_token_encrypted?: string | null
+          auto_sync_enabled?: boolean | null
           created_at?: string
           id?: string
           is_connected?: boolean | null
+          last_auto_sync?: string | null
           last_sync?: string | null
           refresh_token_encrypted?: string | null
+          sync_frequency?: string | null
           token_expires_at?: string | null
           updated_at?: string
           user_id?: string
