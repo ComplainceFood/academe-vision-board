@@ -1,0 +1,13 @@
+-- Temporarily disable RLS on all tables for debugging
+ALTER TABLE public.notes DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.meetings DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.supplies DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.planning_events DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.shopping_list DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.funding_sources DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.funding_expenditures DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.funding_commitments DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.funding_reports DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.outlook_integration DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.calendar_sync_history DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
