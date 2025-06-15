@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +46,68 @@ const SettingsPage = () => {
       setDisplayName(user.email?.split('@')[0] || "");
     }
   }, [profile, user, isLoading]);
+
+  // Auto-save functionality with debouncing
+  const debouncedUpdate = useCallback(
+    (() => {
+      let timeoutId: NodeJS.Timeout;
+      return (updates: any) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(async () => {
+          if (user) {
+            await updateProfile(updates);
+          }
+        }, 1000); // Wait 1 second after user stops typing
+      };
+    })(),
+    [updateProfile, user]
+  );
+
+  // Auto-update functions for each field
+  const handleDisplayNameChange = (value: string) => {
+    setDisplayName(value);
+    debouncedUpdate({ display_name: value });
+  };
+
+  const handleFirstNameChange = (value: string) => {
+    setFirstName(value);
+    debouncedUpdate({ first_name: value });
+  };
+
+  const handleLastNameChange = (value: string) => {
+    setLastName(value);
+    debouncedUpdate({ last_name: value });
+  };
+
+  const handleEmailChange = (value: string) => {
+    setEmail(value);
+    debouncedUpdate({ email: value });
+  };
+
+  const handlePhoneChange = (value: string) => {
+    setPhone(value);
+    debouncedUpdate({ phone: value });
+  };
+
+  const handleDepartmentChange = (value: string) => {
+    setDepartment(value);
+    debouncedUpdate({ department: value });
+  };
+
+  const handlePositionChange = (value: string) => {
+    setPosition(value);
+    debouncedUpdate({ position: value });
+  };
+
+  const handleBioChange = (value: string) => {
+    setBio(value);
+    debouncedUpdate({ bio: value });
+  };
+
+  const handleOfficeLocationChange = (value: string) => {
+    setOfficeLocation(value);
+    debouncedUpdate({ office_location: value });
+  };
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -163,7 +225,7 @@ const SettingsPage = () => {
                     <Input
                       id="displayName"
                       value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
+                      onChange={(e) => handleDisplayNameChange(e.target.value)}
                       placeholder="How you'd like to be addressed"
                     />
                   </div>
@@ -173,7 +235,7 @@ const SettingsPage = () => {
                       id="email"
                       type="email"
                       value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      onChange={(e) => handleEmailChange(e.target.value)}
                       placeholder="your.email@example.com"
                     />
                   </div>
@@ -182,7 +244,7 @@ const SettingsPage = () => {
                     <Input
                       id="firstName"
                       value={firstName}
-                      onChange={(e) => setFirstName(e.target.value)}
+                      onChange={(e) => handleFirstNameChange(e.target.value)}
                       placeholder="First name"
                     />
                   </div>
@@ -191,7 +253,7 @@ const SettingsPage = () => {
                     <Input
                       id="lastName"
                       value={lastName}
-                      onChange={(e) => setLastName(e.target.value)}
+                      onChange={(e) => handleLastNameChange(e.target.value)}
                       placeholder="Last name"
                     />
                   </div>
@@ -200,7 +262,7 @@ const SettingsPage = () => {
                     <Input
                       id="phone"
                       value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
+                      onChange={(e) => handlePhoneChange(e.target.value)}
                       placeholder="+1 (555) 123-4567"
                     />
                   </div>
@@ -209,7 +271,7 @@ const SettingsPage = () => {
                     <Input
                       id="position"
                       value={position}
-                      onChange={(e) => setPosition(e.target.value)}
+                      onChange={(e) => handlePositionChange(e.target.value)}
                       placeholder="Assistant Professor"
                     />
                   </div>
@@ -218,7 +280,7 @@ const SettingsPage = () => {
                     <Input
                       id="department"
                       value={department}
-                      onChange={(e) => setDepartment(e.target.value)}
+                      onChange={(e) => handleDepartmentChange(e.target.value)}
                       placeholder="Computer Science"
                     />
                   </div>
@@ -227,7 +289,7 @@ const SettingsPage = () => {
                     <Input
                       id="officeLocation"
                       value={officeLocation}
-                      onChange={(e) => setOfficeLocation(e.target.value)}
+                      onChange={(e) => handleOfficeLocationChange(e.target.value)}
                       placeholder="Building A, Room 123"
                     />
                   </div>
@@ -239,7 +301,7 @@ const SettingsPage = () => {
                   <Textarea
                     id="bio"
                     value={bio}
-                    onChange={(e) => setBio(e.target.value)}
+                    onChange={(e) => handleBioChange(e.target.value)}
                     placeholder="Tell us a bit about yourself..."
                     rows={4}
                   />
