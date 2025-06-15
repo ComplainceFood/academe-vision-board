@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,17 +25,49 @@ export const FundingSourceDialog = ({
   onSuccess 
 }: FundingSourceDialogProps) => {
   const [formData, setFormData] = useState({
-    name: editingSource?.name || "",
-    type: editingSource?.type || "grant",
-    total_amount: editingSource?.total_amount?.toString() || "",
-    start_date: editingSource?.start_date || "",
-    end_date: editingSource?.end_date || "",
-    description: editingSource?.description || "",
-    restrictions: editingSource?.restrictions || "",
-    contact_person: editingSource?.contact_person || "",
-    contact_email: editingSource?.contact_email || "",
-    reporting_requirements: editingSource?.reporting_requirements || "",
+    name: "",
+    type: "grant" as 'grant' | 'donation' | 'budget_allocation' | 'fundraising' | 'other',
+    total_amount: "",
+    start_date: "",
+    end_date: "",
+    description: "",
+    restrictions: "",
+    contact_person: "",
+    contact_email: "",
+    reporting_requirements: "",
   });
+  
+  // Update form data when editingSource changes
+  useEffect(() => {
+    if (editingSource) {
+      setFormData({
+        name: editingSource.name || "",
+        type: editingSource.type || "grant",
+        total_amount: editingSource.total_amount?.toString() || "",
+        start_date: editingSource.start_date || "",
+        end_date: editingSource.end_date || "",
+        description: editingSource.description || "",
+        restrictions: editingSource.restrictions || "",
+        contact_person: editingSource.contact_person || "",
+        contact_email: editingSource.contact_email || "",
+        reporting_requirements: editingSource.reporting_requirements || "",
+      });
+    } else {
+      // Reset form for new funding source
+      setFormData({
+        name: "",
+        type: "grant",
+        total_amount: "",
+        start_date: "",
+        end_date: "",
+        description: "",
+        restrictions: "",
+        contact_person: "",
+        contact_email: "",
+        reporting_requirements: "",
+      });
+    }
+  }, [editingSource]);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
