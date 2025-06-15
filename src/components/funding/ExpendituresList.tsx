@@ -5,6 +5,18 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Plus } from "lucide-react";
 import { FundingExpenditure } from "@/types/funding";
 import { ExpenditureDialog } from "./ExpenditureDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface ExpendituresListProps {
   expenditures: FundingExpenditure[];
@@ -16,6 +28,37 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
   const [editingExpenditure, setEditingExpenditure] = useState<FundingExpenditure | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [expenditureToDelete, setExpenditureToDelete] = useState<FundingExpenditure | null>(null);
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    if (!expenditureToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('funding_expenditures')
+        .delete()
+        .eq('id', expenditureToDelete.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Expenditure deleted successfully",
+      });
+      
+      onRefetch();
+    } catch (error) {
+      console.error("Error deleting expenditure:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete expenditure",
+        variant: "destructive",
+      });
+    } finally {
+      setExpenditureToDelete(null);
+    }
+  };
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -85,16 +128,26 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
                   <Badge variant="outline" className="text-lg font-semibold">
                     {formatCurrency(expenditure.amount)}
                   </Badge>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditingExpenditure(expenditure);
-                      setIsEditDialogOpen(true);
-                    }}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditingExpenditure(expenditure);
+                        setIsEditDialogOpen(true);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setExpenditureToDelete(expenditure)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      ×
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -153,6 +206,23 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
           setEditingExpenditure(null);
         }}
       />
+
+      <AlertDialog open={!!expenditureToDelete} onOpenChange={(open) => !open && setExpenditureToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Expenditure</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this expenditure record? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

@@ -6,6 +6,18 @@ import { Progress } from "@/components/ui/progress";
 import { Edit, Plus } from "lucide-react";
 import { FundingSource } from "@/types/funding";
 import { FundingSourceDialog } from "./FundingSourceDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface FundingSourcesListProps {
   sources: FundingSource[];
@@ -17,6 +29,37 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
   const [editingSource, setEditingSource] = useState<FundingSource | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [sourceToDelete, setSourceToDelete] = useState<FundingSource | null>(null);
+  const { toast } = useToast();
+
+  const handleDelete = async () => {
+    if (!sourceToDelete) return;
+    
+    try {
+      const { error } = await supabase
+        .from('funding_sources')
+        .delete()
+        .eq('id', sourceToDelete.id);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: "Funding source deleted successfully",
+      });
+      
+      onRefetch();
+    } catch (error) {
+      console.error("Error deleting funding source:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete funding source",
+        variant: "destructive",
+      });
+    } finally {
+      setSourceToDelete(null);
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -94,16 +137,26 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <CardTitle className="text-lg line-clamp-2">{source.name}</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditingSource(source);
-                      setIsEditDialogOpen(true);
-                    }}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditingSource(source);
+                        setIsEditDialogOpen(true);
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSourceToDelete(source)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      ×
+                    </Button>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Badge variant={getStatusColor(source.status)}>
@@ -180,6 +233,23 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
           setEditingSource(null);
         }}
       />
+
+      <AlertDialog open={!!sourceToDelete} onOpenChange={(open) => !open && setSourceToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Funding Source</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{sourceToDelete?.name}"? This action cannot be undone and will also delete all associated expenditures.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
