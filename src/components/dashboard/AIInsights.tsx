@@ -27,9 +27,20 @@ export const AIInsights = () => {
     
     setLoading(true);
     try {
+      console.log('Calling generate-insights function...');
       const { data, error } = await supabase.functions.invoke('generate-insights');
       
-      if (error) throw error;
+      console.log('Function response:', { data, error });
+      
+      if (error) {
+        console.error('Function error:', error);
+        throw error;
+      }
+      
+      if (!data || !data.insights) {
+        console.error('Invalid response format:', data);
+        throw new Error('Invalid response format from AI service');
+      }
       
       setInsights(data.insights || []);
       toast({

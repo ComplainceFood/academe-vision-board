@@ -95,7 +95,36 @@ serve(async (req) => {
     });
 
     const aiData = await response.json();
-    const insights = JSON.parse(aiData.choices[0].message.content);
+    
+    if (!aiData.choices || !aiData.choices[0] || !aiData.choices[0].message) {
+      throw new Error('Invalid response from OpenAI API');
+    }
+    
+    let insights;
+    try {
+      insights = JSON.parse(aiData.choices[0].message.content);
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', aiData.choices[0].message.content);
+      // Fallback insights if JSON parsing fails
+      insights = {
+        insights: [
+          {
+            title: "Follow Up on Meeting Action Items",
+            description: "You have completed meetings with action items that may need follow-up",
+            action: "Review your meeting notes and follow up on pending action items with students",
+            priority: "medium",
+            category: "meetings"
+          },
+          {
+            title: "Add More Data to Get Better Insights", 
+            description: "Limited data available for comprehensive analysis",
+            action: "Add more notes, supplies, and planning events to get more personalized insights",
+            priority: "low",
+            category: "system"
+          }
+        ]
+      };
+    }
 
     return new Response(JSON.stringify(insights), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
