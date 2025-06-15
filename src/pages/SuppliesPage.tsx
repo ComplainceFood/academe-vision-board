@@ -4,6 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Plus, ShoppingBag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { FundingStats } from "@/components/funding/FundingStats";
+import { FundingSourcesList } from "@/components/funding/FundingSourcesList";
+import { ExpendituresList } from "@/components/funding/ExpendituresList";
+import { FundingSourceDialog } from "@/components/funding/FundingSourceDialog";
+import { ExpenditureDialog } from "@/components/funding/ExpenditureDialog";
+import { FundingSource, FundingExpenditure } from "@/types/funding";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -63,6 +69,10 @@ const SuppliesPage = () => {
   const [sortOrder, setSortOrder] = useState<string>('stock-asc');
   const [isProcessing, setIsProcessing] = useState(false);
   
+  // Funding state
+  const [isFundingSourceDialogOpen, setIsFundingSourceDialogOpen] = useState(false);
+  const [isExpenditureDialogOpen, setIsExpenditureDialogOpen] = useState(false);
+  
   const { toast } = useToast();
   const { user } = useAuth();
   const { triggerRefresh } = useRefreshContext();
@@ -90,6 +100,58 @@ const SuppliesPage = () => {
     table: 'shopping_list',
     enabled: !!user
   });
+  
+  // Funding data fetching - using direct supabase calls since these aren't in the types
+  const [fundingSources, setFundingSources] = useState<FundingSource[]>([]);
+  const [isLoadingFundingSources, setIsLoadingFundingSources] = useState(false);
+  const [fundingExpenditures, setFundingExpenditures] = useState<FundingExpenditure[]>([]);
+  const [isLoadingFundingExpenditures, setIsLoadingFundingExpenditures] = useState(false);
+
+  const refetchFundingSources = async () => {
+    if (!user) return;
+    setIsLoadingFundingSources(true);
+    try {
+      const { data, error } = await supabase
+        .from('funding_sources')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setFundingSources((data || []) as FundingSource[]);
+    } catch (error) {
+      console.error('Error fetching funding sources:', error);
+    } finally {
+      setIsLoadingFundingSources(false);
+    }
+  };
+
+  const refetchFundingExpenditures = async () => {
+    if (!user) return;
+    setIsLoadingFundingExpenditures(true);
+    try {
+      const { data, error } = await supabase
+        .from('funding_expenditures')
+        .select('*, funding_source:funding_sources(*)')
+        .eq('user_id', user.id)
+        .order('expenditure_date', { ascending: false });
+      
+      if (error) throw error;
+      setFundingExpenditures((data || []) as FundingExpenditure[]);
+    } catch (error) {
+      console.error('Error fetching funding expenditures:', error);
+    } finally {
+      setIsLoadingFundingExpenditures(false);
+    }
+  };
+
+  // Fetch funding data on component mount
+  useEffect(() => {
+    if (user) {
+      refetchFundingSources();
+      refetchFundingExpenditures();
+    }
+  }, [user]);
   
   // Auto-refresh data on component mount and after actions
   useEffect(() => {
@@ -313,7 +375,7 @@ const SuppliesPage = () => {
         
         {/* Tab Navigation */}
         <Tabs defaultValue="inventory" onValueChange={handleTabChange} className="mb-6">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="inventory" className="flex items-center gap-1">
               <ShoppingBag className="h-4 w-4" />
               <span>Inventory</span>
@@ -321,6 +383,10 @@ const SuppliesPage = () => {
             <TabsTrigger value="expenses" className="flex items-center gap-1">
               <ShoppingBag className="h-4 w-4" />
               <span>Expenses</span>
+            </TabsTrigger>
+            <TabsTrigger value="funding" className="flex items-center gap-1">
+              <Badge className="h-4 w-4" />
+              <span>Funding</span>
             </TabsTrigger>
           </TabsList>
           
@@ -348,6 +414,56 @@ const SuppliesPage = () => {
               isLoading={isLoadingExpenses}
               onDeleteExpense={id => setExpenseToDelete(id)}
             />
+          </TabsContent>
+          
+          <TabsContent value="funding" className="mt-4">
+            <div className="space-y-6">
+              {/* Funding Stats */}
+              <FundingStats sources={fundingSources} />
+              
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  onClick={() => setIsFundingSourceDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Funding Source
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setIsExpenditureDialogOpen(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Record Expenditure
+                </Button>
+              </div>
+              
+              {/* Funding Sources & Expenditures */}
+              <Tabs defaultValue="sources" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="sources">Funding Sources</TabsTrigger>
+                  <TabsTrigger value="expenditures">Expenditures</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="sources" className="mt-4">
+                  <FundingSourcesList 
+                    sources={fundingSources}
+                    isLoading={isLoadingFundingSources}
+                    onRefetch={refetchFundingSources}
+                  />
+                </TabsContent>
+                
+                <TabsContent value="expenditures" className="mt-4">
+                  <ExpendituresList 
+                    expenditures={fundingExpenditures}
+                    isLoading={isLoadingFundingExpenditures}
+                    onRefetch={refetchFundingExpenditures}
+                  />
+                </TabsContent>
+              </Tabs>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
@@ -488,6 +604,26 @@ const SuppliesPage = () => {
         open={isHistoryDialogOpen}
         onOpenChange={setIsHistoryDialogOpen}
         item={itemForHistory}
+      />
+
+      {/* Funding dialogs */}
+      <FundingSourceDialog
+        open={isFundingSourceDialogOpen}
+        onOpenChange={setIsFundingSourceDialogOpen}
+        onSuccess={() => {
+          refetchFundingSources();
+          setIsFundingSourceDialogOpen(false);
+        }}
+      />
+
+      <ExpenditureDialog
+        open={isExpenditureDialogOpen}
+        onOpenChange={setIsExpenditureDialogOpen}
+        onSuccess={() => {
+          refetchFundingExpenditures();
+          refetchFundingSources(); // Refresh sources to update remaining amounts
+          setIsExpenditureDialogOpen(false);
+        }}
       />
     </MainLayout>
   );
