@@ -161,11 +161,12 @@ export function CreateMeetingDialog() {
           <span>Schedule Meeting</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle>Schedule New Meeting</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="overflow-y-auto flex-1 px-1">
+          <form onSubmit={handleSubmit} className="space-y-4 pb-4">
           <div className="space-y-2">
             <Label htmlFor="title" className="flex items-center">
               Meeting Title
@@ -403,6 +404,7 @@ export function CreateMeetingDialog() {
             </Button>
           </div>
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   );
