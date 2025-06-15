@@ -15,6 +15,7 @@ import {
 import { useState } from "react";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
+import { OutlookIntegration } from "@/components/planning/OutlookIntegration";
 import { PlanningCalendar } from "@/components/planning/PlanningCalendar";
 import { FutureTaskCard } from "@/components/planning/FutureTaskCard";
 import { 
@@ -133,20 +134,24 @@ const PlanningPage = () => {
           </TabsList>
           
           <TabsContent value="calendar" className="mt-4">
-            <Card className="glassmorphism">
-              <CardContent className="p-6">
-                {eventsLoading ? (
-                  <div className="py-12 text-center">Loading calendar...</div>
-                ) : (
-                  <PlanningCalendar 
-                    events={events} 
-                    onEditEvent={handleOpenEventDialog}
-                    onDeleteEvent={handleDeleteEvent}
-                    onToggleCompletion={handleToggleCompletion}
-                  />
-                )}
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <OutlookIntegration onSyncComplete={() => window.location.reload()} />
+              
+              <Card className="glassmorphism">
+                <CardContent className="p-6">
+                  {eventsLoading ? (
+                    <div className="py-12 text-center">Loading calendar...</div>
+                  ) : (
+                    <PlanningCalendar 
+                      events={events} 
+                      onEditEvent={handleOpenEventDialog}
+                      onDeleteEvent={handleDeleteEvent}
+                      onToggleCompletion={handleToggleCompletion}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
           
           <TabsContent value="future" className="mt-4">

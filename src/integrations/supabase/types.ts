@@ -431,6 +431,42 @@ export type Database = {
         }
         Relationships: []
       }
+      outlook_integration: {
+        Row: {
+          access_token_encrypted: string | null
+          created_at: string
+          id: string
+          is_connected: boolean | null
+          last_sync: string | null
+          refresh_token_encrypted: string | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token_encrypted?: string | null
+          created_at?: string
+          id?: string
+          is_connected?: boolean | null
+          last_sync?: string | null
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token_encrypted?: string | null
+          created_at?: string
+          id?: string
+          is_connected?: boolean | null
+          last_sync?: string | null
+          refresh_token_encrypted?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       planning_events: {
         Row: {
           completed: boolean | null
@@ -438,8 +474,14 @@ export type Database = {
           created_at: string | null
           date: string
           description: string | null
+          end_time: string | null
           id: string
+          last_outlook_sync: string | null
+          location: string | null
+          outlook_id: string | null
           priority: string | null
+          synced_from_outlook: boolean | null
+          synced_to_outlook: boolean | null
           time: string | null
           title: string
           type: string
@@ -451,8 +493,14 @@ export type Database = {
           created_at?: string | null
           date: string
           description?: string | null
+          end_time?: string | null
           id?: string
+          last_outlook_sync?: string | null
+          location?: string | null
+          outlook_id?: string | null
           priority?: string | null
+          synced_from_outlook?: boolean | null
+          synced_to_outlook?: boolean | null
           time?: string | null
           title: string
           type: string
@@ -464,8 +512,14 @@ export type Database = {
           created_at?: string | null
           date?: string
           description?: string | null
+          end_time?: string | null
           id?: string
+          last_outlook_sync?: string | null
+          location?: string | null
+          outlook_id?: string | null
           priority?: string | null
+          synced_from_outlook?: boolean | null
+          synced_to_outlook?: boolean | null
           time?: string | null
           title?: string
           type?: string
