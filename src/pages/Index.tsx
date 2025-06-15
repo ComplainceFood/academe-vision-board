@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDataFetching } from "@/hooks/useDataFetching";
+import { AIInsights } from "@/components/dashboard/AIInsights";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -215,6 +216,11 @@ const Index = () => {
                 <SeedDataButton />
               </CardContent>
             </Card>
+          </div>
+          
+          {/* AI Insights Section */}
+          <div className="mb-8">
+            <AIInsights />
           </div>
         </div>
       </MainLayout>
