@@ -42,6 +42,260 @@ export type Database = {
         }
         Relationships: []
       }
+      funding_commitments: {
+        Row: {
+          category: string
+          commitment_date: string
+          committed_amount: number
+          created_at: string
+          description: string | null
+          due_date: string | null
+          funding_source_id: string
+          id: string
+          notes: string | null
+          priority: string
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category: string
+          commitment_date?: string
+          committed_amount: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          funding_source_id: string
+          id?: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          commitment_date?: string
+          committed_amount?: number
+          created_at?: string
+          description?: string | null
+          due_date?: string | null
+          funding_source_id?: string
+          id?: string
+          notes?: string | null
+          priority?: string
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_commitments_funding_source_id_fkey"
+            columns: ["funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_expenditures: {
+        Row: {
+          amount: number
+          approval_date: string | null
+          approved_by: string | null
+          category: string
+          created_at: string
+          description: string
+          expenditure_date: string
+          expense_id: string | null
+          funding_source_id: string
+          id: string
+          notes: string | null
+          receipt_number: string | null
+          supply_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          approval_date?: string | null
+          approved_by?: string | null
+          category: string
+          created_at?: string
+          description: string
+          expenditure_date?: string
+          expense_id?: string | null
+          funding_source_id: string
+          id?: string
+          notes?: string | null
+          receipt_number?: string | null
+          supply_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          approval_date?: string | null
+          approved_by?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          expenditure_date?: string
+          expense_id?: string | null
+          funding_source_id?: string
+          id?: string
+          notes?: string | null
+          receipt_number?: string | null
+          supply_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_expenditures_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "expenses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_expenditures_funding_source_id_fkey"
+            columns: ["funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "funding_expenditures_supply_id_fkey"
+            columns: ["supply_id"]
+            isOneToOne: false
+            referencedRelation: "supplies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_reports: {
+        Row: {
+          created_at: string
+          due_date: string | null
+          funding_source_id: string
+          id: string
+          remaining_balance: number
+          report_content: string | null
+          report_period_end: string
+          report_period_start: string
+          report_type: string
+          status: string
+          submission_notes: string | null
+          submitted_date: string | null
+          total_expenditures: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          due_date?: string | null
+          funding_source_id: string
+          id?: string
+          remaining_balance?: number
+          report_content?: string | null
+          report_period_end: string
+          report_period_start: string
+          report_type: string
+          status?: string
+          submission_notes?: string | null
+          submitted_date?: string | null
+          total_expenditures?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          due_date?: string | null
+          funding_source_id?: string
+          id?: string
+          remaining_balance?: number
+          report_content?: string | null
+          report_period_end?: string
+          report_period_start?: string
+          report_type?: string
+          status?: string
+          submission_notes?: string | null
+          submitted_date?: string | null
+          total_expenditures?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_reports_funding_source_id_fkey"
+            columns: ["funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      funding_sources: {
+        Row: {
+          contact_email: string | null
+          contact_person: string | null
+          created_at: string
+          description: string | null
+          end_date: string | null
+          id: string
+          name: string
+          remaining_amount: number
+          reporting_requirements: string | null
+          restrictions: string | null
+          start_date: string
+          status: string
+          total_amount: number
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name: string
+          remaining_amount: number
+          reporting_requirements?: string | null
+          restrictions?: string | null
+          start_date: string
+          status?: string
+          total_amount: number
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          contact_person?: string | null
+          created_at?: string
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          name?: string
+          remaining_amount?: number
+          reporting_requirements?: string | null
+          restrictions?: string | null
+          start_date?: string
+          status?: string
+          total_amount?: number
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       future_planning: {
         Row: {
           created_at: string | null
