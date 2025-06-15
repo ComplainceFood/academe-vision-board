@@ -128,6 +128,13 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
 
   return (
     <>
+      <div className="mb-4">
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Add Funding Source
+        </Button>
+      </div>
+      
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {sources.map((source) => {
           const usagePercentage = calculateUsagePercentage(source.total_amount, source.remaining_amount);

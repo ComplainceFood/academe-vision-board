@@ -113,6 +113,13 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
 
   return (
     <>
+      <div className="mb-4">
+        <Button onClick={() => setIsAddDialogOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Record Expenditure
+        </Button>
+      </div>
+      
       <div className="space-y-4">
         {expenditures.map((expenditure) => (
           <Card key={expenditure.id} className="hover:shadow-md transition-shadow">
