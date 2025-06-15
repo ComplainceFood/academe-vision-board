@@ -23,16 +23,28 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Get auth user
-    const authHeader = req.headers.get('Authorization')!;
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user } } = await supabaseClient.auth.getUser(token);
-
-    if (!user) {
-      throw new Error('Unauthorized');
+    // Get auth user from request
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      throw new Error('No authorization header provided');
     }
+    
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
 
-    // Fetch user's data for analysis
+    if (userError) {
+      console.error('Auth error:', userError);
+      throw new Error(`Authentication failed: ${userError.message}`);
+    }
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    console.log('Authenticated user:', user.id);
+
+    // Fetch user's data for analysis with error checking
+    console.log('Fetching data for user:', user.id);
     const [notesData, meetingsData, suppliesData, eventsData, shoppingData] = await Promise.all([
       supabaseClient.from('notes').select('*').eq('user_id', user.id),
       supabaseClient.from('meetings').select('*').eq('user_id', user.id),
@@ -40,6 +52,21 @@ serve(async (req) => {
       supabaseClient.from('planning_events').select('*').eq('user_id', user.id),
       supabaseClient.from('shopping_list').select('*').eq('user_id', user.id)
     ]);
+
+    // Log any database errors
+    if (notesData.error) console.error('Notes query error:', notesData.error);
+    if (meetingsData.error) console.error('Meetings query error:', meetingsData.error);
+    if (suppliesData.error) console.error('Supplies query error:', suppliesData.error);
+    if (eventsData.error) console.error('Events query error:', eventsData.error);
+    if (shoppingData.error) console.error('Shopping query error:', shoppingData.error);
+    
+    console.log('Data fetched successfully:', {
+      notes: notesData.data?.length || 0,
+      meetings: meetingsData.data?.length || 0,
+      supplies: suppliesData.data?.length || 0,
+      events: eventsData.data?.length || 0,
+      shopping: shoppingData.data?.length || 0
+    });
 
     // Prepare data summary for AI analysis
     const dataContext = {
