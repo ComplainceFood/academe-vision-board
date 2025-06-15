@@ -25,16 +25,46 @@ export const ExpenditureDialog = ({
 }: ExpenditureDialogProps) => {
   const [fundingSources, setFundingSources] = useState<FundingSource[]>([]);
   const [formData, setFormData] = useState({
-    funding_source_id: editingExpenditure?.funding_source_id || "",
-    amount: editingExpenditure?.amount?.toString() || "",
-    description: editingExpenditure?.description || "",
-    category: editingExpenditure?.category || "",
-    expenditure_date: editingExpenditure?.expenditure_date || new Date().toISOString().split('T')[0],
-    receipt_number: editingExpenditure?.receipt_number || "",
-    approved_by: editingExpenditure?.approved_by || "",
-    approval_date: editingExpenditure?.approval_date || "",
-    notes: editingExpenditure?.notes || "",
+    funding_source_id: "",
+    amount: "",
+    description: "",
+    category: "",
+    expenditure_date: new Date().toISOString().split('T')[0],
+    receipt_number: "",
+    approved_by: "",
+    approval_date: "",
+    notes: "",
   });
+
+  // Update form data when editingExpenditure changes
+  useEffect(() => {
+    if (editingExpenditure) {
+      setFormData({
+        funding_source_id: editingExpenditure.funding_source_id || "",
+        amount: editingExpenditure.amount?.toString() || "",
+        description: editingExpenditure.description || "",
+        category: editingExpenditure.category || "",
+        expenditure_date: editingExpenditure.expenditure_date || new Date().toISOString().split('T')[0],
+        receipt_number: editingExpenditure.receipt_number || "",
+        approved_by: editingExpenditure.approved_by || "",
+        approval_date: editingExpenditure.approval_date || "",
+        notes: editingExpenditure.notes || "",
+      });
+    } else {
+      // Reset form for new expenditure
+      setFormData({
+        funding_source_id: "",
+        amount: "",
+        description: "",
+        category: "",
+        expenditure_date: new Date().toISOString().split('T')[0],
+        receipt_number: "",
+        approved_by: "",
+        approval_date: "",
+        notes: "",
+      });
+    }
+  }, [editingExpenditure]);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
