@@ -1,14 +1,23 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
-import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfile } from "@/hooks/useProfile";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+
 export function AppSidebar() {
   const [activeItem, setActiveItem] = useState("dashboard");
   const { profile } = useProfile();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const navigationItems = [{
     id: "dashboard",
     title: "Dashboard",
@@ -34,7 +43,26 @@ export function AppSidebar() {
     title: "Planning",
     icon: Calendar,
     path: "/planning"
+  }, {
+    id: "funding",
+    title: "Funding",
+    icon: DollarSign,
+    path: "/funding"
   }];
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      navigate("/auth");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast({
+        title: "Error signing out",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
   return <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2 px-2">
@@ -88,7 +116,7 @@ export function AppSidebar() {
               <Settings className="h-4 w-4" />
             </Link>
           </Button>
-          <Button variant="outline" size="icon" className="w-full">
+          <Button variant="outline" size="icon" className="w-full" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
           </Button>
         </div>

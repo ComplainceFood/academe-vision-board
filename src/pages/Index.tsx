@@ -15,7 +15,8 @@ import {
   Users, 
   BarChart, 
   CheckSquare,
-  BellRing
+  BellRing,
+  DollarSign
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDataFetching } from "@/hooks/useDataFetching";
@@ -211,6 +212,11 @@ const Index = () => {
                 <Button variant="outline" className="w-full justify-start" asChild>
                   <Link to="/planning">
                     <CalendarRange className="mr-2 h-4 w-4" /> Add Event
+                  </Link>
+                </Button>
+                <Button variant="outline" className="w-full justify-start" asChild>
+                  <Link to="/funding">
+                    <DollarSign className="mr-2 h-4 w-4" /> Manage Funding
                   </Link>
                 </Button>
                 <SeedDataButton />

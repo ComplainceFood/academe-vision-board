@@ -23,19 +23,39 @@ const AuthPage = () => {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          },
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            toast.error("An account with this email already exists. Please sign in instead.");
+            setIsSignUp(false);
+            return;
+          }
+          throw error;
+        }
         toast.success("Check your email to confirm your account!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
-        if (error) throw error;
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast.error("Invalid email or password. Please check your credentials and try again.");
+          } else if (error.message.includes("Email not confirmed")) {
+            toast.error("Please check your email and click the confirmation link before signing in.");
+          } else {
+            toast.error(error.message);
+          }
+          return;
+        }
         navigate("/");
       }
     } catch (error: any) {
-      toast.error(error.message);
+      console.error("Auth error:", error);
+      toast.error(error.message || "An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

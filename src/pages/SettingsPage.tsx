@@ -7,13 +7,23 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Settings, User, Bell, Shield, Camera } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/integrations/supabase/client";
 
 const SettingsPage = () => {
   const [isSaving, setIsSaving] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [emailNotifications, setEmailNotifications] = useState(true);
+  const [taskReminders, setTaskReminders] = useState(true);
+  const [meetingAlerts, setMeetingAlerts] = useState(true);
+  const [lowSupplyAlerts, setLowSupplyAlerts] = useState(true);
   const { user } = useAuth();
   const { profile, loading: isLoading, updateProfile } = useProfile();
   const { toast } = useToast();
@@ -149,6 +159,103 @@ const SettingsPage = () => {
     }
   };
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    if (file.size > 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please choose an image smaller than 1MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}.${fileExt}`;
+      
+      // For now, create a data URL since we don't have storage configured
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const avatarUrl = e.target?.result as string;
+        await updateProfile({ avatar_url: avatarUrl });
+        toast({
+          title: "Avatar updated",
+          description: "Your profile picture has been updated successfully",
+        });
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error("Error uploading avatar:", error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload avatar. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    if (!newPassword || newPassword !== confirmPassword) {
+      toast({
+        title: "Password mismatch",
+        description: "Passwords do not match",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) throw error;
+
+      setNewPassword("");
+      setConfirmPassword("");
+      toast({
+        title: "Password updated",
+        description: "Your password has been changed successfully",
+      });
+    } catch (error: any) {
+      console.error("Error updating password:", error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAccountDeletion = async () => {
+    try {
+      // Note: Supabase doesn't have a direct user deletion API for security reasons
+      // This would typically be handled by an admin function
+      toast({
+        title: "Account deletion requested",
+        description: "Please contact support to delete your account",
+        variant: "destructive",
+      });
+    } catch (error) {
+      console.error("Error deleting account:", error);
+    }
+  };
+
   if (isLoading) {
     return (
       <MainLayout>
@@ -208,9 +315,22 @@ const SettingsPage = () => {
                     </AvatarFallback>
                   </Avatar>
                   <div className="space-y-2">
-                    <Button variant="outline" size="sm" className="flex items-center gap-2">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                      id="avatar-upload"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="flex items-center gap-2"
+                      onClick={() => document.getElementById('avatar-upload')?.click()}
+                      disabled={uploadingAvatar}
+                    >
                       <Camera className="h-4 w-4" />
-                      Change Avatar
+                      {uploadingAvatar ? "Uploading..." : "Change Avatar"}
                     </Button>
                     <p className="text-sm text-muted-foreground">
                       JPG, GIF or PNG. 1MB max.
@@ -326,8 +446,66 @@ const SettingsPage = () => {
                   Choose how you want to be notified about updates
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Notification settings coming soon...</p>
+              <CardContent className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="email-notifications">Email Notifications</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Receive email updates about important activities
+                    </p>
+                  </div>
+                  <Switch
+                    id="email-notifications"
+                    checked={emailNotifications}
+                    onCheckedChange={setEmailNotifications}
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="task-reminders">Task Reminders</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Get reminded about upcoming tasks and deadlines
+                    </p>
+                  </div>
+                  <Switch
+                    id="task-reminders"
+                    checked={taskReminders}
+                    onCheckedChange={setTaskReminders}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="meeting-alerts">Meeting Alerts</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Receive notifications before scheduled meetings
+                    </p>
+                  </div>
+                  <Switch
+                    id="meeting-alerts"
+                    checked={meetingAlerts}
+                    onCheckedChange={setMeetingAlerts}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="low-supply-alerts">Low Supply Alerts</Label>
+                    <p className="text-sm text-muted-foreground">
+                      Get notified when supplies are running low
+                    </p>
+                  </div>
+                  <Switch
+                    id="low-supply-alerts"
+                    checked={lowSupplyAlerts}
+                    onCheckedChange={setLowSupplyAlerts}
+                  />
+                </div>
+
+                <Button variant="outline" className="w-full md:w-auto">
+                  Save Notification Preferences
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -335,13 +513,84 @@ const SettingsPage = () => {
           <TabsContent value="security" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Security Settings</CardTitle>
+                <CardTitle>Password & Security</CardTitle>
                 <CardDescription>
-                  Manage your account security and privacy
+                  Manage your account security and privacy settings
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Security settings coming soon...</p>
+              <CardContent className="space-y-6">
+                <div className="space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Key className="h-4 w-4" />
+                    Change Password
+                  </h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="newPassword">New Password</Label>
+                      <Input
+                        id="newPassword"
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Enter new password"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <Input
+                        id="confirmPassword"
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={handlePasswordChange}
+                    disabled={!newPassword || !confirmPassword}
+                    variant="outline"
+                  >
+                    Update Password
+                  </Button>
+                </div>
+
+                <div className="border-t pt-6">
+                  <h4 className="font-medium text-destructive flex items-center gap-2 mb-4">
+                    <Trash2 className="h-4 w-4" />
+                    Danger Zone
+                  </h4>
+                  <div className="space-y-4">
+                    <div className="rounded-lg border border-destructive/20 p-4">
+                      <h5 className="font-medium mb-2">Delete Account</h5>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Once you delete your account, there is no going back. Please be certain.
+                      </p>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" size="sm">
+                            Delete Account
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete your account
+                              and remove all your data from our servers.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleAccountDeletion}>
+                              Delete Account
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

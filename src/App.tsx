@@ -12,6 +12,7 @@ import NotesPage from "./pages/NotesPage";
 import MeetingsPage from "./pages/MeetingsPage";
 import SuppliesPage from "./pages/SuppliesPage";
 import PlanningPage from "./pages/PlanningPage";
+import FundingPage from "./pages/FundingPage";
 import AuthPage from "./pages/AuthPage";
 import SettingsPage from "./pages/SettingsPage";
 
@@ -106,6 +107,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <PlanningPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/funding"
+              element={
+                <ProtectedRoute>
+                  <FundingPage />
                 </ProtectedRoute>
               }
             />

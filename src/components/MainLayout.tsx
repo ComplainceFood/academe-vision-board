@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { GlobalSearch } from "@/components/common/GlobalSearch";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -55,15 +56,18 @@ export function MainLayout({ children }: MainLayoutProps) {
               <SidebarTrigger />
               <h1 className="text-xl font-semibold">Academia Vision</h1>
             </div>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-                {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
-              {user && (
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
-                  <LogOut className="h-5 w-5" />
+            <div className="flex items-center gap-4">
+              <GlobalSearch />
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+                  {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
-              )}
+                {user && (
+                  <Button variant="ghost" size="icon" onClick={handleLogout}>
+                    <LogOut className="h-5 w-5" />
+                  </Button>
+                )}
+              </div>
             </div>
           </header>
           <main className="flex-1 p-6 overflow-auto">
