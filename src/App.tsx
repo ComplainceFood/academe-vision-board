@@ -13,8 +13,9 @@ import MeetingsPage from "./pages/MeetingsPage";
 import SuppliesPage from "./pages/SuppliesPage";
 import PlanningPage from "./pages/PlanningPage";
 import FundingPage from "./pages/FundingPage";
-import AuthPage from "./pages/AuthPage";
+import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
+import AuthPage from "./pages/AuthPage";
 
 // Create a query client with automatic data refresh configuration
 const queryClient = new QueryClient({
@@ -115,6 +116,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <FundingPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/analytics"
+              element={
+                <ProtectedRoute>
+                  <AnalyticsPage />
                 </ProtectedRoute>
               }
             />

@@ -9,21 +9,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2 } from "lucide-react";
+import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2, Download } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
+import { NotificationSystem } from "@/components/notifications/NotificationSystem";
+import { DataExportImport } from "@/components/common/DataExportImport";
+import { OAuthOutlookIntegration } from "@/components/planning/OAuthOutlookIntegration";
 
 const SettingsPage = () => {
+  // Remove unused notification states since they're now handled in NotificationSystem
   const [isSaving, setIsSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [taskReminders, setTaskReminders] = useState(true);
-  const [meetingAlerts, setMeetingAlerts] = useState(true);
-  const [lowSupplyAlerts, setLowSupplyAlerts] = useState(true);
   const { user } = useAuth();
   const { profile, loading: isLoading, updateProfile } = useProfile();
   const { toast } = useToast();
@@ -282,7 +282,7 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
@@ -290,6 +290,14 @@ const SettingsPage = () => {
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
               Notifications
+            </TabsTrigger>
+            <TabsTrigger value="integrations" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Integrations
+            </TabsTrigger>
+            <TabsTrigger value="backup" className="flex items-center gap-2">
+              <Download className="h-4 w-4" />
+              Backup
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
@@ -439,75 +447,15 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="notifications" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Notification Preferences</CardTitle>
-                <CardDescription>
-                  Choose how you want to be notified about updates
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="email-notifications">Email Notifications</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive email updates about important activities
-                    </p>
-                  </div>
-                  <Switch
-                    id="email-notifications"
-                    checked={emailNotifications}
-                    onCheckedChange={setEmailNotifications}
-                  />
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="task-reminders">Task Reminders</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get reminded about upcoming tasks and deadlines
-                    </p>
-                  </div>
-                  <Switch
-                    id="task-reminders"
-                    checked={taskReminders}
-                    onCheckedChange={setTaskReminders}
-                  />
-                </div>
+            <NotificationSystem />
+          </TabsContent>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="meeting-alerts">Meeting Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Receive notifications before scheduled meetings
-                    </p>
-                  </div>
-                  <Switch
-                    id="meeting-alerts"
-                    checked={meetingAlerts}
-                    onCheckedChange={setMeetingAlerts}
-                  />
-                </div>
+          <TabsContent value="integrations" className="space-y-6">
+            <OAuthOutlookIntegration />
+          </TabsContent>
 
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="low-supply-alerts">Low Supply Alerts</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Get notified when supplies are running low
-                    </p>
-                  </div>
-                  <Switch
-                    id="low-supply-alerts"
-                    checked={lowSupplyAlerts}
-                    onCheckedChange={setLowSupplyAlerts}
-                  />
-                </div>
-
-                <Button variant="outline" className="w-full md:w-auto">
-                  Save Notification Preferences
-                </Button>
-              </CardContent>
-            </Card>
+          <TabsContent value="backup" className="space-y-6">
+            <DataExportImport />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
