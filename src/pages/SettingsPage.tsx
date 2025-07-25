@@ -142,24 +142,35 @@ const SettingsPage = () => {
     setUploadingAvatar(true);
     try {
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}.${fileExt}`;
+      const fileName = `${user.id}/avatar.${fileExt}`;
       
-      // For now, create a data URL since we don't have storage configured
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const avatarUrl = e.target?.result as string;
-        await updateProfile({ avatar_url: avatarUrl });
-        toast({
-          title: "Avatar updated",
-          description: "Your profile picture has been updated successfully",
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
         });
-      };
-      reader.readAsDataURL(file);
-    } catch (error) {
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // Update profile with new avatar URL
+      await updateProfile({ avatar_url: data.publicUrl });
+      
+      toast({
+        title: "Avatar updated",
+        description: "Your profile picture has been updated successfully",
+      });
+    } catch (error: any) {
       console.error("Error uploading avatar:", error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload avatar. Please try again.",
+        description: error.message || "Failed to upload avatar. Please try again.",
         variant: "destructive",
       });
     } finally {
