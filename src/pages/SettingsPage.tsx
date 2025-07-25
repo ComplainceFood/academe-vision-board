@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2, Download } from "lucide-react";
+import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2, Download, Link, Check, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -19,9 +19,8 @@ import { DataExportImport } from "@/components/common/DataExportImport";
 import { OAuthOutlookIntegration } from "@/components/planning/OAuthOutlookIntegration";
 
 const SettingsPage = () => {
-  // Remove unused notification states since they're now handled in NotificationSystem
-  const [isSaving, setIsSaving] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { user } = useAuth();
@@ -57,15 +56,22 @@ const SettingsPage = () => {
     }
   }, [profile, user, isLoading]);
 
-  // Auto-save functionality with debouncing
+  // Auto-save functionality with debouncing and status
   const debouncedUpdate = useCallback(
     (() => {
       let timeoutId: NodeJS.Timeout;
       return (updates: any) => {
+        setAutoSaveStatus('saving');
         clearTimeout(timeoutId);
         timeoutId = setTimeout(async () => {
           if (user) {
-            await updateProfile(updates);
+            try {
+              await updateProfile(updates);
+              setAutoSaveStatus('saved');
+              setTimeout(() => setAutoSaveStatus('idle'), 2000); // Clear "saved" status after 2 seconds
+            } catch (error) {
+              setAutoSaveStatus('idle');
+            }
           }
         }, 1000); // Wait 1 second after user stops typing
       };
@@ -119,45 +125,6 @@ const SettingsPage = () => {
     debouncedUpdate({ office_location: value });
   };
 
-  const handleSaveProfile = async () => {
-    if (!user) return;
-
-    try {
-      setIsSaving(true);
-      
-      const profileData = {
-        display_name: displayName,
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        phone: phone,
-        department: department,
-        position: position,
-        bio: bio,
-        office_location: officeLocation,
-      };
-
-      const result = await updateProfile(profileData);
-
-      if (result?.success) {
-        toast({
-          title: "Success",
-          description: "Profile updated successfully",
-        });
-      } else {
-        throw new Error("Failed to update profile");
-      }
-    } catch (error) {
-      console.error("Error saving profile:", error);
-      toast({
-        title: "Error",
-        description: "Failed to save profile",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -244,15 +211,29 @@ const SettingsPage = () => {
 
   const handleAccountDeletion = async () => {
     try {
-      // Note: Supabase doesn't have a direct user deletion API for security reasons
-      // This would typically be handled by an admin function
+      // Sign out and clean up auth state
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Clear local storage
+      localStorage.clear();
+      sessionStorage.clear();
+      
+      // Notify user about manual deletion process
       toast({
-        title: "Account deletion requested",
-        description: "Please contact support to delete your account",
+        title: "Account deletion initiated",
+        description: "You have been signed out. For complete account deletion, please contact support.",
         variant: "destructive",
       });
+      
+      // Redirect to auth page
+      window.location.href = '/auth';
     } catch (error) {
-      console.error("Error deleting account:", error);
+      console.error("Error during account deletion process:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process account deletion request",
+        variant: "destructive",
+      });
     }
   };
 
@@ -282,7 +263,7 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="profile" className="flex items-center gap-2">
               <User className="h-4 w-4" />
               Profile
@@ -291,26 +272,38 @@ const SettingsPage = () => {
               <Bell className="h-4 w-4" />
               Notifications
             </TabsTrigger>
-            <TabsTrigger value="integrations" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              Integrations
-            </TabsTrigger>
-            <TabsTrigger value="backup" className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              Backup
+            <TabsTrigger value="connections" className="flex items-center gap-2">
+              <Link className="h-4 w-4" />
+              Connections
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              Security
+              Security & Data
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="profile" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  Profile Information
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    {autoSaveStatus === 'saving' && (
+                      <>
+                        <Clock className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    )}
+                    {autoSaveStatus === 'saved' && (
+                      <>
+                        <Check className="h-4 w-4 text-green-500" />
+                        Saved
+                      </>
+                    )}
+                  </div>
+                </CardTitle>
                 <CardDescription>
-                  Update your personal information and how others see you
+                  Update your personal information and how others see you. Changes are saved automatically.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -435,13 +428,6 @@ const SettingsPage = () => {
                   />
                 </div>
 
-                <Button 
-                  onClick={handleSaveProfile} 
-                  disabled={isSaving}
-                  className="w-full md:w-auto"
-                >
-                  {isSaving ? "Saving..." : "Save Changes"}
-                </Button>
               </CardContent>
             </Card>
           </TabsContent>
@@ -450,15 +436,15 @@ const SettingsPage = () => {
             <NotificationSystem />
           </TabsContent>
 
-          <TabsContent value="integrations" className="space-y-6">
+          <TabsContent value="connections" className="space-y-6">
             <OAuthOutlookIntegration />
           </TabsContent>
 
-          <TabsContent value="backup" className="space-y-6">
-            <DataExportImport />
-          </TabsContent>
-
           <TabsContent value="security" className="space-y-6">
+            {/* Data Export/Import Section */}
+            <DataExportImport />
+            
+            {/* Password & Security Section */}
             <Card>
               <CardHeader>
                 <CardTitle>Password & Security</CardTitle>
