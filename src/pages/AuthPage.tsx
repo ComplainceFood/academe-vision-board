@@ -19,13 +19,38 @@ const AuthPage = () => {
     setIsLoading(true);
 
     try {
+      // Clean up any existing auth state before attempting new auth
+      const cleanupAuthState = () => {
+        localStorage.removeItem('supabase.auth.token');
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+            localStorage.removeItem(key);
+          }
+        });
+        Object.keys(sessionStorage || {}).forEach((key) => {
+          if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+            sessionStorage.removeItem(key);
+          }
+        });
+      };
+      
+      cleanupAuthState();
+      
+      // Attempt global sign out first
+      try {
+        await supabase.auth.signOut({ scope: 'global' });
+      } catch (err) {
+        // Continue even if this fails
+      }
+
       if (isSignUp) {
+        const redirectUrl = `${window.location.origin}/`;
         const { error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/`,
-          },
+            emailRedirectTo: redirectUrl
+          }
         });
         if (error) {
           if (error.message.includes("User already registered")) {
@@ -51,11 +76,27 @@ const AuthPage = () => {
           }
           return;
         }
-        navigate("/");
+        // Force page reload for clean state
+        window.location.href = '/';
       }
     } catch (error: any) {
+      // Enhanced error handling with specific messages
+      let errorMessage = "Authentication failed";
+      
+      if (error.message?.includes("Invalid login credentials")) {
+        errorMessage = "Invalid email or password. Please try again.";
+      } else if (error.message?.includes("Email not confirmed")) {
+        errorMessage = "Please check your email and confirm your account before signing in.";
+      } else if (error.message?.includes("User already registered")) {
+        errorMessage = "An account with this email already exists. Try signing in instead.";
+      } else if (error.message?.includes("Password should be at least")) {
+        errorMessage = "Password must be at least 6 characters long.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+      
       console.error("Auth error:", error);
-      toast.error(error.message || "An unexpected error occurred. Please try again.");
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }

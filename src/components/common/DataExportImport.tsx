@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { sanitizeFilename, validateJsonInput, sanitizeTextInput, validateNumericInput } from "@/utils/inputValidation";
 
 interface ExportImportProps {
   onDataRefresh?: () => void;
@@ -89,12 +90,46 @@ export const DataExportImport = ({ onDataRefresh }: ExportImportProps) => {
         exportData.tables[tableId] = data;
       }
 
+      // Sanitize export data before creating file
+      const sanitizedExportData = {
+        ...exportData,
+        exportDate: new Date().toISOString(),
+        exportedBy: sanitizeTextInput(exportData.exportedBy || '', 255),
+        version: '1.0',
+        tables: Object.fromEntries(
+          Object.entries(exportData.tables).map(([tableId, data]) => [
+            tableId,
+            Array.isArray(data) ? data.map((item: any) => {
+              // Remove sensitive system fields and sanitize content
+              const cleanItem = { ...item };
+              delete cleanItem.password;
+              delete cleanItem.token;
+              delete cleanItem.secret;
+              
+              // Sanitize text fields
+              Object.keys(cleanItem).forEach(key => {
+                if (typeof cleanItem[key] === 'string') {
+                  cleanItem[key] = sanitizeTextInput(cleanItem[key], 5000);
+                }
+              });
+              
+              return cleanItem;
+            }) : data
+          ])
+        )
+      };
+
+      // Create secure filename
+      const timestamp = new Date().toISOString().split('T')[0];
+      const secureFilename = sanitizeFilename(`academia-vision-backup-${timestamp}.json`);
+
       // Create and download the file
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const blob = new Blob([JSON.stringify(sanitizedExportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `academia-vision-backup-${new Date().toISOString().split('T')[0]}.json`;
+      link.download = secureFilename;
+      link.setAttribute('download', secureFilename); // Prevent manipulation
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -121,10 +156,33 @@ export const DataExportImport = ({ onDataRefresh }: ExportImportProps) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!file.name.endsWith('.json')) {
+    // Enhanced security validations
+    const maxFileSize = 10 * 1024 * 1024; // 10MB limit
+    if (file.size > maxFileSize) {
+      toast({
+        title: "File too large",
+        description: "Please select a file smaller than 10MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file extension and MIME type
+    if (!file.name.endsWith('.json') || file.type !== 'application/json') {
       toast({
         title: "Invalid file type",
-        description: "Please select a JSON backup file",
+        description: "Please select a valid JSON backup file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Sanitize filename
+    const sanitizedFilename = sanitizeFilename(file.name);
+    if (sanitizedFilename !== file.name) {
+      toast({
+        title: "Security Warning",
+        description: "File name contains potentially unsafe characters",
         variant: "destructive",
       });
       return;
@@ -135,30 +193,88 @@ export const DataExportImport = ({ onDataRefresh }: ExportImportProps) => {
 
     try {
       const text = await file.text();
-      const importData = JSON.parse(text);
+      
+      // Validate JSON structure securely
+      const importData = validateJsonInput(text);
+      if (!importData) {
+        throw new Error('Invalid or unsafe JSON format');
+      }
 
-      if (!importData.tables) {
-        throw new Error('Invalid backup file format');
+      if (!importData.tables || typeof importData.tables !== 'object') {
+        throw new Error('Invalid backup file format - missing tables');
+      }
+
+      // Validate import data structure
+      if (importData.exportedBy && typeof importData.exportedBy !== 'string') {
+        throw new Error('Invalid backup file format - corrupted metadata');
       }
 
       const tablesToImport = Object.keys(importData.tables);
       const totalTables = tablesToImport.length;
       let importedCount = 0;
 
+      // Limit number of tables to prevent resource exhaustion
+      if (totalTables > 20) {
+        throw new Error('Backup file contains too many tables. Maximum 20 allowed.');
+      }
+
       for (let i = 0; i < tablesToImport.length; i++) {
         const tableId = tablesToImport[i];
-        const tableData = importData.tables[tableId];
         
+        // Validate table name against known tables
+        if (!availableTables.some(table => table.id === tableId)) {
+          console.warn(`Skipping unknown table: ${tableId}`);
+          continue;
+        }
+        
+        const tableData = importData.tables[tableId];
         setImportProgress(((i + 1) / totalTables) * 100);
 
         if (!Array.isArray(tableData) || tableData.length === 0) continue;
 
-        // Process data to ensure user_id is correct and remove any id conflicts
-        const processedData = tableData.map(item => ({
-          ...item,
-          id: undefined, // Let database generate new IDs
-          user_id: user?.id, // Ensure correct user ownership
-        }));
+        // Limit number of records per table
+        if (tableData.length > 1000) {
+          console.warn(`Table ${tableId} has too many records. Limiting to 1000.`);
+          tableData.splice(1000);
+        }
+
+        // Sanitize and validate each record
+        const processedData = tableData.map(item => {
+          if (typeof item !== 'object' || item === null) {
+            return null;
+          }
+
+          // Sanitize text fields
+          const sanitizedItem: any = { user_id: user?.id };
+          
+          Object.entries(item).forEach(([key, value]) => {
+            if (key === 'id') return; // Skip ID to let database generate new ones
+            if (key === 'user_id') return; // Always use current user's ID
+            
+            if (typeof value === 'string') {
+              sanitizedItem[key] = sanitizeTextInput(value, 5000);
+            } else if (typeof value === 'number') {
+              const numValue = validateNumericInput(value);
+              if (numValue !== null) {
+                sanitizedItem[key] = numValue;
+              }
+            } else if (typeof value === 'boolean') {
+              sanitizedItem[key] = Boolean(value);
+            } else if (Array.isArray(value)) {
+              // Sanitize array elements
+              sanitizedItem[key] = value
+                .slice(0, 100) // Limit array size
+                .map(v => typeof v === 'string' ? sanitizeTextInput(v, 1000) : v);
+            } else if (value instanceof Date || typeof value === 'string') {
+              // Handle dates
+              sanitizedItem[key] = value;
+            }
+          });
+
+          return sanitizedItem;
+        }).filter(item => item !== null);
+
+        if (processedData.length === 0) continue;
 
         const { error } = await supabase
           .from(tableId as any)
@@ -182,7 +298,7 @@ export const DataExportImport = ({ onDataRefresh }: ExportImportProps) => {
       console.error('Import error:', error);
       toast({
         title: "Import Failed",
-        description: "Failed to import data. Please check the file format.",
+        description: error instanceof Error ? error.message : "Failed to import data. Please check the file format.",
         variant: "destructive",
       });
     } finally {
