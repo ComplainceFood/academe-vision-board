@@ -16,6 +16,7 @@ import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
 import { DataExportImport } from "@/components/common/DataExportImport";
+import SecurityDashboard from "@/components/security/SecurityDashboard";
 import { OAuthOutlookIntegration } from "@/components/planning/OAuthOutlookIntegration";
 
 const SettingsPage = () => {
@@ -452,6 +453,9 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
+            {/* Security Dashboard */}
+            <SecurityDashboard />
+            
             {/* Data Export/Import Section */}
             <DataExportImport />
             

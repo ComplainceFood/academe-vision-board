@@ -794,15 +794,7 @@ export type Database = {
       }
     }
     Views: {
-      extension_security_status: {
-        Row: {
-          extension_name: unknown | null
-          recommendation: string | null
-          schema_name: unknown | null
-          security_status: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       check_login_attempts: {
@@ -821,6 +813,15 @@ export type Database = {
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      get_extension_security_info: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          extension_name: string
+          schema_name: string
+          security_status: string
+          recommendation: string
+        }[]
       }
       log_security_event: {
         Args: {

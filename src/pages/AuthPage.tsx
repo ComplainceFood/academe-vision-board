@@ -6,12 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { validatePasswordStrength, clientPasswordValidation } from "@/utils/securityUtils";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 const AuthPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState<any>(null);
   const navigate = useNavigate();
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -131,9 +135,48 @@ const AuthPage = () => {
                 type="password"
                 placeholder="Password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={async (e) => {
+                  setPassword(e.target.value);
+                  if (isSignUp && e.target.value) {
+                    try {
+                      const strength = await validatePasswordStrength(e.target.value);
+                      setPasswordStrength(strength);
+                    } catch {
+                      const strength = clientPasswordValidation(e.target.value);
+                      setPasswordStrength(strength);
+                    }
+                  } else {
+                    setPasswordStrength(null);
+                  }
+                }}
                 required
               />
+              
+              {isSignUp && passwordStrength && password && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs">Password Strength:</span>
+                    <Badge 
+                      variant={passwordStrength.strength === 'strong' ? 'default' : 
+                              passwordStrength.strength === 'medium' ? 'secondary' : 'destructive'}
+                      className="text-xs"
+                    >
+                      {passwordStrength.strength.replace('_', ' ').toUpperCase()}
+                    </Badge>
+                  </div>
+                  <Progress 
+                    value={(passwordStrength.score / passwordStrength.max_score) * 100}
+                    className="h-1"
+                  />
+                  {passwordStrength.issues?.length > 0 && (
+                    <div className="text-xs text-muted-foreground">
+                      {passwordStrength.issues.slice(0, 2).map((issue: string, index: number) => (
+                        <div key={index}>• {issue}</div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading
