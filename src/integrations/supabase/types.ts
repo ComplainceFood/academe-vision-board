@@ -794,9 +794,21 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      extension_security_status: {
+        Row: {
+          extension_name: unknown | null
+          recommendation: string | null
+          schema_name: unknown | null
+          security_status: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      check_login_attempts: {
+        Args: { user_email: string }
+        Returns: Json
+      }
       check_rate_limit: {
         Args: {
           user_id: string
@@ -809,6 +821,19 @@ export type Database = {
       get_current_user_id: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      log_security_event: {
+        Args: {
+          action_type: string
+          table_name?: string
+          record_id?: string
+          details?: Json
+        }
+        Returns: undefined
+      }
+      validate_password_strength: {
+        Args: { password: string }
+        Returns: Json
       }
     }
     Enums: {
