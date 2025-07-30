@@ -16,6 +16,7 @@ import { useState } from "react";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
 import { OutlookIntegration } from "@/components/planning/OutlookIntegration";
+import { GoogleCalendarIntegration } from "@/components/planning/GoogleCalendarIntegration";
 import { PlanningCalendar } from "@/components/planning/PlanningCalendar";
 import { FutureTaskCard } from "@/components/planning/FutureTaskCard";
 import { 
