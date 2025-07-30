@@ -38,7 +38,14 @@ export const AddItemDialog = ({
   const { triggerRefresh } = useRefreshContext();
 
   const handleAddItem = async () => {
-    if (!user || !itemName.trim()) return;
+    if (!user || !itemName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
     
     try {
       const newItem = {
@@ -52,11 +59,19 @@ export const AddItemDialog = ({
         user_id: user.id
       };
       
-      const { error } = await supabase
-        .from('supplies')
-        .insert(newItem as any);
+      console.log("Inserting new supply item:", newItem);
       
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('supplies')
+        .insert(newItem)
+        .select();
+      
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+      
+      console.log("Successfully inserted item:", data);
       
       toast({
         title: "Success",
@@ -68,11 +83,14 @@ export const AddItemDialog = ({
       onOpenChange(false);
       triggerRefresh('supplies');
       
+      // Force a page refresh event for real-time update
+      window.dispatchEvent(new CustomEvent('refreshData', { detail: { table: 'supplies' } }));
+      
     } catch (error) {
       console.error("Error adding inventory item:", error);
       toast({
         title: "Error",
-        description: "Failed to add item",
+        description: error instanceof Error ? error.message : "Failed to add item",
         variant: "destructive",
       });
     }

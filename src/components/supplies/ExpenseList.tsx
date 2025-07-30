@@ -100,19 +100,48 @@ export const ExpenseList = ({
   
   // Handle adding a new expense
   const handleAddExpense = async () => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to add expenses",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!newExpense.description.trim() || newExpense.amount <= 0) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
     
     try {
       const expenseToAdd = {
-        ...newExpense,
+        description: newExpense.description.trim(),
+        amount: newExpense.amount,
+        category: newExpense.category.trim() || 'Supplies',
+        course: newExpense.course.trim() || 'General',
+        receipt: newExpense.receipt,
+        date: newExpense.date,
         user_id: user.id
       };
       
-      const { error } = await supabase
-        .from('expenses')
-        .insert(expenseToAdd as any);
+      console.log("Inserting new expense:", expenseToAdd);
       
-      if (error) throw error;
+      const { data, error } = await supabase
+        .from('expenses')
+        .insert(expenseToAdd)
+        .select();
+      
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+      
+      console.log("Successfully inserted expense:", data);
       
       toast({
         title: "Success",
@@ -130,11 +159,14 @@ export const ExpenseList = ({
       });
       setIsAddDialogOpen(false);
       triggerRefresh('expenses');
+      
+      // Force a page refresh event for real-time update
+      window.dispatchEvent(new CustomEvent('refreshData', { detail: { table: 'expenses' } }));
     } catch (error) {
       console.error("Error adding expense:", error);
       toast({
         title: "Error",
-        description: "Failed to add expense",
+        description: error instanceof Error ? error.message : "Failed to add expense",
         variant: "destructive"
       });
     }

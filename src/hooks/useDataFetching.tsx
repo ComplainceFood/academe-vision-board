@@ -135,30 +135,43 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         (payload) => {
           console.log(`Received real-time update for ${table}:`, payload);
           
-          // Update data optimistically
-          if (payload.eventType === 'INSERT') {
-            const newItem = stableTransform.current 
-              ? stableTransform.current(payload.new) 
-              : payload.new as T;
-            setData(current => [...current, newItem]);
-          } else if (payload.eventType === 'UPDATE') {
-            const updatedItem = stableTransform.current 
-              ? stableTransform.current(payload.new) 
-              : payload.new as T;
-            setData(current => 
-              current.map(item => 
-                // @ts-ignore - we know id exists on the item
-                item.id === updatedItem.id ? updatedItem : item
-              )
-            );
-          } else if (payload.eventType === 'DELETE') {
-            const deletedItem = payload.old as T;
-            setData(current => 
-              current.filter(item => 
-                // @ts-ignore - we know id exists on the item
-                item.id !== deletedItem.id
-              )
-            );
+          // Update data optimistically with error handling
+          try {
+            if (payload.eventType === 'INSERT') {
+              const newItem = stableTransform.current 
+                ? stableTransform.current(payload.new) 
+                : payload.new as T;
+              setData(current => {
+                // Check if item already exists to prevent duplicates
+                const exists = current.some(item => 
+                  // @ts-ignore - we know id exists on the item
+                  item.id === newItem.id
+                );
+                return exists ? current : [...current, newItem];
+              });
+            } else if (payload.eventType === 'UPDATE') {
+              const updatedItem = stableTransform.current 
+                ? stableTransform.current(payload.new) 
+                : payload.new as T;
+              setData(current => 
+                current.map(item => 
+                  // @ts-ignore - we know id exists on the item
+                  item.id === updatedItem.id ? updatedItem : item
+                )
+              );
+            } else if (payload.eventType === 'DELETE') {
+              const deletedItem = payload.old as T;
+              setData(current => 
+                current.filter(item => 
+                  // @ts-ignore - we know id exists on the item
+                  item.id !== deletedItem.id
+                )
+              );
+            }
+          } catch (error) {
+            console.error(`Error processing realtime update for ${table}:`, error);
+            // Fallback: refetch data if realtime update fails
+            fetchData();
           }
         })
       .subscribe((status) => {
@@ -169,7 +182,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       console.log(`Cleaning up realtime channel for ${table}`);
       supabase.removeChannel(channel);
     };
-  }, [user?.id, table, enabled]);
+  }, [user?.id, table, enabled, fetchData]);
 
   // Listen for external refresh events
   useEffect(() => {
