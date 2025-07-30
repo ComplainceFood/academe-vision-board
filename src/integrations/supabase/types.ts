@@ -86,6 +86,51 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback: {
+        Row: {
+          admin_id: string | null
+          admin_response: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          priority: string
+          resolved_at: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_id?: string | null
+          admin_response?: string | null
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_id?: string | null
+          admin_response?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       funding_commitments: {
         Row: {
           category: string

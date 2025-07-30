@@ -15,6 +15,7 @@ import PlanningPage from "./pages/PlanningPage";
 import FundingPage from "./pages/FundingPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
+import FeedbackPage from "./pages/FeedbackPage";
 import AuthPage from "./pages/AuthPage";
 
 // Create a query client with automatic data refresh configuration
@@ -132,6 +133,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/feedback"
+              element={
+                <ProtectedRoute>
+                  <FeedbackPage />
                 </ProtectedRoute>
               }
             />
