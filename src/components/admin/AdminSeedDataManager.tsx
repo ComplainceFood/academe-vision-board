@@ -285,11 +285,22 @@ export function AdminSeedDataManager() {
         setCurrentSet(mockSet.name);
         
         try {
-          // Add user_id to each record
-          const dataWithUserId = mockSet.data.map(item => ({
-            ...item,
-            user_id: user.id
-          }));
+          // Add user_id to each record and ensure proper field mapping
+          const dataWithUserId = mockSet.data.map(item => {
+            // Remove any fields that don't exist in the target table
+            const cleanedItem = { ...item };
+            
+            // For notes and meetings, ensure no unexpected fields
+            if (setKey === 'notes' || setKey === 'meetings') {
+              // Remove any description field that might exist
+              delete cleanedItem.description;
+            }
+            
+            return {
+              ...cleanedItem,
+              user_id: user.id
+            };
+          });
 
           // Handle different table inserts based on set type
           let result;

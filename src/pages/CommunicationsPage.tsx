@@ -1,6 +1,7 @@
 import { MainLayout } from "@/components/MainLayout";
 import { CommunicationsList } from "@/components/communications/CommunicationsList";
 import { AdminCommunicationsManagement } from "@/components/communications/AdminCommunicationsManagement";
+import { CommunicationsAnalytics } from "@/components/communications/CommunicationsAnalytics";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useUserRole } from "@/hooks/useUserRole";
 import { MessageSquare, Settings, Megaphone } from "lucide-react";
@@ -32,16 +33,22 @@ export default function CommunicationsPage() {
         </div>
 
         <Tabs defaultValue="announcements" className="space-y-6">
-          <TabsList className={`grid w-full ${isSystemAdmin() ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          <TabsList className={`grid w-full ${isSystemAdmin() ? 'grid-cols-3' : 'grid-cols-1'}`}>
             <TabsTrigger value="announcements" className="flex items-center gap-2">
               <MessageSquare className="h-4 w-4" />
               Announcements
             </TabsTrigger>
             {isSystemAdmin() && (
-              <TabsTrigger value="admin" className="flex items-center gap-2">
-                <Settings className="h-4 w-4" />
-                Manage Communications
-              </TabsTrigger>
+              <>
+                <TabsTrigger value="admin" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Manage Communications
+                </TabsTrigger>
+                <TabsTrigger value="analytics" className="flex items-center gap-2">
+                  <Megaphone className="h-4 w-4" />
+                  Analytics & Reports
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -50,9 +57,15 @@ export default function CommunicationsPage() {
           </TabsContent>
 
           {isSystemAdmin() && (
-            <TabsContent value="admin" className="space-y-6">
-              <AdminCommunicationsManagement />
-            </TabsContent>
+            <>
+              <TabsContent value="admin" className="space-y-6">
+                <AdminCommunicationsManagement />
+              </TabsContent>
+              
+              <TabsContent value="analytics" className="space-y-6">
+                <CommunicationsAnalytics />
+              </TabsContent>
+            </>
           )}
         </Tabs>
       </div>
