@@ -38,6 +38,24 @@ export function AdminCommunicationsManagement() {
   const [editingCommunication, setEditingCommunication] = useState<AdminCommunication | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  // Always call hooks first - before any early returns
+  const { data: communications, isLoading, refetch } = useDataFetching<AdminCommunication>({
+    table: 'admin_communications',
+    enabled: !!user && !roleLoading && isSystemAdmin()
+  });
+
+  const form = useForm<CommunicationFormData>({
+    resolver: zodResolver(communicationFormSchema),
+    defaultValues: {
+      title: "",
+      content: "",
+      category: "general",
+      priority: "normal",
+      is_published: false,
+      expires_at: ""
+    }
+  });
+
   // Security check - only system admins can access this component
   if (roleLoading) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -54,23 +72,6 @@ export function AdminCommunicationsManagement() {
       </div>
     );
   }
-
-  const { data: communications, isLoading, refetch } = useDataFetching<AdminCommunication>({
-    table: 'admin_communications',
-    enabled: !!user
-  });
-
-  const form = useForm<CommunicationFormData>({
-    resolver: zodResolver(communicationFormSchema),
-    defaultValues: {
-      title: "",
-      content: "",
-      category: "general",
-      priority: "normal",
-      is_published: false,
-      expires_at: ""
-    }
-  });
 
   const handleCreateOrUpdate = async (data: CommunicationFormData) => {
     if (!user) return;
