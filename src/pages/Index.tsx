@@ -73,8 +73,8 @@ const Index = () => {
     <QueryClientProvider client={queryClient}>
       <MainLayout>
         <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold mb-2">Welcome to Academia Vision</h1>
-          <p className="text-muted-foreground mb-8">Your academic productivity platform for managing courses, students, and research</p>
+          <h1 className="text-3xl font-bold mb-2">Welcome to Smart-Prof</h1>
+          <p className="text-muted-foreground mb-8">Teaching Smarter. Managing Better - Your comprehensive academic platform</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <DashboardCard 

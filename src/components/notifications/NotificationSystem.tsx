@@ -91,7 +91,7 @@ export const NotificationSystem = () => {
           type: 'test',
           recipient: user?.email,
           title: 'Test Notification',
-          message: 'This is a test email from Academia Vision to confirm your notification settings are working correctly.',
+          message: 'This is a test email from Smart-Prof to confirm your notification settings are working correctly.',
         },
         headers: {
           Authorization: `Bearer ${authData.session.access_token}`,

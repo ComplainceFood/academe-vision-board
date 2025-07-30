@@ -108,11 +108,11 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2 px-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
-            <span className="text-xl font-bold text-white">AV</span>
+            <span className="text-xl font-bold text-white">SP</span>
           </div>
           <div className="flex flex-col text-left">
-            <span className="text-lg font-bold">Academia Vision</span>
-            <span className="text-xs text-muted-foreground">Academic Productivity</span>
+            <span className="text-lg font-bold">Smart-Prof</span>
+            <span className="text-xs text-muted-foreground">Teaching Smarter</span>
           </div>
         </div>
       </SidebarHeader>

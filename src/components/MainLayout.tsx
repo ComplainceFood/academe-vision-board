@@ -54,7 +54,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <header className="h-16 border-b px-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
-              <h1 className="text-xl font-semibold">Academia Vision</h1>
+              <h1 className="text-xl font-semibold">Smart-Prof</h1>
             </div>
             <div className="flex items-center gap-4">
               <GlobalSearch />

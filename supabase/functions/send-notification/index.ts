@@ -95,7 +95,7 @@ serve(async (req) => {
           <p style="color: #666; line-height: 1.5;">${notificationData.message}</p>
           <div style="margin-top: 20px; padding: 10px; background-color: #f5f5f5; border-radius: 5px;">
             <p style="margin: 0; font-size: 12px; color: #999;">
-              This email was sent from Academia Vision. 
+              This email was sent from Smart-Prof. 
               You can manage your notification preferences in your account settings.
             </p>
           </div>
