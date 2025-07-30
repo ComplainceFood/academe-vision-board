@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { LegalAgreement } from "@/components/legal/LegalAgreement";
 import { useAuth } from "@/hooks/useAuth";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const AuthPage = () => {
   const [email, setEmail] = useState("");
@@ -18,8 +19,9 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<any>(null);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [showLegalAgreement, setShowLegalAgreement] = useState(false);
-  const [pendingSignupData, setPendingSignupData] = useState<{email: string, password: string} | null>(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -80,10 +82,54 @@ const AuthPage = () => {
       }
 
       if (isSignUp) {
-        // For signup, show legal agreement first
-        setPendingSignupData({ email, password });
-        setShowLegalAgreement(true);
-        return;
+        // Check if user agreed to terms for signup
+        if (!agreedToTerms || !agreedToPrivacy) {
+          toast.error("Please agree to the Terms of Service and Privacy Policy to create an account.");
+          return;
+        }
+
+        const redirectUrl = `${window.location.origin}/`;
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: redirectUrl
+          }
+        });
+        
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            toast.error("An account with this email already exists. Please sign in instead.");
+            setIsSignUp(false);
+            return;
+          }
+          throw error;
+        }
+        
+        // Record user agreements in the database after successful signup
+        if (data.user) {
+          try {
+            const agreementPromises = [
+              supabase.from('user_agreements').insert({
+                user_id: data.user.id,
+                agreement_type: 'terms_of_service',
+                version: '1.0',
+                user_agent: navigator.userAgent,
+              }),
+              supabase.from('user_agreements').insert({
+                user_id: data.user.id,
+                agreement_type: 'privacy_policy',
+                version: '1.0',
+                user_agent: navigator.userAgent,
+              })
+            ];
+            await Promise.all(agreementPromises);
+          } catch (agreementError) {
+            console.error('Error recording agreements:', agreementError);
+          }
+        }
+        
+        toast.success("Check your email to confirm your account!");
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
@@ -136,49 +182,18 @@ const AuthPage = () => {
     }
   };
 
-  const handleLegalAgreementComplete = async () => {
-    if (pendingSignupData) {
-      // Complete the signup process
-      try {
-        const redirectUrl = `${window.location.origin}/`;
-        const { error } = await supabase.auth.signUp({
-          email: pendingSignupData.email,
-          password: pendingSignupData.password,
-          options: {
-            emailRedirectTo: redirectUrl
-          }
-        });
-        
-        if (error) {
-          if (error.message.includes("User already registered")) {
-            toast.error("An account with this email already exists. Please sign in instead.");
-            setIsSignUp(false);
-          } else {
-            throw error;
-          }
-        } else {
-          toast.success("Check your email to confirm your account!");
-        }
-      } catch (error: any) {
-        console.error("Signup error:", error);
-        toast.error(error.message || "Failed to create account");
-      }
-      setPendingSignupData(null);
-    }
-    
-    setShowLegalAgreement(false);
-    
-    // If user was signing in and just completed agreements, redirect to main app
-    if (!isSignUp) {
-      window.location.href = '/';
-    }
+  const handleModeSwitch = () => {
+    setIsSignUp(!isSignUp);
+    // Reset agreement states when switching modes
+    setAgreedToTerms(false);
+    setAgreedToPrivacy(false);
   };
 
   if (showLegalAgreement) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <LegalAgreement 
-          onAgreementComplete={handleLegalAgreementComplete}
+          onAgreementComplete={() => setShowLegalAgreement(false)}
           showDialog={true}
         />
       </div>
@@ -257,7 +272,51 @@ const AuthPage = () => {
                 </div>
               )}
             </div>
-            <Button className="w-full" type="submit" disabled={isLoading}>
+
+            {/* Legal Agreements for Signup */}
+            {isSignUp && (
+              <div className="space-y-3">
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="terms-signup"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                    className="mt-1"
+                  />
+                  <label htmlFor="terms-signup" className="text-sm leading-5 text-muted-foreground">
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowLegalAgreement(true)}
+                      className="text-primary underline hover:no-underline font-medium"
+                    >
+                      Terms of Service
+                    </button>
+                  </label>
+                </div>
+                
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="privacy-signup"
+                    checked={agreedToPrivacy}
+                    onCheckedChange={(checked) => setAgreedToPrivacy(checked === true)}
+                    className="mt-1"
+                  />
+                  <label htmlFor="privacy-signup" className="text-sm leading-5 text-muted-foreground">
+                    I agree to the{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowLegalAgreement(true)}
+                      className="text-primary underline hover:no-underline font-medium"
+                    >
+                      Privacy Policy
+                    </button>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            <Button className="w-full" type="submit" disabled={isLoading || (isSignUp && (!agreedToTerms || !agreedToPrivacy))}>
               {isLoading
                 ? "Loading..."
                 : isSignUp
@@ -268,7 +327,7 @@ const AuthPage = () => {
 
           <div className="mt-4 text-center">
             <button
-              onClick={() => setIsSignUp(!isSignUp)}
+              onClick={handleModeSwitch}
               className="text-sm text-muted-foreground hover:text-primary"
             >
               {isSignUp
