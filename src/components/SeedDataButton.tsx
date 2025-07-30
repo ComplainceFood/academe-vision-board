@@ -37,7 +37,7 @@ const mockNotes = [
     type: "commitment",
     course: "Research",
     tags: ["research", "mentoring"],
-    student: "Jane Smith"
+    student_name: "Jane Smith"
   },
   {
     title: "Lab Access",
@@ -66,64 +66,95 @@ const mockNotes = [
 const mockMeetings = [
   {
     title: "Academic Advisory Meeting",
-    type: "1:1",
+    description: "",
+    type: "one_on_one",
     status: "scheduled",
-    date: "2025-04-28",
-    time: "10:00 AM",
-    duration: "30 min",
-    attendees: ["John Smith"],
-    location: "Office 302"
+    start_date: "2025-04-28",
+    start_time: "10:00",
+    end_time: "10:30",
+    location: "Office 302",
+    attendees: [{ name: "John Smith", email: "", status: "pending", required: true }],
+    agenda: "",
+    notes: "",
+    action_items: [],
+    attachments: [],
+    is_recurring: false,
+    reminder_minutes: 15
   },
   {
     title: "Project Guidance",
-    type: "1:1",
+    description: "",
+    type: "one_on_one",
     status: "scheduled",
-    date: "2025-04-27",
-    time: "2:00 PM",
-    duration: "45 min",
-    attendees: ["Emily Johnson"],
-    location: "Online (Zoom)"
+    start_date: "2025-04-27",
+    start_time: "14:00",
+    end_time: "14:45",
+    location: "Online (Zoom)",
+    attendees: [{ name: "Emily Johnson", email: "", status: "pending", required: true }],
+    agenda: "",
+    notes: "",
+    action_items: [],
+    attachments: [],
+    is_recurring: false,
+    reminder_minutes: 15
   },
   {
     title: "Research Discussion",
-    type: "1:1",
+    description: "",
+    type: "one_on_one",
     status: "completed",
-    date: "2025-04-20",
-    time: "11:30 AM",
-    duration: "60 min",
-    attendees: ["Michael Brown"],
+    start_date: "2025-04-20",
+    start_time: "11:30",
+    end_time: "12:30",
     location: "Lab 204",
+    attendees: [{ name: "Michael Brown", email: "", status: "accepted", required: true }],
+    agenda: "",
     notes: "Discussed progress on the machine learning project. Michael has made significant progress on the data preprocessing steps.",
     action_items: [
-      "Share research papers on neural networks by email",
-      "Provide access to the department GPU server",
-      "Schedule follow-up meeting next week"
-    ]
+      { id: "1", description: "Share research papers on neural networks by email", assignee: "Professor", due_date: "", completed: false, created_at: "2025-04-20T11:30:00Z" },
+      { id: "2", description: "Provide access to the department GPU server", assignee: "Professor", due_date: "", completed: false, created_at: "2025-04-20T11:30:00Z" },
+      { id: "3", description: "Schedule follow-up meeting next week", assignee: "Professor", due_date: "", completed: false, created_at: "2025-04-20T11:30:00Z" }
+    ],
+    attachments: [],
+    is_recurring: false,
+    reminder_minutes: 15
   },
   {
     title: "Grade Review",
-    type: "1:1",
+    description: "",
+    type: "one_on_one",
     status: "completed",
-    date: "2025-04-18",
-    time: "9:15 AM",
-    duration: "15 min",
-    attendees: ["Sarah Davis"],
+    start_date: "2025-04-18",
+    start_time: "09:15",
+    end_time: "09:30",
     location: "Office 302",
+    attendees: [{ name: "Sarah Davis", email: "", status: "accepted", required: true }],
+    agenda: "",
     notes: "Reviewed midterm exam results. Sarah had questions about the algorithm complexity question.",
     action_items: [
-      "Provide additional practice problems",
-      "Review concepts during next lecture"
-    ]
+      { id: "1", description: "Provide additional practice problems", assignee: "Professor", due_date: "", completed: false, created_at: "2025-04-18T09:15:00Z" },
+      { id: "2", description: "Review concepts during next lecture", assignee: "Professor", due_date: "", completed: false, created_at: "2025-04-18T09:15:00Z" }
+    ],
+    attachments: [],
+    is_recurring: false,
+    reminder_minutes: 15
   },
   {
     title: "Career Advising",
-    type: "1:1",
+    description: "",
+    type: "one_on_one",
     status: "scheduled",
-    date: "2025-04-30",
-    time: "3:30 PM",
-    duration: "45 min",
-    attendees: ["David Wilson"],
-    location: "Office 302"
+    start_date: "2025-04-30",
+    start_time: "15:30",
+    end_time: "16:15",
+    location: "Office 302",
+    attendees: [{ name: "David Wilson", email: "", status: "pending", required: true }],
+    agenda: "",
+    notes: "",
+    action_items: [],
+    attachments: [],
+    is_recurring: false,
+    reminder_minutes: 15
   }
 ];
 
@@ -252,7 +283,8 @@ export function SeedDataButton() {
       const notesWithUserId = mockNotes.map(note => ({
         ...note,
         user_id: user.id,
-        date: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
       }));
       
       const meetingsWithUserId = mockMeetings.map(meeting => ({

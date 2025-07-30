@@ -169,12 +169,12 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
         <div className="flex justify-between items-center text-xs text-muted-foreground mt-2">
           <div className="flex items-center gap-1">
             <CalendarIcon className="h-3 w-3" />
-            <span>{new Date(note.date || '').toLocaleDateString()}</span>
+            <span>{new Date(note.due_date || note.created_at).toLocaleDateString()}</span>
           </div>
-          {note.student && (
+          {note.student_name && (
             <div className="flex items-center gap-1">
               <UserIcon className="h-3 w-3" />
-              <span>{note.student}</span>
+              <span>{note.student_name}</span>
             </div>
           )}
         </div>

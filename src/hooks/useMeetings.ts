@@ -21,7 +21,14 @@ export const useMeetings = () => {
         .order('start_date', { ascending: true });
       
       if (error) throw error;
-      return data as Meeting[];
+      
+      // Transform the data to match our TypeScript types
+      return (data || []).map(meeting => ({
+        ...meeting,
+        attendees: Array.isArray(meeting.attendees) ? meeting.attendees as any : [],
+        action_items: Array.isArray(meeting.action_items) ? meeting.action_items as any : [],
+        attachments: Array.isArray(meeting.attachments) ? meeting.attachments as any : [],
+      })) as unknown as Meeting[];
     },
     enabled: !!user,
   });
@@ -33,19 +40,37 @@ export const useMeetings = () => {
       const { data, error } = await supabase
         .from('meetings')
         .insert([{
-          ...meetingData,
+          title: meetingData.title,
+          description: meetingData.description,
+          type: meetingData.type,
+          start_date: meetingData.start_date,
+          start_time: meetingData.start_time,
+          end_time: meetingData.end_time,
+          location: meetingData.location,
+          agenda: meetingData.agenda,
           user_id: user.id,
-          attendees: meetingData.attendees || [],
-          action_items: [],
-          attachments: [],
+          attendees: (meetingData.attendees || []) as any,
+          action_items: [] as any,
+          attachments: [] as any,
           is_recurring: meetingData.is_recurring || false,
+          recurring_pattern: meetingData.recurring_pattern,
+          recurring_end_date: meetingData.recurring_end_date,
           reminder_minutes: meetingData.reminder_minutes || 15,
         }])
         .select()
         .single();
       
       if (error) throw error;
-      return data as Meeting;
+      
+      // Transform the returned data
+      const meeting = {
+        ...data,
+        attendees: Array.isArray(data.attendees) ? data.attendees as any : [],
+        action_items: Array.isArray(data.action_items) ? data.action_items as any : [],
+        attachments: Array.isArray(data.attachments) ? data.attachments as any : [],
+      };
+      
+      return meeting as unknown as Meeting;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
@@ -66,15 +91,31 @@ export const useMeetings = () => {
 
   const updateMeetingMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: UpdateMeetingData }) => {
+      // Convert TypeScript types to database-compatible JSON
+      const dbUpdates = {
+        ...updates,
+        attendees: updates.attendees as any,
+        action_items: updates.action_items as any,
+      };
+      
       const { data, error } = await supabase
         .from('meetings')
-        .update(updates)
+        .update(dbUpdates)
         .eq('id', id)
         .select()
         .single();
       
       if (error) throw error;
-      return data as Meeting;
+      
+      // Transform the returned data
+      const meeting = {
+        ...data,
+        attendees: Array.isArray(data.attendees) ? data.attendees as any : [],
+        action_items: Array.isArray(data.action_items) ? data.action_items as any : [],
+        attachments: Array.isArray(data.attachments) ? data.attachments as any : [],
+      };
+      
+      return meeting as unknown as Meeting;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
@@ -129,7 +170,16 @@ export const useMeetings = () => {
         .single();
       
       if (error) throw error;
-      return data as Meeting;
+      
+      // Transform the returned data
+      const meeting = {
+        ...data,
+        attendees: Array.isArray(data.attendees) ? data.attendees as any : [],
+        action_items: Array.isArray(data.action_items) ? data.action_items as any : [],
+        attachments: Array.isArray(data.attachments) ? data.attachments as any : [],
+      };
+      
+      return meeting as unknown as Meeting;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });

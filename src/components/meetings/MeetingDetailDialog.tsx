@@ -9,31 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useRefreshContext } from "@/App";
-
-interface Participant {
-  name: string;
-  status: "confirmed" | "declined" | "pending";
-}
-
-interface Meeting {
-  id: string;
-  title: string;
-  type: string;
-  status: "scheduled" | "completed" | "cancelled";
-  date: string;
-  time: string;
-  duration: string;
-  attendees: string[];
-  location: string;
-  notes?: string;
-  action_items?: string[];
-  agenda?: string;
-  is_recurring?: boolean;
-  recurring_type?: string;
-  reminder_enabled?: boolean;
-  reminder_time?: string;
-  participant_status?: Record<string, string>;
-}
+import { Meeting, AttendeeInfo } from "@/types/meetings";
 
 interface MeetingDetailDialogProps {
   meeting: Meeting | null;
@@ -68,13 +44,9 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
     }
   };
 
-  const getParticipants = (): Participant[] => {
+  const getParticipants = (): AttendeeInfo[] => {
     if (!meeting.attendees) return [];
-    
-    return meeting.attendees.map(name => ({
-      name,
-      status: ((meeting.participant_status?.[name] || "pending") as "confirmed" | "declined" | "pending")
-    }));
+    return meeting.attendees;
   };
 
   const handleAddActionItem = async () => {
@@ -83,11 +55,20 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
     try {
       setIsUpdating(true);
       
-      const updatedActionItems = [...(meeting.action_items || []), newActionItem.trim()];
+      const newItem = {
+        id: Date.now().toString(),
+        description: newActionItem.trim(),
+        assignee: "",
+        due_date: "",
+        completed: false,
+        created_at: new Date().toISOString()
+      };
+      
+      const updatedActionItems = [...(meeting.action_items || []), newItem];
       
       const { error } = await supabase
         .from("meetings")
-        .update({ action_items: updatedActionItems })
+        .update({ action_items: updatedActionItems as any })
         .eq("id", meeting.id);
         
       if (error) throw error;
@@ -98,8 +79,6 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       });
       
       setNewActionItem("");
-      
-      // Trigger a refresh using the RefreshContext
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error adding action item:", error);
@@ -122,7 +101,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       
       const { error } = await supabase
         .from("meetings")
-        .update({ action_items: updatedActionItems })
+        .update({ action_items: updatedActionItems as any })
         .eq("id", meeting.id);
         
       if (error) throw error;
@@ -132,7 +111,6 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
         description: "Action item removed",
       });
       
-      // Trigger a refresh using the RefreshContext
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error removing action item:", error);
@@ -150,14 +128,15 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
     try {
       setIsUpdating(true);
       
-      // Get the current participant status or initialize it
-      const updatedStatuses = { ...(meeting.participant_status || {}) };
-      updatedStatuses[participant] = status;
+      const updatedAttendees = meeting.attendees.map(attendee => 
+        attendee.name === participant 
+          ? { ...attendee, status: status as any }
+          : attendee
+      );
       
-      // Using the correct type for the update operation
       const { error } = await supabase
         .from("meetings")
-        .update({ participant_status: updatedStatuses })
+        .update({ attendees: updatedAttendees })
         .eq("id", meeting.id);
         
       if (error) throw error;
@@ -167,7 +146,6 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
         description: `Participant status updated`,
       });
       
-      // Trigger a refresh using the RefreshContext
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error updating participant status:", error);
@@ -198,8 +176,6 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       });
       
       setIsEditingNotes(false);
-      
-      // Trigger a refresh using the RefreshContext
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error saving meeting notes:", error);
@@ -215,14 +191,17 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
 
   const statusColors = {
     scheduled: "bg-primary/15 text-primary",
+    in_progress: "bg-orange-100 text-orange-700",
     completed: "bg-secondary/15 text-secondary",
-    cancelled: "bg-destructive/15 text-destructive"
+    cancelled: "bg-destructive/15 text-destructive",
+    postponed: "bg-yellow-100 text-yellow-700"
   };
 
   const participantStatusColors = {
-    confirmed: "bg-green-100 text-green-800",
+    accepted: "bg-green-100 text-green-800",
     declined: "bg-red-100 text-red-800",
-    pending: "bg-yellow-100 text-yellow-800"
+    pending: "bg-yellow-100 text-yellow-800",
+    tentative: "bg-blue-100 text-blue-800"
   };
 
   return (
@@ -238,13 +217,13 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
             {meeting.is_recurring && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Repeat className="h-3 w-3" />
-                <span>{meeting.recurring_type}</span>
+                <span>{meeting.recurring_pattern}</span>
               </Badge>
             )}
-            {meeting.reminder_enabled && (
+            {meeting.reminder_minutes && (
               <Badge variant="outline" className="flex items-center gap-1">
                 <Bell className="h-3 w-3" />
-                <span>Reminder: {meeting.reminder_time}</span>
+                <span>Reminder: {meeting.reminder_minutes}min</span>
               </Badge>
             )}
           </div>
@@ -254,12 +233,12 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{formatDate(meeting.date)}</span>
+              <span className="text-sm">{formatDate(meeting.start_date)}</span>
             </div>
             
             <div className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{meeting.time} ({meeting.duration})</span>
+              <span className="text-sm">{meeting.start_time} - {meeting.end_time}</span>
             </div>
             
             <div className="flex items-center gap-2">
@@ -311,8 +290,8 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
                         <Button 
                           variant="ghost" 
                           size="icon" 
-                          onClick={() => updateParticipantStatus(participant.name, "confirmed")}
-                          disabled={participant.status === "confirmed" || isUpdating}
+                          onClick={() => updateParticipantStatus(participant.name, "accepted")}
+                          disabled={participant.status === "accepted" || isUpdating}
                           className="h-8 w-8 text-green-500"
                         >
                           <Check className="h-4 w-4" />
@@ -341,7 +320,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
                 {meeting.action_items.map((item, index) => (
                   <li key={index} className="flex items-start gap-2 bg-muted/50 p-2 rounded-md">
                     <Check className="h-4 w-4 text-secondary mt-1" />
-                    <span className="flex-1">{item}</span>
+                    <span className="flex-1">{typeof item === 'string' ? item : item.description}</span>
                     <Button 
                       variant="ghost" 
                       size="icon" 

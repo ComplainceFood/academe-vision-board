@@ -332,7 +332,7 @@ const NotesPage = () => {
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {filteredAndSortedNotes.map((note) => (
-                  <NoteCard key={note.id} note={note} />
+                  <NoteCard key={note.id} note={note as any} onUpdate={() => {}} />
                 ))}
               </div>
             )}
@@ -342,7 +342,7 @@ const NotesPage = () => {
             {/* Starred notes content - same structure as all notes but filtered */}
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredAndSortedNotes.filter(note => note.starred).map((note) => (
-                <NoteCard key={note.id} note={note} />
+                <NoteCard key={note.id} note={note as any} onUpdate={() => {}} />
               ))}
             </div>
           </TabsContent>
