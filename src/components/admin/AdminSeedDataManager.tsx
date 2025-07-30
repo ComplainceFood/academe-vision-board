@@ -205,14 +205,12 @@ const mockDataSets = {
     data: [
       {
         title: "Curriculum Update for Fall Semester",
-        description: "Review and update course materials for advanced algorithms course",
         semester: "Fall 2025",
         priority: "high",
         estimated_hours: 40
       },
       {
         title: "Lab Equipment Modernization",
-        description: "Plan and budget for upgrading computer lab infrastructure",
         semester: "Summer 2025",
         priority: "medium",
         estimated_hours: 20
@@ -352,13 +350,9 @@ export function AdminSeedDataManager() {
               delete cleanedItem.description;
             }
             
-            // For future planning, remove description field and rename to match schema
+            // For future planning, remove description field since it doesn't exist in schema
             if (setKey === 'futureTasksAndPlanning') {
               delete cleanedItem.description;
-              // Ensure we have the right field name for description content
-              if (item.description) {
-                cleanedItem.description = item.description;
-              }
             }
             
             return {
