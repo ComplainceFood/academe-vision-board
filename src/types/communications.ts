@@ -2,6 +2,7 @@ export interface AdminCommunication {
   id: string;
   admin_id: string;
   title: string;
+  description?: string;
   content: string;
   category: string;
   priority: 'low' | 'normal' | 'high' | 'urgent';

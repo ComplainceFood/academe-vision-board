@@ -23,6 +23,7 @@ import { Separator } from "@/components/ui/separator";
 
 const communicationFormSchema = z.object({
   title: z.string().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  description: z.string().max(300, "Description must be less than 300 characters").optional(),
   content: z.string().min(1, "Content is required").max(5000, "Content must be less than 5000 characters"),
   category: z.enum(COMMUNICATION_CATEGORIES),
   priority: z.enum(COMMUNICATION_PRIORITIES),
@@ -48,6 +49,7 @@ export function AdminCommunicationsManagement() {
     resolver: zodResolver(communicationFormSchema),
     defaultValues: {
       title: "",
+      description: "",
       content: "",
       category: "general",
       priority: "normal",
@@ -79,6 +81,7 @@ export function AdminCommunicationsManagement() {
     try {
       const communicationData: any = {
         title: data.title,
+        description: data.description || null,
         content: data.content,
         category: data.category,
         priority: data.priority,
@@ -124,6 +127,7 @@ export function AdminCommunicationsManagement() {
     setEditingCommunication(communication);
     form.reset({
       title: communication.title,
+      description: communication.description || "",
       content: communication.content,
       category: communication.category as any,
       priority: communication.priority,
@@ -238,6 +242,26 @@ export function AdminCommunicationsManagement() {
                       <FormControl>
                         <Input placeholder="Enter communication title" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description (Optional)</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Brief summary or subtitle" 
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        A short description that appears under the title
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -419,6 +443,11 @@ export function AdminCommunicationsManagement() {
                           </Badge>
                         )}
                       </div>
+                      {communication.description && (
+                        <p className="text-sm text-muted-foreground mb-2">
+                          {communication.description}
+                        </p>
+                      )}
                       <p className="text-sm text-muted-foreground line-clamp-2">
                         {communication.content}
                       </p>

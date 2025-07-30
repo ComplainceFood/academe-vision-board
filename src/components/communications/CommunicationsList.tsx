@@ -132,6 +132,11 @@ export function CommunicationsList() {
             </div>
           </CardHeader>
           <CardContent>
+            {communication.description && (
+              <p className="text-sm text-muted-foreground mb-3 italic">
+                {communication.description}
+              </p>
+            )}
             <div className="prose prose-sm max-w-none dark:prose-invert">
               <p className="whitespace-pre-wrap">{communication.content}</p>
             </div>
