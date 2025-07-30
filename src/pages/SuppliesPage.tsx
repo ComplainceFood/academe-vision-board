@@ -228,7 +228,7 @@ const SuppliesPage = () => {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold mb-1">Supplies & Expenses</h1>
-            <p className="text-muted-foreground">Track your inventory and course materials</p>
+            <p className="text-muted-foreground">Track your inventory and expenses of your lab</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
             <Button className="flex items-center gap-2" onClick={() => setIsAddItemDialogOpen(true)} disabled={isProcessing}>
