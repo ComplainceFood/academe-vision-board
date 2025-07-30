@@ -21,13 +21,14 @@ export interface FeedbackFormData {
 }
 
 export const FEEDBACK_CATEGORIES = [
-  { value: 'overview', label: 'Overview Tab' },
-  { value: 'notes', label: 'Notes Tab' },
-  { value: 'supplies', label: 'Supplies Tab' },
+  { value: 'overview', label: 'Dashboard Tab' },
+  { value: 'notes', label: 'Notes & Commitments Tab' },
+  { value: 'supplies', label: 'Academic Resources Tab' },
   { value: 'meetings', label: 'Meetings Tab' },
-  { value: 'planning', label: 'Planning Tab' },
-  { value: 'funding', label: 'Funding Tab' },
+  { value: 'planning', label: 'Semester & Planning Tab' },
+  { value: 'funding', label: 'Grant Management Tab' },
   { value: 'analytics', label: 'Analytics Tab' },
+  { value: 'communications', label: 'Academic Communications Tab' },
   { value: 'general', label: 'General Platform' },
   { value: 'bug_report', label: 'Bug Report' },
   { value: 'feature_request', label: 'Feature Request' },
