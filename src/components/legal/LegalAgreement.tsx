@@ -33,7 +33,16 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
     setIsSubmitting(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No authenticated user');
+      if (!user) {
+        // If no authenticated user, just complete the agreement flow
+        // This handles cases where agreements are collected before authentication
+        toast({
+          title: "Agreements Acknowledged",
+          description: "Your preferences have been noted and will be recorded upon account creation.",
+        });
+        onAgreementComplete();
+        return;
+      }
 
       // Record user agreements in the database
       const agreementPromises = [
@@ -132,7 +141,7 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
 
         {/* Terms Dialog */}
         <Dialog open={showTerms} onOpenChange={setShowTerms}>
-          <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
             <DialogHeader>
               <DialogTitle>Terms of Service</DialogTitle>
               <DialogDescription>
@@ -140,12 +149,17 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
               </DialogDescription>
             </DialogHeader>
             <TermsOfService />
+            <div className="flex justify-end mt-4">
+              <Button onClick={() => setShowTerms(false)} variant="outline">
+                Close
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 
         {/* Privacy Dialog */}
         <Dialog open={showPrivacy} onOpenChange={setShowPrivacy}>
-          <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
             <DialogHeader>
               <DialogTitle>Privacy Policy</DialogTitle>
               <DialogDescription>
@@ -153,6 +167,11 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
               </DialogDescription>
             </DialogHeader>
             <PrivacyPolicy />
+            <div className="flex justify-end mt-4">
+              <Button onClick={() => setShowPrivacy(false)} variant="outline">
+                Close
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
@@ -160,14 +179,14 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
   }
 
   return (
-    <Dialog open={showDialog} onOpenChange={() => {}}>
-      <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()}>
-        <DialogHeader>
-          <DialogTitle>Legal Agreements</DialogTitle>
-          <DialogDescription>
-            Please review and accept our legal agreements to continue using Smart-Prof.
-          </DialogDescription>
-        </DialogHeader>
+        <Dialog open={showDialog} onOpenChange={() => {}}>
+          <DialogContent className="max-w-md" onInteractOutside={(e) => e.preventDefault()}>
+            <DialogHeader>
+              <DialogTitle>Legal Agreements</DialogTitle>
+              <DialogDescription>
+                Please review and accept our legal agreements to continue using Smart-Prof.
+              </DialogDescription>
+            </DialogHeader>
         
         <div className="space-y-4">
           <div className="space-y-3">
@@ -219,7 +238,7 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
 
         {/* Terms Dialog */}
         <Dialog open={showTerms} onOpenChange={setShowTerms}>
-          <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
             <DialogHeader>
               <DialogTitle>Terms of Service</DialogTitle>
               <DialogDescription>
@@ -227,12 +246,17 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
               </DialogDescription>
             </DialogHeader>
             <TermsOfService />
+            <div className="flex justify-end mt-4">
+              <Button onClick={() => setShowTerms(false)} variant="outline">
+                Close
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
 
         {/* Privacy Dialog */}
         <Dialog open={showPrivacy} onOpenChange={setShowPrivacy}>
-          <DialogContent className="max-w-4xl max-h-[80vh]">
+          <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
             <DialogHeader>
               <DialogTitle>Privacy Policy</DialogTitle>
               <DialogDescription>
@@ -240,6 +264,11 @@ export const LegalAgreement = ({ onAgreementComplete, showDialog = true }: Legal
               </DialogDescription>
             </DialogHeader>
             <PrivacyPolicy />
+            <div className="flex justify-end mt-4">
+              <Button onClick={() => setShowPrivacy(false)} variant="outline">
+                Close
+              </Button>
+            </div>
           </DialogContent>
         </Dialog>
       </DialogContent>

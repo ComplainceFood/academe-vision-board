@@ -189,11 +189,17 @@ const AuthPage = () => {
     setAgreedToPrivacy(false);
   };
 
+  const handleLegalDialogComplete = async () => {
+    setShowLegalAgreement(false);
+    // Redirect to main app after completing legal agreements
+    window.location.href = '/';
+  };
+
   if (showLegalAgreement) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <LegalAgreement 
-          onAgreementComplete={() => setShowLegalAgreement(false)}
+          onAgreementComplete={handleLegalDialogComplete}
           showDialog={true}
         />
       </div>
