@@ -879,6 +879,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_agreements: {
+        Row: {
+          agreed_at: string
+          agreement_type: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string
+          version: string
+        }
+        Insert: {
+          agreed_at?: string
+          agreement_type: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id: string
+          version?: string
+        }
+        Update: {
+          agreed_at?: string
+          agreement_type?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string
+          version?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,8 @@ import { toast } from "sonner";
 import { validatePasswordStrength, clientPasswordValidation } from "@/utils/securityUtils";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { LegalAgreement } from "@/components/legal/LegalAgreement";
+import { useAuth } from "@/hooks/useAuth";
 
 const AuthPage = () => {
   const [email, setEmail] = useState("");
@@ -16,7 +18,37 @@ const AuthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<any>(null);
+  const [showLegalAgreement, setShowLegalAgreement] = useState(false);
+  const [pendingSignupData, setPendingSignupData] = useState<{email: string, password: string} | null>(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  const checkExistingAgreements = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_agreements')
+        .select('agreement_type')
+        .eq('user_id', userId);
+
+      if (error) {
+        console.error('Error checking agreements:', error);
+        return false;
+      }
+
+      const agreementTypes = data?.map(a => a.agreement_type) || [];
+      return agreementTypes.includes('terms_of_service') && agreementTypes.includes('privacy_policy');
+    } catch (error) {
+      console.error('Error checking agreements:', error);
+      return false;
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,28 +80,16 @@ const AuthPage = () => {
       }
 
       if (isSignUp) {
-        const redirectUrl = `${window.location.origin}/`;
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: redirectUrl
-          }
-        });
-        if (error) {
-          if (error.message.includes("User already registered")) {
-            toast.error("An account with this email already exists. Please sign in instead.");
-            setIsSignUp(false);
-            return;
-          }
-          throw error;
-        }
-        toast.success("Check your email to confirm your account!");
+        // For signup, show legal agreement first
+        setPendingSignupData({ email, password });
+        setShowLegalAgreement(true);
+        return;
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+        
         if (error) {
           if (error.message.includes("Invalid login credentials")) {
             toast.error("Invalid email or password. Please check your credentials and try again.");
@@ -80,6 +100,16 @@ const AuthPage = () => {
           }
           return;
         }
+
+        // Check if user has agreed to legal terms
+        if (data.user) {
+          const hasAgreements = await checkExistingAgreements(data.user.id);
+          if (!hasAgreements) {
+            setShowLegalAgreement(true);
+            return;
+          }
+        }
+        
         // Force page reload for clean state
         window.location.href = '/';
       }
@@ -105,6 +135,55 @@ const AuthPage = () => {
       setIsLoading(false);
     }
   };
+
+  const handleLegalAgreementComplete = async () => {
+    if (pendingSignupData) {
+      // Complete the signup process
+      try {
+        const redirectUrl = `${window.location.origin}/`;
+        const { error } = await supabase.auth.signUp({
+          email: pendingSignupData.email,
+          password: pendingSignupData.password,
+          options: {
+            emailRedirectTo: redirectUrl
+          }
+        });
+        
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            toast.error("An account with this email already exists. Please sign in instead.");
+            setIsSignUp(false);
+          } else {
+            throw error;
+          }
+        } else {
+          toast.success("Check your email to confirm your account!");
+        }
+      } catch (error: any) {
+        console.error("Signup error:", error);
+        toast.error(error.message || "Failed to create account");
+      }
+      setPendingSignupData(null);
+    }
+    
+    setShowLegalAgreement(false);
+    
+    // If user was signing in and just completed agreements, redirect to main app
+    if (!isSignUp) {
+      window.location.href = '/';
+    }
+  };
+
+  if (showLegalAgreement) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <LegalAgreement 
+          onAgreementComplete={handleLegalAgreementComplete}
+          showDialog={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">

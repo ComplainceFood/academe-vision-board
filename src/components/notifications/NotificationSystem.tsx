@@ -45,32 +45,108 @@ export const NotificationSystem = () => {
 
   const loadPreferences = async () => {
     try {
-      // Load from localStorage for now (will be updated once types are refreshed)
-      const stored = localStorage.getItem('notification_preferences');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setPreferences(parsed);
+      if (!user) return;
+
+      // Try to load from database first
+      const { data, error } = await supabase
+        .from('notification_preferences')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error) {
+        // If no preferences exist in database, create default ones
+        if (error.code === 'PGRST116') {
+          await createDefaultPreferences();
+        } else {
+          console.error('Error loading notification preferences:', error);
+          // Fallback to localStorage
+          const stored = localStorage.getItem('notification_preferences');
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            setPreferences(parsed);
+          }
+        }
+      } else if (data) {
+        setPreferences({
+          email_notifications: data.email_notifications,
+          task_reminders: data.task_reminders,
+          meeting_alerts: data.meeting_alerts,
+          low_supply_alerts: data.low_supply_alerts,
+          funding_alerts: data.funding_alerts,
+          email_frequency: data.email_frequency as 'immediate' | 'daily' | 'weekly',
+          reminder_time: data.reminder_time,
+        });
       }
     } catch (error) {
       console.error('Error loading notification preferences:', error);
     }
   };
 
+  const createDefaultPreferences = async () => {
+    if (!user) return;
+
+    try {
+      const { error } = await supabase
+        .from('notification_preferences')
+        .insert({
+          user_id: user.id,
+          email_notifications: true,
+          task_reminders: true,
+          meeting_alerts: true,
+          low_supply_alerts: true,
+          funding_alerts: true,
+          email_frequency: 'daily',
+          reminder_time: '09:00',
+        });
+
+      if (error) {
+        console.error('Error creating default preferences:', error);
+      }
+    } catch (error) {
+      console.error('Error creating default preferences:', error);
+    }
+  };
+
   const savePreferences = async () => {
     setIsSaving(true);
     try {
-      // Save to localStorage for now (will be updated once types are refreshed)
+      if (!user) {
+        throw new Error('No authenticated user');
+      }
+
+      // Save to database
+      const { error } = await supabase
+        .from('notification_preferences')
+        .upsert({
+          user_id: user.id,
+          email_notifications: preferences.email_notifications,
+          task_reminders: preferences.task_reminders,
+          meeting_alerts: preferences.meeting_alerts,
+          low_supply_alerts: preferences.low_supply_alerts,
+          funding_alerts: preferences.funding_alerts,
+          email_frequency: preferences.email_frequency,
+          reminder_time: preferences.reminder_time,
+        }, {
+          onConflict: 'user_id'
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      // Also save to localStorage as backup
       localStorage.setItem('notification_preferences', JSON.stringify(preferences));
 
       toast({
         title: "Preferences Saved",
-        description: "Your notification preferences have been updated",
+        description: "Your notification preferences have been updated successfully",
       });
     } catch (error) {
       console.error('Error saving preferences:', error);
       toast({
         title: "Error",
-        description: "Failed to save notification preferences",
+        description: "Failed to save notification preferences. Please try again.",
         variant: "destructive",
       });
     } finally {
