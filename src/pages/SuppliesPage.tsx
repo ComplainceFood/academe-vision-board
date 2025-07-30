@@ -7,21 +7,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { ShoppingListDialog } from "@/components/supplies/ShoppingListDialog";
 import { AddToShoppingListDialog } from "@/components/supplies/AddToShoppingListDialog";
@@ -35,7 +22,6 @@ import { AddItemDialog } from "@/components/supplies/AddItemDialog";
 import { EditItemDialog } from "@/components/supplies/EditItemDialog";
 import { ItemHistoryDialog } from "@/components/supplies/ItemHistoryDialog";
 import { SupplyItem } from "@/types/shoppingList";
-
 interface Expense {
   id: string;
   date: string;
@@ -45,7 +31,6 @@ interface Expense {
   course: string;
   receipt?: boolean;
 }
-
 const SuppliesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("inventory");
@@ -62,35 +47,42 @@ const SuppliesPage = () => {
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<string>('stock-asc');
   const [isProcessing, setIsProcessing] = useState(false);
-  
-  const { toast } = useToast();
-  const { user } = useAuth();
-  const { triggerRefresh } = useRefreshContext();
-  
+  const {
+    toast
+  } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    triggerRefresh
+  } = useRefreshContext();
+
   // Use the useDataFetching hook for data fetching
-  const { 
-    data: supplies, 
-    isLoading: isLoadingSupplies, 
+  const {
+    data: supplies,
+    isLoading: isLoadingSupplies,
     error: suppliesError,
-    refetch: refetchSupplies 
-  } = useDataFetching<SupplyItem>({ table: 'supplies' });
-  
-  const { 
-    data: expenses, 
-    isLoading: isLoadingExpenses, 
+    refetch: refetchSupplies
+  } = useDataFetching<SupplyItem>({
+    table: 'supplies'
+  });
+  const {
+    data: expenses,
+    isLoading: isLoadingExpenses,
     error: expensesError,
     refetch: refetchExpenses
-  } = useDataFetching<Expense>({ table: 'expenses' });
-  
-  const { 
-    data: shoppingItems, 
+  } = useDataFetching<Expense>({
+    table: 'expenses'
+  });
+  const {
+    data: shoppingItems,
     isLoading: isLoadingShoppingItems,
-    refetch: refetchShoppingItems 
-  } = useDataFetching<any>({ 
+    refetch: refetchShoppingItems
+  } = useDataFetching<any>({
     table: 'shopping_list',
     enabled: !!user
   });
-  
+
   // Auto-refresh data on component mount and after actions
   useEffect(() => {
     const refreshInterval = setInterval(() => {
@@ -100,42 +92,35 @@ const SuppliesPage = () => {
         refetchShoppingItems();
       }
     }, 30000); // Refresh every 30 seconds
-    
+
     return () => clearInterval(refreshInterval);
   }, [refetchSupplies, refetchExpenses, refetchShoppingItems, isProcessing]);
-
   const shoppingListCount = shoppingItems.filter((item: any) => !item.purchased).length;
-  
+
   // Handlers
   const handleDeleteSupply = async () => {
     if (!itemToDelete || isProcessing) return;
-    
     try {
       setIsProcessing(true);
-      const { error } = await supabase
-        .from('supplies')
-        .delete()
-        .eq('id', itemToDelete);
-      
+      const {
+        error
+      } = await supabase.from('supplies').delete().eq('id', itemToDelete);
       if (error) throw error;
-      
       toast({
         title: "Success",
-        description: "Item deleted successfully",
+        description: "Item deleted successfully"
       });
-      
       triggerRefresh('supplies');
-      
+
       // Update local state instead of immediately refetching
       const newSupplies = supplies.filter(item => item.id !== itemToDelete);
       // We'd need to update the supplies state here if we had access to the setter
-      
     } catch (error) {
       console.error("Error deleting item:", error);
       toast({
         title: "Error",
         description: "Failed to delete item",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setItemToDelete(null);
@@ -143,38 +128,31 @@ const SuppliesPage = () => {
       refetchSupplies(); // Refetch after a short delay
     }
   };
-  
   const handleUpdateStock = async () => {
     if (!editingItem || updatedCount === editingItem.current_count || isProcessing) {
       setEditingItem(null);
       return;
     }
-    
     try {
       setIsProcessing(true);
-      const { error } = await supabase
-        .from('supplies')
-        .update({ 
-          current_count: updatedCount, 
-          last_restocked: new Date().toISOString() 
-        })
-        .eq('id', editingItem.id);
-      
+      const {
+        error
+      } = await supabase.from('supplies').update({
+        current_count: updatedCount,
+        last_restocked: new Date().toISOString()
+      }).eq('id', editingItem.id);
       if (error) throw error;
-      
       toast({
         title: "Success",
-        description: "Stock updated successfully",
+        description: "Stock updated successfully"
       });
-      
       triggerRefresh('supplies');
-      
     } catch (error) {
       console.error("Error updating stock:", error);
       toast({
         title: "Error",
         description: "Failed to update stock",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setEditingItem(null);
@@ -183,36 +161,29 @@ const SuppliesPage = () => {
       refetchSupplies(); // Refetch after operation completes
     }
   };
-  
   const handleDeleteExpense = async () => {
     if (!expenseToDelete || isProcessing) return;
-    
     try {
       setIsProcessing(true);
-      const { error } = await supabase
-        .from('expenses')
-        .delete()
-        .eq('id', expenseToDelete);
-      
+      const {
+        error
+      } = await supabase.from('expenses').delete().eq('id', expenseToDelete);
       if (error) throw error;
-      
       toast({
         title: "Success",
-        description: "Expense deleted successfully",
+        description: "Expense deleted successfully"
       });
-      
       triggerRefresh('expenses');
-      
+
       // Update local state optimistically
       const newExpenses = expenses.filter(expense => expense.id !== expenseToDelete);
       // We'd need to update the expenses state here if we had access to the setter
-      
     } catch (error) {
       console.error("Error deleting expense:", error);
       toast({
         title: "Error",
         description: "Failed to delete expense",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setExpenseToDelete(null);
@@ -222,94 +193,63 @@ const SuppliesPage = () => {
       }, 300);
     }
   };
-
   const handleEditItem = (item: SupplyItem) => {
     setItemToEdit(item);
     setIsEditDialogOpen(true);
   };
-
   const handleViewHistory = (item: SupplyItem) => {
     setItemForHistory(item);
     setIsHistoryDialogOpen(true);
   };
-  
+
   // Filter supplies based on search query
-  const filteredSupplies = supplies.filter(item => 
-    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.course.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
+  const filteredSupplies = supplies.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.category.toLowerCase().includes(searchQuery.toLowerCase()) || item.course.toLowerCase().includes(searchQuery.toLowerCase()));
+
   // Filter expenses based on search query
-  const filteredExpenses = expenses.filter(expense => 
-    expense.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    expense.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    expense.course.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-  
+  const filteredExpenses = expenses.filter(expense => expense.description.toLowerCase().includes(searchQuery.toLowerCase()) || expense.category.toLowerCase().includes(searchQuery.toLowerCase()) || expense.course.toLowerCase().includes(searchQuery.toLowerCase()));
+
   // Calculate warning items
   const warningItems = supplies.filter(item => item.current_count <= item.threshold);
-  
+
   // Calculate total expenses
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-  
+
   // Handle tab change to trigger data refresh
   const handleTabChange = (newTab: string) => {
     setActiveTab(newTab);
-    
     if (newTab === 'inventory' && !isProcessing) {
       refetchSupplies();
     } else if (newTab === 'expenses' && !isProcessing) {
       refetchExpenses();
     }
   };
-  
-  return (
-    <MainLayout>
+  return <MainLayout>
       <div className="animate-fade-in">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Academic Resources</h1>
+            <h1 className="text-3xl font-bold mb-1">Supplies & Expenses</h1>
             <p className="text-muted-foreground">Track your teaching resources and course materials</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
-            <Button 
-              className="flex items-center gap-2"
-              onClick={() => setIsAddItemDialogOpen(true)}
-              disabled={isProcessing}
-            >
+            <Button className="flex items-center gap-2" onClick={() => setIsAddItemDialogOpen(true)} disabled={isProcessing}>
               <Plus className="h-4 w-4" />
               <span>Add Item</span>
             </Button>
-            <Button 
-              variant="outline" 
-              className="flex items-center gap-2"
-              onClick={() => setIsShoppingListOpen(true)}
-              disabled={isProcessing}
-            >
+            <Button variant="outline" className="flex items-center gap-2" onClick={() => setIsShoppingListOpen(true)} disabled={isProcessing}>
               <ShoppingBag className="h-4 w-4" />
               <span>
                 Shopping List
-                {shoppingListCount > 0 && (
-                  <Badge variant="secondary" className="ml-1">{shoppingListCount}</Badge>
-                )}
+                {shoppingListCount > 0 && <Badge variant="secondary" className="ml-1">{shoppingListCount}</Badge>}
               </span>
             </Button>
           </div>
         </div>
         
         {/* Stats Cards */}
-        <SuppliesStats 
-          warningItems={warningItems.length}
-          totalSupplies={supplies.length}
-          totalExpenses={totalExpenses}
-        />
+        <SuppliesStats warningItems={warningItems.length} totalSupplies={supplies.length} totalExpenses={totalExpenses} />
         
         {/* Search and Filter */}
-        <SearchAndFilter 
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-        />
+        <SearchAndFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         
         {/* Tab Navigation */}
         <Tabs defaultValue="inventory" onValueChange={handleTabChange} className="mb-6">
@@ -325,35 +265,20 @@ const SuppliesPage = () => {
           </TabsList>
           
           <TabsContent value="inventory" className="mt-4">
-            <InventoryList 
-              supplies={filteredSupplies}
-              isLoading={isLoadingSupplies}
-              onUpdateStock={item => {
-                setEditingItem(item);
-                setUpdatedCount(item.current_count);
-              }}
-              onDeleteItem={id => setItemToDelete(id)}
-              onAddToShoppingList={item => setItemToAddToList(item)}
-              onAddItemClick={() => setIsAddItemDialogOpen(true)}
-              onEditItem={handleEditItem}
-              onViewHistory={handleViewHistory}
-              sortOrder={sortOrder}
-              onSortChange={setSortOrder}
-            />
+            <InventoryList supplies={filteredSupplies} isLoading={isLoadingSupplies} onUpdateStock={item => {
+            setEditingItem(item);
+            setUpdatedCount(item.current_count);
+          }} onDeleteItem={id => setItemToDelete(id)} onAddToShoppingList={item => setItemToAddToList(item)} onAddItemClick={() => setIsAddItemDialogOpen(true)} onEditItem={handleEditItem} onViewHistory={handleViewHistory} sortOrder={sortOrder} onSortChange={setSortOrder} />
           </TabsContent>
           
           <TabsContent value="expenses" className="mt-4">
-            <ExpenseList 
-              expenses={filteredExpenses}
-              isLoading={isLoadingExpenses}
-              onDeleteExpense={id => setExpenseToDelete(id)}
-            />
+            <ExpenseList expenses={filteredExpenses} isLoading={isLoadingExpenses} onDeleteExpense={id => setExpenseToDelete(id)} />
           </TabsContent>
         </Tabs>
       </div>
       
       {/* Confirmation dialogs and popovers */}
-      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
+      <AlertDialog open={!!itemToDelete} onOpenChange={open => !open && setItemToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -363,18 +288,14 @@ const SuppliesPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteSupply} 
-              className="bg-destructive text-destructive-foreground"
-              disabled={isProcessing}
-            >
+            <AlertDialogAction onClick={handleDeleteSupply} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
               {isProcessing ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       
-      <AlertDialog open={!!expenseToDelete} onOpenChange={(open) => !open && setExpenseToDelete(null)}>
+      <AlertDialog open={!!expenseToDelete} onOpenChange={open => !open && setExpenseToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -384,18 +305,14 @@ const SuppliesPage = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteExpense} 
-              className="bg-destructive text-destructive-foreground"
-              disabled={isProcessing}
-            >
+            <AlertDialogAction onClick={handleDeleteExpense} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
               {isProcessing ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
       
-      <Popover open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
+      <Popover open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)}>
         <PopoverContent className="w-80">
           <div className="grid gap-4">
             <div className="space-y-2">
@@ -407,29 +324,13 @@ const SuppliesPage = () => {
             <div className="grid gap-2">
               <div className="grid grid-cols-3 items-center gap-4">
                 <label htmlFor="current">Current Count:</label>
-                <Input
-                  id="current"
-                  type="number"
-                  className="col-span-2"
-                  value={updatedCount}
-                  onChange={(e) => setUpdatedCount(Number(e.target.value))}
-                  max={editingItem?.total_count || 0}
-                  min={0}
-                  disabled={isProcessing}
-                />
+                <Input id="current" type="number" className="col-span-2" value={updatedCount} onChange={e => setUpdatedCount(Number(e.target.value))} max={editingItem?.total_count || 0} min={0} disabled={isProcessing} />
               </div>
               <div className="flex justify-between mt-4">
-                <Button 
-                  variant="outline" 
-                  onClick={() => setEditingItem(null)}
-                  disabled={isProcessing}
-                >
+                <Button variant="outline" onClick={() => setEditingItem(null)} disabled={isProcessing}>
                   Cancel
                 </Button>
-                <Button 
-                  onClick={handleUpdateStock}
-                  disabled={isProcessing}
-                >
+                <Button onClick={handleUpdateStock} disabled={isProcessing}>
                   {isProcessing ? 'Saving...' : 'Save Changes'}
                 </Button>
               </div>
@@ -439,58 +340,38 @@ const SuppliesPage = () => {
       </Popover>
       
       {/* Shopping list dialog */}
-      <ShoppingListDialog 
-        open={isShoppingListOpen} 
-        onOpenChange={setIsShoppingListOpen} 
-      />
+      <ShoppingListDialog open={isShoppingListOpen} onOpenChange={setIsShoppingListOpen} />
       
       {/* Add to shopping list dialog */}
-      <AddToShoppingListDialog 
-        open={!!itemToAddToList} 
-        onOpenChange={(open) => {
-          if (!open) {
-            setItemToAddToList(null);
-            // Auto-refresh shopping list after adding an item
-            refetchShoppingItems();
-            triggerRefresh('shopping_list');
-          }
-        }} 
-        item={itemToAddToList}
-      />
+      <AddToShoppingListDialog open={!!itemToAddToList} onOpenChange={open => {
+      if (!open) {
+        setItemToAddToList(null);
+        // Auto-refresh shopping list after adding an item
+        refetchShoppingItems();
+        triggerRefresh('shopping_list');
+      }
+    }} item={itemToAddToList} />
 
       {/* Add item dialog */}
-      <AddItemDialog 
-        open={isAddItemDialogOpen} 
-        onOpenChange={(state) => {
-          setIsAddItemDialogOpen(state);
-          if (!state) {
-            // Refresh data when dialog closes
-            refetchSupplies();
-          }
-        }}
-      />
+      <AddItemDialog open={isAddItemDialogOpen} onOpenChange={state => {
+      setIsAddItemDialogOpen(state);
+      if (!state) {
+        // Refresh data when dialog closes
+        refetchSupplies();
+      }
+    }} />
 
       {/* Edit item dialog */}
-      <EditItemDialog
-        open={isEditDialogOpen}
-        onOpenChange={(state) => {
-          setIsEditDialogOpen(state);
-          if (!state) {
-            setItemToEdit(null);
-            refetchSupplies();
-          }
-        }}
-        item={itemToEdit}
-      />
+      <EditItemDialog open={isEditDialogOpen} onOpenChange={state => {
+      setIsEditDialogOpen(state);
+      if (!state) {
+        setItemToEdit(null);
+        refetchSupplies();
+      }
+    }} item={itemToEdit} />
 
       {/* View item history dialog */}
-      <ItemHistoryDialog
-        open={isHistoryDialogOpen}
-        onOpenChange={setIsHistoryDialogOpen}
-        item={itemForHistory}
-      />
-    </MainLayout>
-  );
+      <ItemHistoryDialog open={isHistoryDialogOpen} onOpenChange={setIsHistoryDialogOpen} item={itemForHistory} />
+    </MainLayout>;
 };
-
 export default SuppliesPage;
