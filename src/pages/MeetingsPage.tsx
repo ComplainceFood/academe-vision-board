@@ -257,7 +257,7 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
         <div className="mt-2 flex items-center gap-2">
           <User className="h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-1">
-            <span className="text-sm">{meeting.attendees?.length || 0} attendees</span>
+            <span className="text-sm">{(meeting.attendees && Array.isArray(meeting.attendees)) ? meeting.attendees.length : 0} attendees</span>
             {(statuses.confirmed > 0 || statuses.declined > 0) && (
               <span className="text-xs text-muted-foreground">
                 ({statuses.confirmed} confirmed, {statuses.declined} declined)
@@ -276,7 +276,7 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
           </div>
         )}
         
-        {meeting.action_items && meeting.action_items.length > 0 && (
+        {meeting.action_items && Array.isArray(meeting.action_items) && meeting.action_items.length > 0 && (
           <div className="mt-3">
             <p className="text-sm font-medium mb-1">Action Items:</p>
             <ul className="text-sm">
@@ -315,14 +315,7 @@ const MeetingsPage = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   
   const { data: meetings = [], isLoading } = useDataFetching<Meeting>({ 
-    table: "meetings",
-    transform: (meeting) => ({
-      ...meeting,
-      id: meeting.id,
-      attendees: Array.isArray(meeting.attendees) ? meeting.attendees : [],
-      action_items: Array.isArray(meeting.action_items) ? meeting.action_items : [],
-      participant_status: meeting.participant_status || {}
-    })
+    table: "meetings"
   });
 
   const handleViewDetails = (meeting: Meeting) => {
@@ -334,7 +327,7 @@ const MeetingsPage = () => {
     // Filter by search query
     const matchesSearch = 
       meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (meeting.attendees && meeting.attendees.some(attendee => 
+      (meeting.attendees && Array.isArray(meeting.attendees) && meeting.attendees.some(attendee => 
         attendee.toLowerCase().includes(searchQuery.toLowerCase())
       )) ||
       (meeting.agenda && meeting.agenda.toLowerCase().includes(searchQuery.toLowerCase())) ||

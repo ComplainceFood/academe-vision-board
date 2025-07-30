@@ -46,7 +46,7 @@ const NotesPage = () => {
   
   // Fetch notes data
   const { 
-    data: notes, 
+    data: notes = [], 
     isLoading, 
     error,
     refetch 
@@ -56,10 +56,10 @@ const NotesPage = () => {
   });
 
   // Filter and sort notes
-  const filteredNotes = notes.filter(note => {
+  const filteredNotes = (notes || []).filter(note => {
     const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+                         (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
     
     const matchesType = !appliedFilters.type || note.type === appliedFilters.type;
     const matchesCourse = !appliedFilters.course || note.course.toLowerCase().includes(appliedFilters.course.toLowerCase());

@@ -62,7 +62,17 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0);
 
-      const { error } = await supabase.from("notes").insert([
+      console.log("Creating note with data:", {
+        title,
+        content,
+        course,
+        type,
+        user_id: user.id,
+        tags: parsedTags,
+        student: type === "commitment" ? (student || null) : null,
+      });
+
+      const { data, error } = await supabase.from("notes").insert([
         {
           title,
           content,
@@ -74,9 +84,14 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
           tags: parsedTags,
           student: type === "commitment" ? (student || null) : null,
         },
-      ]);
+      ]).select();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase error:", error);
+        throw error;
+      }
+
+      console.log("Note created successfully:", data);
 
       toast({
         title: "Success",
