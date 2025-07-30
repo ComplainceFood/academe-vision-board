@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
+import { useUserRole } from "@/hooks/useUserRole";
 
 // Mock data definitions are kept the same
 const mockNotes = [
@@ -226,7 +227,13 @@ export function SeedDataButton() {
   const [isSeeding, setIsSeeding] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
+  const { isAdmin, loading: roleLoading } = useUserRole();
   const queryClient = useQueryClient();
+
+  // Only show seed button to admin users
+  if (roleLoading || !isAdmin()) {
+    return null;
+  }
 
   async function seedMockData() {
     if (!user) {
