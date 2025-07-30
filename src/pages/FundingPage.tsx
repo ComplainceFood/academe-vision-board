@@ -39,10 +39,10 @@ const FundingPage = () => {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
             <DollarSign className="h-8 w-8 text-green-600" />
-            Funding Management
+            Grant Management
           </h1>
           <p className="text-muted-foreground">
-            Track funding sources, manage expenditures, and monitor your financial resources
+            Track research grants, funding sources, and manage academic expenditures
           </p>
         </div>
 

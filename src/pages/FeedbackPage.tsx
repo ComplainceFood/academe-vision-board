@@ -1,4 +1,5 @@
 import { useUserRole } from '@/hooks/useUserRole';
+import { MainLayout } from '@/components/MainLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { FeedbackForm } from '@/components/feedback/FeedbackForm';
@@ -21,14 +22,17 @@ export default function FeedbackPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 space-y-8">
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">Feedback Center</h1>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
-          Share your thoughts, suggestions, and bug reports to help us improve the platform.
-          Your feedback is valuable to us!
-        </p>
-      </div>
+    <MainLayout>
+      <div className="animate-fade-in space-y-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
+            <MessageSquare className="h-8 w-8 text-primary" />
+            Platform Feedback
+          </h1>
+          <p className="text-muted-foreground">
+            Share your thoughts, suggestions, and bug reports to help us improve the academic platform
+          </p>
+        </div>
 
       <Tabs defaultValue="submit" className="space-y-6">
         <TabsList className={`grid w-full ${isSystemAdmin() ? 'grid-cols-3' : 'grid-cols-2'}`}>
@@ -62,6 +66,7 @@ export default function FeedbackPage() {
           </TabsContent>
         )}
       </Tabs>
-    </div>
+      </div>
+    </MainLayout>
   );
 }

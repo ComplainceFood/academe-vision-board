@@ -74,17 +74,17 @@ const Index = () => {
       <MainLayout>
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold mb-2">Welcome to Academia Vision</h1>
-          <p className="text-muted-foreground mb-8">Your teaching assistant dashboard for managing courses, students, and resources</p>
+          <p className="text-muted-foreground mb-8">Your academic productivity platform for managing courses, students, and research</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <DashboardCard 
-              title="Student Promises" 
+              title="Student Commitments" 
               value={promiseCount} 
               icon={<CheckSquare className="h-5 w-5 text-blue-500" />}
               linkTo="/notes"
               color="bg-blue-50 dark:bg-blue-900/20"
               iconColor="text-blue-500 dark:text-blue-400"
-              description="Promises to students"
+              description="Academic commitments to students"
             />
             <DashboardCard 
               title="Upcoming Meetings" 
@@ -96,24 +96,24 @@ const Index = () => {
               description="Scheduled meetings"
             />
             <DashboardCard 
-              title="Low Supplies" 
+              title="Low Resources" 
               value={lowSuppliesCount} 
               icon={<ShoppingBag className="h-5 w-5 text-amber-500" />}
               linkTo="/supplies"
               color="bg-amber-50 dark:bg-amber-900/20"
               iconColor="text-amber-500 dark:text-amber-400"
-              description="Items below threshold"
+              description="Resources below threshold"
               badge={lowSuppliesCount > 0 ? "Action Needed" : undefined}
               badgeVariant={lowSuppliesCount > 0 ? "destructive" : undefined}
             />
             <DashboardCard 
-              title="Shopping List" 
+              title="Resource Requests" 
               value={shoppingItemsCount} 
               icon={<ShoppingBag className="h-5 w-5 text-green-500" />}
               linkTo="/supplies"
               color="bg-green-50 dark:bg-green-900/20"
               iconColor="text-green-500 dark:text-green-400"
-              description="Items to purchase"
+              description="Resources to acquire"
             />
           </div>
           
@@ -196,7 +196,7 @@ const Index = () => {
               <CardContent className="space-y-4">
                 <Button variant="outline" className="w-full justify-start" asChild>
                   <Link to="/notes">
-                    <BookOpen className="mr-2 h-4 w-4" /> Record New Promise
+                    <BookOpen className="mr-2 h-4 w-4" /> Record New Commitment
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full justify-start" asChild>
@@ -206,7 +206,7 @@ const Index = () => {
                 </Button>
                 <Button variant="outline" className="w-full justify-start" asChild>
                   <Link to="/supplies">
-                    <ShoppingBag className="mr-2 h-4 w-4" /> Update Inventory
+                    <ShoppingBag className="mr-2 h-4 w-4" /> Update Resources
                   </Link>
                 </Button>
                 <Button variant="outline" className="w-full justify-start" asChild>
@@ -216,7 +216,7 @@ const Index = () => {
                 </Button>
                 <Button variant="outline" className="w-full justify-start" asChild>
                   <Link to="/funding">
-                    <DollarSign className="mr-2 h-4 w-4" /> Manage Funding
+                    <DollarSign className="mr-2 h-4 w-4" /> Manage Grants
                   </Link>
                 </Button>
                 <SeedDataButton />

@@ -25,7 +25,7 @@ export function AppSidebar() {
     path: "/"
   }, {
     id: "notes",
-    title: "Notes & Promises",
+    title: "Notes & Commitments",
     icon: BookText,
     path: "/notes"
   }, {
@@ -35,17 +35,17 @@ export function AppSidebar() {
     path: "/meetings"
   }, {
     id: "supplies",
-    title: "Supplies",
+    title: "Academic Resources",
     icon: ClipboardList,
     path: "/supplies"
   }, {
     id: "planning",
-    title: "Planning",
+    title: "Semester & Planning",
     icon: Calendar,
     path: "/planning"
   }, {
     id: "funding",
-    title: "Funding",
+    title: "Grant Management",
     icon: DollarSign,
     path: "/funding"
   }, {
@@ -55,12 +55,12 @@ export function AppSidebar() {
     path: "/analytics"
   }, {
     id: "communications",
-    title: "Communications",
+    title: "Academic Communications",
     icon: Megaphone,
     path: "/communications"
   }, {
     id: "feedback",
-    title: "Feedback",
+    title: "Platform Feedback",
     icon: MessageCircle,
     path: "/feedback"
   }, {

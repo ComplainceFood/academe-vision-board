@@ -269,8 +269,8 @@ const SuppliesPage = () => {
       <div className="animate-fade-in">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
           <div>
-            <h1 className="text-3xl font-bold mb-1">Supplies & Expenses</h1>
-            <p className="text-muted-foreground">Track your classroom supplies and expenses</p>
+            <h1 className="text-3xl font-bold mb-1">Academic Resources</h1>
+            <p className="text-muted-foreground">Track your teaching resources and course materials</p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
             <Button 
