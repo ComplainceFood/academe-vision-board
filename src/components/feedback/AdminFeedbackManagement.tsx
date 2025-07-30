@@ -34,6 +34,19 @@ export function AdminFeedbackManagement() {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
 
+  const { data: allFeedback, isLoading, refetch } = useDataFetching<Feedback>({
+    table: 'feedback',
+    transform: (data) => data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+  });
+
+  const form = useForm<ResponseFormData>({
+    resolver: zodResolver(responseFormSchema),
+    defaultValues: {
+      status: 'in_progress',
+      admin_response: ''
+    }
+  });
+
   // Security check - only system admins can access this component
   if (roleLoading) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -50,19 +63,6 @@ export function AdminFeedbackManagement() {
       </div>
     );
   }
-
-  const { data: allFeedback, isLoading, refetch } = useDataFetching<Feedback>({
-    table: 'feedback',
-    transform: (data) => data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-  });
-
-  const form = useForm<ResponseFormData>({
-    resolver: zodResolver(responseFormSchema),
-    defaultValues: {
-      status: 'in_progress',
-      admin_response: ''
-    }
-  });
 
   // Filter feedback based on selected filters
   const filteredFeedback = allFeedback?.filter(item => {
