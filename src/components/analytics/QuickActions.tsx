@@ -104,7 +104,7 @@ export const QuickActions = () => {
                 </Button>
               </DialogTrigger>
               <DialogContent className="p-0 overflow-hidden">
-                <CreateMeetingDialog />
+                <CreateMeetingDialog isOpen={true} onOpenChange={() => {}} />
               </DialogContent>
             </Dialog>
             

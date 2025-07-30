@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -25,48 +24,31 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
-import { useDataFetching } from "@/hooks/useDataFetching";
 import { CreateMeetingDialog } from "@/components/meetings/CreateMeetingDialog";
 import { MeetingDetailDialog } from "@/components/meetings/MeetingDetailDialog";
+import type { Meeting } from "@/types/meetings";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, parseISO, isValid } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-
-interface Meeting {
-  id: string;
-  title: string;
-  type: string;
-  status: "scheduled" | "completed" | "cancelled";
-  date: string;
-  time: string;
-  duration: string;
-  attendees: string[];
-  location: string;
-  notes?: string;
-  action_items?: string[];
-  agenda?: string;
-  is_recurring?: boolean;
-  recurring_type?: string;
-  reminder_enabled?: boolean;
-  reminder_time?: string;
-  participant_status?: Record<string, string>;
-}
+import { useMeetings } from "@/hooks/useMeetings";
 
 const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetails: (meeting: Meeting) => void }) => {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  const { updateStatus, deleteMeeting } = useMeetings();
   
   const statusColors = {
     scheduled: "bg-primary/15 text-primary",
+    in_progress: "bg-orange-100 text-orange-700",
     completed: "bg-secondary/15 text-secondary",
-    cancelled: "bg-destructive/15 text-destructive"
+    cancelled: "bg-destructive/15 text-destructive",
+    postponed: "bg-yellow-100 text-yellow-700"
   };
   
   const formatDate = (dateString: string) => {
     try {
       if (!dateString) return "Invalid date";
-      // Try to parse the date
       const date = new Date(dateString);
       if (!isValid(date)) return dateString;
       return format(date, 'EEE, MMM d');
@@ -75,68 +57,33 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
     }
   };
   
-  const handleStatusChange = async (id: string, newStatus: "scheduled" | "completed" | "cancelled") => {
+  const handleStatusChange = async (newStatus: Meeting['status']) => {
     try {
-      const { error } = await supabase
-        .from("meetings")
-        .update({ status: newStatus })
-        .eq("id", id);
-        
-      if (error) throw error;
-      
-      toast({
-        title: "Status updated",
-        description: `Meeting ${newStatus === "completed" ? "marked as complete" : newStatus === "cancelled" ? "cancelled" : "rescheduled"}`,
-      });
-      
-      // Trigger a refresh
-      window.dispatchEvent(new Event("seedDataCompleted"));
+      await updateStatus({ id: meeting.id, status: newStatus });
     } catch (error) {
       console.error("Error updating meeting status:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update meeting status",
-        variant: "destructive",
-      });
     }
   };
 
   const handleDeleteMeeting = async () => {
     try {
       setIsDeleting(true);
-      
-      const { error } = await supabase
-        .from("meetings")
-        .delete()
-        .eq("id", meeting.id);
-        
-      if (error) throw error;
-      
-      toast({
-        title: "Meeting deleted",
-        description: "The meeting has been permanently deleted",
-      });
-      
-      // Trigger a refresh
-      window.dispatchEvent(new Event("seedDataCompleted"));
+      await deleteMeeting(meeting.id);
     } catch (error) {
       console.error("Error deleting meeting:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete meeting",
-        variant: "destructive",
-      });
     } finally {
       setIsDeleting(false);
     }
   };
 
   const getParticipantStatuses = () => {
-    if (!meeting.participant_status) return { confirmed: 0, declined: 0, pending: 0 };
+    if (!meeting.attendees || !Array.isArray(meeting.attendees)) return { confirmed: 0, declined: 0, pending: 0 };
     
-    return Object.values(meeting.participant_status).reduce(
-      (acc, status) => {
-        acc[status as keyof typeof acc]++;
+    return meeting.attendees.reduce(
+      (acc, attendee) => {
+        if (attendee.status === 'accepted') acc.confirmed++;
+        else if (attendee.status === 'declined') acc.declined++;
+        else acc.pending++;
         return acc;
       }, 
       { confirmed: 0, declined: 0, pending: 0 }
@@ -159,11 +106,11 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
               {meeting.is_recurring && (
                 <Badge variant="outline" className="flex items-center gap-1">
                   <Repeat className="h-3 w-3" />
-                  <span>{meeting.recurring_type}</span>
+                  <span>{meeting.recurring_pattern}</span>
                 </Badge>
               )}
               
-              {meeting.reminder_enabled && (
+              {meeting.reminder_minutes && (
                 <Badge variant="outline" className="flex items-center gap-1">
                   <Bell className="h-3 w-3" />
                   <span>Reminder</span>
@@ -189,22 +136,22 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
               <DropdownMenuSeparator />
               
               {meeting.status !== "completed" && (
-                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "completed")}>
+                <DropdownMenuItem onClick={() => handleStatusChange("completed")}>
                   <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> Mark Complete
                 </DropdownMenuItem>
               )}
               {meeting.status === "completed" && (
-                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "scheduled")}>
+                <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
                   <ArrowUp className="h-4 w-4 mr-2 text-blue-500" /> Mark Incomplete
                 </DropdownMenuItem>
               )}
               {meeting.status !== "cancelled" && (
-                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "cancelled")}>
+                <DropdownMenuItem onClick={() => handleStatusChange("cancelled")}>
                   <XCircle className="h-4 w-4 mr-2 text-yellow-500" /> Cancel Meeting
                 </DropdownMenuItem>
               )}
               {meeting.status === "cancelled" && (
-                <DropdownMenuItem onClick={() => handleStatusChange(meeting.id, "scheduled")}>
+                <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
                   <Calendar className="h-4 w-4 mr-2 text-blue-500" /> Reschedule
                 </DropdownMenuItem>
               )}
@@ -242,11 +189,11 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{formatDate(meeting.date)}</span>
+            <span>{formatDate(meeting.start_date)}</span>
           </div>
           <div className="flex items-center gap-2">
             <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>{meeting.time} ({meeting.duration})</span>
+            <span>{meeting.start_time} - {meeting.end_time}</span>
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-muted-foreground" />
@@ -257,7 +204,7 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
         <div className="mt-2 flex items-center gap-2">
           <User className="h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-1">
-            <span className="text-sm">{(meeting.attendees && Array.isArray(meeting.attendees)) ? meeting.attendees.length : 0} attendees</span>
+            <span className="text-sm">{meeting.attendees?.length || 0} attendees</span>
             {(statuses.confirmed > 0 || statuses.declined > 0) && (
               <span className="text-xs text-muted-foreground">
                 ({statuses.confirmed} confirmed, {statuses.declined} declined)
@@ -283,7 +230,9 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
               {meeting.action_items.slice(0, 2).map((item, index) => (
                 <li key={index} className="flex items-start gap-2 mb-1">
                   <Check className="h-4 w-4 text-secondary mt-0.5" />
-                  <span className="line-clamp-1">{item}</span>
+                  <span className="line-clamp-1">
+                    {typeof item === 'string' ? item : item.description}
+                  </span>
                 </li>
               ))}
               {meeting.action_items.length > 2 && (
@@ -313,10 +262,9 @@ const MeetingsPage = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   
-  const { data: meetings = [], isLoading } = useDataFetching<Meeting>({ 
-    table: "meetings"
-  });
+  const { meetings, isLoading } = useMeetings();
 
   const handleViewDetails = (meeting: Meeting) => {
     setSelectedMeeting(meeting);
@@ -328,7 +276,7 @@ const MeetingsPage = () => {
     const matchesSearch = 
       meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (meeting.attendees && Array.isArray(meeting.attendees) && meeting.attendees.some(attendee => 
-        attendee.toLowerCase().includes(searchQuery.toLowerCase())
+        attendee.name.toLowerCase().includes(searchQuery.toLowerCase())
       )) ||
       (meeting.agenda && meeting.agenda.toLowerCase().includes(searchQuery.toLowerCase())) ||
       (meeting.location && meeting.location.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -346,9 +294,9 @@ const MeetingsPage = () => {
   const sortedMeetings = [...filteredMeetings].sort((a, b) => {
     try {
       if (activeTab === "upcoming") {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
+        return new Date(a.start_date).getTime() - new Date(b.start_date).getTime();
       } else {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+        return new Date(b.start_date).getTime() - new Date(a.start_date).getTime();
       }
     } catch (e) {
       return 0;
@@ -364,7 +312,10 @@ const MeetingsPage = () => {
             <p className="text-muted-foreground">Schedule and manage your meetings</p>
           </div>
           <div className="mt-4 md:mt-0">
-            <CreateMeetingDialog />
+            <Button onClick={() => setIsCreateOpen(true)}>
+              <Calendar className="h-4 w-4 mr-2" />
+              Schedule Meeting
+            </Button>
           </div>
         </div>
 
@@ -421,7 +372,10 @@ const MeetingsPage = () => {
                   <h3 className="text-lg font-medium mb-1">No upcoming meetings</h3>
                   <p className="text-muted-foreground">Schedule a new meeting to get started</p>
                   <div className="mt-4">
-                    <CreateMeetingDialog />
+                    <Button onClick={() => setIsCreateOpen(true)}>
+                      <Calendar className="h-4 w-4 mr-2" />
+                      Schedule Meeting
+                    </Button>
                   </div>
                 </div>
               )}
@@ -466,6 +420,11 @@ const MeetingsPage = () => {
         meeting={selectedMeeting}
         isOpen={isDetailOpen}
         onOpenChange={setIsDetailOpen}
+      />
+      
+      <CreateMeetingDialog 
+        isOpen={isCreateOpen}
+        onOpenChange={setIsCreateOpen}
       />
     </MainLayout>
   );
