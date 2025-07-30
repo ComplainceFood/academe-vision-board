@@ -18,6 +18,7 @@ import SettingsPage from "./pages/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import CommunicationsPage from "./pages/CommunicationsPage";
 import AuthPage from "./pages/AuthPage";
+import { NotificationManager } from "@/components/notifications/NotificationPopup";
 
 // Create a query client with automatic data refresh configuration
 const queryClient = new QueryClient({
@@ -64,6 +65,100 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return children;
 };
 
+const AppContent = () => {
+  const { user } = useAuth();
+  
+  return (
+    <>
+      <Routes>
+        <Route path="/auth" element={<AuthPage />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Index />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notes"
+          element={
+            <ProtectedRoute>
+              <NotesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/meetings"
+          element={
+            <ProtectedRoute>
+              <MeetingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/supplies"
+          element={
+            <ProtectedRoute>
+              <SuppliesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/planning"
+          element={
+            <ProtectedRoute>
+              <PlanningPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/funding"
+          element={
+            <ProtectedRoute>
+              <FundingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <ProtectedRoute>
+              <SettingsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/feedback"
+          element={
+            <ProtectedRoute>
+              <FeedbackPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/communications"
+          element={
+            <ProtectedRoute>
+              <CommunicationsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      {user && <NotificationManager />}
+    </>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <RefreshContext.Provider value={{ triggerRefresh }}>
@@ -71,90 +166,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/auth" element={<AuthPage />} />
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Index />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/notes"
-              element={
-                <ProtectedRoute>
-                  <NotesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/meetings"
-              element={
-                <ProtectedRoute>
-                  <MeetingsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/supplies"
-              element={
-                <ProtectedRoute>
-                  <SuppliesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/planning"
-              element={
-                <ProtectedRoute>
-                  <PlanningPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/funding"
-              element={
-                <ProtectedRoute>
-                  <FundingPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/analytics"
-              element={
-                <ProtectedRoute>
-                  <AnalyticsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <ProtectedRoute>
-                  <SettingsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/feedback"
-              element={
-                <ProtectedRoute>
-                  <FeedbackPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/communications"
-              element={
-                <ProtectedRoute>
-                  <CommunicationsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppContent />
         </BrowserRouter>
       </TooltipProvider>
     </RefreshContext.Provider>

@@ -136,7 +136,10 @@ const PlanningPage = () => {
           
           <TabsContent value="calendar" className="mt-4">
             <div className="space-y-6">
-              <OutlookIntegration onSyncComplete={() => window.location.reload()} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <OutlookIntegration onSyncComplete={() => window.location.reload()} />
+                <GoogleCalendarIntegration onSyncComplete={() => window.location.reload()} />
+              </div>
               
               <Card className="glassmorphism">
                 <CardContent className="p-6">

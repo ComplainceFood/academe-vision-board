@@ -98,27 +98,52 @@ export function AdminCommunicationsManagement() {
 
       let result;
       if (editingCommunication) {
-        result = await supabase
+        const { data: resultData, error } = await supabase
           .from('admin_communications')
           .update(communicationData)
-          .eq('id', editingCommunication.id);
+          .eq('id', editingCommunication.id)
+          .select()
+          .single();
+        
+        result = { data: resultData, error };
       } else {
-        result = await supabase
+        const { data: resultData, error } = await supabase
           .from('admin_communications')
-          .insert(communicationData);
+          .insert(communicationData)
+          .select()
+          .single();
+        
+        result = { data: resultData, error };
       }
 
       if (result.error) throw result.error;
 
-      toast({
-        title: "Success",
-        description: `Communication ${editingCommunication ? 'updated' : 'created'} successfully`
-      });
+      // Send admin notification if communication is published
+      if (communicationData.is_published) {
+        try {
+          await supabase.functions.invoke('send-admin-notification', {
+            body: {
+              communicationId: result.data?.id,
+              title: communicationData.title,
+              content: communicationData.content.substring(0, 200) + (communicationData.content.length > 200 ? '...' : ''),
+              priority: communicationData.priority === 'urgent' ? 'high' : 'medium'
+            }
+          });
+        } catch (notificationError) {
+          console.error('Error sending admin notification:', notificationError);
+          // Don't fail the save if notification fails
+        }
+      }
 
       form.reset();
       setEditingCommunication(null);
       setIsDialogOpen(false);
       refetch();
+      
+      toast({
+        title: "Success",
+        description: `Communication ${editingCommunication ? 'updated' : 'created'} successfully`,
+      });
     } catch (error: any) {
       toast({
         title: "Error",

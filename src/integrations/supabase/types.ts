@@ -463,6 +463,39 @@ export type Database = {
         }
         Relationships: []
       }
+      google_calendar_integration: {
+        Row: {
+          access_token: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           action_items: Json
@@ -628,6 +661,51 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          action_url: string | null
+          author: string | null
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          metadata: Json | null
+          priority: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          author?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          priority?: string
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          author?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          metadata?: Json | null
+          priority?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       outlook_integration: {
         Row: {
           access_token_encrypted: string | null
@@ -681,7 +759,10 @@ export type Database = {
           date: string
           description: string | null
           end_time: string | null
+          external_id: string | null
+          external_source: string | null
           id: string
+          is_synced: boolean | null
           last_outlook_sync: string | null
           location: string | null
           outlook_id: string | null
@@ -700,7 +781,10 @@ export type Database = {
           date: string
           description?: string | null
           end_time?: string | null
+          external_id?: string | null
+          external_source?: string | null
           id?: string
+          is_synced?: boolean | null
           last_outlook_sync?: string | null
           location?: string | null
           outlook_id?: string | null
@@ -719,7 +803,10 @@ export type Database = {
           date?: string
           description?: string | null
           end_time?: string | null
+          external_id?: string | null
+          external_source?: string | null
           id?: string
+          is_synced?: boolean | null
           last_outlook_sync?: string | null
           location?: string | null
           outlook_id?: string | null
@@ -744,6 +831,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_name: string | null
+          notification_preferences: Json | null
           office_location: string | null
           phone: string | null
           position: string | null
@@ -760,6 +848,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          notification_preferences?: Json | null
           office_location?: string | null
           phone?: string | null
           position?: string | null
@@ -776,6 +865,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_name?: string | null
+          notification_preferences?: Json | null
           office_location?: string | null
           phone?: string | null
           position?: string | null

@@ -92,7 +92,7 @@ export const NotificationPopup: React.FC<NotificationPopupProps> = ({
         <Card>
           <CardContent className="pt-4 space-y-4">
             <div className="flex items-center justify-between">
-              <Badge variant={getPriorityColor(notification.priority)}>
+              <Badge variant={getPriorityColor(notification.priority) as any}>
                 {notification.priority.toUpperCase()}
               </Badge>
               <span className="text-xs text-muted-foreground">
@@ -182,7 +182,17 @@ export const NotificationManager: React.FC = () => {
         return;
       }
 
-      setNotifications(data || []);
+      setNotifications((data || []).map(item => ({
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        type: item.type as 'communication' | 'system' | 'reminder' | 'alert',
+        priority: item.priority as 'low' | 'medium' | 'high' | 'urgent',
+        author: item.author || undefined,
+        created_at: item.created_at,
+        is_read: item.is_read,
+        action_url: item.action_url || undefined
+      })));
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
