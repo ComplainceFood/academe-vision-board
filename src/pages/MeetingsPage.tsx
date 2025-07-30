@@ -330,7 +330,7 @@ const MeetingsPage = () => {
     setIsDetailOpen(true);
   };
 
-  const filteredMeetings = meetings.filter(meeting => {
+  const filteredMeetings = (meetings || []).filter(meeting => {
     // Filter by search query
     const matchesSearch = 
       meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -396,21 +396,21 @@ const MeetingsPage = () => {
                 <ArrowUp className="h-4 w-4" />
                 <span>Upcoming</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {meetings.filter(m => m.status === "scheduled").length}
+                  {(meetings || []).filter(m => m.status === "scheduled").length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="past" className="flex items-center gap-1">
                 <ArrowDown className="h-4 w-4" />
                 <span>Past</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {meetings.filter(m => m.status === "completed").length}
+                  {(meetings || []).filter(m => m.status === "completed").length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="all" className="flex items-center gap-1">
                 <Calendar className="h-4 w-4" />
                 <span>All</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {meetings.length}
+                  {(meetings || []).length}
                 </span>
               </TabsTrigger>
             </TabsList>

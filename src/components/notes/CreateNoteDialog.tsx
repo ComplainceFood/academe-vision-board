@@ -72,7 +72,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
           date: new Date().toISOString(),
           starred: false,
           tags: parsedTags,
-          student: student || null,
+          student: type === "commitment" ? (student || null) : null,
         },
       ]);
 
