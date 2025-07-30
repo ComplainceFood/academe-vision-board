@@ -7,7 +7,7 @@ import { AdminFeedbackManagement } from '@/components/feedback/AdminFeedbackMana
 import { MessageSquare, Settings, Send } from 'lucide-react';
 
 export default function FeedbackPage() {
-  const { isAdmin, loading } = useUserRole();
+  const { isSystemAdmin, loading } = useUserRole();
 
   if (loading) {
     return (
@@ -31,7 +31,7 @@ export default function FeedbackPage() {
       </div>
 
       <Tabs defaultValue="submit" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className={`grid w-full ${isSystemAdmin() ? 'grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="submit" className="flex items-center gap-2">
             <Send className="h-4 w-4" />
             Submit Feedback
@@ -40,7 +40,7 @@ export default function FeedbackPage() {
             <MessageSquare className="h-4 w-4" />
             My Feedback
           </TabsTrigger>
-          {isAdmin && (
+          {isSystemAdmin() && (
             <TabsTrigger value="admin" className="flex items-center gap-2">
               <Settings className="h-4 w-4" />
               Admin Panel
@@ -56,7 +56,7 @@ export default function FeedbackPage() {
           <FeedbackList />
         </TabsContent>
 
-        {isAdmin && (
+        {isSystemAdmin() && (
           <TabsContent value="admin" className="space-y-6">
             <AdminFeedbackManagement />
           </TabsContent>

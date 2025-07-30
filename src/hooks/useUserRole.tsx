@@ -23,7 +23,7 @@ export function useUserRole() {
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
-          .order('role', { ascending: true }) // admin first, then moderator, then user
+          .order('role', { ascending: true }) // system_admin first, then primary_user, then secondary_user
           .limit(1)
           .single();
 

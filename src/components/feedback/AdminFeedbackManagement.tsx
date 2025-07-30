@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserRole } from '@/hooks/useUserRole';
 import { useDataFetching } from '@/hooks/useDataFetching';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -17,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/hooks/use-toast';
 import { type Feedback, FEEDBACK_CATEGORIES, FEEDBACK_PRIORITIES, FEEDBACK_STATUSES } from '@/types/feedback';
 import { format } from 'date-fns';
-import { MessageSquare, Reply, Filter, BarChart3 } from 'lucide-react';
+import { MessageSquare, Reply, Filter, BarChart3, ShieldAlert } from 'lucide-react';
 
 const responseFormSchema = z.object({
   status: z.enum(['open', 'in_progress', 'resolved', 'closed']),
@@ -28,9 +29,27 @@ type ResponseFormData = z.infer<typeof responseFormSchema>;
 
 export function AdminFeedbackManagement() {
   const { user } = useAuth();
+  const { isSystemAdmin, loading: roleLoading } = useUserRole();
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
+
+  // Security check - only system admins can access this component
+  if (roleLoading) {
+    return <div className="p-8 text-center">Loading...</div>;
+  }
+
+  if (!isSystemAdmin()) {
+    return (
+      <div className="p-8 text-center space-y-4">
+        <ShieldAlert className="h-16 w-16 text-destructive mx-auto" />
+        <h2 className="text-xl font-semibold">Access Denied</h2>
+        <p className="text-muted-foreground">
+          You don't have permission to access the admin feedback management panel.
+        </p>
+      </div>
+    );
+  }
 
   const { data: allFeedback, isLoading, refetch } = useDataFetching<Feedback>({
     table: 'feedback',

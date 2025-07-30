@@ -30,7 +30,7 @@ export const QuickActions = () => {
   const [noteDialogOpen, setNoteDialogOpen] = useState(false);
   const [supplyDialogOpen, setSupplyDialogOpen] = useState(false);
   const [shoppingDialogOpen, setShoppingDialogOpen] = useState(false);
-  const { isAdmin } = useUserRole();
+  const { isSystemAdmin } = useUserRole();
 
   const quickActions: QuickAction[] = [
     {
@@ -109,7 +109,7 @@ export const QuickActions = () => {
             </Dialog>
             
             {/* Admin-only seed data button */}
-            {isAdmin() && (
+            {isSystemAdmin() && (
               <div className="md:col-span-2">
                 <div className="p-4 border rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-2">
