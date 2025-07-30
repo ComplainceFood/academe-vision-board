@@ -24,10 +24,10 @@ export default function CommunicationsPage() {
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
             <Megaphone className="h-8 w-8 text-primary" />
-            Academic Communications
+            Admin Communications
           </h1>
           <p className="text-muted-foreground">
-            Stay updated with departmental announcements and academic notices
+            Stay updated with administrative announcements and platform updates
           </p>
         </div>
 

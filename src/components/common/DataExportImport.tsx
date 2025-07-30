@@ -14,12 +14,15 @@ interface ExportImportProps {
   onDataRefresh?: () => void;
 }
 
+type ExportFormat = 'json' | 'csv' | 'xlsx';
+
 export const DataExportImport = ({ onDataRefresh }: ExportImportProps) => {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [importProgress, setImportProgress] = useState(0);
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
+  const [exportFormat, setExportFormat] = useState<ExportFormat>('json');
   const { toast } = useToast();
   const { user } = useAuth();
 

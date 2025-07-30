@@ -35,7 +35,7 @@ export function AppSidebar() {
     path: "/meetings"
   }, {
     id: "supplies",
-    title: "Academic Resources",
+    title: "Supplies & Expenses",
     icon: ClipboardList,
     path: "/supplies"
   }, {
@@ -55,7 +55,7 @@ export function AppSidebar() {
     path: "/analytics"
   }, {
     id: "communications",
-    title: "Academic Communications",
+    title: "Admin Communications",
     icon: Megaphone,
     path: "/communications"
   }, {
