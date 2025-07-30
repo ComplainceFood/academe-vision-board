@@ -26,15 +26,9 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Stabilize the filters array to prevent unnecessary re-renders
-  const stableFilters = useRef(filters);
-  const stableTransform = useRef(transform);
-  
-  // Update refs when values change
-  useEffect(() => {
-    stableFilters.current = filters;
-    stableTransform.current = transform;
-  }, [filters, transform]);
+  // Use JSON.stringify for stable comparison of filters and transform
+  const filtersKey = JSON.stringify(filters);
+  const transformKey = transform?.toString() || 'null';
 
   // Function to fetch data
   const fetchData = useCallback(async () => {
@@ -57,7 +51,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       }
       
       // Apply any additional filters
-      for (const filter of stableFilters.current) {
+      for (const filter of filters) {
         const { column, value, operator = 'eq' } = filter;
         switch (operator) {
           case 'eq':
@@ -92,8 +86,8 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         throw new Error(`Failed to fetch ${table}: ${fetchError.message}`);
       }
 
-      const transformedData = stableTransform.current 
-        ? fetchedData.map(stableTransform.current) 
+      const transformedData = transform 
+        ? transform(fetchedData) 
         : fetchedData;
       setData(transformedData || []);
       console.log(`Fetched ${table} data:`, transformedData);
@@ -108,7 +102,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     } finally {
       setIsLoading(false);
     }
-  }, [user, table, enabled, toast]);
+  }, [user, table, enabled, toast, filtersKey, transformKey]);
 
   // Initial data fetch
   useEffect(() => {
@@ -135,12 +129,12 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         (payload) => {
           console.log(`Received real-time update for ${table}:`, payload);
           
-          // Update data optimistically with error handling
-          try {
-            if (payload.eventType === 'INSERT') {
-              const newItem = stableTransform.current 
-                ? stableTransform.current(payload.new) 
-                : payload.new as T;
+            // Update data optimistically with error handling
+            try {
+              if (payload.eventType === 'INSERT') {
+                const newItem = transform 
+                  ? transform([payload.new])[0] 
+                  : payload.new as T;
               setData(current => {
                 // Check if item already exists to prevent duplicates
                 const exists = current.some(item => 
@@ -149,10 +143,10 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
                 );
                 return exists ? current : [...current, newItem];
               });
-            } else if (payload.eventType === 'UPDATE') {
-              const updatedItem = stableTransform.current 
-                ? stableTransform.current(payload.new) 
-                : payload.new as T;
+              } else if (payload.eventType === 'UPDATE') {
+                const updatedItem = transform 
+                  ? transform([payload.new])[0] 
+                  : payload.new as T;
               setData(current => 
                 current.map(item => 
                   // @ts-ignore - we know id exists on the item

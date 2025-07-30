@@ -183,7 +183,6 @@ const mockDataSets = {
         time: "14:00",
         end_time: "16:00",
         course: "CS101",
-        description: "Review session for midterm exam",
         priority: "high",
         location: "Lecture Hall A"
       },
@@ -194,7 +193,6 @@ const mockDataSets = {
         time: "09:00",
         end_time: "17:00",
         course: "CS301",
-        description: "Student final project presentations",
         priority: "high",
         location: "Multiple Rooms"
       }
@@ -218,6 +216,59 @@ const mockDataSets = {
         semester: "Summer 2025",
         priority: "medium",
         estimated_hours: 20
+      }
+    ]
+  },
+  feedback: {
+    name: "Platform Feedback",
+    description: "Sample feedback submissions for testing the feedback system",
+    count: 6,
+    data: [
+      {
+        category: "notes",
+        subject: "Improve note organization",
+        description: "It would be great to have better tagging and filtering options for notes. Currently it's hard to find specific notes when you have many.",
+        priority: "medium",
+        status: "in_progress",
+        admin_response: "Thank you for this suggestion! We're currently working on enhanced filtering and tagging features that should be available in the next update."
+      },
+      {
+        category: "supplies",
+        subject: "Low stock notifications",
+        description: "The low stock alerts don't seem to be working properly. I didn't get notified when my supplies went below threshold.",
+        priority: "high",
+        status: "resolved",
+        admin_response: "This issue has been identified and fixed. The notification system was not properly checking threshold values. Please test it again and let us know if you still experience issues.",
+        resolved_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+      },
+      {
+        category: "bug_report",
+        subject: "Calendar sync issues",
+        description: "The calendar synchronization with Outlook sometimes fails without any error message. Would be helpful to have better error reporting.",
+        priority: "urgent",
+        status: "open"
+      },
+      {
+        category: "feature_request",
+        subject: "Mobile app support",
+        description: "A mobile app or responsive mobile interface would be very helpful for accessing the platform on the go.",
+        priority: "low",
+        status: "open"
+      },
+      {
+        category: "general",
+        subject: "Overall great platform",
+        description: "I love using this platform for managing my academic work. The interface is clean and intuitive. Keep up the great work!",
+        priority: "low",
+        status: "closed",
+        admin_response: "Thank you so much for the positive feedback! We're glad you're enjoying the platform. Your support motivates us to keep improving."
+      },
+      {
+        category: "analytics",
+        subject: "Export functionality needed",
+        description: "Would love to be able to export analytics data to Excel or CSV format for external reporting and analysis.",
+        priority: "medium",
+        status: "open"
       }
     ]
   }
@@ -296,6 +347,20 @@ export function AdminSeedDataManager() {
               delete cleanedItem.description;
             }
             
+            // For planning events, remove description field
+            if (setKey === 'planningEvents') {
+              delete cleanedItem.description;
+            }
+            
+            // For future planning, remove description field and rename to match schema
+            if (setKey === 'futureTasksAndPlanning') {
+              delete cleanedItem.description;
+              // Ensure we have the right field name for description content
+              if (item.description) {
+                cleanedItem.description = item.description;
+              }
+            }
+            
             return {
               ...cleanedItem,
               user_id: user.id
@@ -323,6 +388,9 @@ export function AdminSeedDataManager() {
               break;
             case 'futureTasksAndPlanning':
               result = await supabase.from('future_planning').insert(dataWithUserId);
+              break;
+            case 'feedback':
+              result = await supabase.from('feedback').insert(dataWithUserId);
               break;
             default:
               throw new Error(`Unknown data set: ${setKey}`);
@@ -353,6 +421,9 @@ export function AdminSeedDataManager() {
               break;
             case 'futureTasksAndPlanning':
               queryClient.invalidateQueries({ queryKey: ['future_planning'] });
+              break;
+            case 'feedback':
+              queryClient.invalidateQueries({ queryKey: ['feedback'] });
               break;
           }
           
