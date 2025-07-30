@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
-export type UserRole = 'admin' | 'moderator' | 'user' | null;
+export type UserRole = 'system_admin' | 'primary_user' | 'secondary_user' | null;
 
 export function useUserRole() {
   const [role, setRole] = useState<UserRole>(null);
@@ -29,26 +29,26 @@ export function useUserRole() {
 
         if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
           console.error('Error fetching user role:', error);
-          setRole('user'); // Default to user role
+          setRole('primary_user'); // Default to primary_user role
         } else if (roleData) {
           setRole(roleData.role as UserRole);
         } else {
-          // No role assigned, assign default user role
+          // No role assigned, assign default primary_user role
           const { error: insertError } = await supabase
             .from('user_roles')
             .insert({
               user_id: user.id,
-              role: 'user'
+              role: 'primary_user'
             });
 
           if (insertError) {
             console.error('Error assigning default role:', insertError);
           }
-          setRole('user');
+          setRole('primary_user');
         }
       } catch (error) {
         console.error('Error in fetchUserRole:', error);
-        setRole('user'); // Default fallback
+        setRole('primary_user'); // Default fallback
       } finally {
         setLoading(false);
       }
@@ -60,18 +60,23 @@ export function useUserRole() {
   const hasRole = (requiredRole: UserRole): boolean => {
     if (!role || !requiredRole) return false;
     
-    const roleHierarchy = { admin: 3, moderator: 2, user: 1 };
+    const roleHierarchy = { system_admin: 3, primary_user: 2, secondary_user: 1 };
     return roleHierarchy[role] >= roleHierarchy[requiredRole];
   };
 
-  const isAdmin = (): boolean => role === 'admin';
-  const isModerator = (): boolean => role === 'moderator' || role === 'admin';
+  const isSystemAdmin = (): boolean => role === 'system_admin';
+  const isPrimaryUser = (): boolean => role === 'primary_user' || role === 'system_admin';
+  const isSecondaryUser = (): boolean => role === 'secondary_user' || role === 'primary_user' || role === 'system_admin';
 
   return {
     role,
     loading,
     hasRole,
-    isAdmin,
-    isModerator,
+    isSystemAdmin,
+    isPrimaryUser,
+    isSecondaryUser,
+    // Backward compatibility aliases
+    isAdmin: isSystemAdmin,
+    isModerator: isPrimaryUser,
   };
 }

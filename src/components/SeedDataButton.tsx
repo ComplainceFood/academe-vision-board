@@ -227,11 +227,11 @@ export function SeedDataButton() {
   const [isSeeding, setIsSeeding] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
-  const { isAdmin, loading: roleLoading } = useUserRole();
+  const { isSystemAdmin, loading: roleLoading } = useUserRole();
   const queryClient = useQueryClient();
 
-  // Only show seed button to admin users
-  if (roleLoading || !isAdmin()) {
+  // Only show seed button to system admin users
+  if (roleLoading || !isSystemAdmin()) {
     return null;
   }
 
