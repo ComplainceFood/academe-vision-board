@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_communications: {
+        Row: {
+          admin_id: string
+          category: string
+          content: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_published: boolean
+          priority: string
+          published_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          admin_id: string
+          category?: string
+          content: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_published?: boolean
+          priority?: string
+          published_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          admin_id?: string
+          category?: string
+          content?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_published?: boolean
+          priority?: string
+          published_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       calendar_sync_history: {
         Row: {
           created_at: string

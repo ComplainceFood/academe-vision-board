@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
-type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback';
+type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback' | 'admin_communications';
 
 interface Filter {
   column: string;
@@ -49,8 +49,12 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
 
       let query: any = supabase
         .from(table)
-        .select('*')
-        .eq('user_id', user.id);
+        .select('*');
+
+      // Add user_id filter for tables that have it (all except admin_communications)
+      if (table !== 'admin_communications') {
+        query = query.eq('user_id', user.id);
+      }
       
       // Apply any additional filters
       for (const filter of stableFilters.current) {
@@ -126,8 +130,8 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
           event: '*', 
           schema: 'public', 
           table,
-          filter: `user_id=eq.${user.id}`
-        }, 
+          filter: table !== 'admin_communications' ? `user_id=eq.${user.id}` : undefined
+        },
         (payload) => {
           console.log(`Received real-time update for ${table}:`, payload);
           

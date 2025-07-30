@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDataFetching } from "@/hooks/useDataFetching";
-import { AIInsights } from "@/components/dashboard/AIInsights";
+import { AnalyticsInsights } from "@/components/analytics/AnalyticsInsights";
 
 // Create a client
 const queryClient = new QueryClient();
@@ -226,7 +226,7 @@ const Index = () => {
           
           {/* AI Insights Section */}
           <div className="mb-8">
-            <AIInsights />
+            <AnalyticsInsights />
           </div>
         </div>
       </MainLayout>

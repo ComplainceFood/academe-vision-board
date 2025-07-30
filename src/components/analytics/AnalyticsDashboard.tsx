@@ -73,7 +73,7 @@ export const AnalyticsDashboard = () => {
         supabase.from('meetings').select('*', { count: 'exact' }).eq('user_id', user?.id),
         supabase.from('supplies').select('*', { count: 'exact' }).eq('user_id', user?.id),
         supabase.from('expenses').select('amount').eq('user_id', user?.id),
-        supabase.from('funding_sources').select('total_amount').eq('user_id', user?.id),
+        supabase.from('funding_sources').select('total_amount, status').eq('user_id', user?.id),
       ]);
 
       // Calculate overview metrics
@@ -83,7 +83,7 @@ export const AnalyticsDashboard = () => {
         totalSupplies: suppliesResult.count || 0,
         totalExpenses: expensesResult.data?.reduce((sum, exp) => sum + Number(exp.amount), 0) || 0,
         totalFunding: fundingResult.data?.reduce((sum, fund) => sum + Number(fund.total_amount), 0) || 0,
-        activeProjects: 0, // This could be calculated based on your project definition
+        activeProjects: fundingResult.data?.filter(fund => fund.status === 'active').length || 0
       };
 
       // Generate trend data for the selected time range
@@ -98,7 +98,7 @@ export const AnalyticsDashboard = () => {
       ].filter(item => item.value > 0);
 
       // Generate productivity data
-      const productivity = generateProductivityData();
+      const productivity = await generateProductivityData();
 
       setAnalyticsData({
         overview,
@@ -150,14 +150,54 @@ export const AnalyticsDashboard = () => {
     return trendData;
   };
 
-  const generateProductivityData = () => {
-    // This is sample data - you would calculate this based on actual task completion rates
-    return [
-      { week: 'Week 1', completed: 12, pending: 8, inProgress: 5 },
-      { week: 'Week 2', completed: 15, pending: 6, inProgress: 7 },
-      { week: 'Week 3', completed: 18, pending: 4, inProgress: 6 },
-      { week: 'Week 4', completed: 20, pending: 3, inProgress: 4 },
-    ];
+  const generateProductivityData = async () => {
+    try {
+      // Fetch planning events (tasks) for the last 4 weeks
+      const fourWeeksAgo = new Date();
+      fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+
+      const { data: events } = await supabase
+        .from('planning_events')
+        .select('*')
+        .eq('user_id', user?.id)
+        .gte('date', fourWeeksAgo.toISOString())
+        .eq('type', 'task');
+
+      // Group by weeks
+      const weeks = [];
+      for (let i = 3; i >= 0; i--) {
+        const weekStart = new Date();
+        weekStart.setDate(weekStart.getDate() - (i * 7 + 6));
+        const weekEnd = new Date();
+        weekEnd.setDate(weekEnd.getDate() - (i * 7));
+
+        const weekEvents = events?.filter(event => {
+          const eventDate = new Date(event.date);
+          return eventDate >= weekStart && eventDate <= weekEnd;
+        }) || [];
+
+        const completed = weekEvents.filter(event => event.completed).length;
+        const pending = weekEvents.filter(event => !event.completed).length;
+
+        weeks.push({
+          week: `Week ${4 - i}`,
+          completed,
+          pending,
+          inProgress: 0 // We don't have an in-progress status in our current schema
+        });
+      }
+
+      return weeks;
+    } catch (error) {
+      console.error('Error generating productivity data:', error);
+      // Fallback to empty data
+      return [
+        { week: 'Week 1', completed: 0, pending: 0, inProgress: 0 },
+        { week: 'Week 2', completed: 0, pending: 0, inProgress: 0 },
+        { week: 'Week 3', completed: 0, pending: 0, inProgress: 0 },
+        { week: 'Week 4', completed: 0, pending: 0, inProgress: 0 },
+      ];
+    }
   };
 
   const formatCurrency = (value: number) => {
