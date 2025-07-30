@@ -51,8 +51,7 @@ export function FutureTaskDialog({
       title: "",
       semester: semester,
       priority: "medium",
-      estimated_hours: 0,
-      description: ""
+      estimated_hours: 0
     }
   });
 
@@ -63,16 +62,14 @@ export function FutureTaskDialog({
         title: task.title,
         semester: task.semester,
         priority: task.priority,
-        estimated_hours: task.estimated_hours || 0,
-        description: task.description || ""
+        estimated_hours: task.estimated_hours || 0
       });
     } else {
       form.reset({
         title: "",
         semester: semester,
         priority: "medium",
-        estimated_hours: 0,
-        description: ""
+        estimated_hours: 0
       });
     }
   }, [task, semester, form]);
@@ -176,19 +173,6 @@ export function FutureTaskDialog({
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description (optional)</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Additional details about this task" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
             <DialogFooter>
               <Button type="submit">{task ? "Update Task" : "Add Task"}</Button>

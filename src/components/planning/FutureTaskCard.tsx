@@ -59,11 +59,6 @@ export function FutureTaskCard({ task, onEdit, onDelete }: FutureTaskCardProps) 
         </DropdownMenu>
       </CardHeader>
       
-      <CardContent className="p-4 pt-0">
-        {task.description && (
-          <p className="text-sm text-muted-foreground">{task.description}</p>
-        )}
-      </CardContent>
     </Card>
   );
 }

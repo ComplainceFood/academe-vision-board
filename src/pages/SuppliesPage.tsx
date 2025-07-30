@@ -47,6 +47,7 @@ const SuppliesPage = () => {
   const [isHistoryDialogOpen, setIsHistoryDialogOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<string>('stock-asc');
   const [isProcessing, setIsProcessing] = useState(false);
+  const [bulkDeleteItems, setBulkDeleteItems] = useState<string[]>([]);
   const {
     toast
   } = useToast();
@@ -102,19 +103,13 @@ const SuppliesPage = () => {
     if (!itemToDelete || isProcessing) return;
     try {
       setIsProcessing(true);
-      const {
-        error
-      } = await supabase.from('supplies').delete().eq('id', itemToDelete);
+      const { error } = await supabase.from('supplies').delete().eq('id', itemToDelete);
       if (error) throw error;
       toast({
         title: "Success",
         description: "Item deleted successfully"
       });
       triggerRefresh('supplies');
-
-      // Update local state instead of immediately refetching
-      const newSupplies = supplies.filter(item => item.id !== itemToDelete);
-      // We'd need to update the supplies state here if we had access to the setter
     } catch (error) {
       console.error("Error deleting item:", error);
       toast({
@@ -125,7 +120,71 @@ const SuppliesPage = () => {
     } finally {
       setItemToDelete(null);
       setIsProcessing(false);
-      refetchSupplies(); // Refetch after a short delay
+      refetchSupplies();
+    }
+  };
+
+  const handleBulkDeleteSupplies = async (itemIds: string[]) => {
+    if (itemIds.length === 0 || isProcessing) return;
+    setBulkDeleteItems(itemIds);
+  };
+
+  const confirmBulkDelete = async () => {
+    if (bulkDeleteItems.length === 0 || isProcessing) return;
+    try {
+      setIsProcessing(true);
+      const { error } = await supabase
+        .from('supplies')
+        .delete()
+        .in('id', bulkDeleteItems);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: `${bulkDeleteItems.length} items deleted successfully`
+      });
+      triggerRefresh('supplies');
+    } catch (error) {
+      console.error("Error deleting items:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete items",
+        variant: "destructive"
+      });
+    } finally {
+      setBulkDeleteItems([]);
+      setIsProcessing(false);
+      refetchSupplies();
+    }
+  };
+
+  const handleBulkDeleteExpenses = async (expenseIds: string[]) => {
+    if (expenseIds.length === 0 || isProcessing) return;
+    try {
+      setIsProcessing(true);
+      const { error } = await supabase
+        .from('expenses')
+        .delete()
+        .in('id', expenseIds);
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: `${expenseIds.length} expenses deleted successfully`
+      });
+      triggerRefresh('expenses');
+    } catch (error) {
+      console.error("Error deleting expenses:", error);
+      toast({
+        title: "Error",
+        description: "Failed to delete expenses",
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+      refetchExpenses();
     }
   };
   const handleUpdateStock = async () => {
@@ -265,14 +324,31 @@ const SuppliesPage = () => {
           </TabsList>
           
           <TabsContent value="inventory" className="mt-4">
-            <InventoryList supplies={filteredSupplies} isLoading={isLoadingSupplies} onUpdateStock={item => {
-            setEditingItem(item);
-            setUpdatedCount(item.current_count);
-          }} onDeleteItem={id => setItemToDelete(id)} onAddToShoppingList={item => setItemToAddToList(item)} onAddItemClick={() => setIsAddItemDialogOpen(true)} onEditItem={handleEditItem} onViewHistory={handleViewHistory} sortOrder={sortOrder} onSortChange={setSortOrder} />
+            <InventoryList 
+              supplies={filteredSupplies} 
+              isLoading={isLoadingSupplies} 
+              onUpdateStock={item => {
+                setEditingItem(item);
+                setUpdatedCount(item.current_count);
+              }} 
+              onDeleteItem={id => setItemToDelete(id)} 
+              onBulkDelete={handleBulkDeleteSupplies}
+              onAddToShoppingList={item => setItemToAddToList(item)} 
+              onAddItemClick={() => setIsAddItemDialogOpen(true)} 
+              onEditItem={handleEditItem} 
+              onViewHistory={handleViewHistory} 
+              sortOrder={sortOrder} 
+              onSortChange={setSortOrder} 
+            />
           </TabsContent>
           
           <TabsContent value="expenses" className="mt-4">
-            <ExpenseList expenses={filteredExpenses} isLoading={isLoadingExpenses} onDeleteExpense={id => setExpenseToDelete(id)} />
+            <ExpenseList 
+              expenses={filteredExpenses} 
+              isLoading={isLoadingExpenses} 
+              onDeleteExpense={id => setExpenseToDelete(id)} 
+              onBulkDelete={handleBulkDeleteExpenses}
+            />
           </TabsContent>
         </Tabs>
       </div>
@@ -307,6 +383,24 @@ const SuppliesPage = () => {
             <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteExpense} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
               {isProcessing ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk delete confirmation dialog */}
+      <AlertDialog open={bulkDeleteItems.length > 0} onOpenChange={open => !open && setBulkDeleteItems([])}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Multiple Items</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {bulkDeleteItems.length} selected items? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmBulkDelete} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
+              {isProcessing ? 'Deleting...' : `Delete ${bulkDeleteItems.length} Items`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

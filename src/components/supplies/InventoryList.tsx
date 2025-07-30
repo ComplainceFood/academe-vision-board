@@ -1,12 +1,12 @@
-
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { ArrowUpDown, MoreVertical, PackageOpen, Plus } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowUpDown, MoreVertical, PackageOpen, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SupplyItem } from "@/types/shoppingList";
 
@@ -15,6 +15,7 @@ interface InventoryListProps {
   isLoading: boolean;
   onUpdateStock: (item: SupplyItem) => void;
   onDeleteItem: (id: string) => void;
+  onBulkDelete: (ids: string[]) => void;
   onAddToShoppingList: (item: SupplyItem) => void;
   onAddItemClick: () => void;
   onEditItem: (item: SupplyItem) => void;
@@ -28,6 +29,7 @@ export const InventoryList = ({
   isLoading,
   onUpdateStock,
   onDeleteItem,
+  onBulkDelete,
   onAddToShoppingList,
   onAddItemClick,
   onEditItem,
@@ -35,167 +37,234 @@ export const InventoryList = ({
   sortOrder = 'stock-asc',
   onSortChange
 }: InventoryListProps) => {
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const { toast } = useToast();
-  
-  // Sort supplies based on selected sort order
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedItems(supplies.map(item => item.id));
+    } else {
+      setSelectedItems([]);
+    }
+  };
+
+  const handleSelectItem = (itemId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedItems(prev => [...prev, itemId]);
+    } else {
+      setSelectedItems(prev => prev.filter(id => id !== itemId));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedItems.length === 0) {
+      toast({
+        title: "No items selected",
+        description: "Please select items to delete",
+        variant: "destructive"
+      });
+      return;
+    }
+    onBulkDelete(selectedItems);
+    setSelectedItems([]);
+  };
+
+  // Define sorting options
+  const sortOptions = [
+    { value: 'stock-asc', label: 'Stock Level (Low to High)' },
+    { value: 'stock-desc', label: 'Stock Level (High to Low)' },
+    { value: 'name-asc', label: 'Name (A to Z)' },
+    { value: 'name-desc', label: 'Name (Z to A)' },
+    { value: 'category-asc', label: 'Category' },
+    { value: 'course-asc', label: 'Course' },
+    { value: 'threshold-asc', label: 'Threshold' }
+  ];
+
+  const currentSortLabel = sortOptions.find(option => option.value === sortOrder)?.label || 'Sort';
+
+  const handleSortChange = () => {
+    const currentIndex = sortOptions.findIndex(option => option.value === sortOrder);
+    const nextIndex = (currentIndex + 1) % sortOptions.length;
+    onSortChange(sortOptions[nextIndex].value);
+  };
+
+  // Sort supplies based on the current sort order
   const sortedSupplies = React.useMemo(() => {
     const sorted = [...supplies];
-    
-    switch(sortOrder) {
+
+    switch (sortOrder) {
       case 'stock-asc':
-        return sorted.sort((a, b) => 
-          (a.current_count / a.total_count) - (b.current_count / b.total_count)
-        );
+        return sorted.sort((a, b) => (a.current_count / a.total_count) - (b.current_count / b.total_count));
       case 'stock-desc':
-        return sorted.sort((a, b) => 
-          (b.current_count / b.total_count) - (a.current_count / a.total_count)
-        );
+        return sorted.sort((a, b) => (b.current_count / b.total_count) - (a.current_count / a.total_count));
       case 'name-asc':
         return sorted.sort((a, b) => a.name.localeCompare(b.name));
       case 'name-desc':
         return sorted.sort((a, b) => b.name.localeCompare(a.name));
-      case 'category':
+      case 'category-asc':
         return sorted.sort((a, b) => a.category.localeCompare(b.category));
-      case 'course':
+      case 'course-asc':
         return sorted.sort((a, b) => a.course.localeCompare(b.course));
-      case 'threshold':
-        // Sort by how close items are to their threshold (critical first)
-        return sorted.sort((a, b) => {
-          const aDiff = a.current_count - a.threshold;
-          const bDiff = b.current_count - b.threshold;
-          return aDiff - bDiff;
-        });
+      case 'threshold-asc':
+        return sorted.sort((a, b) => (a.current_count - a.threshold) - (b.current_count - b.threshold));
       default:
         return sorted;
     }
   }, [supplies, sortOrder]);
 
-  // Handle sort button click - cycle through sort options
-  const handleSortClick = () => {
-    const sortOptions = ['stock-asc', 'stock-desc', 'name-asc', 'name-desc', 'category', 'course', 'threshold'];
-    const currentIndex = sortOptions.indexOf(sortOrder);
-    const nextIndex = (currentIndex + 1) % sortOptions.length;
-    onSortChange(sortOptions[nextIndex]);
-  };
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center text-muted-foreground">Loading inventory...</div>
+        </CardContent>
+      </Card>
+    );
+  }
 
-  // Get sort display name
-  const getSortDisplayName = () => {
-    switch(sortOrder) {
-      case 'stock-asc': return 'Stock ↑';
-      case 'stock-desc': return 'Stock ↓';
-      case 'name-asc': return 'Name A-Z';
-      case 'name-desc': return 'Name Z-A';
-      case 'category': return 'Category';
-      case 'course': return 'Course';
-      case 'threshold': return 'Critical First';
-      default: return 'Sort';
-    }
-  };
-  
   return (
     <Card>
-      <CardHeader className="pb-0">
+      <CardHeader>
         <div className="flex justify-between items-center">
-          <CardTitle>Supply Inventory</CardTitle>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1"
-            onClick={handleSortClick}
-          >
-            <ArrowUpDown className="h-3 w-3" />
-            <span>{getSortDisplayName()}</span>
-          </Button>
+          <CardTitle className="flex items-center gap-2">
+            <PackageOpen className="h-5 w-5" />
+            Inventory ({supplies.length} items)
+          </CardTitle>
+          <div className="flex gap-2">
+            {selectedItems.length > 0 && (
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete Selected ({selectedItems.length})
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSortChange}
+              className="flex items-center gap-2"
+            >
+              <ArrowUpDown className="h-4 w-4" />
+              {currentSortLabel}
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
-        {isLoading ? (
-          <div className="text-center py-12">
-            <p>Loading inventory data...</p>
+        {sortedSupplies.length === 0 ? (
+          <div className="text-center py-8 text-muted-foreground">
+            <PackageOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>No items found. Add your first inventory item!</p>
           </div>
-        ) : sortedSupplies.length > 0 ? (
+        ) : (
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Checkbox
+                    checked={selectedItems.length === supplies.length && supplies.length > 0}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </TableHead>
                 <TableHead>Item</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead>Course</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>Stock Level</TableHead>
+                <TableHead>Cost</TableHead>
+                <TableHead>Last Restocked</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedSupplies.map(item => (
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <div className="font-medium">{item.name}</div>
-                  </TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell>{item.course}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <span className={item.current_count <= item.threshold ? "text-destructive font-bold" : ""}>
-                        {item.current_count}/{item.total_count}
-                      </span>
-                      <Progress 
-                        value={(item.current_count / item.total_count) * 100} 
-                        className="w-20 h-2"
-                        aria-label="Stock level"
+              {sortedSupplies.map((item) => {
+                const stockPercentage = (item.current_count / item.total_count) * 100;
+                const isLowStock = item.current_count <= item.threshold;
+                const isSelected = selectedItems.includes(item.id);
+
+                return (
+                  <TableRow key={item.id} className={isSelected ? "bg-muted/50" : ""}>
+                    <TableCell>
+                      <Checkbox
+                        checked={isSelected}
+                        onCheckedChange={(checked) => handleSelectItem(item.id, checked as boolean)}
                       />
-                      {item.current_count <= item.threshold && (
-                        <Badge variant="destructive" className="text-xs">Low</Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onUpdateStock(item)}>
-                          Update Stock
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEditItem(item)}>
-                          Edit Details
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onAddToShoppingList(item)}>
-                          Add to Shopping List
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onViewHistory(item)}>
-                          View History
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-destructive"
-                          onClick={() => onDeleteItem(item.id)}
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
+                    </TableCell>
+                    <TableCell>
+                      <div className="font-medium">{item.name}</div>
+                    </TableCell>
+                    <TableCell>{item.category}</TableCell>
+                    <TableCell>{item.course}</TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <div className="text-sm">
+                            {item.current_count}/{item.total_count}
+                          </div>
+                          {isLowStock && (
+                            <Badge variant="destructive" className="text-xs">
+                              Low Stock
+                            </Badge>
+                          )}
+                        </div>
+                        <Progress 
+                          value={stockPercentage} 
+                          className="h-2"
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {item.cost ? `$${item.cost.toFixed(2)}` : "-"}
+                    </TableCell>
+                    <TableCell>
+                      {item.last_restocked 
+                        ? new Date(item.last_restocked).toLocaleDateString()
+                        : "Never"
+                      }
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onUpdateStock(item)}>
+                            Update Stock
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onEditItem(item)}>
+                            Edit Item
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onViewHistory(item)}>
+                            View History
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => onAddToShoppingList(item)}>
+                            Add to Shopping List
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => onDeleteItem(item.id)}
+                            className="text-destructive focus:text-destructive"
+                          >
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
-        ) : (
-          <div className="text-center py-12">
-            <PackageOpen className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-            <h3 className="text-lg font-medium mb-1">No items found</h3>
-            <p className="text-muted-foreground">Try adjusting your search or add new items</p>
-          </div>
         )}
       </CardContent>
       <CardFooter>
-        <Button 
-          variant="outline" 
-          className="w-full flex items-center gap-2"
-          onClick={onAddItemClick}
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add New Item</span>
+        <Button onClick={onAddItemClick} className="w-full">
+          <Plus className="mr-2 h-4 w-4" />
+          Add New Item
         </Button>
       </CardFooter>
     </Card>

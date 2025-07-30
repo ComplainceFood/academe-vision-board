@@ -355,6 +355,14 @@ export function AdminSeedDataManager() {
               delete cleanedItem.description;
             }
             
+            // For meetings, ensure all required fields are present
+            if (setKey === 'meetings') {
+              // Ensure date is in correct format
+              if (cleanedItem.date && typeof cleanedItem.date === 'string') {
+                cleanedItem.date = cleanedItem.date.split('T')[0]; // Extract date part only
+              }
+            }
+            
             return {
               ...cleanedItem,
               user_id: user.id

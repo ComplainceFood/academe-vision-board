@@ -20,7 +20,6 @@ export interface PlanningEvent {
 export interface FutureTask {
   id?: string;
   title: string;
-  description?: string;
   semester: string;
   priority: string;
   estimated_hours?: number;
@@ -40,7 +39,6 @@ export interface EventFormData {
 
 export interface FutureTaskFormData {
   title: string;
-  description?: string;
   semester: string;
   priority: string;
   estimated_hours?: number;

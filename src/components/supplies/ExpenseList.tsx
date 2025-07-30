@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { ArrowUpDown, CheckCircle, FileText, MoreVertical, Plus } from "lucide-react";
+import { ArrowUpDown, CheckCircle, FileText, MoreVertical, Plus, Trash2 } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -27,12 +28,14 @@ interface ExpenseListProps {
   expenses: Expense[];
   isLoading: boolean;
   onDeleteExpense: (id: string) => void;
+  onBulkDelete?: (ids: string[]) => void;
 }
 
 export const ExpenseList = ({ 
   expenses,
   isLoading,
-  onDeleteExpense
+  onDeleteExpense,
+  onBulkDelete
 }: ExpenseListProps) => {
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
@@ -40,6 +43,29 @@ export const ExpenseList = ({
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [sortOrder, setSortOrder] = useState<string>('date-desc');
+  const [selectedExpenses, setSelectedExpenses] = useState<string[]>([]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedExpenses(expenses.map(expense => expense.id));
+    } else {
+      setSelectedExpenses([]);
+    }
+  };
+
+  const handleSelectExpense = (expenseId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedExpenses(prev => [...prev, expenseId]);
+    } else {
+      setSelectedExpenses(prev => prev.filter(id => id !== expenseId));
+    }
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedExpenses.length === 0 || !onBulkDelete) return;
+    onBulkDelete(selectedExpenses);
+    setSelectedExpenses([]);
+  };
   
   // New expense form state
   const [newExpense, setNewExpense] = useState({
@@ -238,16 +264,29 @@ export const ExpenseList = ({
     <Card>
       <CardHeader className="pb-0">
         <div className="flex justify-between items-center">
-          <CardTitle>Expense Tracker</CardTitle>
-          <Button 
-            variant="outline" 
-            size="sm" 
-            className="flex items-center gap-1"
-            onClick={handleSortClick}
-          >
-            <ArrowUpDown className="h-3 w-3" />
-            <span>{getSortDisplayName()}</span>
-          </Button>
+          <CardTitle>Expense Tracker ({expenses.length} items)</CardTitle>
+          <div className="flex gap-2">
+            {selectedExpenses.length > 0 && onBulkDelete && (
+              <Button 
+                variant="destructive" 
+                size="sm" 
+                onClick={handleBulkDelete}
+                className="flex items-center gap-2"
+              >
+                <Trash2 className="h-4 w-4" />
+                Delete Selected ({selectedExpenses.length})
+              </Button>
+            )}
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="flex items-center gap-1"
+              onClick={handleSortClick}
+            >
+              <ArrowUpDown className="h-3 w-3" />
+              <span>{getSortDisplayName()}</span>
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
@@ -259,6 +298,14 @@ export const ExpenseList = ({
           <Table>
             <TableHeader>
               <TableRow>
+                {onBulkDelete && (
+                  <TableHead className="w-12">
+                    <Checkbox
+                      checked={selectedExpenses.length === expenses.length && expenses.length > 0}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </TableHead>
+                )}
                 <TableHead>Date</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
@@ -269,11 +316,21 @@ export const ExpenseList = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {sortedExpenses.map(expense => (
-                <TableRow key={expense.id}>
-                  <TableCell>
-                    {new Date(expense.date).toLocaleDateString()}
-                  </TableCell>
+              {sortedExpenses.map(expense => {
+                const isSelected = selectedExpenses.includes(expense.id);
+                return (
+                  <TableRow key={expense.id} className={isSelected ? "bg-muted/50" : ""}>
+                    {onBulkDelete && (
+                      <TableCell>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={(checked) => handleSelectExpense(expense.id, checked as boolean)}
+                        />
+                      </TableCell>
+                    )}
+                    <TableCell>
+                      {new Date(expense.date).toLocaleDateString()}
+                    </TableCell>
                   <TableCell>
                     <div className="font-medium">{expense.description}</div>
                   </TableCell>
@@ -331,7 +388,7 @@ export const ExpenseList = ({
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              ))}
+              )})}
             </TableBody>
           </Table>
         ) : (
