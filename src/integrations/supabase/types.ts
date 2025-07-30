@@ -465,63 +465,72 @@ export type Database = {
       }
       meetings: {
         Row: {
-          action_items: string[] | null
+          action_items: Json
           agenda: string | null
-          attendees: string[]
-          date: string
-          duration: string
+          attachments: Json
+          attendees: Json
+          created_at: string
+          description: string | null
+          end_time: string
           id: string
-          is_recurring: boolean | null
+          is_recurring: boolean
           location: string
           notes: string | null
-          participant_status: Json | null
-          recurring_type: string | null
-          reminder_enabled: boolean | null
-          reminder_time: string | null
+          recurring_end_date: string | null
+          recurring_pattern: string | null
+          reminder_minutes: number | null
+          start_date: string
+          start_time: string
           status: string
-          time: string
           title: string
           type: string
+          updated_at: string
           user_id: string
         }
         Insert: {
-          action_items?: string[] | null
+          action_items?: Json
           agenda?: string | null
-          attendees: string[]
-          date: string
-          duration: string
+          attachments?: Json
+          attendees?: Json
+          created_at?: string
+          description?: string | null
+          end_time: string
           id?: string
-          is_recurring?: boolean | null
+          is_recurring?: boolean
           location: string
           notes?: string | null
-          participant_status?: Json | null
-          recurring_type?: string | null
-          reminder_enabled?: boolean | null
-          reminder_time?: string | null
-          status: string
-          time: string
+          recurring_end_date?: string | null
+          recurring_pattern?: string | null
+          reminder_minutes?: number | null
+          start_date: string
+          start_time: string
+          status?: string
           title: string
           type: string
+          updated_at?: string
           user_id: string
         }
         Update: {
-          action_items?: string[] | null
+          action_items?: Json
           agenda?: string | null
-          attendees?: string[]
-          date?: string
-          duration?: string
+          attachments?: Json
+          attendees?: Json
+          created_at?: string
+          description?: string | null
+          end_time?: string
           id?: string
-          is_recurring?: boolean | null
+          is_recurring?: boolean
           location?: string
           notes?: string | null
-          participant_status?: Json | null
-          recurring_type?: string | null
-          reminder_enabled?: boolean | null
-          reminder_time?: string | null
+          recurring_end_date?: string | null
+          recurring_pattern?: string | null
+          reminder_minutes?: number | null
+          start_date?: string
+          start_time?: string
           status?: string
-          time?: string
           title?: string
           type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -530,37 +539,49 @@ export type Database = {
         Row: {
           content: string
           course: string
-          date: string | null
+          created_at: string
+          due_date: string | null
           id: string
-          starred: boolean | null
-          student: string | null
+          priority: string
+          starred: boolean
+          status: string
+          student_name: string | null
           tags: string[] | null
           title: string
           type: string
+          updated_at: string
           user_id: string
         }
         Insert: {
           content: string
           course: string
-          date?: string | null
+          created_at?: string
+          due_date?: string | null
           id?: string
-          starred?: boolean | null
-          student?: string | null
+          priority?: string
+          starred?: boolean
+          status?: string
+          student_name?: string | null
           tags?: string[] | null
           title: string
           type: string
+          updated_at?: string
           user_id: string
         }
         Update: {
           content?: string
           course?: string
-          date?: string | null
+          created_at?: string
+          due_date?: string | null
           id?: string
-          starred?: boolean | null
-          student?: string | null
+          priority?: string
+          starred?: boolean
+          status?: string
+          student_name?: string | null
           tags?: string[] | null
           title?: string
           type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

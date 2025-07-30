@@ -1,126 +1,141 @@
-import { useState, useEffect } from "react";
-import { MainLayout } from "@/components/MainLayout";
-import { Button } from "@/components/ui/button";
-import { Plus, Search, Filter, BookOpen } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
-import { useAuth } from "@/hooks/useAuth";
-import { useDataFetching } from "@/hooks/useDataFetching";
-import { NoteCard } from "@/components/notes/NoteCard";
-import { CreateNoteDialog } from "@/components/notes/CreateNoteDialog";
-import { NoteFilters } from "@/components/notes/NoteFilters";
-import { NoteSorting } from "@/components/notes/NoteSorting";
-
-interface Note {
-  id: string;
-  title: string;
-  content: string;
-  type: string;
-  course: string;
-  student?: string;
-  tags: string[];
-  starred: boolean;
-  date: string;
-  user_id: string;
-}
+import React, { useState, useMemo } from 'react';
+import { MainLayout } from '@/components/MainLayout';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { 
+  Plus, 
+  Search, 
+  Star, 
+  Filter, 
+  SortAsc, 
+  SortDesc, 
+  Calendar,
+  BookOpen,
+  CheckCircle,
+  Clock,
+  AlertTriangle
+} from 'lucide-react';
+import { useNotes } from '@/hooks/useNotes';
+import { CreateNoteDialog } from '@/components/notes/CreateNoteDialog';
+import { NoteCard } from '@/components/notes/NoteCard';
+import { Note } from '@/types/notes';
 
 const NotesPage = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [appliedFilters, setAppliedFilters] = useState<{
-    type?: string;
-    course?: string;
-    fromDate?: Date | null;
-    toDate?: Date | null;
-    tags?: string[];
-    hasAttachments?: boolean;
-  }>({});
-  const [sortField, setSortField] = useState("date");
-  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
-  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'compact'>('grid');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedType, setSelectedType] = useState<string>('all');
+  const [selectedStatus, setSelectedStatus] = useState<string>('all');
+  const [selectedPriority, setSelectedPriority] = useState<string>('all');
+  const [sortBy, setSortBy] = useState<string>('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [viewMode, setViewMode] = useState<'all' | 'starred'>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  
-  const { toast } = useToast();
-  const { user } = useAuth();
-  
-  // Fetch notes data
-  const { 
-    data: notes = [], 
-    isLoading, 
-    error,
-    refetch 
-  } = useDataFetching<Note>({ 
-    table: 'notes',
-    enabled: !!user
-  });
+
+  const { notes, isLoading } = useNotes();
 
   // Filter and sort notes
-  const filteredNotes = (notes || []).filter(note => {
-    const matchesSearch = note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase())));
-    
-    const matchesType = !appliedFilters.type || note.type === appliedFilters.type;
-    const matchesCourse = !appliedFilters.course || note.course.toLowerCase().includes(appliedFilters.course.toLowerCase());
-    
-    let matchesDateRange = true;
-    if (appliedFilters.fromDate || appliedFilters.toDate) {
-      const noteDate = new Date(note.date);
-      if (appliedFilters.fromDate) {
-        matchesDateRange = matchesDateRange && noteDate >= appliedFilters.fromDate;
+  const filteredAndSortedNotes = useMemo(() => {
+    let filtered = notes.filter(note => {
+      const matchesSearch = 
+        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        note.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (note.student_name && note.student_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+
+      const matchesType = selectedType === 'all' || note.type === selectedType;
+      const matchesStatus = selectedStatus === 'all' || note.status === selectedStatus;
+      const matchesPriority = selectedPriority === 'all' || note.priority === selectedPriority;
+      const matchesView = viewMode === 'all' || (viewMode === 'starred' && note.starred);
+
+      return matchesSearch && matchesType && matchesStatus && matchesPriority && matchesView;
+    });
+
+    // Sort notes
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any;
+
+      switch (sortBy) {
+        case 'title':
+          aValue = a.title.toLowerCase();
+          bValue = b.title.toLowerCase();
+          break;
+        case 'course':
+          aValue = a.course.toLowerCase();
+          bValue = b.course.toLowerCase();
+          break;
+        case 'priority':
+          const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+          aValue = priorityOrder[a.priority];
+          bValue = priorityOrder[b.priority];
+          break;
+        case 'due_date':
+          aValue = a.due_date ? new Date(a.due_date).getTime() : 0;
+          bValue = b.due_date ? new Date(b.due_date).getTime() : 0;
+          break;
+        case 'created_at':
+        default:
+          aValue = new Date(a.created_at).getTime();
+          bValue = new Date(b.created_at).getTime();
+          break;
       }
-      if (appliedFilters.toDate) {
-        matchesDateRange = matchesDateRange && noteDate <= appliedFilters.toDate;
+
+      if (sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
       }
-    }
-    
-    const matchesTags = !appliedFilters.tags?.length || 
-                       appliedFilters.tags.some(tag => note.tags.includes(tag));
-    
-    return matchesSearch && matchesType && matchesCourse && matchesDateRange && matchesTags;
-  }).sort((a, b) => {
-    let comparison = 0;
-    
-    switch (sortField) {
-      case "title":
-        comparison = a.title.localeCompare(b.title);
-        break;
-      case "course":
-        comparison = a.course.localeCompare(b.course);
-        break;
-      case "type":
-        comparison = a.type.localeCompare(b.type);
-        break;
-      case "date":
-      default:
-        comparison = new Date(a.date).getTime() - new Date(b.date).getTime();
-        break;
-    }
-    
-    return sortDirection === "asc" ? comparison : -comparison;
-  });
+    });
 
-  // Get unique courses and types for filters
-  const courses = [...new Set(notes.map(note => note.course))];
-  const types = [...new Set(notes.map(note => note.type))];
-  const allTags = [...new Set(notes.flatMap(note => note.tags))];
+    return filtered;
+  }, [notes, searchQuery, selectedType, selectedStatus, selectedPriority, sortBy, sortOrder, viewMode]);
 
-  // Stats
-  const totalNotes = notes.length;
-  const starredNotes = notes.filter(note => note.starred).length;
-  const notesByType = types.reduce((acc, type) => {
-    acc[type] = notes.filter(note => note.type === type).length;
-    return acc;
-  }, {} as Record<string, number>);
+  // Get statistics
+  const stats = useMemo(() => {
+    const totalNotes = notes.length;
+    const activeNotes = notes.filter(n => n.status === 'active').length;
+    const completedNotes = notes.filter(n => n.status === 'completed').length;
+    const starredNotes = notes.filter(n => n.starred).length;
+    const overdueNotes = notes.filter(n => 
+      n.due_date && 
+      new Date(n.due_date) < new Date() && 
+      n.status !== 'completed'
+    ).length;
+    const urgentNotes = notes.filter(n => n.priority === 'urgent' && n.status === 'active').length;
 
-  if (error) {
+    return {
+      totalNotes,
+      activeNotes,
+      completedNotes,
+      starredNotes,
+      overdueNotes,
+      urgentNotes,
+    };
+  }, [notes]);
+
+  const typeLabels = {
+    note: 'Notes',
+    commitment: 'Commitments',
+    reminder: 'Reminders',
+  };
+
+  const priorityColors = {
+    low: 'bg-green-100 text-green-700',
+    medium: 'bg-blue-100 text-blue-700',
+    high: 'bg-orange-100 text-orange-700',
+    urgent: 'bg-red-100 text-red-700',
+  };
+
+  if (isLoading) {
     return (
       <MainLayout>
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
-            <p className="text-muted-foreground mb-4">Failed to load notes</p>
-            <Button onClick={() => refetch()}>Try Again</Button>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+            <p className="mt-2 text-muted-foreground">Loading notes...</p>
           </div>
         </div>
       </MainLayout>
@@ -129,151 +144,216 @@ const NotesPage = () => {
 
   return (
     <MainLayout>
-      <div className="animate-fade-in">
+      <div className="space-y-6">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold mb-1 flex items-center gap-2">
-              <BookOpen className="h-8 w-8" />
-              Notes & Commitments
-            </h1>
-            <p className="text-muted-foreground">Manage your teaching notes, student observations, and commitments</p>
+            <h1 className="text-3xl font-bold">Notes & Commitments</h1>
+            <p className="text-muted-foreground">Manage your academic notes, commitments, and reminders</p>
           </div>
-          <Button 
-            className="mt-4 md:mt-0 flex items-center gap-2"
-            onClick={() => setIsCreateDialogOpen(true)}
-          >
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            <span>New Note</span>
+            Create Note
           </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
-          <div className="rounded-lg border p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-muted-foreground">Total Notes</div>
-              <BookOpen className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div className="text-2xl font-bold">{totalNotes}</div>
-          </div>
-          <div className="rounded-lg border p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-muted-foreground">Starred</div>
-              <div className="h-4 w-4 text-yellow-500">⭐</div>
-            </div>
-            <div className="text-2xl font-bold">{starredNotes}</div>
-          </div>
-          <div className="rounded-lg border p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-muted-foreground">Courses</div>
-              <div className="h-4 w-4 text-blue-500">📚</div>
-            </div>
-            <div className="text-2xl font-bold">{courses.length}</div>
-          </div>
-          <div className="rounded-lg border p-3">
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-muted-foreground">Types</div>
-              <div className="h-4 w-4 text-green-500">🏷️</div>
-            </div>
-            <div className="text-2xl font-bold">{types.length}</div>
-          </div>
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-blue-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats.totalNotes}</p>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-green-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats.activeNotes}</p>
+                  <p className="text-xs text-muted-foreground">Active</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-emerald-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats.completedNotes}</p>
+                  <p className="text-xs text-muted-foreground">Completed</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Star className="h-4 w-4 text-yellow-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats.starredNotes}</p>
+                  <p className="text-xs text-muted-foreground">Starred</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4 text-red-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats.overdueNotes}</p>
+                  <p className="text-xs text-muted-foreground">Overdue</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-orange-500" />
+                <div>
+                  <p className="text-2xl font-bold">{stats.urgentNotes}</p>
+                  <p className="text-xs text-muted-foreground">Urgent</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Search and Filters */}
-        <div className="flex flex-col lg:flex-row gap-4 mb-6">
-          <div className="flex-1">
-            <NoteFilters
-              searchQuery={searchQuery}
-              setSearchQuery={setSearchQuery}
-              appliedFilters={appliedFilters}
-              setAppliedFilters={setAppliedFilters}
-              isLoading={isLoading}
-              availableTags={allTags}
-            />
-          </div>
-          <div className="flex gap-2">
-            <NoteSorting
-              sortField={sortField}
-              setSortField={setSortField}
-              sortDirection={sortDirection}
-              setSortDirection={setSortDirection}
-              viewMode={viewMode}
-              setViewMode={setViewMode}
-            />
-          </div>
-        </div>
-
-        {/* Notes Grid */}
-        <div className={`grid gap-4 ${
-          viewMode === 'grid' ? 'md:grid-cols-2 lg:grid-cols-3' :
-          viewMode === 'list' ? 'grid-cols-1' :
-          'md:grid-cols-2 lg:grid-cols-4'
-        }`}>
-          {isLoading ? (
-            // Loading skeleton
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-lg border p-4 animate-pulse">
-                <div className="h-4 bg-muted rounded mb-2"></div>
-                <div className="h-3 bg-muted rounded mb-4 w-3/4"></div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-muted rounded"></div>
-                  <div className="h-3 bg-muted rounded w-5/6"></div>
-                </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex flex-col lg:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search notes, content, courses, students..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
               </div>
-            ))
-          ) : filteredNotes.length > 0 ? (
-            filteredNotes.map((note) => (
-              <NoteCard
-                key={note.id}
-                note={{
-                  ...note,
-                  student: note.student || ''
-                }}
-                onUpdate={() => refetch()}
-              />
-            ))
-          ) : (
-            <div className="col-span-full text-center py-12">
-              <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">No notes found</h3>
-              <p className="text-muted-foreground mb-4">
-                {searchQuery || Object.keys(appliedFilters).length > 0
-                  ? "Try adjusting your search or filters"
-                  : "Get started by creating your first note"}
-              </p>
-              <Button onClick={() => setIsCreateDialogOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Note
-              </Button>
-            </div>
-          )}
-        </div>
+              
+              <div className="flex flex-wrap gap-2">
+                <Select value={selectedType} onValueChange={setSelectedType}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="note">Notes</SelectItem>
+                    <SelectItem value="commitment">Commitments</SelectItem>
+                    <SelectItem value="reminder">Reminders</SelectItem>
+                  </SelectContent>
+                </Select>
 
-        {/* Type Summary */}
-        {notes.length > 0 && (
-          <div className="mt-8 p-4 bg-muted/50 rounded-lg">
-            <h3 className="font-medium mb-3">Notes by Type</h3>
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(notesByType).map(([type, count]) => (
-                <Badge key={type} variant="secondary" className="text-sm">
-                  {type}: {count}
-                </Badge>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="archived">Archived</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={selectedPriority} onValueChange={setSelectedPriority}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priority</SelectItem>
+                    <SelectItem value="urgent">Urgent</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={sortBy} onValueChange={setSortBy}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="Sort by" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="created_at">Date Created</SelectItem>
+                    <SelectItem value="title">Title</SelectItem>
+                    <SelectItem value="course">Course</SelectItem>
+                    <SelectItem value="priority">Priority</SelectItem>
+                    <SelectItem value="due_date">Due Date</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
+                >
+                  {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Tabs */}
+        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'all' | 'starred')}>
+          <TabsList>
+            <TabsTrigger value="all">All Notes ({filteredAndSortedNotes.length})</TabsTrigger>
+            <TabsTrigger value="starred">Starred ({stats.starredNotes})</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="space-y-4">
+            {filteredAndSortedNotes.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No notes found</h3>
+                  <p className="text-muted-foreground mb-4">
+                    {searchQuery || selectedType !== 'all' || selectedStatus !== 'all' || selectedPriority !== 'all'
+                      ? 'Try adjusting your filters or search terms.'
+                      : 'Create your first note to get started.'
+                    }
+                  </p>
+                  <Button onClick={() => setIsCreateDialogOpen(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Note
+                  </Button>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {filteredAndSortedNotes.map((note) => (
+                  <NoteCard key={note.id} note={note} />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="starred">
+            {/* Starred notes content - same structure as all notes but filtered */}
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredAndSortedNotes.filter(note => note.starred).map((note) => (
+                <NoteCard key={note.id} note={note} />
               ))}
             </div>
-          </div>
-        )}
-      </div>
+          </TabsContent>
+        </Tabs>
 
-      {/* Create Note Dialog - Now properly controlled */}
-      <CreateNoteDialog
-        open={isCreateDialogOpen}
-        onOpenChange={setIsCreateDialogOpen}
-        onNoteCreated={() => {
-          refetch();
-          setIsCreateDialogOpen(false);
-        }}
-      />
+        {/* Create Note Dialog */}
+        <CreateNoteDialog 
+          open={isCreateDialogOpen} 
+          onOpenChange={setIsCreateDialogOpen} 
+        />
+      </div>
     </MainLayout>
   );
 };
