@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut, BarChart3, MessageCircle, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
 export function AppSidebar() {
-  const [activeItem, setActiveItem] = useState("dashboard");
+  const location = useLocation();
   const { profile } = useProfile();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -118,14 +118,19 @@ export function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {navigationItems.map(item => <SidebarMenuItem key={item.id}>
-              <SidebarMenuButton asChild className={cn(activeItem === item.id && "bg-primary/10 text-primary")} onClick={() => setActiveItem(item.id)}>
-                <Link to={item.path} className="flex items-center gap-3">
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.title}</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>)}
+          {navigationItems.map(item => {
+            const isActive = location.pathname === item.path;
+            return (
+              <SidebarMenuItem key={item.id}>
+                <SidebarMenuButton asChild className={cn(isActive && "bg-primary/10 text-primary")}>
+                  <Link to={item.path} className="flex items-center gap-3">
+                    <item.icon className="h-5 w-5" />
+                    <span>{item.title}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t">

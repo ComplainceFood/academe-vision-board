@@ -135,9 +135,9 @@ const NotesPage = () => {
           <div>
             <h1 className="text-3xl font-bold mb-1 flex items-center gap-2">
               <BookOpen className="h-8 w-8" />
-              Notes & Promises
+              Notes & Commitments
             </h1>
-            <p className="text-muted-foreground">Manage your teaching notes, student observations, and promises</p>
+            <p className="text-muted-foreground">Manage your teaching notes, student observations, and commitments</p>
           </div>
           <Button 
             className="mt-4 md:mt-0 flex items-center gap-2"

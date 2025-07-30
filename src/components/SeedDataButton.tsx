@@ -12,7 +12,7 @@ const mockNotes = [
   {
     title: "Project Extension",
     content: "Promised 2-week extension for final project to CS101 students who attended workshop.",
-    type: "promise",
+    type: "commitment",
     course: "CS101",
     tags: ["extension", "project"],
     starred: true
@@ -27,14 +27,14 @@ const mockNotes = [
   {
     title: "Midterm Format Change",
     content: "Agreed to change midterm format to include more practical problems after student feedback.",
-    type: "promise",
+    type: "commitment",
     course: "CS101",
     tags: ["exam", "format"]
   },
   {
     title: "Research Mentoring",
     content: "Promised to review Jane Smith's research proposal by this Friday.",
-    type: "promise",
+    type: "commitment",
     course: "Research",
     tags: ["research", "mentoring"],
     student: "Jane Smith"
@@ -49,7 +49,7 @@ const mockNotes = [
   {
     title: "Lecture Recording",
     content: "Promised to post recording of today's lecture due to technical issues during class.",
-    type: "promise",
+    type: "commitment",
     course: "CS202",
     tags: ["lecture", "recording"],
     starred: true
@@ -57,7 +57,7 @@ const mockNotes = [
   {
     title: "Office Hours Extension",
     content: "Agreed to additional office hours before final project deadline.",
-    type: "promise",
+    type: "commitment",
     course: "CS101",
     tags: ["office hours"]
   }

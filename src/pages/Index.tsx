@@ -54,7 +54,7 @@ const Index = () => {
   });
 
   // Calculate stats
-  const promiseCount = notes.filter((note: any) => note.type === 'promise').length;
+  const promiseCount = notes.filter((note: any) => note.type === 'commitment').length;
   const upcomingMeetings = meetings.filter((meeting: any) => 
     meeting.status === 'scheduled' && new Date(meeting.date) > new Date()
   ).length;

@@ -75,10 +75,10 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
   };
 
   const handleComplete = async () => {
-    if (note.type !== "promise") return;
+    if (note.type !== "commitment") return;
     
     try {
-      // For promises, we'll add a "completed" tag
+      // For commitments, we'll add a "completed" tag
       const updatedTags = [...(note.tags || [])];
       if (!updatedTags.includes("completed")) {
         updatedTags.push("completed");
@@ -100,7 +100,7 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
       const isCompleted = updatedTags.includes("completed");
       
       toast({
-        title: isCompleted ? "Promise marked as complete" : "Promise marked as incomplete",
+        title: isCompleted ? "Commitment marked as complete" : "Commitment marked as incomplete",
         description: `"${note.title}" has been updated.`,
       });
 
@@ -122,7 +122,7 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
       <CardHeader className={`pb-2 flex flex-row justify-between items-start ${compact ? 'p-2' : ''}`}>
         <div className="flex-1">
           <div className="flex items-center gap-2">
-            <span className={`px-2 py-1 text-xs rounded ${note.type === 'promise' ? 'bg-primary/15 text-primary' : 'bg-secondary/15 text-secondary'}`}>
+            <span className={`px-2 py-1 text-xs rounded ${note.type === 'commitment' ? 'bg-primary/15 text-primary' : 'bg-secondary/15 text-secondary'}`}>
               {note.type}
             </span>
             <span className="text-xs bg-muted px-2 py-1 rounded">{note.course}</span>
@@ -142,7 +142,7 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {note.type === "promise" && (
+            {note.type === "commitment" && (
               <DropdownMenuItem onClick={handleComplete}>
                 {isCompleted ? "Mark as Incomplete" : "Mark as Complete"}
               </DropdownMenuItem>

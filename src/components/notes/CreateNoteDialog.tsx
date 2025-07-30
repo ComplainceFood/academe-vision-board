@@ -22,7 +22,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [course, setCourse] = useState("");
-  const [type, setType] = useState<"note" | "promise">("note");
+  const [type, setType] = useState<"note" | "commitment">("note");
   const [student, setStudent] = useState("");
   const [tags, setTags] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -80,7 +80,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
 
       toast({
         title: "Success",
-        description: `${type === "note" ? "Note" : "Promise"} created successfully`,
+        description: `${type === "note" ? "Note" : "Commitment"} created successfully`,
       });
 
       handleOpenChange(false);
@@ -124,21 +124,21 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
       )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New {type === "note" ? "Note" : "Promise"}</DialogTitle>
+          <DialogTitle>Create New {type === "note" ? "Note" : "Commitment"}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="type">Type</Label>
             <Select
               value={type}
-              onValueChange={(value) => setType(value as "note" | "promise")}
+              onValueChange={(value) => setType(value as "note" | "commitment")}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="note">Note</SelectItem>
-                <SelectItem value="promise">Promise</SelectItem>
+                <SelectItem value="commitment">Commitment</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -169,7 +169,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
               required
             />
           </div>
-          {type === "promise" && (
+          {type === "commitment" && (
             <div className="space-y-2">
               <Label htmlFor="student">Student (Optional)</Label>
               <Input
@@ -194,7 +194,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
             className="w-full"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Creating..." : `Create ${type === "note" ? "Note" : "Promise"}`}
+            {isSubmitting ? "Creating..." : `Create ${type === "note" ? "Note" : "Commitment"}`}
           </Button>
         </form>
       </DialogContent>

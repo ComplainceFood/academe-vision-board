@@ -135,7 +135,7 @@ export function NoteFilters({
                   <SelectContent>
                     <SelectItem value="">Any type</SelectItem>
                     <SelectItem value="note">Note</SelectItem>
-                    <SelectItem value="promise">Promise</SelectItem>
+                    <SelectItem value="commitment">Commitment</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
