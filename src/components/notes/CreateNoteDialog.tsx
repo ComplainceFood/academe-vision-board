@@ -79,10 +79,9 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
           course,
           type,
           user_id: user.id,
-          date: new Date().toISOString(),
           starred: false,
           tags: parsedTags,
-          student: type === "commitment" ? (student || null) : null,
+          student_name: type === "commitment" ? (student || null) : null,
         },
       ]).select();
 
