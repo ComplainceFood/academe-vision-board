@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -265,6 +265,16 @@ const MeetingsPage = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   
   const { meetings, isLoading } = useMeetings();
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // The useMeetings hook will automatically refetch due to React Query's stale time settings
+      window.dispatchEvent(new CustomEvent('refreshData'));
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const handleViewDetails = (meeting: Meeting) => {
     setSelectedMeeting(meeting);

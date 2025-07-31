@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { MainLayout } from '@/components/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,6 +35,16 @@ const NotesPage = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   const { notes, isLoading } = useNotes();
+
+  // Auto-refresh every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // The useNotes hook will automatically refetch due to React Query's stale time settings
+      window.dispatchEvent(new CustomEvent('refreshData'));
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   // Filter and sort notes
   const filteredAndSortedNotes = useMemo(() => {
@@ -330,7 +340,7 @@ const NotesPage = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <div className="space-y-4">
                 {filteredAndSortedNotes.map((note) => (
                   <NoteCard key={note.id} note={note as any} onUpdate={() => {}} />
                 ))}
@@ -340,7 +350,7 @@ const NotesPage = () => {
 
           <TabsContent value="starred">
             {/* Starred notes content - same structure as all notes but filtered */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <div className="space-y-4">
               {filteredAndSortedNotes.filter(note => note.starred).map((note) => (
                 <NoteCard key={note.id} note={note as any} onUpdate={() => {}} />
               ))}
