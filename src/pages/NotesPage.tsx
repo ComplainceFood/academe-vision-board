@@ -103,25 +103,17 @@ const NotesPage = () => {
     return filtered;
   }, [notes, searchQuery, selectedType, selectedStatus, selectedPriority, sortBy, sortOrder, viewMode]);
 
-  // Get statistics
+  // Get simplified statistics
   const stats = useMemo(() => {
     const totalNotes = notes.length;
     const activeNotes = notes.filter(n => n.status === 'active').length;
-    const completedNotes = notes.filter(n => n.status === 'completed').length;
     const starredNotes = notes.filter(n => n.starred).length;
-    const overdueNotes = notes.filter(n => 
-      n.due_date && 
-      new Date(n.due_date) < new Date() && 
-      n.status !== 'completed'
-    ).length;
     const urgentNotes = notes.filter(n => n.priority === 'urgent' && n.status === 'active').length;
 
     return {
       totalNotes,
       activeNotes,
-      completedNotes,
       starredNotes,
-      overdueNotes,
       urgentNotes,
     };
   }, [notes]);
@@ -167,96 +159,74 @@ const NotesPage = () => {
           </Button>
         </div>
 
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        {/* Simplified Statistics Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <BookOpen className="h-4 w-4 text-blue-500" />
+              <div className="flex items-center gap-3">
+                <BookOpen className="h-5 w-5 text-blue-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats.totalNotes}</p>
-                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="text-sm text-muted-foreground">Total Notes</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Clock className="h-4 w-4 text-green-500" />
+              <div className="flex items-center gap-3">
+                <Clock className="h-5 w-5 text-green-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats.activeNotes}</p>
-                  <p className="text-xs text-muted-foreground">Active</p>
+                  <p className="text-sm text-muted-foreground">Active</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-emerald-500" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.completedNotes}</p>
-                  <p className="text-xs text-muted-foreground">Completed</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Star className="h-4 w-4 text-yellow-500" />
+              <div className="flex items-center gap-3">
+                <Star className="h-5 w-5 text-yellow-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats.starredNotes}</p>
-                  <p className="text-xs text-muted-foreground">Starred</p>
+                  <p className="text-sm text-muted-foreground">Starred</p>
                 </div>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <Calendar className="h-4 w-4 text-red-500" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.overdueNotes}</p>
-                  <p className="text-xs text-muted-foreground">Overdue</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-orange-500" />
+              <div className="flex items-center gap-3">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
                 <div>
                   <p className="text-2xl font-bold">{stats.urgentNotes}</p>
-                  <p className="text-xs text-muted-foreground">Urgent</p>
+                  <p className="text-sm text-muted-foreground">Urgent</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Search and Filters */}
+        {/* Simplified Search and Filters */}
         <Card>
           <CardContent className="p-4">
-            <div className="flex flex-col lg:flex-row gap-4">
+            <div className="flex flex-col md:flex-row gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search notes, content, courses, students..."
+                  placeholder="Search notes, content, courses..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-9"
                 />
               </div>
               
-              <div className="flex flex-wrap gap-2">
+              <div className="flex gap-2">
                 <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[130px] bg-background">
                     <SelectValue placeholder="Type" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background border z-50">
                     <SelectItem value="all">All Types</SelectItem>
                     <SelectItem value="note">Notes</SelectItem>
                     <SelectItem value="commitment">Commitments</SelectItem>
@@ -264,23 +234,11 @@ const NotesPage = () => {
                   </SelectContent>
                 </Select>
 
-                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                  <SelectTrigger className="w-[140px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="archived">Archived</SelectItem>
-                  </SelectContent>
-                </Select>
-
                 <Select value={selectedPriority} onValueChange={setSelectedPriority}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[120px] bg-background">
                     <SelectValue placeholder="Priority" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background border z-50">
                     <SelectItem value="all">All Priority</SelectItem>
                     <SelectItem value="urgent">Urgent</SelectItem>
                     <SelectItem value="high">High</SelectItem>
@@ -290,33 +248,24 @@ const NotesPage = () => {
                 </Select>
 
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[140px] bg-background">
                     <SelectValue placeholder="Sort by" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="created_at">Date Created</SelectItem>
-                    <SelectItem value="title">Title</SelectItem>
+                  <SelectContent className="bg-background border z-50">
+                    <SelectItem value="created_at">Most Recent</SelectItem>
+                    <SelectItem value="title">Title A-Z</SelectItem>
                     <SelectItem value="course">Course</SelectItem>
                     <SelectItem value="priority">Priority</SelectItem>
-                    <SelectItem value="due_date">Due Date</SelectItem>
                   </SelectContent>
                 </Select>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')}
-                >
-                  {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
-                </Button>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Tabs */}
+        {/* Simplified Tabs */}
         <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'all' | 'starred')}>
-          <TabsList>
+          <TabsList className="bg-background">
             <TabsTrigger value="all">All Notes ({filteredAndSortedNotes.length})</TabsTrigger>
             <TabsTrigger value="starred">Starred ({stats.starredNotes})</TabsTrigger>
           </TabsList>
