@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +10,7 @@ export const useNotes = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: notes = [], isLoading, error } = useQuery({
+  const { data: notes = [], isLoading, error, refetch } = useQuery({
     queryKey: ['notes', user?.id],
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
@@ -24,7 +25,20 @@ export const useNotes = () => {
       return data as Note[];
     },
     enabled: !!user,
+    staleTime: 30000, // Data is considered stale after 30 seconds
+    refetchInterval: 30000, // Auto-refetch every 30 seconds
   });
+
+  // Listen for custom refresh events
+  useEffect(() => {
+    const handleRefresh = () => refetch();
+    
+    window.addEventListener('refreshData', handleRefresh);
+    
+    return () => {
+      window.removeEventListener('refreshData', handleRefresh);
+    };
+  }, [refetch]);
 
   const createNoteMutation = useMutation({
     mutationFn: async (noteData: CreateNoteData) => {

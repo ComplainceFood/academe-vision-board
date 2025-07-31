@@ -119,18 +119,18 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
 
   return (
     <Card className={`w-full glassmorphism ${className}`}>
-      <CardContent className="p-6">
-        <div className="flex flex-col md:flex-row gap-6">
+      <CardContent className="p-4">
+        <div className="flex flex-col md:flex-row gap-4">
           {/* Main content section */}
           <div className="flex-1">
-            <div className="flex items-start justify-between mb-4">
+            <div className="flex items-start justify-between mb-3">
               <div className="flex-1">
-                <div className="flex items-center gap-2 mb-3">
-                  <span className={`px-3 py-1 text-sm rounded-full font-medium ${note.type === 'commitment' ? 'bg-primary/15 text-primary' : note.type === 'reminder' ? 'bg-amber-100 text-amber-700' : 'bg-secondary/15 text-secondary'}`}>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${note.type === 'commitment' ? 'bg-primary/15 text-primary' : note.type === 'reminder' ? 'bg-amber-100 text-amber-700' : 'bg-secondary/15 text-secondary'}`}>
                     {note.type}
                   </span>
-                  <span className="text-sm bg-muted px-3 py-1 rounded-full font-medium">{note.course}</span>
-                  <span className={`text-sm px-3 py-1 rounded-full font-medium ${
+                  <span className="text-xs bg-muted px-2 py-1 rounded-full font-medium">{note.course}</span>
+                  <span className={`text-xs px-2 py-1 rounded-full font-medium ${
                     note.priority === 'urgent' ? 'bg-red-100 text-red-700' :
                     note.priority === 'high' ? 'bg-orange-100 text-orange-700' :
                     note.priority === 'medium' ? 'bg-blue-100 text-blue-700' :
@@ -138,19 +138,19 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
                   }`}>
                     {note.priority}
                   </span>
-                  {note.starred && <Star className="h-5 w-5 text-yellow-500 fill-yellow-500" />}
+                  {note.starred && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
                   {isCompleted && (
-                    <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
                       Completed
                     </span>
                   )}
                 </div>
-                <CardTitle className="text-xl mb-3">{note.title}</CardTitle>
+                <CardTitle className="text-lg mb-2">{note.title}</CardTitle>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-10 w-10">
-                    <MoreVertical className="h-5 w-5" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -167,13 +167,13 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
               </DropdownMenu>
             </div>
             
-            <div className="space-y-4">
-              <p className="text-base leading-relaxed">{note.content}</p>
+            <div className="space-y-3">
+              <p className="text-sm leading-relaxed line-clamp-3">{note.content}</p>
               
               {note.tags && note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1">
                   {note.tags.filter(tag => tag !== "completed").map((tag) => (
-                    <span key={tag} className="text-sm bg-accent/15 text-accent px-3 py-1 rounded-full font-medium">
+                    <span key={tag} className="text-xs bg-accent/15 text-accent px-2 py-1 rounded-full font-medium">
                       {tag}
                     </span>
                   ))}
@@ -182,11 +182,11 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
             </div>
           </div>
           
-          {/* Metadata sidebar */}
-          <div className="md:w-64 space-y-4">
-            <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+          {/* Compact metadata sidebar */}
+          <div className="md:w-48 space-y-2">
+            <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+              <div className="flex items-center gap-2 text-xs">
+                <CalendarIcon className="h-3 w-3 text-muted-foreground" />
                 <div>
                   <p className="font-medium">Created</p>
                   <p className="text-muted-foreground">{new Date(note.created_at).toLocaleDateString()}</p>
@@ -194,18 +194,18 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
               </div>
               
               {note.due_date && (
-                <div className="flex items-center gap-2 text-sm">
-                  <CalendarIcon className="h-4 w-4 text-red-500" />
+                <div className="flex items-center gap-2 text-xs">
+                  <CalendarIcon className="h-3 w-3 text-red-500" />
                   <div>
-                    <p className="font-medium">Due Date</p>
+                    <p className="font-medium">Due</p>
                     <p className="text-muted-foreground">{new Date(note.due_date).toLocaleDateString()}</p>
                   </div>
                 </div>
               )}
               
               {note.student_name && (
-                <div className="flex items-center gap-2 text-sm">
-                  <UserIcon className="h-4 w-4 text-muted-foreground" />
+                <div className="flex items-center gap-2 text-xs">
+                  <UserIcon className="h-3 w-3 text-muted-foreground" />
                   <div>
                     <p className="font-medium">Student</p>
                     <p className="text-muted-foreground">{note.student_name}</p>
@@ -213,16 +213,13 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
                 </div>
               )}
               
-              <div className="flex items-center gap-2 text-sm">
-                <div className={`h-3 w-3 rounded-full ${
+              <div className="flex items-center gap-2 text-xs">
+                <div className={`h-2 w-2 rounded-full ${
                   note.status === 'active' ? 'bg-green-500' :
                   note.status === 'completed' ? 'bg-blue-500' :
                   'bg-gray-500'
                 }`} />
-                <div>
-                  <p className="font-medium">Status</p>
-                  <p className="text-muted-foreground capitalize">{note.status}</p>
-                </div>
+                <span className="text-muted-foreground capitalize">{note.status}</span>
               </div>
             </div>
           </div>
