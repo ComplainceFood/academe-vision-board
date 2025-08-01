@@ -15,18 +15,22 @@ export const useNotes = () => {
     queryFn: async () => {
       if (!user) throw new Error('User not authenticated');
       
+      console.log('Fetching notes for user:', user.id);
+      
       const { data, error } = await supabase
         .from('notes')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
       
+      console.log('Notes query result:', { data, error });
+      
       if (error) throw error;
       return data as Note[];
     },
     enabled: !!user,
-    staleTime: 30000, // Data is considered stale after 30 seconds
-    refetchInterval: 30000, // Auto-refetch every 30 seconds
+    staleTime: 5000, // Reduced to 5 seconds for immediate updates
+    refetchInterval: 10000, // Reduced to 10 seconds for faster polling
   });
 
   // Listen for custom refresh events
@@ -44,6 +48,9 @@ export const useNotes = () => {
     mutationFn: async (noteData: CreateNoteData) => {
       if (!user) throw new Error('User not authenticated');
       
+      console.log('Creating note with data:', noteData);
+      console.log('User ID:', user.id);
+      
       const { data, error } = await supabase
         .from('notes')
         .insert([{
@@ -55,6 +62,8 @@ export const useNotes = () => {
         }])
         .select()
         .single();
+      
+      console.log('Create result:', { data, error });
       
       if (error) throw error;
       return data as Note;
@@ -107,10 +116,14 @@ export const useNotes = () => {
 
   const deleteNoteMutation = useMutation({
     mutationFn: async (id: string) => {
+      console.log('Deleting note:', id);
+      
       const { error } = await supabase
         .from('notes')
         .delete()
         .eq('id', id);
+      
+      console.log('Delete result:', { error });
       
       if (error) throw error;
     },

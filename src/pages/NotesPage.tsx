@@ -34,7 +34,9 @@ const NotesPage = () => {
   const [viewMode, setViewMode] = useState<'all' | 'starred'>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { notes, isLoading, deleteNote, toggleStar, toggleStatus } = useNotes();
+  const { notes, isLoading, deleteNote, toggleStar, toggleStatus, error } = useNotes();
+
+  console.log('NotesPage - notes data:', notes, 'isLoading:', isLoading, 'error:', error);
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
