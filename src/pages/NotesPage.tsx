@@ -34,7 +34,7 @@ const NotesPage = () => {
   const [viewMode, setViewMode] = useState<'all' | 'starred'>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { notes, isLoading } = useNotes();
+  const { notes, isLoading, deleteNote, toggleStar, toggleStatus } = useNotes();
 
   // Auto-refresh every 30 seconds
   useEffect(() => {
@@ -291,7 +291,14 @@ const NotesPage = () => {
             ) : (
               <div className="space-y-4">
                 {filteredAndSortedNotes.map((note) => (
-                  <NoteCard key={note.id} note={note as any} onUpdate={() => {}} />
+                  <NoteCard 
+                    key={note.id} 
+                    note={note as any} 
+                    onUpdate={() => {}}
+                    onDelete={deleteNote}
+                    onToggleStar={toggleStar}
+                    onToggleStatus={toggleStatus}
+                  />
                 ))}
               </div>
             )}
@@ -300,9 +307,16 @@ const NotesPage = () => {
           <TabsContent value="starred">
             {/* Starred notes content - same structure as all notes but filtered */}
             <div className="space-y-4">
-              {filteredAndSortedNotes.filter(note => note.starred).map((note) => (
-                <NoteCard key={note.id} note={note as any} onUpdate={() => {}} />
-              ))}
+            {filteredAndSortedNotes.filter(note => note.starred).map((note) => (
+              <NoteCard 
+                key={note.id} 
+                note={note as any} 
+                onUpdate={() => {}}
+                onDelete={deleteNote}
+                onToggleStar={toggleStar}
+                onToggleStatus={toggleStatus}
+              />
+            ))}
             </div>
           </TabsContent>
         </Tabs>

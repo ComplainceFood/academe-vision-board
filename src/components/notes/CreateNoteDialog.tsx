@@ -6,9 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Plus } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useNotes } from "@/hooks/useNotes";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface CreateNoteDialogProps {
@@ -28,6 +28,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
+  const { createNote } = useNotes();
 
   // Use external state if provided, otherwise use internal state
   const isOpen = open !== undefined ? open : internalOpen;
@@ -62,49 +63,24 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
         .map(tag => tag.trim())
         .filter(tag => tag.length > 0);
 
-      console.log("Creating note with data:", {
+      const noteData = {
         title,
         content,
         course,
         type,
-        user_id: user.id,
         tags: parsedTags,
-        student: type === "commitment" ? (student || null) : null,
-      });
+        student_name: type === "commitment" ? (student || null) : null,
+        starred: false,
+      };
 
-      const { data, error } = await supabase.from("notes").insert([
-        {
-          title,
-          content,
-          course,
-          type,
-          user_id: user.id,
-          starred: false,
-          tags: parsedTags,
-          student_name: type === "commitment" ? (student || null) : null,
-        },
-      ]).select();
-
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
-      }
-
-      console.log("Note created successfully:", data);
-
-      toast({
-        title: "Success",
-        description: `${type === "note" ? "Note" : "Commitment"} created successfully`,
-      });
+      await createNote(noteData);
 
       handleOpenChange(false);
       resetForm();
       
-      // Call the callback if provided, otherwise trigger the default event
+      // Call the callback if provided
       if (onNoteCreated) {
         onNoteCreated();
-      } else {
-        window.dispatchEvent(new Event("seedDataCompleted"));
       }
     } catch (error) {
       console.error("Error creating note:", error);

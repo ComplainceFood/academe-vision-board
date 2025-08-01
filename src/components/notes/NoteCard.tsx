@@ -17,28 +17,35 @@ type Note = Database['public']['Tables']['notes']['Row'];
 interface NoteCardProps {
   note: Note;
   onUpdate: () => void;
+  onDelete?: (id: string) => Promise<any>;
+  onToggleStar?: (id: string) => Promise<any>;
+  onToggleStatus?: (id: string) => Promise<any>;
   className?: string;
   compact?: boolean;
 }
 
-export const NoteCard = ({ note, onUpdate, className = "", compact = false }: NoteCardProps) => {
+export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatus, className = "", compact = false }: NoteCardProps) => {
   const { toast } = useToast();
 
   const handleStarToggle = async () => {
     try {
-      const { error } = await supabase
-        .from("notes")
-        .update({ starred: !note.starred })
-        .eq("id", note.id);
+      if (onToggleStar) {
+        await onToggleStar(note.id);
+      } else {
+        const { error } = await supabase
+          .from("notes")
+          .update({ starred: !note.starred })
+          .eq("id", note.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: note.starred ? "Note unstarred" : "Note starred",
-        description: `"${note.title}" has been ${note.starred ? "unstarred" : "starred"}.`,
-      });
+        toast({
+          title: note.starred ? "Note unstarred" : "Note starred",
+          description: `"${note.title}" has been ${note.starred ? "unstarred" : "starred"}.`,
+        });
 
-      onUpdate();
+        onUpdate();
+      }
     } catch (error) {
       console.error("Error toggling star:", error);
       toast({
@@ -51,19 +58,23 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
 
   const handleDelete = async () => {
     try {
-      const { error } = await supabase
-        .from("notes")
-        .delete()
-        .eq("id", note.id);
+      if (onDelete) {
+        await onDelete(note.id);
+      } else {
+        const { error } = await supabase
+          .from("notes")
+          .delete()
+          .eq("id", note.id);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Note deleted",
-        description: `"${note.title}" has been deleted.`,
-      });
+        toast({
+          title: "Note deleted",
+          description: `"${note.title}" has been deleted.`,
+        });
 
-      onUpdate();
+        onUpdate();
+      }
     } catch (error) {
       console.error("Error deleting note:", error);
       toast({
@@ -78,33 +89,37 @@ export const NoteCard = ({ note, onUpdate, className = "", compact = false }: No
     if (note.type !== "commitment") return;
     
     try {
-      // For commitments, we'll add a "completed" tag
-      const updatedTags = [...(note.tags || [])];
-      if (!updatedTags.includes("completed")) {
-        updatedTags.push("completed");
+      if (onToggleStatus) {
+        await onToggleStatus(note.id);
       } else {
-        // If already completed, remove the tag
-        const index = updatedTags.indexOf("completed");
-        if (index > -1) {
-          updatedTags.splice(index, 1);
+        // For commitments, we'll add a "completed" tag
+        const updatedTags = [...(note.tags || [])];
+        if (!updatedTags.includes("completed")) {
+          updatedTags.push("completed");
+        } else {
+          // If already completed, remove the tag
+          const index = updatedTags.indexOf("completed");
+          if (index > -1) {
+            updatedTags.splice(index, 1);
+          }
         }
+
+        const { error } = await supabase
+          .from("notes")
+          .update({ tags: updatedTags })
+          .eq("id", note.id);
+
+        if (error) throw error;
+
+        const isCompleted = updatedTags.includes("completed");
+        
+        toast({
+          title: isCompleted ? "Commitment marked as complete" : "Commitment marked as incomplete",
+          description: `"${note.title}" has been updated.`,
+        });
+
+        onUpdate();
       }
-
-      const { error } = await supabase
-        .from("notes")
-        .update({ tags: updatedTags })
-        .eq("id", note.id);
-
-      if (error) throw error;
-
-      const isCompleted = updatedTags.includes("completed");
-      
-      toast({
-        title: isCompleted ? "Commitment marked as complete" : "Commitment marked as incomplete",
-        description: `"${note.title}" has been updated.`,
-      });
-
-      onUpdate();
     } catch (error) {
       console.error("Error updating note:", error);
       toast({
