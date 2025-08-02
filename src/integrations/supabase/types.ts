@@ -1105,6 +1105,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      seed_demo_data: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
       validate_password_strength: {
         Args: { password: string }
         Returns: Json
