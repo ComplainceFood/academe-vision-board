@@ -7,59 +7,117 @@ import { useAuth } from "@/hooks/useAuth";
 import { useQueryClient } from "@tanstack/react-query";
 import { useUserRole } from "@/hooks/useUserRole";
 
-// Mock data definitions are kept the same
+// Comprehensive mock data for all modules
 const mockNotes = [
   {
-    title: "Project Extension",
-    content: "Promised 2-week extension for final project to CS101 students who attended workshop.",
+    title: "Project Extension Promise",
+    content: "Promised 2-week extension for final project to students who attended the workshop due to technical difficulties during class.",
     type: "commitment",
     course: "CS101",
-    tags: ["extension", "project"],
+    tags: ["extension", "project", "promise"],
+    priority: "high",
+    status: "active",
+    due_date: "2025-03-15 23:59:59",
+    starred: true
+  },
+  {
+    title: "Research Mentoring Commitment",
+    content: "Committed to reviewing Jane Smith's research proposal on neural networks by Friday and providing detailed feedback.",
+    type: "commitment",
+    course: "Research",
+    student_name: "Jane Smith",
+    tags: ["research", "mentoring", "deadline"],
+    priority: "urgent",
+    status: "active",
+    due_date: "2025-02-07 17:00:00",
     starred: true
   },
   {
     title: "Lab Equipment Order",
-    content: "Need to order 5 more Raspberry Pi kits for the robotics lab by next Monday.",
+    content: "Need to order 5 more Raspberry Pi kits for the robotics lab. Budget approved, just need to process the order by Monday.",
     type: "note",
     course: "CS202",
-    tags: ["supplies", "lab"]
+    tags: ["supplies", "lab", "order"],
+    priority: "medium",
+    status: "active",
+    due_date: "2025-02-10 09:00:00",
+    starred: false
   },
   {
     title: "Midterm Format Change",
-    content: "Agreed to change midterm format to include more practical problems after student feedback.",
+    content: "Agreed to change midterm format to include more practical coding problems after student feedback survey results.",
     type: "commitment",
     course: "CS101",
-    tags: ["exam", "format"]
+    tags: ["exam", "format", "student-feedback"],
+    priority: "medium",
+    status: "completed",
+    starred: false
   },
   {
-    title: "Research Mentoring",
-    content: "Promised to review Jane Smith's research proposal by this Friday.",
-    type: "commitment",
+    title: "Conference Paper Deadline",
+    content: "Submit paper on 'AI in Education' to SIGCSE 2025. Draft is 80% complete, need to finalize results section.",
+    type: "reminder",
     course: "Research",
-    tags: ["research", "mentoring"],
-    student_name: "Jane Smith"
-  },
-  {
-    title: "Lab Access",
-    content: "Need to arrange extended lab access hours for senior project teams.",
-    type: "note",
-    course: "CS404",
-    tags: ["lab", "access"]
-  },
-  {
-    title: "Lecture Recording",
-    content: "Promised to post recording of today's lecture due to technical issues during class.",
-    type: "commitment",
-    course: "CS202",
-    tags: ["lecture", "recording"],
+    tags: ["conference", "paper", "deadline"],
+    priority: "urgent",
+    status: "active",
+    due_date: "2025-02-15 23:59:59",
     starred: true
   },
   {
-    title: "Office Hours Extension",
-    content: "Agreed to additional office hours before final project deadline.",
+    title: "Student Accommodation",
+    content: "Promised to provide extended time on exams for Michael Brown due to documented learning disability.",
     type: "commitment",
+    course: "CS404",
+    student_name: "Michael Brown",
+    tags: ["accommodation", "exam", "accessibility"],
+    priority: "high",
+    status: "active",
+    starred: false
+  },
+  {
+    title: "Lecture Recording",
+    content: "Promised to post recording of today's lecture due to technical issues with the projector during class.",
+    type: "commitment",
+    course: "CS202",
+    tags: ["lecture", "recording", "technical-issues"],
+    priority: "high",
+    status: "completed",
+    starred: true
+  },
+  {
+    title: "Guest Speaker Follow-up",
+    content: "Follow up with Dr. Martinez about guest lecture on cybersecurity. Need to confirm date and technical requirements.",
+    type: "note",
+    course: "CS404",
+    tags: ["guest-speaker", "cybersecurity", "coordination"],
+    priority: "medium",
+    status: "active",
+    due_date: "2025-02-20 12:00:00",
+    starred: false
+  },
+  {
+    title: "Grade Appeal Process",
+    content: "Review Emily Davis's grade appeal for CS101 midterm. Schedule meeting to discuss her concerns about question 5.",
+    type: "note",
     course: "CS101",
-    tags: ["office hours"]
+    student_name: "Emily Davis",
+    tags: ["grade-appeal", "meeting", "review"],
+    priority: "high",
+    status: "active",
+    due_date: "2025-02-12 15:00:00",
+    starred: false
+  },
+  {
+    title: "Summer Research Program",
+    content: "Committed to mentoring 3 undergraduate students in the summer research program. Need to prepare project proposals.",
+    type: "commitment",
+    course: "Research",
+    tags: ["summer", "research", "mentoring"],
+    priority: "medium",
+    status: "active",
+    due_date: "2025-03-15 17:00:00",
+    starred: false
   }
 ];
 
@@ -213,33 +271,33 @@ const mockSupplies = [
 
 const mockExpenses = [
   {
-    description: "Conference Registration Fee",
+    description: "Conference Registration - SIGCSE 2025",
     amount: 299.99,
-    date: "2025-03-20",
+    date: "2025-01-20",
     category: "Professional Development",
-    course: "CS404",
+    course: "Research",
     receipt: true
   },
   {
-    description: "Lab Equipment Replacement",
-    amount: 412.87,
-    date: "2025-03-15",
+    description: "Lab Equipment - Raspberry Pi Kits",
+    amount: 450.00,
+    date: "2024-12-10",
     category: "Equipment",
     course: "CS202",
     receipt: true
   },
   {
-    description: "Reference Books",
+    description: "Reference Books - Machine Learning Textbooks",
     amount: 156.45,
-    date: "2025-04-02",
+    date: "2025-01-15",
     category: "Materials",
-    course: "CS101",
+    course: "CS404",
     receipt: true
   },
   {
     description: "Workshop Refreshments",
     amount: 87.50,
-    date: "2025-04-10",
+    date: "2025-01-18",
     category: "Events",
     course: "CS101",
     receipt: false
@@ -247,10 +305,228 @@ const mockExpenses = [
   {
     description: "Printer Ink Cartridges",
     amount: 64.99,
-    date: "2025-03-28",
+    date: "2025-01-25",
     category: "Office Supplies",
     course: "All Courses",
     receipt: true
+  },
+  {
+    description: "Software License - MATLAB",
+    amount: 500.00,
+    date: "2025-01-08",
+    category: "Software",
+    course: "MATH201",
+    receipt: true
+  },
+  {
+    description: "Travel - Industry Conference",
+    amount: 1250.75,
+    date: "2024-12-15",
+    category: "Travel",
+    course: "Professional Development",
+    receipt: true
+  }
+];
+
+const mockPlanningEvents = [
+  {
+    title: "CS101 - Introduction to Programming",
+    description: "Lecture on basic programming concepts",
+    type: "lecture",
+    course: "CS101",
+    date: "2025-02-03",
+    time: "09:00",
+    end_time: "10:30",
+    priority: "high",
+    completed: false,
+    location: "Room 101"
+  },
+  {
+    title: "CS202 - Lab Session",
+    description: "Hands-on Raspberry Pi programming",
+    type: "lab",
+    course: "CS202",
+    date: "2025-02-04",
+    time: "14:00",
+    end_time: "16:00",
+    priority: "high",
+    completed: false,
+    location: "Lab 204"
+  },
+  {
+    title: "CS404 - Cybersecurity Seminar",
+    description: "Guest lecture by Dr. Martinez on network security",
+    type: "seminar",
+    course: "CS404",
+    date: "2025-02-10",
+    time: "11:00",
+    end_time: "12:30",
+    priority: "medium",
+    completed: false,
+    location: "Auditorium A"
+  },
+  {
+    title: "Faculty Senate Meeting",
+    description: "Monthly faculty governance meeting",
+    type: "meeting",
+    date: "2025-02-07",
+    time: "15:00",
+    end_time: "17:00",
+    priority: "medium",
+    completed: false,
+    location: "Conference Room B"
+  },
+  {
+    title: "CS101 - Midterm Exam",
+    description: "First midterm examination",
+    type: "exam",
+    course: "CS101",
+    date: "2025-02-12",
+    time: "09:00",
+    end_time: "11:00",
+    priority: "urgent",
+    completed: false,
+    location: "Room 101"
+  }
+];
+
+const mockFundingSources = [
+  {
+    name: "NSF Educational Innovation Grant",
+    type: "grant",
+    total_amount: 85000.00,
+    remaining_amount: 62500.00,
+    start_date: "2024-09-01",
+    end_date: "2026-08-31",
+    status: "active",
+    description: "Grant for developing innovative AI-based educational tools and methodologies",
+    restrictions: "Must be used for educational technology development and student support",
+    contact_person: "Dr. Patricia Chen",
+    contact_email: "p.chen@nsf.gov",
+    reporting_requirements: "Quarterly progress reports and annual financial statements"
+  },
+  {
+    name: "University Research Excellence Fund",
+    type: "budget_allocation",
+    total_amount: 25000.00,
+    remaining_amount: 18750.00,
+    start_date: "2025-01-01",
+    end_date: "2025-12-31",
+    status: "active",
+    description: "Annual research fund allocation for faculty research activities",
+    restrictions: "Equipment purchases over $5000 require committee approval",
+    contact_person: "Dr. Robert Williams",
+    contact_email: "r.williams@university.edu",
+    reporting_requirements: "Semester expense reports"
+  },
+  {
+    name: "Industry Partnership - TechCorp",
+    type: "donation",
+    total_amount: 50000.00,
+    remaining_amount: 45000.00,
+    start_date: "2024-10-15",
+    end_date: "2025-10-14",
+    status: "active",
+    description: "Corporate partnership funding for lab equipment and student projects",
+    restrictions: "Preference for projects involving machine learning and data science",
+    contact_person: "Ms. Jennifer Martinez",
+    contact_email: "j.martinez@techcorp.com",
+    reporting_requirements: "Bi-annual project showcases and impact reports"
+  }
+];
+
+const mockShoppingList = [
+  {
+    name: "Raspberry Pi 4 Model B",
+    quantity: 10,
+    priority: "high",
+    notes: "Needed for CS202 lab expansion next semester",
+    purchased: false
+  },
+  {
+    name: "Whiteboard Markers (Assorted Colors)",
+    quantity: 20,
+    priority: "medium",
+    notes: "Running low on blue and red markers",
+    purchased: false
+  },
+  {
+    name: "USB-C Cables",
+    quantity: 15,
+    priority: "medium",
+    notes: "For new laptop connectivity in lab",
+    purchased: false
+  },
+  {
+    name: "Backup Hard Drives (2TB)",
+    quantity: 3,
+    priority: "high",
+    notes: "For critical data backup in research lab",
+    purchased: false
+  }
+];
+
+const mockFeedback = [
+  {
+    subject: "Dashboard Loading Performance",
+    description: "The analytics dashboard takes too long to load when viewing semester-wide data. Sometimes it times out completely. This affects daily workflow efficiency.",
+    category: "technical",
+    priority: "high",
+    status: "in_progress"
+  },
+  {
+    subject: "Feature Request: Bulk Note Operations",
+    description: "It would be very helpful to have bulk operations for notes - such as bulk tagging, bulk status changes, and bulk archiving. Currently doing these one by one is time-consuming.",
+    category: "feature_request",
+    priority: "medium",
+    status: "under_review"
+  },
+  {
+    subject: "Mobile App Suggestion",
+    description: "A mobile app or better mobile web interface would be incredibly useful for quick note-taking during meetings and checking schedules on the go.",
+    category: "feature_request",
+    priority: "medium",
+    status: "open"
+  },
+  {
+    subject: "Excellent Supply Management Features",
+    description: "The supply tracking and shopping list features have been incredibly helpful for lab management. The low-stock alerts have prevented several potential issues.",
+    category: "general",
+    priority: "low",
+    status: "closed"
+  }
+];
+
+const mockAdminCommunications = [
+  {
+    title: "System Maintenance Scheduled",
+    content: "The learning management system will be offline for maintenance on Saturday, February 10th from 2:00 AM - 6:00 AM EST. Please plan accordingly and save your work before this time.",
+    description: "Scheduled system maintenance notification",
+    category: "system",
+    priority: "high",
+    is_published: true,
+    published_at: "2025-02-01 09:00:00",
+    expires_at: "2025-02-10 06:00:00"
+  },
+  {
+    title: "New Lab Safety Protocols",
+    content: "Updated lab safety protocols are now in effect. All faculty and students must complete the new safety training module before accessing lab facilities. Training materials available on the department website.",
+    description: "Important safety protocol updates",
+    category: "policy",
+    priority: "urgent",
+    is_published: true,
+    published_at: "2025-01-25 14:30:00",
+    expires_at: "2025-03-01 23:59:59"
+  },
+  {
+    title: "Spring Semester Registration Reminder",
+    content: "Registration for Spring 2025 courses ends on February 15th. Students should meet with their academic advisors to finalize course selections. Late registration fees apply after the deadline.",
+    description: "Course registration deadline reminder",
+    category: "academic",
+    priority: "normal",
+    is_published: true,
+    published_at: "2025-01-30 10:00:00",
+    expires_at: "2025-02-15 23:59:59"
   }
 ];
 
@@ -301,18 +577,63 @@ export function SeedDataButton() {
         ...expense,
         user_id: user.id
       }));
+
+      const planningEventsWithUserId = mockPlanningEvents.map(event => ({
+        ...event,
+        user_id: user.id,
+        created_at: new Date().toISOString()
+      }));
+
+      const fundingSourcesWithUserId = mockFundingSources.map(source => ({
+        ...source,
+        user_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+
+      const shoppingListWithUserId = mockShoppingList.map(item => ({
+        ...item,
+        user_id: user.id,
+        created_at: new Date().toISOString()
+      }));
+
+      const feedbackWithUserId = mockFeedback.map(feedback => ({
+        ...feedback,
+        user_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+
+      const adminCommunicationsWithUserId = mockAdminCommunications.map(comm => ({
+        ...comm,
+        admin_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
       
-      console.log("Seeding mock data with user ID:", user.id);
+      console.log("Seeding comprehensive mock data with user ID:", user.id);
       
-      // Insert data into all tables
-      const notePromise = supabase.from('notes').insert(notesWithUserId);
-      const meetingPromise = supabase.from('meetings').insert(meetingsWithUserId);
-      const supplyPromise = supabase.from('supplies').insert(suppliesWithUserId);
-      const expensePromise = supabase.from('expenses').insert(expensesWithUserId);
-      
-      // Wait for all promises to resolve
-      const [notesResult, meetingsResult, suppliesResult, expensesResult] = await Promise.all([
-        notePromise, meetingPromise, supplyPromise, expensePromise
+      // Insert data into all tables in parallel
+      const [
+        notesResult, 
+        meetingsResult, 
+        suppliesResult, 
+        expensesResult,
+        planningResult,
+        fundingResult,
+        shoppingResult,
+        feedbackResult,
+        communicationsResult
+      ] = await Promise.all([
+        supabase.from('notes').insert(notesWithUserId),
+        supabase.from('meetings').insert(meetingsWithUserId),
+        supabase.from('supplies').insert(suppliesWithUserId),
+        supabase.from('expenses').insert(expensesWithUserId),
+        supabase.from('planning_events').insert(planningEventsWithUserId),
+        supabase.from('funding_sources').insert(fundingSourcesWithUserId),
+        supabase.from('shopping_list').insert(shoppingListWithUserId),
+        supabase.from('feedback').insert(feedbackWithUserId),
+        supabase.from('admin_communications').insert(adminCommunicationsWithUserId)
       ]);
       
       // Check if any errors occurred
@@ -321,27 +642,45 @@ export function SeedDataButton() {
       if (meetingsResult.error) errors.push(`Meetings: ${meetingsResult.error.message}`);
       if (suppliesResult.error) errors.push(`Supplies: ${suppliesResult.error.message}`);
       if (expensesResult.error) errors.push(`Expenses: ${expensesResult.error.message}`);
+      if (planningResult.error) errors.push(`Planning Events: ${planningResult.error.message}`);
+      if (fundingResult.error) errors.push(`Funding Sources: ${fundingResult.error.message}`);
+      if (shoppingResult.error) errors.push(`Shopping List: ${shoppingResult.error.message}`);
+      if (feedbackResult.error) errors.push(`Feedback: ${feedbackResult.error.message}`);
+      if (communicationsResult.error) errors.push(`Communications: ${communicationsResult.error.message}`);
       
       if (errors.length > 0) {
-        throw new Error(`Errors occurred while seeding data: ${errors.join(', ')}`);
+        console.warn("Some seeding operations had errors:", errors);
+        toast({
+          title: "Partial Success",
+          description: `Mock data seeded with some warnings. Check console for details.`,
+          variant: "default",
+        });
+      } else {
+        toast({
+          title: "Success!",
+          description: "Comprehensive mock data has been successfully seeded across all modules!",
+        });
       }
       
       // Invalidate queries to refresh UI data across the app
-      queryClient.invalidateQueries({ queryKey: ['notes'] });
-      queryClient.invalidateQueries({ queryKey: ['meetings'] });
-      queryClient.invalidateQueries({ queryKey: ['supplies'] });
-      queryClient.invalidateQueries({ queryKey: ['expenses'] });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['notes'] }),
+        queryClient.invalidateQueries({ queryKey: ['meetings'] }),
+        queryClient.invalidateQueries({ queryKey: ['supplies'] }),
+        queryClient.invalidateQueries({ queryKey: ['expenses'] }),
+        queryClient.invalidateQueries({ queryKey: ['planning_events'] }),
+        queryClient.invalidateQueries({ queryKey: ['funding_sources'] }),
+        queryClient.invalidateQueries({ queryKey: ['funding_expenditures'] }),
+        queryClient.invalidateQueries({ queryKey: ['shopping_list'] }),
+        queryClient.invalidateQueries({ queryKey: ['feedback'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin_communications'] })
+      ]);
       
       // Create a custom event that other components can listen for
       const seedDataEvent = new CustomEvent('seedDataCompleted', { detail: { userId: user.id } });
       window.dispatchEvent(seedDataEvent);
       
-      toast({
-        title: "Success!",
-        description: "Mock data has been successfully added to all tables in your account.",
-      });
-      
-      console.log("Successfully seeded mock data!");
+      console.log("Successfully seeded comprehensive mock data!");
     } catch (error) {
       console.error("Error seeding data:", error);
       toast({
