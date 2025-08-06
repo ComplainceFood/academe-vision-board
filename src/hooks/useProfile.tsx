@@ -68,11 +68,8 @@ export function useProfile() {
 
       if (error) throw error;
 
-      // Immediately update local state before refetching
+      // Immediately update local state
       setProfile(prev => prev ? { ...prev, ...updates } : null);
-      
-      // Also trigger a refetch to ensure consistency
-      await fetchProfile();
       
       return { success: true };
     } catch (error) {
