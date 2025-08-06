@@ -60,17 +60,28 @@ const SettingsPage = () => {
   // Auto-save functionality with debouncing and status
   const debouncedUpdate = useCallback(
     (() => {
-      let timeoutId: NodeJS.Timeout;
+      let saveTimeoutId: NodeJS.Timeout;
+      let statusTimeoutId: NodeJS.Timeout;
+      
       return (updates: any) => {
         setAutoSaveStatus('saving');
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(async () => {
+        
+        // Clear existing timeouts
+        clearTimeout(saveTimeoutId);
+        clearTimeout(statusTimeoutId);
+        
+        saveTimeoutId = setTimeout(async () => {
           if (user) {
             try {
               await updateProfile(updates);
               setAutoSaveStatus('saved');
-              setTimeout(() => setAutoSaveStatus('idle'), 2000); // Clear "saved" status after 2 seconds
+              
+              // Clear "saved" status after 2 seconds
+              statusTimeoutId = setTimeout(() => {
+                setAutoSaveStatus('idle');
+              }, 2000);
             } catch (error) {
+              console.error('Auto-save error:', error);
               setAutoSaveStatus('idle');
             }
           }
