@@ -7,6 +7,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+
 serve(async (req) => {
   console.log(`${req.method} request received`);
   
@@ -72,45 +74,10 @@ serve(async (req) => {
       shopping: dataContext.shopping.length
     });
 
-    // Generate insights based on data (no OpenAI needed)
-    const insights = {
-      insights: [
-        {
-          title: "Review Meeting Follow-ups",
-          description: `You have ${dataContext.meetings.length} meetings recorded. Consider reviewing action items and follow-up tasks.`,
-          action: "Go through your meeting notes and create tasks for any pending action items",
-          priority: dataContext.meetings.length > 5 ? "high" : "medium",
-          category: "meetings"
-        },
-        {
-          title: "Inventory Management",
-          description: `Track ${dataContext.supplies.length} supply items. ${dataContext.supplies.filter(s => s.current_count <= s.threshold).length} items may need restocking.`,
-          action: dataContext.supplies.filter(s => s.current_count <= s.threshold).length > 0 
-            ? "Check and restock low inventory items" 
-            : "Continue monitoring inventory levels",
-          priority: dataContext.supplies.filter(s => s.current_count <= s.threshold).length > 0 ? "high" : "low",
-          category: "supplies"
-        },
-        {
-          title: "Task Organization",
-          description: `${dataContext.events.filter(e => e.type === 'task' && !e.completed).length} pending tasks and ${dataContext.events.length} total events planned.`,
-          action: "Review and prioritize your upcoming tasks and deadlines",
-          priority: dataContext.events.filter(e => e.type === 'task' && !e.completed).length > 3 ? "high" : "medium",
-          category: "tasks"
-        },
-        {
-          title: "Shopping List Review",
-          description: `${dataContext.shopping.filter(s => !s.purchased).length} items in your shopping list awaiting purchase.`,
-          action: dataContext.shopping.filter(s => !s.purchased).length > 0 
-            ? "Review and purchase pending shopping list items" 
-            : "Your shopping list is up to date",
-          priority: dataContext.shopping.filter(s => !s.purchased).length > 5 ? "medium" : "low",
-          category: "supplies"
-        }
-      ]
-    };
+    // Generate AI-powered insights using Gemini
+    const insights = await generateAIInsights(dataContext);
 
-    console.log('Generated insights successfully');
+    console.log('Generated AI insights successfully');
     
     return new Response(JSON.stringify(insights), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -119,28 +86,280 @@ serve(async (req) => {
   } catch (error) {
     console.error('Function error:', error);
     
-    // Always return fallback insights on any error
-    const fallbackInsights = {
-      insights: [
-        {
-          title: "System Ready",
-          description: "Your academia management system is ready to help you stay organized",
-          action: "Start by adding some notes, meetings, or supplies to get personalized insights",
-          priority: "low",
-          category: "system"
-        },
-        {
-          title: "Explore Features",
-          description: "Take advantage of the planning, supplies, and meeting management tools",
-          action: "Visit different sections to familiarize yourself with available features",
-          priority: "low",
-          category: "system"
-        }
-      ]
-    };
-    
-    return new Response(JSON.stringify(fallbackInsights), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    // Try to generate fallback insights with basic analysis
+    try {
+      const { data } = await req.json().catch(() => ({}));
+      const fallbackInsights = await generateFallbackInsights(data);
+      return new Response(JSON.stringify(fallbackInsights), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    } catch (fallbackError) {
+      console.error('Fallback insights failed:', fallbackError);
+      return generateBasicFallback();
+    }
   }
 });
+
+// Generate AI insights using Gemini API
+async function generateAIInsights(dataContext: any) {
+  if (!GEMINI_API_KEY) {
+    console.log('No Gemini API key, using fallback insights');
+    return generateFallbackInsights(dataContext);
+  }
+
+  try {
+    // Prepare data summary for AI analysis
+    const dataSummary = createDataSummary(dataContext);
+    
+    const prompt = `As an AI assistant for academic professionals, analyze the following data and generate 3-5 actionable insights. Focus on productivity, time management, resource optimization, and academic excellence.
+
+Data Summary:
+${dataSummary}
+
+Generate insights in JSON format with this structure:
+{
+  "insights": [
+    {
+      "title": "Brief insight title",
+      "description": "Detailed description of the insight",
+      "action": "Specific actionable recommendation",
+      "priority": "high|medium|low",
+      "category": "meetings|supplies|tasks|planning|productivity"
+    }
+  ]
+}
+
+Guidelines:
+- Be specific and actionable
+- Focus on productivity improvements
+- Identify patterns and trends
+- Suggest concrete next steps
+- Prioritize based on urgency and impact
+- Keep descriptions concise but informative`;
+
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{
+            text: prompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Gemini API error: ${response.status}`);
+    }
+
+    const result = await response.json();
+    const generatedText = result.candidates[0]?.content?.parts[0]?.text;
+    
+    if (!generatedText) {
+      throw new Error('No content generated from Gemini');
+    }
+
+    // Parse the JSON response from Gemini
+    const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error('No valid JSON found in Gemini response');
+    }
+
+    const insights = JSON.parse(jsonMatch[0]);
+    console.log('Gemini insights generated successfully');
+    return insights;
+
+  } catch (error) {
+    console.error('Gemini API error:', error);
+    return generateFallbackInsights(dataContext);
+  }
+}
+
+// Create a comprehensive data summary for AI analysis
+function createDataSummary(dataContext: any) {
+  const { notes, meetings, supplies, events, shopping } = dataContext;
+  
+  // Analyze notes
+  const noteStats = {
+    total: notes.length,
+    active: notes.filter((n: any) => n.status === 'active').length,
+    urgent: notes.filter((n: any) => n.priority === 'urgent').length,
+    commitments: notes.filter((n: any) => n.type === 'commitment').length,
+    recent: notes.filter((n: any) => {
+      const created = new Date(n.created_at);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return created > weekAgo;
+    }).length
+  };
+
+  // Analyze meetings
+  const meetingStats = {
+    total: meetings.length,
+    upcoming: meetings.filter((m: any) => new Date(m.start_date) > new Date()).length,
+    withActionItems: meetings.filter((m: any) => m.action_items && m.action_items.length > 0).length,
+    recurring: meetings.filter((m: any) => m.is_recurring).length
+  };
+
+  // Analyze supplies
+  const supplyStats = {
+    total: supplies.length,
+    lowStock: supplies.filter((s: any) => s.current_count <= s.threshold).length,
+    categories: [...new Set(supplies.map((s: any) => s.category))],
+    totalValue: supplies.reduce((sum: number, s: any) => sum + (s.cost * s.current_count), 0)
+  };
+
+  // Analyze events and tasks
+  const eventStats = {
+    total: events.length,
+    upcoming: events.filter((e: any) => new Date(e.date) > new Date()).length,
+    overdue: events.filter((e: any) => new Date(e.date) < new Date() && !e.completed).length,
+    urgent: events.filter((e: any) => e.priority === 'urgent').length
+  };
+
+  // Analyze shopping list
+  const shoppingStats = {
+    total: shopping.length,
+    pending: shopping.filter((s: any) => !s.purchased).length,
+    highPriority: shopping.filter((s: any) => s.priority === 'high').length
+  };
+
+  return `
+NOTES & COMMITMENTS:
+- Total notes: ${noteStats.total}
+- Active notes: ${noteStats.active}
+- Urgent items: ${noteStats.urgent}
+- Commitments: ${noteStats.commitments}
+- Recent notes (last 7 days): ${noteStats.recent}
+
+MEETINGS:
+- Total meetings: ${meetingStats.total}
+- Upcoming meetings: ${meetingStats.upcoming}
+- Meetings with action items: ${meetingStats.withActionItems}
+- Recurring meetings: ${meetingStats.recurring}
+
+SUPPLIES & INVENTORY:
+- Total supply items: ${supplyStats.total}
+- Low stock items: ${supplyStats.lowStock}
+- Supply categories: ${supplyStats.categories.join(', ')}
+- Total inventory value: $${supplyStats.totalValue.toFixed(2)}
+
+PLANNING & TASKS:
+- Total events/tasks: ${eventStats.total}
+- Upcoming events: ${eventStats.upcoming}
+- Overdue tasks: ${eventStats.overdue}
+- Urgent tasks: ${eventStats.urgent}
+
+SHOPPING LIST:
+- Total items: ${shoppingStats.total}
+- Pending purchases: ${shoppingStats.pending}
+- High priority items: ${shoppingStats.highPriority}
+
+RECENT ACTIVITY PATTERNS:
+${notes.length > 0 ? `- Most recent note: ${notes[0]?.title || 'N/A'}` : '- No notes recorded'}
+${meetings.length > 0 ? `- Next meeting: ${meetings.find((m: any) => new Date(m.start_date) > new Date())?.title || 'None scheduled'}` : '- No meetings scheduled'}
+${supplies.length > 0 && supplyStats.lowStock > 0 ? `- Supplies needing attention: ${supplies.filter((s: any) => s.current_count <= s.threshold).map((s: any) => s.name).join(', ')}` : '- All supplies adequately stocked'}
+  `;
+}
+
+// Generate fallback insights when AI is unavailable
+function generateFallbackInsights(dataContext: any) {
+  const { notes, meetings, supplies, events, shopping } = dataContext || {};
+  
+  const insights = [];
+
+  // Meeting insights
+  if (meetings?.length > 0) {
+    const upcomingMeetings = meetings.filter((m: any) => new Date(m.start_date) > new Date());
+    const actionItems = meetings.filter((m: any) => m.action_items && m.action_items.length > 0);
+    
+    insights.push({
+      title: "Meeting Management Review",
+      description: `You have ${meetings.length} meetings recorded with ${upcomingMeetings.length} upcoming. ${actionItems.length} meetings have pending action items.`,
+      action: actionItems.length > 0 ? "Review and follow up on pending action items from recent meetings" : "Continue maintaining good meeting documentation",
+      priority: actionItems.length > 2 ? "high" : "medium",
+      category: "meetings"
+    });
+  }
+
+  // Supply insights
+  if (supplies?.length > 0) {
+    const lowStock = supplies.filter((s: any) => s.current_count <= s.threshold);
+    insights.push({
+      title: "Inventory Status Check",
+      description: `Monitoring ${supplies.length} supply items. ${lowStock.length} items are at or below restock threshold.`,
+      action: lowStock.length > 0 ? `Restock the following items: ${lowStock.map((s: any) => s.name).slice(0, 3).join(', ')}` : "Inventory levels are healthy",
+      priority: lowStock.length > 0 ? "high" : "low",
+      category: "supplies"
+    });
+  }
+
+  // Task insights
+  if (events?.length > 0) {
+    const overdue = events.filter((e: any) => new Date(e.date) < new Date() && !e.completed);
+    const urgent = events.filter((e: any) => e.priority === 'urgent' && !e.completed);
+    
+    insights.push({
+      title: "Task & Event Planning",
+      description: `${events.length} total events planned. ${overdue.length} overdue tasks, ${urgent.length} urgent items pending.`,
+      action: overdue.length > 0 ? "Address overdue tasks immediately" : "Review upcoming deadlines and priorities",
+      priority: overdue.length > 0 ? "high" : "medium",
+      category: "tasks"
+    });
+  }
+
+  // Notes insights
+  if (notes?.length > 0) {
+    const activeCommitments = notes.filter((n: any) => n.type === 'commitment' && n.status === 'active');
+    const urgentNotes = notes.filter((n: any) => n.priority === 'urgent');
+    
+    insights.push({
+      title: "Notes & Commitments Review",
+      description: `${notes.length} notes recorded with ${activeCommitments.length} active commitments and ${urgentNotes.length} urgent items.`,
+      action: urgentNotes.length > 0 ? "Review and address urgent notes and commitments" : "Continue documenting important information",
+      priority: urgentNotes.length > 0 ? "high" : "medium",
+      category: "productivity"
+    });
+  }
+
+  // Default insight if no data
+  if (insights.length === 0) {
+    insights.push({
+      title: "Getting Started",
+      description: "Your academic management system is ready to help you stay organized and productive.",
+      action: "Start by adding some notes, scheduling meetings, or tracking supplies to get personalized insights",
+      priority: "low",
+      category: "system"
+    });
+  }
+
+  return { insights };
+}
+
+// Generate basic fallback when everything else fails
+function generateBasicFallback() {
+  const basicInsights = {
+    insights: [
+      {
+        title: "System Ready",
+        description: "Your academia management system is ready to help you stay organized",
+        action: "Start by adding some data to get personalized insights",
+        priority: "low",
+        category: "system"
+      }
+    ]
+  };
+  
+  return new Response(JSON.stringify(basicInsights), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
