@@ -98,7 +98,7 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
     try {
       setIsLoading(true);
       const redirectTo = `${window.location.origin}/planning?google_connected=1`;
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
           scopes: 'openid email profile https://www.googleapis.com/auth/calendar',
@@ -108,10 +108,21 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
             prompt: 'consent',
             include_granted_scopes: 'true',
           },
+          // Prevent redirect inside the Lovable iframe to avoid
+          // "accounts.google.com refused to connect"
+          skipBrowserRedirect: true,
         },
       });
       if (error) throw error;
-      // Redirect will occur automatically
+
+      // Redirect the TOP window to the provider URL
+      if (data?.url) {
+        if (window.top) {
+          (window.top as Window).location.href = data.url;
+        } else {
+          window.location.href = data.url;
+        }
+      }
     } catch (e: any) {
       toast({
         title: "Connection failed",
