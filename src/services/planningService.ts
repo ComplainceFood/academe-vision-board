@@ -8,6 +8,7 @@ export interface PlanningEvent {
   title: string;
   date: string;
   time?: string;
+  end_time?: string;
   type: string;
   course?: string;
   description?: string;
@@ -15,6 +16,10 @@ export interface PlanningEvent {
   completed?: boolean;
   user_id?: string;
   created_at?: string;
+  location?: string;
+  external_id?: string;
+  external_source?: string;
+  is_synced?: boolean;
 }
 
 export interface FutureTask {

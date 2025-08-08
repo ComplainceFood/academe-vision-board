@@ -37,21 +37,26 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
         .from('google_calendar_integration')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle(); // Use maybeSingle to avoid 406 errors from duplicate records
 
-      if (error && error.code !== 'PGRST116') {
+      if (error) {
         console.error('Error checking Google Calendar integration status:', error);
+        // Show user-friendly error for common cases
+        if (error.code === 'PGRST116') {
+          // No integration found - this is normal for first-time users
+          console.log('No Google Calendar integration found for user');
+        }
         return;
       }
 
       if (data) {
-        setIsConnected(true);
+        setIsConnected(data.is_active || false);
         setLastSync(data.last_sync);
         setAccessToken(data.access_token || '');
         setRefreshToken(data.refresh_token || '');
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error('Unexpected error checking integration status:', error);
     }
   };
   // Capture provider tokens after OAuth and save to DB
@@ -212,19 +217,30 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
         throw error;
       }
 
-      // Update integration status
+      // Update integration status with proper conflict handling
       const { error: upsertError } = await supabase
         .from('google_calendar_integration')
-        .upsert({
-          user_id: user?.id,
-          access_token: accessToken.trim(),
-          refresh_token: refreshToken.trim(),
-          last_sync: new Date().toISOString(),
-          is_active: true
-        });
+        .upsert(
+          {
+            user_id: user?.id,
+            access_token: accessToken.trim(),
+            refresh_token: refreshToken.trim(),
+            last_sync: new Date().toISOString(),
+            is_active: true,
+            updated_at: new Date().toISOString(),
+          },
+          { 
+            onConflict: 'user_id' // Use the unique constraint we added
+          }
+        );
 
       if (upsertError) {
         console.error('Error updating integration:', upsertError);
+        toast({
+          title: "Update warning",
+          description: "Sync completed but failed to update integration status.",
+          variant: "destructive",
+        });
       }
 
       setIsConnected(true);
@@ -236,11 +252,25 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
       });
 
       onSyncComplete?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sync error:', error);
+      
+      // Provide specific error messages based on error type
+      let errorMessage = "Failed to sync with Google Calendar.";
+      if (error?.message?.includes('authorization')) {
+        errorMessage = "Authorization expired. Please reconnect Google Calendar.";
+        setIsConnected(false);
+        setAccessToken('');
+        setRefreshToken('');
+      } else if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error?.message?.includes('quota') || error?.message?.includes('rate')) {
+        errorMessage = "Google API rate limit reached. Please wait a few minutes and try again.";
+      }
+      
       toast({
         title: "Sync failed",
-        description: "Failed to sync with Google Calendar. Please check your credentials and try again.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

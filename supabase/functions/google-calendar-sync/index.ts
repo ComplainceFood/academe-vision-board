@@ -239,18 +239,17 @@ async function importFromGoogleCalendar(userId: string, accessToken: string, sup
         continue
       }
 
-      // Convert Google Calendar event to our format
+      // Convert Google Calendar event to our format - align with database schema
       const planningEvent = {
         user_id: userId,
         title: event.summary || 'Untitled Event',
         description: event.description || '',
-        start_date: new Date(startIso).toISOString().split('T')[0],
-        start_time: new Date(startIso).toTimeString().slice(0, 5),
+        date: new Date(startIso).toISOString().split('T')[0],  // Use 'date' not 'start_date'
+        time: new Date(startIso).toTimeString().slice(0, 5),   // Use 'time' not 'start_time'
         end_time: endIso ? new Date(endIso).toTimeString().slice(0, 5) : '',
         location: event.location || '',
         type: 'meeting' as const,
         priority: 'medium' as const,
-        status: 'scheduled' as const,
         external_id: event.id,
         external_source: 'google_calendar' as const,
         is_synced: true
@@ -298,11 +297,11 @@ async function exportToGoogleCalendar(userId: string, accessToken: string, supab
 
     for (const event of unsyncedEvents || []) {
       try {
-        // Create event in Google Calendar
-        const startDateTime = `${event.start_date}T${event.start_time || '00:00'}:00`
+        // Create event in Google Calendar - use correct field names
+        const startDateTime = `${event.date}T${event.time || '00:00'}:00`
         const endDateTime = event.end_time
-          ? `${event.start_date}T${event.end_time}:00`
-          : `${event.start_date}T${event.start_time || '00:00'}:00`
+          ? `${event.date}T${event.end_time}:00`
+          : `${event.date}T${event.time || '00:00'}:00`
 
         const googleEvent = {
           summary: event.title,
