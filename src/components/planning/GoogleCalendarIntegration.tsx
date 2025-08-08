@@ -189,10 +189,11 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
     }
   };
   const syncWithGoogleCalendar = async () => {
-    if (!accessToken.trim()) {
+    const token = accessToken?.trim();
+    if (!token) {
       toast({
-        title: "Access token required",
-        description: "Please enter your Google Calendar access token to sync.",
+        title: "Connect Google first",
+        description: "Click Connect Google to authorize calendar access.",
         variant: "destructive",
       });
       return;
@@ -297,102 +298,25 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
           </div>
         </div>
 
-        <Collapsible open={isSetupGuideVisible} onOpenChange={setIsSetupGuideVisible}>
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              Setup Guide
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-4 mt-4">
-            <div className="border rounded-lg p-4 space-y-3">
-              <h4 className="font-semibold">Google Calendar API Setup</h4>
-              <ol className="list-decimal list-inside space-y-2 text-sm">
-                <li>Go to <Button variant="link" className="p-0 h-auto" onClick={() => copyToClipboard("https://console.developers.google.com/")}>Google Cloud Console</Button></li>
-                <li>Create a new project or select an existing one</li>
-                <li>Enable the Google Calendar API</li>
-                <li>Create OAuth 2.0 credentials (Web application)</li>
-                <li>Add your domain to authorized origins</li>
-                <li>Use the OAuth playground to get access and refresh tokens</li>
-              </ol>
-              
-              <div className="mt-4">
-                <h5 className="font-medium mb-2">OAuth Playground Steps:</h5>
-                <ol className="list-decimal list-inside space-y-1 text-sm">
-                  <li>Visit <Button variant="link" className="p-0 h-auto" onClick={() => copyToClipboard("https://developers.google.com/oauthplayground/")}>OAuth 2.0 Playground</Button></li>
-                  <li>Select "Calendar API v3" and choose appropriate scopes</li>
-                  <li>Click "Authorize APIs" and sign in</li>
-                  <li>Exchange authorization code for tokens</li>
-                  <li>Copy the access token and refresh token below</li>
-                </ol>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+        <div className="rounded-md bg-muted/50 p-4 text-sm text-muted-foreground">
+          Use the Connect Google button above for one-click OAuth. No manual setup required.
+        </div>
 
-        {!isConnected ? (
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="access-token">Access Token</Label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  id="access-token"
-                  type="password"
-                  placeholder="Enter your Google Calendar access token"
-                  value={accessToken}
-                  onChange={(e) => setAccessToken(e.target.value)}
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => copyToClipboard(accessToken)}
-                  disabled={!accessToken}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <div>
-              <Label htmlFor="refresh-token">Refresh Token (Optional)</Label>
-              <div className="flex gap-2 mt-1">
-                <Input
-                  id="refresh-token"
-                  type="password"
-                  placeholder="Enter your refresh token for automatic renewal"
-                  value={refreshToken}
-                  onChange={(e) => setRefreshToken(e.target.value)}
-                />
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => copyToClipboard(refreshToken)}
-                  disabled={!refreshToken}
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-
-            <Button 
-              onClick={syncWithGoogleCalendar} 
-              disabled={isSyncing || isLoading || !accessToken.trim()}
-              className="w-full"
-            >
-              {isSyncing ? "Syncing..." : "Sync with Google Calendar"}
-            </Button>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            <Button 
-              onClick={syncWithGoogleCalendar} 
-              disabled={isSyncing || isLoading}
-              className="w-full"
-            >
-              {isSyncing ? "Syncing..." : "Sync now"}
-            </Button>
-          </div>
-        )}
+{isConnected ? (
+  <div className="space-y-4">
+    <Button 
+      onClick={syncWithGoogleCalendar} 
+      disabled={isSyncing || isLoading}
+      className="w-full"
+    >
+      {isSyncing ? "Syncing..." : "Sync now"}
+    </Button>
+  </div>
+) : (
+  <div className="text-sm text-muted-foreground">
+    Click "Connect Google" above to authorize access. Once connected, return here to sync your calendar.
+  </div>
+)}
 
         <div className="text-xs text-muted-foreground mt-4">
           <p><strong>Note:</strong> You can connect with one click using OAuth. Manual tokens are available above only for advanced troubleshooting.</p>

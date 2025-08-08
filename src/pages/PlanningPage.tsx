@@ -15,7 +15,7 @@ import {
 import { useState } from "react";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
-import { OutlookIntegration } from "@/components/planning/OutlookIntegration";
+import { OAuthOutlookIntegration } from "@/components/planning/OAuthOutlookIntegration";
 import { GoogleCalendarIntegration } from "@/components/planning/GoogleCalendarIntegration";
 import { PlanningCalendar } from "@/components/planning/PlanningCalendar";
 import { FutureTaskCard } from "@/components/planning/FutureTaskCard";
@@ -137,7 +137,7 @@ const PlanningPage = () => {
           <TabsContent value="calendar" className="mt-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <OutlookIntegration onSyncComplete={() => window.location.reload()} />
+                <OAuthOutlookIntegration onSyncComplete={() => window.location.reload()} />
                 <GoogleCalendarIntegration onSyncComplete={() => window.location.reload()} />
               </div>
               

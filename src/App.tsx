@@ -19,7 +19,7 @@ import FeedbackPage from "./pages/FeedbackPage";
 import CommunicationsPage from "./pages/CommunicationsPage";
 import AuthPage from "./pages/AuthPage";
 import { NotificationManager } from "@/components/notifications/NotificationPopup";
-
+import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
 // Create a query client with automatic data refresh configuration
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,6 +76,7 @@ const AppContent = () => {
   
   return (
     <>
+      <OAuthTokenCapture />
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
         <Route
