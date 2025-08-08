@@ -23,7 +23,7 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
   const [refreshToken, setRefreshToken] = useState('');
   const [isSetupGuideVisible, setIsSetupGuideVisible] = useState(false);
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, session } = useAuth();
 
   useEffect(() => {
     if (user) {
@@ -54,6 +54,106 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
       console.error('Error:', error);
     }
   };
+  // Capture provider tokens after OAuth and save to DB
+  useEffect(() => {
+    if (!session || !user) return;
+    const providerToken = (session as any).provider_token as string | null;
+    const providerRefreshToken = (session as any).provider_refresh_token as string | null;
+
+    if (providerToken && !accessToken) {
+      setAccessToken(providerToken);
+      setRefreshToken(providerRefreshToken || '');
+
+      (async () => {
+        try {
+          const { error } = await supabase
+            .from('google_calendar_integration')
+            .upsert(
+              {
+                user_id: user.id,
+                access_token: providerToken,
+                refresh_token: providerRefreshToken || null,
+                is_active: true,
+                updated_at: new Date().toISOString(),
+              } as any,
+              { onConflict: 'user_id' }
+            );
+
+          if (!error) {
+            setIsConnected(true);
+            toast({
+              title: "Google connected",
+              description: "Calendar access granted. You can now sync.",
+            });
+            checkIntegrationStatus();
+          }
+        } catch (e) {
+          console.error('Failed to save Google tokens', e);
+        }
+      })();
+    }
+  }, [session, user]);
+
+  const handleConnectGoogle = async () => {
+    try {
+      setIsLoading(true);
+      const redirectTo = `${window.location.origin}/planning?google_connected=1`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          scopes: 'openid email profile https://www.googleapis.com/auth/calendar',
+          redirectTo,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+            include_granted_scopes: 'true',
+          },
+        },
+      });
+      if (error) throw error;
+      // Redirect will occur automatically
+    } catch (e: any) {
+      toast({
+        title: "Connection failed",
+        description: e.message || "Could not start Google OAuth.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDisconnectGoogle = async () => {
+    try {
+      setIsLoading(true);
+      const { error } = await supabase
+        .from('google_calendar_integration')
+        .update({
+          is_active: false,
+          access_token: null,
+          refresh_token: null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq('user_id', user?.id);
+      if (error) throw error;
+
+      setIsConnected(false);
+      setAccessToken('');
+      setRefreshToken('');
+      toast({
+        title: "Disconnected",
+        description: "Google Calendar disconnected.",
+      });
+    } catch (e: any) {
+      toast({
+        title: "Failed to disconnect",
+        description: e.message || "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const copyToClipboard = async (text: string) => {
     try {
@@ -71,7 +171,6 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
       });
     }
   };
-
   const syncWithGoogleCalendar = async () => {
     if (!accessToken.trim()) {
       toast({
@@ -168,6 +267,17 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
               )}
             </div>
           </div>
+          <div className="flex gap-2">
+            {isConnected ? (
+              <Button variant="outline" onClick={handleDisconnectGoogle} disabled={isLoading || isSyncing}>
+                Disconnect
+              </Button>
+            ) : (
+              <Button onClick={handleConnectGoogle} disabled={isLoading}>
+                {isLoading ? "Connecting..." : "Connect Google"}
+              </Button>
+            )}
+          </div>
         </div>
 
         <Collapsible open={isSetupGuideVisible} onOpenChange={setIsSetupGuideVisible}>
@@ -203,60 +313,72 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
           </CollapsibleContent>
         </Collapsible>
 
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="access-token">Access Token</Label>
-            <div className="flex gap-2 mt-1">
-              <Input
-                id="access-token"
-                type="password"
-                placeholder="Enter your Google Calendar access token"
-                value={accessToken}
-                onChange={(e) => setAccessToken(e.target.value)}
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => copyToClipboard(accessToken)}
-                disabled={!accessToken}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+        {!isConnected ? (
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="access-token">Access Token</Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  id="access-token"
+                  type="password"
+                  placeholder="Enter your Google Calendar access token"
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.target.value)}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyToClipboard(accessToken)}
+                  disabled={!accessToken}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <div>
-            <Label htmlFor="refresh-token">Refresh Token (Optional)</Label>
-            <div className="flex gap-2 mt-1">
-              <Input
-                id="refresh-token"
-                type="password"
-                placeholder="Enter your refresh token for automatic renewal"
-                value={refreshToken}
-                onChange={(e) => setRefreshToken(e.target.value)}
-              />
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => copyToClipboard(refreshToken)}
-                disabled={!refreshToken}
-              >
-                <Copy className="h-4 w-4" />
-              </Button>
+            <div>
+              <Label htmlFor="refresh-token">Refresh Token (Optional)</Label>
+              <div className="flex gap-2 mt-1">
+                <Input
+                  id="refresh-token"
+                  type="password"
+                  placeholder="Enter your refresh token for automatic renewal"
+                  value={refreshToken}
+                  onChange={(e) => setRefreshToken(e.target.value)}
+                />
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => copyToClipboard(refreshToken)}
+                  disabled={!refreshToken}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
 
-          <Button 
-            onClick={syncWithGoogleCalendar} 
-            disabled={isSyncing || isLoading || !accessToken.trim()}
-            className="w-full"
-          >
-            {isSyncing ? "Syncing..." : "Sync with Google Calendar"}
-          </Button>
-        </div>
+            <Button 
+              onClick={syncWithGoogleCalendar} 
+              disabled={isSyncing || isLoading || !accessToken.trim()}
+              className="w-full"
+            >
+              {isSyncing ? "Syncing..." : "Sync with Google Calendar"}
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <Button 
+              onClick={syncWithGoogleCalendar} 
+              disabled={isSyncing || isLoading}
+              className="w-full"
+            >
+              {isSyncing ? "Syncing..." : "Sync now"}
+            </Button>
+          </div>
+        )}
 
         <div className="text-xs text-muted-foreground mt-4">
-          <p><strong>Note:</strong> This integration uses temporary access tokens for demonstration. In production, implement proper OAuth flow for enhanced security.</p>
+          <p><strong>Note:</strong> You can connect with one click using OAuth. Manual tokens are available above only for advanced troubleshooting.</p>
         </div>
       </CardContent>
     </Card>
