@@ -63,6 +63,8 @@ serve(async (req) => {
         .select('access_token, refresh_token, is_active')
         .eq('user_id', user.id)
         .eq('is_active', true)
+        .order('updated_at', { ascending: false })
+        .limit(1)
         .maybeSingle()
 
       if (integrationFetchError) {
@@ -105,14 +107,20 @@ serve(async (req) => {
     // Update integration record with the latest tokens and sync timestamp
     const { error: integrationUpsertError } = await supabase
       .from('google_calendar_integration')
-      .upsert({
-        user_id: user.id,
-        access_token: accessToken,
-        refresh_token: refreshToken || null,
-        last_sync: new Date().toISOString(),
-        is_active: true,
-        updated_at: new Date().toISOString(),
-      })
+      .upsert(
+        {
+          user_id: user.id,
+          access_token: accessToken,
+          refresh_token: refreshToken || null,
+          last_sync: new Date().toISOString(),
+          is_active: true,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: 'user_id',
+          ignoreDuplicates: false
+        }
+      )
 
     if (integrationUpsertError) {
       console.error('[GCal] Error updating integration record:', integrationUpsertError)

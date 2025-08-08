@@ -35,7 +35,10 @@ export const OAuthTokenCapture = () => {
                 updated_at: new Date().toISOString(),
                 last_sync: null,
               } as any,
-              { onConflict: "user_id" }
+              { 
+                onConflict: "user_id",
+                ignoreDuplicates: false
+              }
             );
 
           if (!error) {

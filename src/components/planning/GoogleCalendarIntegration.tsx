@@ -33,11 +33,14 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
 
   const checkIntegrationStatus = async () => {
     try {
+      // Get the most recent integration record for this user
       const { data, error } = await supabase
         .from('google_calendar_integration')
         .select('*')
         .eq('user_id', user?.id)
-        .maybeSingle(); // Use maybeSingle to avoid 406 errors from duplicate records
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error) {
         console.error('Error checking Google Calendar integration status:', error);
@@ -230,7 +233,8 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
             updated_at: new Date().toISOString(),
           },
           { 
-            onConflict: 'user_id' // Use the unique constraint we added
+            onConflict: 'user_id',
+            ignoreDuplicates: false
           }
         );
 
