@@ -108,19 +108,25 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
             prompt: 'consent',
             include_granted_scopes: 'true',
           },
-          // Prevent redirect inside the Lovable iframe to avoid
-          // "accounts.google.com refused to connect"
+          // Avoid redirecting inside the iframe; we'll handle it manually
           skipBrowserRedirect: true,
         },
       });
       if (error) throw error;
 
-      // Redirect the TOP window to the provider URL
-      if (data?.url) {
-        if (window.top) {
-          (window.top as Window).location.href = data.url;
-        } else {
-          window.location.href = data.url;
+      const providerUrl = data?.url;
+      if (providerUrl) {
+        try {
+          // If running inside an iframe, open a new tab to bypass sandbox restrictions
+          const inIframe = window.self !== window.top;
+          if (inIframe) {
+            window.open(providerUrl, '_blank', 'noopener,noreferrer');
+          } else {
+            window.location.assign(providerUrl);
+          }
+        } catch {
+          // Fallback if top navigation is blocked
+          window.open(providerUrl, '_blank', 'noopener,noreferrer');
         }
       }
     } catch (e: any) {
