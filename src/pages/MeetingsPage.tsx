@@ -293,7 +293,7 @@ const MeetingsPage = () => {
       
     // Filter by tab
     const matchesTab = 
-      (activeTab === "upcoming" && meeting.status === "scheduled") ||
+      (activeTab === "upcoming" && meeting.status === "scheduled" && new Date(meeting.start_date) >= new Date()) ||
       (activeTab === "past" && meeting.status === "completed") ||
       (activeTab === "all");
       
@@ -350,7 +350,7 @@ const MeetingsPage = () => {
                 <ArrowUp className="h-4 w-4" />
                 <span>Upcoming</span>
                 <span className="ml-1 text-xs bg-muted px-1.5 py-0.5 rounded-full">
-                  {(meetings || []).filter(m => m.status === "scheduled").length}
+                  {(meetings || []).filter(m => m.status === "scheduled" && new Date(m.start_date) >= new Date()).length}
                 </span>
               </TabsTrigger>
               <TabsTrigger value="past" className="flex items-center gap-1">
