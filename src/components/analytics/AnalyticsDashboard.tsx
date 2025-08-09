@@ -127,17 +127,24 @@ export const AnalyticsDashboard = () => {
       date.setDate(startDate.getDate() + i);
       const dateStr = date.toISOString().split('T')[0];
 
-      const dayNotes = notes?.filter(note => 
-        note.date && note.date.startsWith(dateStr)
-      ).length || 0;
+      const dayNotes = (notes || []).filter((note) => {
+        const dateSrc = note.due_date ?? note.created_at;
+        if (!dateSrc) return false;
+        const iso = new Date(dateSrc).toISOString().split('T')[0];
+        return iso === dateStr;
+      }).length || 0;
 
-      const dayMeetings = meetings?.filter(meeting => 
-        meeting.date && meeting.date.startsWith(dateStr)
-      ).length || 0;
+      const dayMeetings = (meetings || []).filter((meeting) => {
+        const mDate = meeting.start_date; // meetings table uses start_date (date)
+        return typeof mDate === 'string' && mDate.startsWith(dateStr);
+      }).length || 0;
 
-      const dayExpenses = expenses?.filter(expense => 
-        expense.date && expense.date.startsWith(dateStr)
-      ).length || 0;
+      const dayExpenses = (expenses || []).filter((expense) => {
+        const eDate = expense.date;
+        if (!eDate) return false;
+        const iso = new Date(eDate).toISOString().split('T')[0];
+        return iso === dateStr;
+      }).length || 0;
 
       trendData.push({
         date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),

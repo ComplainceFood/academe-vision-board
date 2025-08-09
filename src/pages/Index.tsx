@@ -56,7 +56,7 @@ const Index = () => {
   // Calculate stats
   const promiseCount = notes.filter((note: any) => note.type === 'commitment').length;
   const upcomingMeetings = meetings.filter((meeting: any) => 
-    meeting.status === 'scheduled' && new Date(meeting.date) > new Date()
+    meeting.status === 'scheduled' && new Date(meeting.start_date) > new Date()
   ).length;
   const lowSuppliesCount = supplies.filter((supply: any) => 
     supply.current_count <= supply.threshold
