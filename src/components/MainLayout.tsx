@@ -52,10 +52,16 @@ export function MainLayout({ children }: MainLayoutProps) {
         <AppSidebar />
         <div className="flex-1 flex flex-col">
           <header className="h-16 border-b px-6 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger />
-              <h1 className="text-xl font-semibold">Smart-Prof</h1>
-            </div>
+             <div className="flex items-center gap-3">
+               <SidebarTrigger />
+               <img
+                 src="/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+                 alt="Smart-Prof logo — Organize, Optimize, Excel"
+                 className="h-8 w-auto"
+                 loading="lazy"
+               />
+               <h1 className="sr-only">Smart-Prof — Organize, Optimize, Excel</h1>
+             </div>
             <div className="flex items-center gap-4">
               <GlobalSearch />
               <div className="flex items-center gap-2">
