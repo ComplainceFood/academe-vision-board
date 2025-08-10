@@ -122,19 +122,30 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
 
     setIsLoading(true);
 
-    // Create OAuth URL for calendar authorization only
-    const clientId = 'YOUR_GOOGLE_CLIENT_ID'; // This should come from environment
-    const redirectUri = `${window.location.origin}/auth/google/callback`;
+    // Fetch public OAuth config from edge function and build URL
+    const { data: cfg, error } = await supabase.functions.invoke('google-oauth-config', { body: {} });
+    if (error || !cfg?.clientId) {
+      toast({
+        title: 'Configuration error',
+        description: 'Google OAuth is not configured. Please try again later.',
+        variant: 'destructive',
+      });
+      setIsLoading(false);
+      return;
+    }
+
+    const clientId = cfg.clientId as string;
+    const redirectUri = (cfg.redirectUri as string) || `${window.location.origin}/auth/google/callback`;
     const scope = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
     
-    const oauthUrl = `https://accounts.google.com/oauth/authorize?` +
-      `client_id=${clientId}&` +
+    const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
+      `client_id=${encodeURIComponent(clientId)}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
-      `scope=${encodeURIComponent(scope)}&` +
       `response_type=code&` +
       `access_type=offline&` +
       `prompt=consent&` +
-      `state=${user.id}`;
+      `scope=${encodeURIComponent(scope)}&` +
+      `state=${encodeURIComponent(user.id)}`;
 
     // Open popup for OAuth
     const width = 500;

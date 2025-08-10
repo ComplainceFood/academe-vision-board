@@ -18,6 +18,7 @@ import SettingsPage from "./pages/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import CommunicationsPage from "./pages/CommunicationsPage";
 import AuthPage from "./pages/AuthPage";
+import GoogleOAuthCallback from "./pages/GoogleOAuthCallback";
 import { NotificationManager } from "@/components/notifications/NotificationPopup";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
 // Create a query client with automatic data refresh configuration
@@ -79,6 +80,7 @@ const AppContent = () => {
       <OAuthTokenCapture />
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route
           path="/"
           element={

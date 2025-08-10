@@ -1,6 +1,7 @@
 
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
 
 const GoogleOAuthCallback = () => {
   const [searchParams] = useSearchParams();
@@ -30,18 +31,13 @@ const GoogleOAuthCallback = () => {
 
   const exchangeCodeForTokens = async (code: string, userId: string) => {
     try {
-      // This should be handled by an edge function for security
-      const response = await fetch('/api/google-oauth-exchange', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code, userId }),
+      const { data, error } = await supabase.functions.invoke('google-oauth-exchange', {
+        body: { code, userId },
       });
 
-      const data = await response.json();
+      if (error) throw error;
 
-      if (data.success) {
+      if (data?.success) {
         // Send success message to parent window
         if (window.opener) {
           window.opener.postMessage({
@@ -52,7 +48,7 @@ const GoogleOAuthCallback = () => {
           window.close();
         }
       } else {
-        throw new Error(data.error || 'Failed to exchange code for tokens');
+        throw new Error(data?.error || 'Failed to exchange code for tokens');
       }
     } catch (error) {
       console.error('OAuth exchange error:', error);
