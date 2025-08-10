@@ -22,13 +22,23 @@ export const OAuthTokenCapture = () => {
 
     if (provider === "google" && providerToken) {
       savedRef.current = true; // prevent duplicate writes on rerenders
+
+      // See if we initiated a linking flow from an existing signed-in user
+      let original: any = null;
+      try {
+        const raw = localStorage.getItem('sp_original_session');
+        original = raw ? JSON.parse(raw) : null;
+      } catch {}
+
+      const targetUserId = original?.user_id || user.id;
+
       (async () => {
         try {
           const { error } = await supabase
             .from("google_calendar_integration")
             .upsert(
               {
-                user_id: user.id,
+                user_id: targetUserId,
                 access_token: providerToken,
                 refresh_token: providerRefreshToken || null,
                 is_active: true,
@@ -42,10 +52,33 @@ export const OAuthTokenCapture = () => {
             );
 
           if (!error) {
+            // If the OAuth flow switched us to the Google user, restore the original session
+            if (original && targetUserId !== user.id && original.access_token && original.refresh_token) {
+              try {
+                await supabase.auth.setSession({
+                  access_token: original.access_token,
+                  refresh_token: original.refresh_token,
+                });
+              } catch (err) {
+                console.error('Failed to restore original session', err);
+              }
+            }
+
+            // Notify main window and cleanup
+            try {
+              localStorage.setItem('sp_google_link_done', '1');
+              localStorage.removeItem('sp_original_session');
+            } catch {}
+
             toast({
               title: "Google connected",
               description: "Calendar access granted. You can now sync.",
             });
+
+            // Close popup if this runs inside it
+            if (window.opener && !window.opener.closed) {
+              window.close();
+            }
           }
         } catch (e) {
           console.error("Failed to persist Google tokens", e);

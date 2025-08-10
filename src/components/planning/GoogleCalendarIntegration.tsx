@@ -62,9 +62,35 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
       console.error('Unexpected error checking integration status:', error);
     }
   };
+
+  // Listen for completion flag from popup to refresh state without reloading
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'sp_google_link_done' && e.newValue === '1') {
+        // Clear the flag and refresh integration status
+        localStorage.removeItem('sp_google_link_done');
+        checkIntegrationStatus();
+        setIsConnected(true);
+        toast({
+          title: 'Google connected',
+          description: 'Calendar access granted. You can now sync.',
+        });
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   // Capture provider tokens after OAuth and save to DB
   useEffect(() => {
     if (!session || !user) return;
+
+    // If a linking flow is in progress, let the global OAuthTokenCapture handle persistence
+    try {
+      const hasOriginal = typeof window !== 'undefined' && !!localStorage.getItem('sp_original_session');
+      if (hasOriginal) return;
+    } catch {}
+
     const providerToken = (session as any).provider_token as string | null;
     const providerRefreshToken = (session as any).provider_refresh_token as string | null;
 
@@ -105,18 +131,40 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
   const handleConnectGoogle = async () => {
     try {
       setIsLoading(true);
-      const redirectTo = `${window.location.origin}/planning?google_connected=1`;
+
+      // Save the current Supabase session so we can restore it after Google OAuth
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      if (!currentSession || !user) {
+        toast({
+          title: 'Sign in required',
+          description: 'Please sign in to your account before connecting Google.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      try {
+        localStorage.setItem(
+          'sp_original_session',
+          JSON.stringify({
+            access_token: currentSession.access_token,
+            refresh_token: (currentSession as any).refresh_token,
+            user_id: user.id,
+            ts: Date.now(),
+          })
+        );
+      } catch {}
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          scopes: 'openid email profile https://www.googleapis.com/auth/calendar',
-          redirectTo,
+          scopes: 'openid email profile https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events',
+          redirectTo: window.location.origin,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
             include_granted_scopes: 'true',
           },
-          // Avoid redirecting inside the iframe; we'll handle it manually
           skipBrowserRedirect: true,
         },
       });
@@ -124,16 +172,17 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
 
       const providerUrl = data?.url;
       if (providerUrl) {
-        try {
-          // If running inside an iframe, open a new tab to bypass sandbox restrictions
-          const inIframe = window.self !== window.top;
-          if (inIframe) {
-            window.open(providerUrl, '_blank', 'noopener,noreferrer');
-          } else {
-            window.location.assign(providerUrl);
-          }
-        } catch {
-          // Fallback if top navigation is blocked
+        const width = 500;
+        const height = 650;
+        const left = window.screenX + Math.max(0, (window.outerWidth - width) / 2);
+        const top = window.screenY + Math.max(0, (window.outerHeight - height) / 2);
+        const popup = window.open(
+          providerUrl,
+          'google_oauth',
+          `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+        );
+        if (!popup) {
+          // Fallback if popups are blocked
           window.open(providerUrl, '_blank', 'noopener,noreferrer');
         }
       }
