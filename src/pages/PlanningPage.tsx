@@ -160,7 +160,10 @@ const PlanningPage = () => {
           <TabsContent value="calendar" className="mt-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <OAuthOutlookIntegration onSyncComplete={() => window.location.reload()} />
+                <OAuthOutlookIntegration onSyncComplete={() => {
+                  eventsQuery.refetch();
+                  toast({ title: "Outlook sync completed", description: "Calendar has been updated" });
+                }} />
                 <GoogleCalendarIntegration onSyncComplete={() => {
                   // Refresh events when sync completes and show feedback
                   eventsQuery.refetch();

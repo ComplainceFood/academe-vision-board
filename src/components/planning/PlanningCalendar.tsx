@@ -36,16 +36,14 @@ export function PlanningCalendar({
     setCurrentDate(new Date());
   };
   
-  // Sort events by date
-  const sortedEvents = [...events].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  );
+  // Sort events by date without timezone issues
+  const sortedEvents = [...events].sort((a, b) => a.date.localeCompare(b.date));
 
   // Filter events from the current month and the next 30 days
   const currentMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const nextMonthStart = addMonths(currentMonthStart, 1);
   const upcomingEvents = sortedEvents.filter(event => {
-    const eventDate = new Date(event.date);
+    const eventDate = new Date(`${event.date}T00:00:00`);
     return eventDate >= new Date();
   }).slice(0, 5);
   
