@@ -204,7 +204,9 @@ export const usePlanningEventActions = () => {
     mutationFn: (eventData: EventFormData) => 
       planningService.createEvent(eventData, user?.id || ''),
     onSuccess: () => {
+      // Force immediate cache invalidation and refetch
       queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+      queryClient.refetchQueries({ queryKey: ['planning-events'] });
     },
   });
 
@@ -213,6 +215,7 @@ export const usePlanningEventActions = () => {
       planningService.updateEvent(id, updates),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+      queryClient.refetchQueries({ queryKey: ['planning-events'] });
     },
   });
 
@@ -220,6 +223,7 @@ export const usePlanningEventActions = () => {
     mutationFn: (id: string) => planningService.deleteEvent(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+      queryClient.refetchQueries({ queryKey: ['planning-events'] });
     },
   });
 
@@ -228,6 +232,7 @@ export const usePlanningEventActions = () => {
       planningService.updateEvent(id, { completed }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['planning-events'] });
+      queryClient.refetchQueries({ queryKey: ['planning-events'] });
     },
   });
 

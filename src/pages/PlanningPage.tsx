@@ -13,6 +13,7 @@ import {
   ListTodo,
 } from "lucide-react";
 import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
 import { OAuthOutlookIntegration } from "@/components/planning/OAuthOutlookIntegration";
@@ -31,8 +32,11 @@ import {
 } from "@/services/planningService";
 
 const PlanningPage = () => {
+  const { toast } = useToast();
+  
   // Fetch planning data
-  const { data: eventsData = [], isLoading: eventsLoading } = usePlanningEvents();
+  const eventsQuery = usePlanningEvents();
+  const { data: eventsData = [], isLoading: eventsLoading } = eventsQuery;
   const { data: futureTasksData = [], isLoading: tasksLoading } = useFuturePlanning();
   
   // Ensure proper typing for our data
@@ -66,10 +70,29 @@ const PlanningPage = () => {
 
   // Handle event save
   const handleEventSave = async (eventData: EventFormData) => {
-    if (currentEvent?.id) {
-      await updatePlanningEvent({ id: currentEvent.id, updates: eventData });
-    } else {
-      await createPlanningEvent(eventData);
+    try {
+      if (currentEvent?.id) {
+        await updatePlanningEvent({ id: currentEvent.id, updates: eventData });
+        toast({ 
+          title: "Event updated successfully",
+          description: "Your event has been updated in the calendar"
+        });
+      } else {
+        await createPlanningEvent(eventData);
+        toast({ 
+          title: "Event created successfully",
+          description: "Your event has been added to the calendar"
+        });
+      }
+      // Force a refresh of events
+      eventsQuery.refetch();
+    } catch (error) {
+      console.error('Error saving event:', error);
+      toast({ 
+        title: "Failed to save event",
+        description: "Please check your details and try again",
+        variant: "destructive" 
+      });
     }
   };
 
@@ -138,7 +161,14 @@ const PlanningPage = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <OAuthOutlookIntegration onSyncComplete={() => window.location.reload()} />
-                <GoogleCalendarIntegration onSyncComplete={() => window.location.reload()} />
+                <GoogleCalendarIntegration onSyncComplete={() => {
+                  // Refresh events when sync completes and show feedback
+                  eventsQuery.refetch();
+                  toast({
+                    title: "Events refreshed",
+                    description: "Calendar has been updated with latest events"
+                  });
+                }} />
               </div>
               
               <Card className="glassmorphism">

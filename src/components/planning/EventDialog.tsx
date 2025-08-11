@@ -87,9 +87,13 @@ export function EventDialog({
     }
   }, [event, form]);
 
-  const handleSubmit = (data: EventFormData) => {
-    onSave(data);
-    onOpenChange(false);
+  const handleSubmit = async (data: EventFormData) => {
+    try {
+      await onSave(data);
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error saving event:', error);
+    }
   };
 
   return (
@@ -147,13 +151,11 @@ export function EventDialog({
                           selected={field.value ? new Date(field.value) : undefined}
                           onSelect={(date) => {
                             if (date) {
-                              // Ensure we're using UTC to avoid timezone issues
-                              const selectedDate = new Date(Date.UTC(
-                                date.getFullYear(), 
-                                date.getMonth(), 
-                                date.getDate()
-                              ));
-                              const dateString = selectedDate.toISOString().split('T')[0];
+                              // Fix timezone issue by using local date formatting
+                              const year = date.getFullYear();
+                              const month = String(date.getMonth() + 1).padStart(2, '0');
+                              const day = String(date.getDate()).padStart(2, '0');
+                              const dateString = `${year}-${month}-${day}`;
                               field.onChange(dateString);
                             }
                           }}

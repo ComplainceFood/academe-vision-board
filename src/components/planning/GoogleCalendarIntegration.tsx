@@ -230,25 +230,59 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
         throw error;
       }
 
-      setLastSync(new Date().toISOString());
+      // Update last sync time and check integration status
+      const newSyncTime = new Date().toISOString();
+      setLastSync(newSyncTime);
+      
+      // Detailed sync results
+      const imported = data?.imported || 0;
+      const exported = data?.exported || 0;
+      const total = data?.synced || (imported + exported);
+      
+      let description = `Sync completed successfully.`;
+      if (total > 0) {
+        description += ` Processed ${total} events`;
+        if (imported > 0 && exported > 0) {
+          description += ` (${imported} imported, ${exported} exported)`;
+        } else if (imported > 0) {
+          description += ` (${imported} imported from Google)`;
+        } else if (exported > 0) {
+          description += ` (${exported} exported to Google)`;
+        }
+        description += `.`;
+      } else {
+        description += ` No new events to sync.`;
+      }
       
       toast({
         title: "Sync completed",
-        description: `Successfully synced with Google Calendar. ${data?.synced || 0} events processed.`,
+        description,
       });
 
-      onSyncComplete?.();
+      // Trigger callback to refresh events list without page reload
+      if (onSyncComplete) {
+        onSyncComplete();
+      }
+      
+      // Re-check integration status to update UI
+      await checkIntegrationStatus();
+      
     } catch (error: any) {
       console.error('Sync error:', error);
       
       let errorMessage = "Failed to sync with Google Calendar.";
-      if (error?.message?.includes('authorization')) {
+      if (error?.message?.includes('authorization') || error?.message?.includes('Invalid authorization')) {
         errorMessage = "Authorization expired. Please reconnect Google Calendar.";
         setIsConnected(false);
+        setLastSync(null);
       } else if (error?.message?.includes('network') || error?.message?.includes('fetch')) {
         errorMessage = "Network error. Please check your connection and try again.";
       } else if (error?.message?.includes('quota') || error?.message?.includes('rate')) {
         errorMessage = "Google API rate limit reached. Please wait a few minutes and try again.";
+      } else if (error?.message?.includes('No Google tokens available')) {
+        errorMessage = "Google Calendar authorization is missing. Please reconnect.";
+        setIsConnected(false);
+        setLastSync(null);
       }
       
       toast({
