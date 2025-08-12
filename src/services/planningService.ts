@@ -63,9 +63,23 @@ export const planningService = {
   },
 
   async createEvent(event: Omit<PlanningEvent, 'id' | 'created_at'>, userId: string): Promise<PlanningEvent> {
-    const eventWithUserId = {
+    if (!userId) {
+      throw new Error('You are not signed in. Please sign in and try again.');
+    }
+
+    const normalizedEvent = {
       ...event,
-      user_id: userId
+      time: event.time?.trim() || null,
+      end_time: (event as any).end_time?.toString().trim() || null,
+      course: event.course?.trim() || null,
+      description: event.description?.trim() || null,
+      priority: event.priority || 'medium',
+      completed: event.completed ?? false,
+    };
+
+    const eventWithUserId = {
+      ...normalizedEvent,
+      user_id: userId,
     };
 
     const { data, error } = await supabase
@@ -75,7 +89,7 @@ export const planningService = {
       .single();
 
     if (error) throw error;
-    return data;
+    return data as PlanningEvent;
   },
 
   async updateEvent(id: string, updates: Partial<PlanningEvent>): Promise<PlanningEvent> {

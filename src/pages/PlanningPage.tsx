@@ -88,9 +88,10 @@ const PlanningPage = () => {
       eventsQuery.refetch();
     } catch (error) {
       console.error('Error saving event:', error);
+      const message = (error as any)?.message || 'Please check your details and try again';
       toast({ 
         title: "Failed to save event",
-        description: "Please check your details and try again",
+        description: message,
         variant: "destructive" 
       });
     }
