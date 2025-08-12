@@ -188,7 +188,7 @@ const SuppliesPage = () => {
     }
   };
   const handleUpdateStock = async () => {
-    if (!editingItem || updatedCount === editingItem.current_count || isProcessing) {
+    if (!editingItem || isProcessing) {
       setEditingItem(null);
       return;
     }
