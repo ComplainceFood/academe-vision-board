@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { ShoppingListDialog } from "@/components/supplies/ShoppingListDialog";
 import { AddToShoppingListDialog } from "@/components/supplies/AddToShoppingListDialog";
@@ -194,25 +194,37 @@ const SuppliesPage = () => {
     }
     try {
       setIsProcessing(true);
-      const {
-        error
-      } = await supabase.from('supplies').update({
-        current_count: updatedCount,
-        last_restocked: new Date().toISOString()
-      }).eq('id', editingItem.id);
+
+      if (!editingItem) throw new Error('No item selected');
+
+      // Validate and clamp the value
+      let nextCount = Number.isFinite(updatedCount) ? Math.round(updatedCount) : NaN;
+      if (Number.isNaN(nextCount)) {
+        toast({ title: 'Invalid value', description: 'Please enter a valid number', variant: 'destructive' });
+        return;
+      }
+      if (nextCount < 0) nextCount = 0;
+      if (typeof editingItem.total_count === 'number') {
+        nextCount = Math.min(nextCount, editingItem.total_count);
+      }
+
+      console.log('Updating stock for', editingItem.id, 'to', nextCount);
+
+      const { error } = await supabase
+        .from('supplies')
+        .update({
+          current_count: nextCount,
+          last_restocked: new Date().toISOString(),
+        })
+        .eq('id', editingItem.id);
+
       if (error) throw error;
-      toast({
-        title: "Success",
-        description: "Stock updated successfully"
-      });
+
+      toast({ title: 'Success', description: 'Stock updated successfully' });
       triggerRefresh('supplies');
     } catch (error) {
-      console.error("Error updating stock:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update stock",
-        variant: "destructive"
-      });
+      console.error('Error updating stock:', error);
+      toast({ title: 'Error', description: 'Failed to update stock', variant: 'destructive' });
     } finally {
       setEditingItem(null);
       setUpdatedCount(0);
@@ -406,32 +418,40 @@ const SuppliesPage = () => {
         </AlertDialogContent>
       </AlertDialog>
       
-      <Popover open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)}>
-        <PopoverContent className="w-80">
-          <div className="grid gap-4">
-            <div className="space-y-2">
-              <h4 className="font-medium leading-none">Update Stock</h4>
-              <p className="text-sm text-muted-foreground">
-                Update the current stock level for {editingItem?.name}
-              </p>
-            </div>
-            <div className="grid gap-2">
-              <div className="grid grid-cols-3 items-center gap-4">
-                <label htmlFor="current">Current Count:</label>
-                <Input id="current" type="number" className="col-span-2" value={updatedCount} onChange={e => setUpdatedCount(Number(e.target.value))} max={editingItem?.total_count || 0} min={0} disabled={isProcessing} />
-              </div>
-              <div className="flex justify-between mt-4">
-                <Button variant="outline" onClick={() => setEditingItem(null)} disabled={isProcessing}>
-                  Cancel
-                </Button>
-                <Button onClick={handleUpdateStock} disabled={isProcessing}>
-                  {isProcessing ? 'Saving...' : 'Save Changes'}
-                </Button>
-              </div>
+      <Dialog open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Update Stock</DialogTitle>
+            <DialogDescription>
+              Update the current stock level for {editingItem?.name}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-2 py-2">
+            <div className="grid grid-cols-3 items-center gap-4">
+              <label htmlFor="current">Current Count:</label>
+              <Input
+                id="current"
+                type="number"
+                inputMode="numeric"
+                className="col-span-2"
+                value={Number.isFinite(updatedCount) ? updatedCount : 0}
+                onChange={e => setUpdatedCount(Number(e.target.value))}
+                max={editingItem?.total_count ?? undefined}
+                min={0}
+                disabled={isProcessing}
+              />
             </div>
           </div>
-        </PopoverContent>
-      </Popover>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditingItem(null)} disabled={isProcessing}>
+              Cancel
+            </Button>
+            <Button onClick={handleUpdateStock} disabled={isProcessing || Number.isNaN(updatedCount)}>
+              {isProcessing ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       
       {/* Shopping list dialog */}
       <ShoppingListDialog open={isShoppingListOpen} onOpenChange={setIsShoppingListOpen} />
