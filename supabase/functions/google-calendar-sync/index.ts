@@ -203,6 +203,24 @@ async function safeText(r: Response) {
   try { return await r.text() } catch { return '' }
 }
 
+// Fetch the primary calendar's time zone to use when creating events
+async function getPrimaryCalendarTimeZone(accessToken: string): Promise<string> {
+  try {
+    const resp = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary', {
+      headers: { 'Authorization': `Bearer ${accessToken}` }
+    })
+    if (!resp.ok) {
+      console.warn('[GCal] Could not fetch primary calendar timezone:', resp.status, await safeText(resp))
+      return 'UTC'
+    }
+    const json = await resp.json()
+    return json.timeZone || 'UTC'
+  } catch (e) {
+    console.warn('[GCal] Error determining calendar timezone, defaulting to UTC:', e)
+    return 'UTC'
+  }
+}
+
 async function importFromGoogleCalendar(userId: string, accessToken: string, supabase: SupabaseClient) {
   try {
     // Get events from Google Calendar
@@ -306,8 +324,9 @@ async function exportToGoogleCalendar(userId: string, accessToken: string, supab
     console.log(`[GCal] Export: Found ${unsyncedEvents?.length || 0} unsynced events`)
 
     const exportedEvents: any[] = []
+    const calendarTimeZone = await getPrimaryCalendarTimeZone(accessToken)
 
-    for (const event of unsyncedEvents || []) {
+    for (const event of (unsyncedEvents || [])) {
       try {
         // Create event in Google Calendar - use correct field names
         const startDateTime = `${event.date}T${event.time || '00:00'}:00`
@@ -319,8 +338,8 @@ async function exportToGoogleCalendar(userId: string, accessToken: string, supab
           summary: event.title,
           description: event.description || '',
           location: event.location || '',
-          start: { dateTime: startDateTime },
-          end: { dateTime: endDateTime },
+          start: { dateTime: startDateTime, timeZone: calendarTimeZone },
+          end: { dateTime: endDateTime, timeZone: calendarTimeZone },
         }
 
         const createResponse = await fetch(
