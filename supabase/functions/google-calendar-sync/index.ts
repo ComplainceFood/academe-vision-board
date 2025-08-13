@@ -232,8 +232,8 @@ async function importFromGoogleCalendar(userId: string, accessToken: string, sup
       if (!event.start || (!event.start.dateTime && !event.start.date)) continue
 
       // Normalize start/end to dateTime if all-day
-      const startIso = event.start.dateTime ? new Date(event.start.dateTime).toISOString() : `${event.start.date}T00:00:00.000Z`
-      const endIso = event.end?.dateTime ? new Date(event.end.dateTime).toISOString() : (event.end?.date ? `${event.end.date}T23:59:00.000Z` : startIso)
+      const startStr: string = event.start.dateTime || (event.start.date ? `${event.start.date}T00:00:00` : '')
+      const endStr: string = event.end?.dateTime || (event.end?.date ? `${event.end.date}T23:59:00` : startStr)
 
       // Check if event already exists
       const { data: existingEvent } = await supabase
@@ -247,14 +247,18 @@ async function importFromGoogleCalendar(userId: string, accessToken: string, sup
         continue
       }
 
-      // Convert Google Calendar event to our format - align with database schema
+      // Convert Google Calendar event to our format - preserve wall-clock time from event timezone
+      const datePart = startStr ? startStr.slice(0, 10) : null;
+      const timeMatch = startStr ? startStr.match(/T(\d{2}:\d{2})/) : null;
+      const endTimeMatch = endStr ? endStr.match(/T(\d{2}:\d{2})/) : null;
+
       const planningEvent = {
         user_id: userId,
         title: event.summary || 'Untitled Event',
         description: event.description || '',
-        date: new Date(startIso).toISOString().split('T')[0],  // Use 'date' not 'start_date'
-        time: new Date(startIso).toTimeString().slice(0, 5),   // Use 'time' not 'start_time'
-        end_time: endIso ? new Date(endIso).toTimeString().slice(0, 5) : '',
+        date: datePart,
+        time: timeMatch ? timeMatch[1] : null,
+        end_time: endTimeMatch ? endTimeMatch[1] : null,
         location: event.location || '',
         type: 'meeting' as const,
         priority: 'medium' as const,
@@ -315,8 +319,8 @@ async function exportToGoogleCalendar(userId: string, accessToken: string, supab
           summary: event.title,
           description: event.description || '',
           location: event.location || '',
-          start: { dateTime: startDateTime, timeZone: 'UTC' },
-          end: { dateTime: endDateTime, timeZone: 'UTC' },
+          start: { dateTime: startDateTime },
+          end: { dateTime: endDateTime },
         }
 
         const createResponse = await fetch(

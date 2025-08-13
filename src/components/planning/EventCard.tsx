@@ -44,7 +44,7 @@ export function EventCard({ event, onEdit, onDelete, onToggleCompletion }: Event
     meeting: <Clock className="h-4 w-4" />
   };
 
-  const formattedDate = format(new Date(event.date), "PPP");
+  const formattedDate = format(new Date(`${event.date}T00:00:00`), "PPP");
   
   return (
     <Card className={`mb-3 border-l-4 ${event.type === 'deadline' ? 'border-l-destructive' : event.type === 'event' ? 'border-l-secondary' : event.type === 'task' ? 'border-l-accent' : 'border-l-primary'} glassmorphism`}>
