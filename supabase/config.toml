@@ -62,6 +62,15 @@ verify_jwt = true
 [functions.outlook-sync]
 verify_jwt = true
 
+[functions.outlook-oauth-config]
+verify_jwt = false
+
+[functions.outlook-oauth-exchange] 
+verify_jwt = false
+
+[functions.outlook-calendar-sync]
+verify_jwt = true
+
 [functions.send-notification]
 verify_jwt = true
 

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, RefreshCw, Settings, CheckCircle, AlertCircle, ExternalLink, Unlink } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -18,7 +18,7 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
-  const { toast } = useToast();
+  
   const { user } = useAuth();
 
   useEffect(() => {
@@ -97,15 +97,11 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
       
     } catch (error) {
       console.error('OAuth connection error:', error);
-      toast({
-        title: "Connection Failed",
-        description: error instanceof Error ? error.message : "Failed to connect to Outlook",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to connect to Outlook");
     } finally {
       setIsLoading(false);
     }
-  }, [user, toast]);
+  }, [user]);
 
   const disconnectOutlook = async () => {
     try {
@@ -126,17 +122,10 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
       setIsConnected(false);
       setLastSync(null);
       
-      toast({
-        title: "Disconnected",
-        description: "Outlook integration has been disconnected",
-      });
+      toast.success("Outlook integration has been disconnected");
     } catch (error) {
       console.error('Disconnect error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to disconnect Outlook integration",
-        variant: "destructive",
-      });
+      toast.error("Failed to disconnect Outlook integration");
     } finally {
       setIsLoading(false);
     }
@@ -158,20 +147,13 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
       // Update last sync time
       setLastSync(new Date().toISOString());
       
-      toast({
-        title: "Sync Complete! 🎉",
-        description: data.message || `Successfully synced calendar events`,
-      });
+      toast.success(data.message || `Successfully synced calendar events`);
       
       // Call the optional sync complete callback
       onSyncComplete?.();
     } catch (error) {
       console.error('Sync error:', error);
-      toast({
-        title: "Sync Failed",
-        description: error instanceof Error ? error.message : "Failed to sync with Outlook",
-        variant: "destructive",
-      });
+      toast.error(error instanceof Error ? error.message : "Failed to sync with Outlook");
     } finally {
       setIsSyncing(false);
     }
@@ -190,19 +172,12 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
 
       setAutoSyncEnabled(newAutoSyncState);
       
-      toast({
-        title: newAutoSyncState ? "Auto-sync Enabled" : "Auto-sync Disabled",
-        description: newAutoSyncState 
-          ? "Calendar will sync automatically every 15 minutes" 
-          : "Manual sync only",
-      });
+      toast.success(newAutoSyncState 
+        ? "Auto-sync enabled - Calendar will sync automatically every 15 minutes" 
+        : "Auto-sync disabled - Manual sync only");
     } catch (error) {
       console.error('Auto-sync toggle error:', error);
-      toast({
-        title: "Error",
-        description: "Failed to update auto-sync settings",
-        variant: "destructive",
-      });
+      toast.error("Failed to update auto-sync settings");
     }
   };
 
