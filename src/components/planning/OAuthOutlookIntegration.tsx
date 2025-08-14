@@ -51,38 +51,55 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
   };
 
   const handleOAuthConnection = useCallback(async () => {
+    if (!user) return;
+    
     setIsLoading(true);
+    
     try {
-      // Microsoft OAuth 2.0 configuration
-      const clientId = ''; // This would be configured in environment
-      const redirectUri = encodeURIComponent(`${window.location.origin}/auth/outlook/callback`);
-      const scopes = encodeURIComponent('https://graph.microsoft.com/Calendars.ReadWrite https://graph.microsoft.com/User.Read');
-      const responseType = 'code';
-      const state = btoa(JSON.stringify({ userId: user?.id }));
-
-      // Microsoft OAuth URL
-      const authUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?` +
-        `client_id=${clientId}&` +
-        `response_type=${responseType}&` +
-        `redirect_uri=${redirectUri}&` +
-        `scope=${scopes}&` +
-        `state=${state}&` +
-        `prompt=consent`;
-
-      // For now, show setup instructions since we need proper OAuth setup
-      toast({
-        title: "OAuth Setup Required",
-        description: "Proper OAuth integration requires Azure App Registration. Using fallback method for now.",
-        variant: "destructive",
+      // Get OAuth configuration from our edge function
+      const { data: config, error: configError } = await supabase.functions.invoke('outlook-oauth-config');
+      
+      if (configError) {
+        throw new Error('Failed to get OAuth configuration: ' + configError.message);
+      }
+      
+      // Build authorization URL
+      const params = new URLSearchParams({
+        client_id: config.clientId,
+        response_type: 'code',
+        redirect_uri: config.redirectUri,
+        scope: config.scopes.join(' '),
+        state: user.id, // Pass user ID in state for security
+        response_mode: 'query'
       });
-
-      // TODO: Implement proper OAuth flow
-      // window.location.href = authUrl;
+      
+      const authUrl = `${config.authUrl}?${params.toString()}`;
+      
+      // Open popup window for OAuth
+      const popup = window.open(
+        authUrl,
+        'outlook-oauth',
+        'width=500,height=600,scrollbars=yes,resizable=yes'
+      );
+      
+      if (!popup) {
+        throw new Error('Failed to open OAuth popup. Please allow popups for this site.');
+      }
+      
+      // Listen for OAuth completion
+      const checkClosed = setInterval(async () => {
+        if (popup?.closed) {
+          clearInterval(checkClosed);
+          // Check if integration was successful
+          await checkIntegrationStatus();
+        }
+      }, 1000);
+      
     } catch (error) {
       console.error('OAuth connection error:', error);
       toast({
         title: "Connection Failed",
-        description: "Failed to initiate OAuth connection",
+        description: error instanceof Error ? error.message : "Failed to connect to Outlook",
         variant: "destructive",
       });
     } finally {
@@ -126,30 +143,27 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
   };
 
   const syncWithOutlook = async () => {
+    if (!user || !isConnected) return;
+    
     setIsSyncing(true);
+    
     try {
-      const { data: authData } = await supabase.auth.getSession();
-      if (!authData.session?.access_token) {
-        throw new Error('No authentication token');
+      // Call the outlook-calendar-sync edge function
+      const { data, error } = await supabase.functions.invoke('outlook-calendar-sync');
+      
+      if (error) {
+        throw new Error(error.message);
       }
-
-      const response = await supabase.functions.invoke('outlook-oauth-sync', {
-        body: { action: 'sync_events' },
-        headers: {
-          Authorization: `Bearer ${authData.session.access_token}`,
-        },
-      });
-
-      if (response.error) {
-        throw new Error(response.error.message);
-      }
-
+      
+      // Update last sync time
+      setLastSync(new Date().toISOString());
+      
       toast({
         title: "Sync Complete! 🎉",
-        description: `Successfully synced ${response.data?.syncedEvents || 0} events from Outlook.`,
+        description: data.message || `Successfully synced calendar events`,
       });
-
-      setLastSync(new Date().toISOString());
+      
+      // Call the optional sync complete callback
       onSyncComplete?.();
     } catch (error) {
       console.error('Sync error:', error);
