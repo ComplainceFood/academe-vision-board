@@ -36,7 +36,21 @@ serve(async (req) => {
       );
     }
 
-    const { code, state } = await req.json();
+    // Handle both GET (redirect callback) and POST requests
+    let code: string;
+    let state: string;
+    
+    if (req.method === 'GET') {
+      // OAuth callback comes as GET request with query parameters
+      const url = new URL(req.url);
+      code = url.searchParams.get('code') || '';
+      state = url.searchParams.get('state') || '';
+    } else {
+      // POST request with JSON body
+      const body = await req.json();
+      code = body.code;
+      state = body.state;
+    }
     
     if (!code) {
       return new Response(
@@ -57,7 +71,9 @@ serve(async (req) => {
 
     // Exchange authorization code for access token
     const tokenUrl = `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/token`;
-    const redirectUri = `${supabaseUrl}/functions/v1/outlook-oauth-exchange`;
+    // Use the same redirect URI as configured in oauth-config
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('') || '';
+    const redirectUri = `${origin}/auth/outlook/callback`;
 
     const tokenParams = new URLSearchParams({
       client_id: MICROSOFT_CLIENT_ID,

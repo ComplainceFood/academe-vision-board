@@ -28,6 +28,10 @@ serve(async (req) => {
       );
     }
 
+    // Get the origin from the request to construct the proper redirect URI
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('') || '';
+    const redirectUri = `${origin}/auth/outlook/callback`;
+
     // Return the OAuth configuration
     const config = {
       clientId: MICROSOFT_CLIENT_ID,
@@ -37,7 +41,7 @@ serve(async (req) => {
         'https://graph.microsoft.com/user.read',
         'offline_access'
       ],
-      redirectUri: `${Deno.env.get('SUPABASE_URL')}/functions/v1/outlook-oauth-exchange`,
+      redirectUri: redirectUri,
       authUrl: `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/authorize`,
       tokenUrl: `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/token`
     };
