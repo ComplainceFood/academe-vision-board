@@ -32,52 +32,82 @@ serve(async (req) => {
   }
 
   try {
+    console.log('🔄 Starting Outlook calendar sync...');
+    
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Get user from JWT
-    const authHeader = req.headers.get('Authorization')!;
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      console.error('❌ No authorization header provided');
+      return new Response(
+        JSON.stringify({ error: 'No authorization header provided' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const jwt = authHeader.replace('Bearer ', '');
     const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
 
     if (authError || !user) {
+      console.error('❌ Authentication failed:', authError?.message);
       return new Response(
-        JSON.stringify({ error: 'Authentication failed' }),
+        JSON.stringify({ error: 'Authentication failed', details: authError?.message }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`👤 Syncing for user: ${user.id}`);
 
     // Get Outlook integration settings
     const { data: integration, error: integrationError } = await supabase
       .from('outlook_integration')
       .select('*')
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
-    if (integrationError || !integration) {
+    if (integrationError) {
+      console.error('❌ Database error fetching integration:', integrationError.message);
+      return new Response(
+        JSON.stringify({ error: 'Database error', details: integrationError.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!integration || !integration.is_connected) {
+      console.error('❌ Outlook integration not found or not connected');
       return new Response(
         JSON.stringify({ error: 'Outlook integration not found or not connected' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
+    console.log('✅ Integration found, checking token validity...');
+
     // Check if token needs refresh
     let accessToken = integration.access_token_encrypted;
     const tokenExpiresAt = new Date(integration.token_expires_at);
     const now = new Date();
 
+    console.log(`🕒 Token expires at: ${tokenExpiresAt.toISOString()}, Current time: ${now.toISOString()}`);
+
     if (tokenExpiresAt <= now) {
+      console.log('🔄 Token expired, attempting to refresh...');
+      
       // Refresh the token
       const refreshResult = await refreshAccessToken(integration.refresh_token_encrypted);
       if (!refreshResult) {
+        console.error('❌ Failed to refresh access token');
         return new Response(
-          JSON.stringify({ error: 'Failed to refresh access token' }),
+          JSON.stringify({ error: 'Failed to refresh access token - please reconnect your Outlook account' }),
           { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
+      console.log('✅ Token refreshed successfully');
       accessToken = refreshResult.access_token;
       
       // Update tokens in database
@@ -85,18 +115,24 @@ serve(async (req) => {
         .from('outlook_integration')
         .update({
           access_token_encrypted: refreshResult.access_token,
-          refresh_token_encrypted: refreshResult.refresh_token,
+          refresh_token_encrypted: refreshResult.refresh_token || integration.refresh_token_encrypted,
           token_expires_at: new Date(Date.now() + (refreshResult.expires_in * 1000)).toISOString(),
           updated_at: new Date().toISOString()
         })
         .eq('user_id', user.id);
+    } else {
+      console.log('✅ Token is still valid');
     }
 
     // Import from Outlook to Supabase
+    console.log('📥 Starting import from Outlook...');
     const importedCount = await importFromOutlookCalendar(user.id, accessToken, supabase);
+    console.log(`📥 Imported ${importedCount} events from Outlook`);
     
     // Export from Supabase to Outlook
+    console.log('📤 Starting export to Outlook...');
     const exportedCount = await exportToOutlookCalendar(user.id, accessToken, supabase);
+    console.log(`📤 Exported ${exportedCount} events to Outlook`);
 
     // Update last sync time
     await supabase
@@ -107,18 +143,21 @@ serve(async (req) => {
       })
       .eq('user_id', user.id);
 
+    const message = `Sync completed successfully! ${importedCount} events imported from Outlook, ${exportedCount} events exported to Outlook.`;
+    console.log(`✅ ${message}`);
+
     return new Response(
       JSON.stringify({ 
         success: true, 
         imported: importedCount,
         exported: exportedCount,
-        message: `Sync completed: ${importedCount} events imported, ${exportedCount} events exported`
+        message: message
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
-    console.error('Error in outlook-calendar-sync:', error);
+    console.error('💥 Error in outlook-calendar-sync:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -131,7 +170,10 @@ async function refreshAccessToken(refreshToken: string) {
   const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_CLIENT_SECRET');
   const MICROSOFT_TENANT_ID = Deno.env.get('MICROSOFT_TENANT_ID');
 
+  console.log('🔑 Attempting token refresh...');
+
   if (!MICROSOFT_CLIENT_ID || !MICROSOFT_CLIENT_SECRET || !MICROSOFT_TENANT_ID) {
+    console.error('❌ Missing Microsoft OAuth credentials');
     return null;
   }
 
@@ -146,6 +188,7 @@ async function refreshAccessToken(refreshToken: string) {
   });
 
   try {
+    console.log('🌐 Making token refresh request to Microsoft...');
     const response = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
@@ -155,23 +198,31 @@ async function refreshAccessToken(refreshToken: string) {
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Token refresh failed:', response.status, errorText);
       return null;
     }
 
-    return await response.json();
+    const result = await response.json();
+    console.log('✅ Token refresh successful');
+    return result;
   } catch (error) {
-    console.error('Token refresh error:', error);
+    console.error('💥 Token refresh error:', error);
     return null;
   }
 }
 
 async function importFromOutlookCalendar(userId: string, accessToken: string, supabase: any): Promise<number> {
   try {
+    console.log('🔍 Fetching events from Outlook calendar...');
+    
     // Get events from Outlook Calendar (next 30 days)
     const startDate = new Date().toISOString();
     const endDate = new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString();
     
-    const eventsUrl = `https://graph.microsoft.com/v1.0/me/events?$filter=start/dateTime ge '${startDate}' and start/dateTime le '${endDate}'&$orderby=start/dateTime`;
+    const eventsUrl = `https://graph.microsoft.com/v1.0/me/events?$filter=start/dateTime ge '${startDate}' and start/dateTime le '${endDate}'&$orderby=start/dateTime&$top=50`;
+    
+    console.log(`🌐 Making request to: ${eventsUrl}`);
     
     const response = await fetch(eventsUrl, {
       headers: {
@@ -181,62 +232,80 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
     });
 
     if (!response.ok) {
-      console.error('Failed to fetch Outlook events:', await response.text());
+      const errorText = await response.text();
+      console.error(`❌ Failed to fetch Outlook events: ${response.status} - ${errorText}`);
       return 0;
     }
 
     const data = await response.json();
     const events: OutlookEvent[] = data.value || [];
+    console.log(`📊 Found ${events.length} events in Outlook calendar`);
 
     let importedCount = 0;
 
     for (const event of events) {
-      // Check if event already exists
-      const { data: existingEvent } = await supabase
-        .from('planning_events')
-        .select('id')
-        .eq('external_id', event.id)
-        .eq('external_source', 'outlook')
-        .single();
-
-      if (!existingEvent) {
-        // Parse the event data
-        const startDate = new Date(event.start.dateTime);
-        const endDate = new Date(event.end.dateTime);
+      try {
+        console.log(`🔍 Processing event: ${event.subject}`);
         
-        // Insert new event
-        const { error } = await supabase
+        // Check if event already exists
+        const { data: existingEvent } = await supabase
           .from('planning_events')
-          .insert({
-            user_id: userId,
-            title: event.subject || 'Untitled Event',
-            description: event.body?.content || '',
-            type: 'event',
-            date: startDate.toISOString().split('T')[0],
-            time: startDate.toTimeString().split(' ')[0].substring(0, 5),
-            end_time: endDate.toTimeString().split(' ')[0].substring(0, 5),
-            location: event.location?.displayName || '',
-            external_id: event.id,
-            external_source: 'outlook',
-            is_synced: true,
-            created_at: new Date().toISOString()
-          });
+          .select('id')
+          .eq('external_id', event.id)
+          .eq('external_source', 'outlook')
+          .maybeSingle();
 
-        if (!error) {
-          importedCount++;
+        if (!existingEvent) {
+          // Parse the event data
+          const startDate = new Date(event.start.dateTime);
+          const endDate = new Date(event.end.dateTime);
+          
+          console.log(`➕ Importing new event: ${event.subject}`);
+          
+          // Insert new event
+          const { error } = await supabase
+            .from('planning_events')
+            .insert({
+              user_id: userId,
+              title: event.subject || 'Untitled Event',
+              description: event.body?.content || '',
+              type: 'event',
+              date: startDate.toISOString().split('T')[0],
+              time: startDate.toTimeString().split(' ')[0].substring(0, 5),
+              end_time: endDate.toTimeString().split(' ')[0].substring(0, 5),
+              location: event.location?.displayName || '',
+              external_id: event.id,
+              external_source: 'outlook',
+              is_synced: true,
+              created_at: new Date().toISOString()
+            });
+
+          if (!error) {
+            importedCount++;
+            console.log(`✅ Imported: ${event.subject}`);
+          } else {
+            console.error(`❌ Failed to import event ${event.subject}:`, error.message);
+          }
+        } else {
+          console.log(`⏭️ Event already exists: ${event.subject}`);
         }
+      } catch (eventError) {
+        console.error(`❌ Error processing individual event:`, eventError);
       }
     }
 
+    console.log(`📥 Import complete: ${importedCount} new events imported`);
     return importedCount;
   } catch (error) {
-    console.error('Import error:', error);
+    console.error('💥 Import error:', error);
     return 0;
   }
 }
 
 async function exportToOutlookCalendar(userId: string, accessToken: string, supabase: any): Promise<number> {
   try {
+    console.log('🔍 Looking for unsynced events to export...');
+    
     // Get unsynced events from Supabase
     const { data: unsyncedEvents, error } = await supabase
       .from('planning_events')
@@ -245,14 +314,24 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
       .or('is_synced.is.null,is_synced.eq.false')
       .is('external_source', null);
 
-    if (error || !unsyncedEvents) {
+    if (error) {
+      console.error('❌ Error fetching unsynced events:', error.message);
       return 0;
     }
+
+    if (!unsyncedEvents || unsyncedEvents.length === 0) {
+      console.log('✅ No unsynced events found to export');
+      return 0;
+    }
+
+    console.log(`📊 Found ${unsyncedEvents.length} unsynced events to export`);
 
     let exportedCount = 0;
 
     for (const event of unsyncedEvents) {
       try {
+        console.log(`📤 Exporting event: ${event.title}`);
+        
         // Create event in Outlook Calendar
         const startDateTime = new Date(`${event.date}T${event.time || '09:00'}:00`);
         const endDateTime = new Date(`${event.date}T${event.end_time || '10:00'}:00`);
@@ -276,6 +355,8 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
           }
         };
 
+        console.log(`🌐 Creating event in Outlook: ${event.title}`);
+        
         const response = await fetch('https://graph.microsoft.com/v1.0/me/events', {
           method: 'POST',
           headers: {
@@ -287,6 +368,7 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
 
         if (response.ok) {
           const createdEvent = await response.json();
+          console.log(`✅ Created event in Outlook: ${event.title}`);
           
           // Update the event with Outlook ID and sync status
           await supabase
@@ -299,15 +381,19 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
             .eq('id', event.id);
 
           exportedCount++;
+        } else {
+          const errorText = await response.text();
+          console.error(`❌ Failed to create event ${event.title}: ${response.status} - ${errorText}`);
         }
       } catch (eventError) {
-        console.error('Error exporting individual event:', eventError);
+        console.error(`❌ Error exporting individual event ${event.title}:`, eventError);
       }
     }
 
+    console.log(`📤 Export complete: ${exportedCount} events exported to Outlook`);
     return exportedCount;
   } catch (error) {
-    console.error('Export error:', error);
+    console.error('💥 Export error:', error);
     return 0;
   }
 }
