@@ -18,7 +18,7 @@ import SettingsPage from "./pages/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage";
 import CommunicationsPage from "./pages/CommunicationsPage";
 import AuthPage from "./pages/AuthPage";
-import GoogleOAuthCallback from "./pages/GoogleOAuthCallback";
+import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
 import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
 import { NotificationManager } from "@/components/notifications/NotificationPopup";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
