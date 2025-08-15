@@ -20,6 +20,8 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Starting Outlook OAuth exchange process...');
+    
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -29,7 +31,14 @@ serve(async (req) => {
     const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_CLIENT_SECRET');
     const MICROSOFT_TENANT_ID = Deno.env.get('MICROSOFT_TENANT_ID');
 
+    console.log('Checking Microsoft credentials...', { 
+      hasClientId: !!MICROSOFT_CLIENT_ID, 
+      hasClientSecret: !!MICROSOFT_CLIENT_SECRET, 
+      hasTenantId: !!MICROSOFT_TENANT_ID 
+    });
+
     if (!MICROSOFT_CLIENT_ID || !MICROSOFT_CLIENT_SECRET || !MICROSOFT_TENANT_ID) {
+      console.error('Missing Microsoft credentials');
       return new Response(
         JSON.stringify({ error: 'Microsoft credentials not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -52,7 +61,14 @@ serve(async (req) => {
       state = body.state;
     }
     
+    console.log('Processing OAuth parameters...', { 
+      hasCode: !!code, 
+      hasState: !!state,
+      method: req.method 
+    });
+
     if (!code) {
+      console.error('Missing authorization code');
       return new Response(
         JSON.stringify({ error: 'Authorization code is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -63,6 +79,7 @@ serve(async (req) => {
     const userId = state;
     
     if (!userId) {
+      console.error('Missing user ID in state parameter');
       return new Response(
         JSON.stringify({ error: 'User ID is required in state parameter' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -84,6 +101,8 @@ serve(async (req) => {
       scope: 'https://graph.microsoft.com/calendars.readwrite https://graph.microsoft.com/user.read offline_access'
     });
 
+    console.log('Exchanging authorization code for tokens...', { tokenUrl, redirectUri });
+    
     const tokenResponse = await fetch(tokenUrl, {
       method: 'POST',
       headers: {
@@ -94,7 +113,11 @@ serve(async (req) => {
 
     if (!tokenResponse.ok) {
       const errorText = await tokenResponse.text();
-      console.error('Token exchange failed:', errorText);
+      console.error('Token exchange failed:', { 
+        status: tokenResponse.status, 
+        statusText: tokenResponse.statusText, 
+        error: errorText 
+      });
       return new Response(
         JSON.stringify({ error: 'Failed to exchange authorization code', details: errorText }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -102,6 +125,7 @@ serve(async (req) => {
     }
 
     const tokenData: TokenResponse = await tokenResponse.json();
+    console.log('Token exchange successful, storing in database...');
 
     // Calculate token expiration time
     const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString();
@@ -121,12 +145,18 @@ serve(async (req) => {
       });
 
     if (upsertError) {
-      console.error('Database error:', upsertError);
+      console.error('Database upsert error:', {
+        error: upsertError,
+        userId,
+        tableName: 'outlook_integration'
+      });
       return new Response(
         JSON.stringify({ error: 'Failed to store tokens', details: upsertError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('Outlook integration stored successfully for user:', userId);
 
     return new Response(
       JSON.stringify({ 
