@@ -306,20 +306,44 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
   try {
     console.log('🔍 Looking for unsynced events to export...');
     
-    // Get unsynced events from Supabase
-    const { data: unsyncedEvents, error } = await supabase
+    // First, let's get ALL planning events for this user to debug
+    const { data: allEvents, error: allEventsError } = await supabase
       .from('planning_events')
       .select('*')
-      .eq('user_id', userId)
-      .or('is_synced.is.null,is_synced.eq.false')
-      .is('external_source', null);
+      .eq('user_id', userId);
 
-    if (error) {
-      console.error('❌ Error fetching unsynced events:', error.message);
+    if (allEventsError) {
+      console.error('❌ Error fetching all events:', allEventsError.message);
       return 0;
     }
 
-    if (!unsyncedEvents || unsyncedEvents.length === 0) {
+    console.log(`🔍 Total events found for user: ${allEvents?.length || 0}`);
+    
+    if (allEvents && allEvents.length > 0) {
+      console.log('📋 Event details:');
+      allEvents.forEach((event, index) => {
+        console.log(`  ${index + 1}. "${event.title}" - is_synced: ${event.is_synced}, external_source: ${event.external_source}, external_id: ${event.external_id}`);
+      });
+    }
+
+    // Get unsynced events with explicit filtering
+    const unsyncedEvents = allEvents?.filter((event: any) => {
+      // An event needs to be synced if:
+      // 1. is_synced is null, false, or undefined AND
+      // 2. external_source is null or undefined (meaning it wasn't imported from external calendar)
+      const isUnsynced = (event.is_synced === null || event.is_synced === false || event.is_synced === undefined);
+      const isNotFromExternal = (event.external_source === null || event.external_source === undefined);
+      
+      const shouldSync = isUnsynced && isNotFromExternal;
+      
+      if (shouldSync) {
+        console.log(`✅ Event "${event.title}" needs to be synced (is_synced: ${event.is_synced}, external_source: ${event.external_source})`);
+      }
+      
+      return shouldSync;
+    }) || [];
+
+    if (unsyncedEvents.length === 0) {
       console.log('✅ No unsynced events found to export');
       return 0;
     }
