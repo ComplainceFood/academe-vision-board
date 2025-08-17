@@ -137,23 +137,74 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
     setIsSyncing(true);
     
     try {
+      console.log('🔄 Starting Outlook sync process...');
+      
+      // First, let's verify our integration status
+      const { data: currentIntegration, error: statusError } = await supabase
+        .from('outlook_integration')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (statusError) {
+        console.error('❌ Failed to check integration status:', statusError);
+        throw new Error('Failed to verify integration status');
+      }
+      
+      console.log('📊 Current integration status:', {
+        found: !!currentIntegration,
+        isConnected: currentIntegration?.is_connected,
+        hasAccessToken: !!currentIntegration?.access_token_encrypted,
+        hasRefreshToken: !!currentIntegration?.refresh_token_encrypted,
+        tokenExpiresAt: currentIntegration?.token_expires_at,
+        lastSync: currentIntegration?.last_sync
+      });
+      
+      if (!currentIntegration?.is_connected) {
+        throw new Error('Integration is not connected - please reconnect your account');
+      }
+      
+      if (!currentIntegration?.access_token_encrypted) {
+        throw new Error('No access token found - please reconnect your account');
+      }
+      
       // Call the outlook-calendar-sync edge function
+      console.log('📞 Calling outlook-calendar-sync edge function...');
       const { data, error } = await supabase.functions.invoke('outlook-calendar-sync');
       
+      console.log('📥 Edge function response:', { data, error });
+      
       if (error) {
-        throw new Error(error.message);
+        console.error('❌ Edge function error:', error);
+        throw new Error(error.message || 'Sync failed');
       }
       
       // Update last sync time
       setLastSync(new Date().toISOString());
       
-      toast.success(data.message || `Successfully synced calendar events`);
+      const successMessage = data?.message || `Successfully synced! Imported: ${data?.imported || 0}, Exported: ${data?.exported || 0}`;
+      console.log('✅ Sync completed:', successMessage);
+      
+      toast.success(successMessage);
       
       // Call the optional sync complete callback
       onSyncComplete?.();
     } catch (error) {
-      console.error('Sync error:', error);
-      toast.error(error instanceof Error ? error.message : "Failed to sync with Outlook");
+      console.error('💥 Sync error:', error);
+      
+      // Provide more detailed error messages
+      let errorMessage = "Failed to sync with Outlook";
+      if (error instanceof Error) {
+        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+          errorMessage = "Authentication failed - please reconnect your Outlook account";
+        } else if (error.message.includes('refresh')) {
+          errorMessage = "Token refresh failed - please reconnect your Outlook account";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsSyncing(false);
     }

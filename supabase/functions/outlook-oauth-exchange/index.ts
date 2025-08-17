@@ -125,28 +125,74 @@ serve(async (req) => {
     }
 
     const tokenData: TokenResponse = await tokenResponse.json();
-    console.log('Token exchange successful, storing in database...');
+    
+    // 🔍 DEBUGGING: Log token response details (secure)
+    console.log('✅ Token exchange successful! Response details:', {
+      hasAccessToken: !!tokenData.access_token,
+      hasRefreshToken: !!tokenData.refresh_token,
+      tokenType: tokenData.token_type,
+      expiresIn: tokenData.expires_in,
+      accessTokenPreview: tokenData.access_token ? `${tokenData.access_token.substring(0, 10)}...${tokenData.access_token.substring(tokenData.access_token.length - 10)}` : 'N/A',
+      refreshTokenPreview: tokenData.refresh_token ? `${tokenData.refresh_token.substring(0, 10)}...${tokenData.refresh_token.substring(tokenData.refresh_token.length - 10)}` : 'N/A'
+    });
 
     // Calculate token expiration time
     const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString();
+    console.log('🕒 Token expiration calculated:', { expiresAt, expiresInSeconds: tokenData.expires_in });
+
+    // 🔍 DEBUGGING: Check current database state before upsert
+    console.log('🔍 Checking current database state...');
+    const { data: currentIntegration, error: checkError } = await supabase
+      .from('outlook_integration')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+    
+    if (checkError) {
+      console.log('❌ Error checking current state:', checkError.message);
+    } else {
+      console.log('📊 Current integration state:', {
+        exists: !!currentIntegration,
+        isConnected: currentIntegration?.is_connected,
+        hasAccessToken: !!currentIntegration?.access_token_encrypted,
+        hasRefreshToken: !!currentIntegration?.refresh_token_encrypted,
+        tokenExpiresAt: currentIntegration?.token_expires_at
+      });
+    }
+
+    // Prepare upsert data
+    const upsertData = {
+      user_id: userId,
+      access_token_encrypted: tokenData.access_token,
+      refresh_token_encrypted: tokenData.refresh_token,
+      token_expires_at: expiresAt,
+      is_connected: true,
+      updated_at: new Date().toISOString()
+    };
+
+    console.log('💾 Attempting database upsert with data:', {
+      userId: upsertData.user_id,
+      hasAccessToken: !!upsertData.access_token_encrypted,
+      hasRefreshToken: !!upsertData.refresh_token_encrypted,
+      tokenExpiresAt: upsertData.token_expires_at,
+      isConnected: upsertData.is_connected,
+      updatedAt: upsertData.updated_at
+    });
 
     // Store tokens in the database
-    const { error: upsertError } = await supabase
+    const { data: upsertResult, error: upsertError } = await supabase
       .from('outlook_integration')
-      .upsert({
-        user_id: userId,
-        access_token_encrypted: tokenData.access_token,
-        refresh_token_encrypted: tokenData.refresh_token,
-        token_expires_at: expiresAt,
-        is_connected: true,
-        updated_at: new Date().toISOString()
-      }, {
+      .upsert(upsertData, {
         onConflict: 'user_id'
-      });
+      })
+      .select('*');
 
     if (upsertError) {
-      console.error('Database upsert error:', {
+      console.error('❌ Database upsert failed:', {
         error: upsertError,
+        errorMessage: upsertError.message,
+        errorCode: upsertError.code,
+        errorDetails: upsertError.details,
         userId,
         tableName: 'outlook_integration'
       });
@@ -156,7 +202,43 @@ serve(async (req) => {
       );
     }
 
-    console.log('Outlook integration stored successfully for user:', userId);
+    console.log('✅ Database upsert successful! Result:', {
+      rowsAffected: upsertResult?.length || 0,
+      resultData: upsertResult?.[0] ? {
+        id: upsertResult[0].id,
+        userId: upsertResult[0].user_id,
+        isConnected: upsertResult[0].is_connected,
+        hasAccessToken: !!upsertResult[0].access_token_encrypted,
+        hasRefreshToken: !!upsertResult[0].refresh_token_encrypted,
+        tokenExpiresAt: upsertResult[0].token_expires_at
+      } : 'No result data'
+    });
+
+    // 🔍 DEBUGGING: Verify the data was stored correctly
+    console.log('🔍 Verifying data storage...');
+    const { data: verifyData, error: verifyError } = await supabase
+      .from('outlook_integration')
+      .select('*')
+      .eq('user_id', userId)
+      .maybeSingle();
+    
+    if (verifyError) {
+      console.error('❌ Verification failed:', verifyError.message);
+    } else {
+      console.log('✅ Verification successful! Stored data:', {
+        id: verifyData?.id,
+        userId: verifyData?.user_id,
+        isConnected: verifyData?.is_connected,
+        tokenPreview: verifyData?.access_token_encrypted ? `${verifyData.access_token_encrypted.substring(0, 10)}...` : 'N/A',
+        refreshPreview: verifyData?.refresh_token_encrypted ? `${verifyData.refresh_token_encrypted.substring(0, 10)}...` : 'N/A',
+        tokenExpiresAt: verifyData?.token_expires_at,
+        lastSync: verifyData?.last_sync,
+        createdAt: verifyData?.created_at,
+        updatedAt: verifyData?.updated_at
+      });
+    }
+
+    console.log('🎉 Outlook integration setup completed successfully for user:', userId);
 
     return new Response(
       JSON.stringify({ 

@@ -62,7 +62,8 @@ serve(async (req) => {
 
     console.log(`👤 Syncing for user: ${user.id}`);
 
-    // Get Outlook integration settings
+    // 🔍 DEBUGGING: Get and analyze Outlook integration settings
+    console.log('🔍 Fetching Outlook integration data...');
     const { data: integration, error: integrationError } = await supabase
       .from('outlook_integration')
       .select('*')
@@ -70,22 +71,59 @@ serve(async (req) => {
       .maybeSingle();
 
     if (integrationError) {
-      console.error('❌ Database error fetching integration:', integrationError.message);
+      console.error('❌ Database error fetching integration:', {
+        error: integrationError.message,
+        code: integrationError.code,
+        details: integrationError.details,
+        userId: user.id
+      });
       return new Response(
         JSON.stringify({ error: 'Database error', details: integrationError.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!integration || !integration.is_connected) {
-      console.error('❌ Outlook integration not found or not connected');
+    // 🔍 DEBUGGING: Analyze integration data in detail
+    console.log('📊 Integration data analysis:', {
+      found: !!integration,
+      isConnected: integration?.is_connected,
+      hasAccessToken: !!integration?.access_token_encrypted,
+      hasRefreshToken: !!integration?.refresh_token_encrypted,
+      tokenExpiresAt: integration?.token_expires_at,
+      lastSync: integration?.last_sync,
+      autoSyncEnabled: integration?.auto_sync_enabled,
+      syncFrequency: integration?.sync_frequency,
+      createdAt: integration?.created_at,
+      updatedAt: integration?.updated_at,
+      accessTokenPreview: integration?.access_token_encrypted ? `${integration.access_token_encrypted.substring(0, 10)}...${integration.access_token_encrypted.substring(integration.access_token_encrypted.length - 10)}` : 'N/A',
+      refreshTokenPreview: integration?.refresh_token_encrypted ? `${integration.refresh_token_encrypted.substring(0, 10)}...${integration.refresh_token_encrypted.substring(integration.refresh_token_encrypted.length - 10)}` : 'N/A'
+    });
+
+    if (!integration) {
+      console.error('❌ No Outlook integration record found for user:', user.id);
       return new Response(
-        JSON.stringify({ error: 'Outlook integration not found or not connected' }),
+        JSON.stringify({ error: 'Outlook integration not found - please connect your account first' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('✅ Integration found, checking token validity...');
+    if (!integration.is_connected) {
+      console.error('❌ Outlook integration exists but is not connected:', integration.is_connected);
+      return new Response(
+        JSON.stringify({ error: 'Outlook integration is not connected - please reconnect your account' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!integration.access_token_encrypted) {
+      console.error('❌ No access token found in integration record');
+      return new Response(
+        JSON.stringify({ error: 'No access token found - please reconnect your account' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('✅ Integration found and appears valid, checking token expiration...');
 
     // Check if token needs refresh
     let accessToken = integration.access_token_encrypted;
@@ -222,18 +260,73 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
     
     const eventsUrl = `https://graph.microsoft.com/v1.0/me/events?$filter=start/dateTime ge '${startDate}' and start/dateTime le '${endDate}'&$orderby=start/dateTime&$top=50`;
     
-    console.log(`🌐 Making request to: ${eventsUrl}`);
+    console.log('🌐 Making Microsoft Graph API request:', {
+      url: eventsUrl,
+      method: 'GET',
+      accessTokenPreview: `${accessToken.substring(0, 20)}...${accessToken.substring(accessToken.length - 10)}`,
+      accessTokenLength: accessToken.length,
+      hasBearer: accessToken.includes('Bearer'),
+      startDate,
+      endDate
+    });
+    
+    const requestHeaders = {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    };
+    
+    console.log('📤 Request headers:', {
+      hasAuthorization: !!requestHeaders.Authorization,
+      authHeaderPreview: `${requestHeaders.Authorization.substring(0, 30)}...`,
+      contentType: requestHeaders['Content-Type']
+    });
     
     const response = await fetch(eventsUrl, {
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
+      method: 'GET',
+      headers: requestHeaders,
+    });
+
+    console.log('📥 Microsoft Graph API response:', {
+      status: response.status,
+      statusText: response.statusText,
+      ok: response.ok,
+      headers: Object.fromEntries(response.headers.entries())
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`❌ Failed to fetch Outlook events: ${response.status} - ${errorText}`);
+      let errorJson;
+      
+      try {
+        errorJson = JSON.parse(errorText);
+        console.error('❌ Microsoft Graph API error (parsed):', {
+          status: response.status,
+          statusText: response.statusText,
+          error: errorJson,
+          errorCode: errorJson?.error?.code,
+          errorMessage: errorJson?.error?.message,
+          timestamp: new Date().toISOString()
+        });
+      } catch (e) {
+        console.error('❌ Microsoft Graph API error (raw):', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText: errorText,
+          timestamp: new Date().toISOString()
+        });
+      }
+      
+      // Special handling for 401 Unauthorized
+      if (response.status === 401) {
+        console.error('🔐 AUTHENTICATION FAILED - Token may be invalid, expired, or have wrong permissions!');
+        console.error('🔍 Token analysis:', {
+          tokenLength: accessToken.length,
+          startsWithBearer: accessToken.startsWith('Bearer'),
+          tokenFormat: accessToken.includes('.') ? 'JWT-like' : 'Opaque',
+          tokenParts: accessToken.split('.').length
+        });
+      }
+      
       return 0;
     }
 
@@ -379,7 +472,10 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
           }
         };
 
-        console.log(`🌐 Creating event in Outlook: ${event.title}`);
+        console.log(`🌐 Creating event in Outlook: ${event.title}`, {
+          outlookEventData: outlookEvent,
+          accessTokenPreview: `${accessToken.substring(0, 20)}...`
+        });
         
         const response = await fetch('https://graph.microsoft.com/v1.0/me/events', {
           method: 'POST',
@@ -390,12 +486,23 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
           body: JSON.stringify(outlookEvent),
         });
 
+        console.log('📥 Create event response:', {
+          status: response.status,
+          statusText: response.statusText,
+          ok: response.ok,
+          eventTitle: event.title
+        });
+
         if (response.ok) {
           const createdEvent = await response.json();
-          console.log(`✅ Created event in Outlook: ${event.title}`);
+          console.log(`✅ Successfully created event in Outlook:`, {
+            title: event.title,
+            outlookId: createdEvent.id,
+            originalEventId: event.id
+          });
           
           // Update the event with Outlook ID and sync status
-          await supabase
+          const { error: updateError } = await supabase
             .from('planning_events')
             .update({
               external_id: createdEvent.id,
@@ -404,10 +511,37 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
             })
             .eq('id', event.id);
 
+          if (updateError) {
+            console.error(`❌ Failed to update event sync status for ${event.title}:`, updateError.message);
+          } else {
+            console.log(`✅ Updated event sync status for: ${event.title}`);
+          }
+
           exportedCount++;
         } else {
           const errorText = await response.text();
-          console.error(`❌ Failed to create event ${event.title}: ${response.status} - ${errorText}`);
+          let errorJson;
+          
+          try {
+            errorJson = JSON.parse(errorText);
+            console.error(`❌ Failed to create event ${event.title} (parsed):`, {
+              status: response.status,
+              statusText: response.statusText,
+              error: errorJson,
+              errorCode: errorJson?.error?.code,
+              errorMessage: errorJson?.error?.message
+            });
+          } catch (e) {
+            console.error(`❌ Failed to create event ${event.title} (raw):`, {
+              status: response.status,
+              statusText: response.statusText,
+              errorText: errorText
+            });
+          }
+          
+          if (response.status === 401) {
+            console.error('🔐 CREATE EVENT AUTHENTICATION FAILED - Token issues detected!');
+          }
         }
       } catch (eventError) {
         console.error(`❌ Error exporting individual event ${event.title}:`, eventError);
