@@ -28,9 +28,18 @@ serve(async (req) => {
       );
     }
 
-    // Get the origin from the request to construct the proper redirect URI
-    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('') || '';
+    // Use the current Lovable app domain for the redirect URI
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('') || 'https://id-preview--64d94714-e892-42c9-981a-bb6f485a7ae3.lovable.app';
     const redirectUri = `${origin}/auth/outlook/callback`;
+    
+    console.log('🔧 OAuth Config Debug:', {
+      requestOrigin: req.headers.get('origin'),
+      referer: req.headers.get('referer'),
+      calculatedOrigin: origin,
+      redirectUri: redirectUri,
+      tenantId: MICROSOFT_TENANT_ID,
+      hasClientId: !!MICROSOFT_CLIENT_ID
+    });
 
     // Return the OAuth configuration
     const config = {
