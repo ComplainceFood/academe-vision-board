@@ -28,8 +28,8 @@ serve(async (req) => {
       );
     }
 
-    // Use the current Lovable app domain for the redirect URI
-    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('') || 'https://id-preview--64d94714-e892-42c9-981a-bb6f485a7ae3.lovable.app';
+    // Use the current Lovable project domain for the redirect URI
+    const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('') || 'https://64d94714-e892-42c9-981a-bb6f485a7ae3.lovableproject.com';
     const redirectUri = `${origin}/auth/outlook/callback`;
     
     console.log('🔧 OAuth Config Debug:', {
