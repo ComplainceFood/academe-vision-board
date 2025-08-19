@@ -164,6 +164,10 @@ serve(async (req) => {
 
     // Import from Outlook to Supabase
     console.log('📥 Starting import from Outlook...');
+    console.log('🔍 Import Debug - User ID:', user.id);
+    console.log('🔍 Import Debug - Access Token Length:', accessToken?.length || 0);
+    console.log('🔍 Import Debug - Access Token Preview:', accessToken ? `${accessToken.substring(0, 50)}...` : 'NO TOKEN');
+    
     const importedCount = await importFromOutlookCalendar(user.id, accessToken, supabase);
     console.log(`📥 Imported ${importedCount} events from Outlook`);
     
@@ -253,10 +257,14 @@ async function refreshAccessToken(refreshToken: string) {
 async function importFromOutlookCalendar(userId: string, accessToken: string, supabase: any): Promise<number> {
   try {
     console.log('🔍 Fetching events from Outlook calendar...');
+    console.log('🔍 Import function called with:');
+    console.log('  - User ID:', userId);
+    console.log('  - Access Token exists:', !!accessToken);
+    console.log('  - Access Token length:', accessToken?.length || 0);
     
-    // Get events from Outlook Calendar (next 30 days)
-    const startDate = new Date().toISOString();
-    const endDate = new Date(Date.now() + (30 * 24 * 60 * 60 * 1000)).toISOString();
+    // Get events from Outlook Calendar (last 30 days + next 60 days for broader range)
+    const startDate = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000)).toISOString();
+    const endDate = new Date(Date.now() + (60 * 24 * 60 * 60 * 1000)).toISOString();
     
     const eventsUrl = `https://graph.microsoft.com/v1.0/me/events?$filter=start/dateTime ge '${startDate}' and start/dateTime le '${endDate}'&$orderby=start/dateTime&$top=50`;
     
@@ -333,6 +341,22 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
     const data = await response.json();
     const events: OutlookEvent[] = data.value || [];
     console.log(`📊 Found ${events.length} events in Outlook calendar`);
+    console.log('📋 Raw API response data:', JSON.stringify(data, null, 2));
+    
+    // Log first few events for debugging
+    if (events.length > 0) {
+      console.log('📝 Sample events:');
+      events.slice(0, 3).forEach((event, index) => {
+        console.log(`  ${index + 1}. ${event.subject} - ${event.start?.dateTime} to ${event.end?.dateTime}`);
+      });
+    } else {
+      console.log('❌ NO EVENTS FOUND in Outlook calendar!');
+      console.log('🔍 Possible reasons:');
+      console.log('  1. No events exist in the date range');
+      console.log('  2. Calendar permissions issue');
+      console.log('  3. Wrong calendar being accessed');
+      console.log('  4. Time zone issues');
+    }
 
     let importedCount = 0;
 
