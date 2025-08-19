@@ -75,7 +75,7 @@ export const OutlookIntegration = ({ onSyncComplete }: OutlookIntegrationProps) 
         throw new Error('No authentication token');
       }
 
-      const response = await supabase.functions.invoke('outlook-sync', {
+      const response = await supabase.functions.invoke('outlook-calendar-sync', {
         body: {
           action: 'sync_events',
           accessToken: accessToken

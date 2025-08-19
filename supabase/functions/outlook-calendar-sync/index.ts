@@ -129,10 +129,12 @@ serve(async (req) => {
     let accessToken = integration.access_token_encrypted;
     const tokenExpiresAt = new Date(integration.token_expires_at);
     const now = new Date();
+    // Add 5 minute buffer to prevent edge cases
+    const bufferTime = new Date(tokenExpiresAt.getTime() - 5 * 60 * 1000);
 
-    console.log(`🕒 Token expires at: ${tokenExpiresAt.toISOString()}, Current time: ${now.toISOString()}`);
+    console.log(`🕒 Token expires at: ${tokenExpiresAt.toISOString()}, Current time: ${now.toISOString()}, Buffer time: ${bufferTime.toISOString()}`);
 
-    if (tokenExpiresAt <= now) {
+    if (bufferTime <= now) {
       console.log('🔄 Token expired, attempting to refresh...');
       
       // Refresh the token
@@ -278,9 +280,13 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
       endDate
     });
     
+    // Clean the access token - remove any Bearer prefix if present
+    const cleanToken = accessToken.replace(/^Bearer\s+/i, '');
+    
     const requestHeaders = {
-      'Authorization': `Bearer ${accessToken}`,
+      'Authorization': `Bearer ${cleanToken}`,
       'Content-Type': 'application/json',
+      'Accept': 'application/json',
     };
     
     console.log('📤 Request headers:', {
@@ -328,11 +334,54 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
       if (response.status === 401) {
         console.error('🔐 AUTHENTICATION FAILED - Token may be invalid, expired, or have wrong permissions!');
         console.error('🔍 Token analysis:', {
-          tokenLength: accessToken.length,
+          originalTokenLength: accessToken.length,
+          cleanTokenLength: cleanToken.length,
           startsWithBearer: accessToken.startsWith('Bearer'),
-          tokenFormat: accessToken.includes('.') ? 'JWT-like' : 'Opaque',
-          tokenParts: accessToken.split('.').length
+          tokenFormat: cleanToken.includes('.') ? 'JWT-like' : 'Opaque',
+          tokenParts: cleanToken.split('.').length,
+          tokenPreview: `${cleanToken.substring(0, 20)}...${cleanToken.substring(cleanToken.length - 10)}`
         });
+        
+        // Try to refresh token if this is a 401
+        console.log('🔄 Attempting to refresh token due to 401 error...');
+        const refreshResult = await refreshAccessToken(integration.refresh_token_encrypted);
+        if (refreshResult) {
+          console.log('✅ Token refreshed successfully, retrying API call...');
+          
+          // Update token in database
+          await supabase
+            .from('outlook_integration')
+            .update({
+              access_token_encrypted: refreshResult.access_token,
+              refresh_token_encrypted: refreshResult.refresh_token || integration.refresh_token_encrypted,
+              token_expires_at: new Date(Date.now() + (refreshResult.expires_in * 1000)).toISOString(),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId);
+            
+          // Retry with new token
+          const newCleanToken = refreshResult.access_token.replace(/^Bearer\s+/i, '');
+          const retryHeaders = {
+            'Authorization': `Bearer ${newCleanToken}`,
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+          };
+          
+          console.log('🔁 Retrying API call with refreshed token...');
+          const retryResponse = await fetch(eventsUrl, {
+            method: 'GET',
+            headers: retryHeaders,
+          });
+          
+          if (retryResponse.ok) {
+            console.log('✅ Retry successful with refreshed token');
+            const retryData = await retryResponse.json();
+            const retryEvents: OutlookEvent[] = retryData.value || [];
+            return await processImportedEvents(retryEvents, userId, supabase);
+          } else {
+            console.error('❌ Retry also failed:', retryResponse.status, retryResponse.statusText);
+          }
+        }
       }
       
       return 0;
@@ -341,7 +390,16 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
     const data = await response.json();
     const events: OutlookEvent[] = data.value || [];
     console.log(`📊 Found ${events.length} events in Outlook calendar`);
-    console.log('📋 Raw API response data:', JSON.stringify(data, null, 2));
+    
+    return await processImportedEvents(events, userId, supabase);
+  } catch (error) {
+    console.error('💥 Import error:', error);
+    return 0;
+  }
+}
+
+async function processImportedEvents(events: OutlookEvent[], userId: string, supabase: any): Promise<number> {
+  try {
     
     // Log first few events for debugging
     if (events.length > 0) {
@@ -413,10 +471,6 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
 
     console.log(`📥 Import complete: ${importedCount} new events imported`);
     return importedCount;
-  } catch (error) {
-    console.error('💥 Import error:', error);
-    return 0;
-  }
 }
 
 async function exportToOutlookCalendar(userId: string, accessToken: string, supabase: any): Promise<number> {
@@ -477,48 +531,52 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
         const startDateTime = new Date(`${event.date}T${event.time || '09:00'}:00`);
         const endDateTime = new Date(`${event.date}T${event.end_time || '10:00'}:00`);
 
-        const outlookEvent = {
-          subject: event.title,
-          body: {
-            contentType: 'text',
-            content: event.description || ''
-          },
-          start: {
-            dateTime: startDateTime.toISOString(),
-            timeZone: 'UTC'
-          },
-          end: {
-            dateTime: endDateTime.toISOString(),
-            timeZone: 'UTC'
-          },
-          location: {
-            displayName: event.location || ''
-          }
-        };
+      // Clean the access token
+      const cleanToken = accessToken.replace(/^Bearer\s+/i, '');
+      
+      const outlookEventData = {
+        subject: event.title,
+        body: {
+          contentType: 'text',
+          content: event.description || ''
+        },
+        start: {
+          dateTime: startDateTime.toISOString(),
+          timeZone: 'UTC'
+        },
+        end: {
+          dateTime: endDateTime.toISOString(),
+          timeZone: 'UTC'
+        },
+        location: {
+          displayName: event.location || ''
+        }
+      };
 
-        console.log(`🌐 Creating event in Outlook: ${event.title}`, {
-          outlookEventData: outlookEvent,
-          accessTokenPreview: `${accessToken.substring(0, 20)}...`
-        });
-        
-        const response = await fetch('https://graph.microsoft.com/v1.0/me/events', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(outlookEvent),
-        });
+      console.log(`🌐 Creating event in Outlook: ${event.title}`, {
+        outlookEventData,
+        accessTokenPreview: `${cleanToken.substring(0, 20)}...`
+      });
+      
+      const createResponse = await fetch('https://graph.microsoft.com/v1.0/me/events', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${cleanToken}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify(outlookEventData),
+      });
 
         console.log('📥 Create event response:', {
-          status: response.status,
-          statusText: response.statusText,
-          ok: response.ok,
+          status: createResponse.status,
+          statusText: createResponse.statusText,
+          ok: createResponse.ok,
           eventTitle: event.title
         });
 
-        if (response.ok) {
-          const createdEvent = await response.json();
+        if (createResponse.ok) {
+          const createdEvent = await createResponse.json();
           console.log(`✅ Successfully created event in Outlook:`, {
             title: event.title,
             outlookId: createdEvent.id,
@@ -543,27 +601,27 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
 
           exportedCount++;
         } else {
-          const errorText = await response.text();
+          const errorText = await createResponse.text();
           let errorJson;
           
           try {
             errorJson = JSON.parse(errorText);
             console.error(`❌ Failed to create event ${event.title} (parsed):`, {
-              status: response.status,
-              statusText: response.statusText,
+              status: createResponse.status,
+              statusText: createResponse.statusText,
               error: errorJson,
               errorCode: errorJson?.error?.code,
               errorMessage: errorJson?.error?.message
             });
           } catch (e) {
             console.error(`❌ Failed to create event ${event.title} (raw):`, {
-              status: response.status,
-              statusText: response.statusText,
+              status: createResponse.status,
+              statusText: createResponse.statusText,
               errorText: errorText
             });
           }
           
-          if (response.status === 401) {
+          if (createResponse.status === 401) {
             console.error('🔐 CREATE EVENT AUTHENTICATION FAILED - Token issues detected!');
           }
         }
