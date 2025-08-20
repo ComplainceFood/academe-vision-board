@@ -124,17 +124,39 @@ serve(async (req) => {
       );
     }
 
-    const tokenData: TokenResponse = await tokenResponse.json();
+    const tokenData: any = await tokenResponse.json();
     
-    // 🔍 DEBUGGING: Log token response details (secure)
-    console.log('✅ Token exchange successful! Response details:', {
+    // 🔍 CRITICAL: Validate token response structure
+    console.log('✅ Token exchange successful! Full response structure:', {
       hasAccessToken: !!tokenData.access_token,
       hasRefreshToken: !!tokenData.refresh_token,
+      hasIdToken: !!tokenData.id_token,
       tokenType: tokenData.token_type,
       expiresIn: tokenData.expires_in,
-      accessTokenPreview: tokenData.access_token ? `${tokenData.access_token.substring(0, 10)}...${tokenData.access_token.substring(tokenData.access_token.length - 10)}` : 'N/A',
-      refreshTokenPreview: tokenData.refresh_token ? `${tokenData.refresh_token.substring(0, 10)}...${tokenData.refresh_token.substring(tokenData.refresh_token.length - 10)}` : 'N/A'
+      scope: tokenData.scope,
+      allKeys: Object.keys(tokenData)
     });
+
+    // 🚨 CRITICAL: Ensure we're using the correct access token, not id_token!
+    const actualAccessToken = tokenData.access_token;
+    const actualRefreshToken = tokenData.refresh_token;
+    
+    if (!actualAccessToken) {
+      console.error('❌ CRITICAL: No access_token in Microsoft response!', tokenData);
+      return new Response(
+        JSON.stringify({ error: 'No access token received from Microsoft' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // 🔍 Validate token format (access tokens should NOT be JWTs for Graph API)
+    if (actualAccessToken.startsWith('eyJ')) {
+      console.error('❌ WARNING: Received JWT-formatted access token, this may be incorrect!');
+      console.error('Token preview:', actualAccessToken.substring(0, 50));
+    } else {
+      console.log('✅ Access token format appears correct (not JWT)');
+      console.log('Token preview:', actualAccessToken.substring(0, 20) + '...');
+    }
 
     // Calculate token expiration time
     const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString();
@@ -160,11 +182,11 @@ serve(async (req) => {
       });
     }
 
-    // Prepare upsert data
+    // Prepare upsert data with validated tokens
     const upsertData = {
       user_id: userId,
-      access_token_encrypted: tokenData.access_token,
-      refresh_token_encrypted: tokenData.refresh_token,
+      access_token_encrypted: actualAccessToken,
+      refresh_token_encrypted: actualRefreshToken,
       token_expires_at: expiresAt,
       is_connected: true,
       updated_at: new Date().toISOString()

@@ -103,6 +103,20 @@ serve(async (req) => {
       );
     }
 
+    // 🔍 CRITICAL: Validate token format before using
+    const rawToken = integration.access_token_encrypted;
+    if (rawToken.startsWith('eyJ')) {
+      console.error('❌ CRITICAL: Stored token is JWT format, not valid Graph API access token!');
+      console.error('Token preview:', rawToken.substring(0, 50));
+      return new Response(
+        JSON.stringify({ 
+          error: 'Invalid token format detected - please reconnect your Outlook account',
+          details: 'The stored token appears to be in JWT format, but Microsoft Graph API requires OAuth access tokens.'
+        }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     console.log('✅ Integration found and appears valid, checking token expiration...');
 
     // Check if token needs refresh
@@ -141,14 +155,40 @@ serve(async (req) => {
       console.log('✅ Token is still valid');
     }
 
-    // Import from Outlook to Supabase
+    // Import from Outlook to Supabase with retry on 401
     console.log('📥 Starting import from Outlook...');
-    const importedCount = await importFromOutlookCalendar(user.id, accessToken, supabase);
+    let importedCount = await importFromOutlookCalendar(user.id, accessToken, supabase);
+    
+    // If import failed with 401 and we haven't tried refreshing yet, try once more
+    if (importedCount === -1 && bufferTime > now) {
+      console.log('🔄 Import failed with 401, attempting token refresh and retry...');
+      const refreshResult = await refreshAccessToken(integration.refresh_token_encrypted);
+      if (refreshResult) {
+        accessToken = refreshResult.access_token;
+        await supabase
+          .from('outlook_integration')
+          .update({
+            access_token_encrypted: refreshResult.access_token,
+            refresh_token_encrypted: refreshResult.refresh_token || integration.refresh_token_encrypted,
+            token_expires_at: new Date(Date.now() + (refreshResult.expires_in * 1000)).toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('user_id', user.id);
+        
+        console.log('🔄 Retrying import with refreshed token...');
+        importedCount = await importFromOutlookCalendar(user.id, accessToken, supabase);
+      }
+    }
+    
+    if (importedCount === -1) importedCount = 0; // Convert error flag to 0
     console.log(`📥 Imported ${importedCount} events from Outlook`);
     
-    // Export from Supabase to Outlook
+    // Export from Supabase to Outlook with retry on 401
     console.log('📤 Starting export to Outlook...');
-    const exportedCount = await exportToOutlookCalendar(user.id, accessToken, supabase);
+    let exportedCount = await exportToOutlookCalendar(user.id, accessToken, supabase);
+    
+    // If export failed with 401, we already have the latest token from import retry
+    if (exportedCount === -1) exportedCount = 0; // Convert error flag to 0
     console.log(`📤 Exported ${exportedCount} events to Outlook`);
 
     // Update last sync time
@@ -256,6 +296,13 @@ async function importFromOutlookCalendar(userId: string, accessToken: string, su
     if (!response.ok) {
       const errorText = await response.text();
       console.error('❌ Microsoft Graph API error:', response.status, errorText);
+      
+      // Return -1 to signal authentication failure for retry logic
+      if (response.status === 401) {
+        console.error('🚨 Authentication failed - token may be invalid or expired');
+        return -1;
+      }
+      
       return 0;
     }
 
@@ -435,6 +482,12 @@ async function exportToOutlookCalendar(userId: string, accessToken: string, supa
         } else {
           const errorText = await createResponse.text();
           console.error(`❌ Failed to create event ${event.title}:`, createResponse.status, errorText);
+          
+          // Signal authentication failure for retry logic
+          if (createResponse.status === 401) {
+            console.error('🚨 Authentication failed in export - returning error flag');
+            return -1;
+          }
         }
       } catch (eventError) {
         console.error(`❌ Error exporting individual event ${event.title}:`, eventError);
