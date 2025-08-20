@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
 import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExportImport";
 import SecurityDashboard from "@/components/security/SecurityDashboard";
-import { OAuthOutlookIntegration } from "@/components/planning/OAuthOutlookIntegration";
+import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 
 const SettingsPage = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -460,7 +460,7 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="connections" className="space-y-6">
-            <OAuthOutlookIntegration />
+            <OutlookIntegrationConsolidated />
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">

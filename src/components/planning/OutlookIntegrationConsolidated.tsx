@@ -2,22 +2,23 @@ import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, RefreshCw, Settings, CheckCircle, AlertCircle, ExternalLink, Unlink } from "lucide-react";
+import { Calendar, RefreshCw, Settings, CheckCircle, AlertCircle, ExternalLink, Unlink, Shield } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
-interface OAuthOutlookIntegrationProps {
+interface OutlookIntegrationConsolidatedProps {
   onSyncComplete?: () => void;
 }
 
-export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrationProps) => {
+export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegrationConsolidatedProps) => {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<string | null>(null);
   const [autoSyncEnabled, setAutoSyncEnabled] = useState(true);
+  const [tokenExpiry, setTokenExpiry] = useState<string | null>(null);
   
   const { user } = useAuth();
 
@@ -44,6 +45,7 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
         setIsConnected(data.is_connected);
         setLastSync(data.last_sync);
         setAutoSyncEnabled(data.auto_sync_enabled);
+        setTokenExpiry(data.token_expires_at);
       }
     } catch (error) {
       console.error('Error checking integration status:', error);
@@ -92,6 +94,9 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
           clearInterval(checkClosed);
           // Check if integration was successful
           await checkIntegrationStatus();
+          if (isConnected) {
+            toast.success("Successfully connected to Outlook! 🎉");
+          }
         }
       }, 1000);
       
@@ -101,7 +106,7 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
     } finally {
       setIsLoading(false);
     }
-  }, [user]);
+  }, [user, isConnected]);
 
   const disconnectOutlook = async () => {
     try {
@@ -121,6 +126,7 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
 
       setIsConnected(false);
       setLastSync(null);
+      setTokenExpiry(null);
       
       toast.success("Outlook integration has been disconnected");
     } catch (error) {
@@ -139,35 +145,6 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
     try {
       console.log('🔄 Starting Outlook sync process...');
       
-      // First, let's verify our integration status
-      const { data: currentIntegration, error: statusError } = await supabase
-        .from('outlook_integration')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-      
-      if (statusError) {
-        console.error('❌ Failed to check integration status:', statusError);
-        throw new Error('Failed to verify integration status');
-      }
-      
-      console.log('📊 Current integration status:', {
-        found: !!currentIntegration,
-        isConnected: currentIntegration?.is_connected,
-        hasAccessToken: !!currentIntegration?.access_token_encrypted,
-        hasRefreshToken: !!currentIntegration?.refresh_token_encrypted,
-        tokenExpiresAt: currentIntegration?.token_expires_at,
-        lastSync: currentIntegration?.last_sync
-      });
-      
-      if (!currentIntegration?.is_connected) {
-        throw new Error('Integration is not connected - please reconnect your account');
-      }
-      
-      if (!currentIntegration?.access_token_encrypted) {
-        throw new Error('No access token found - please reconnect your account');
-      }
-      
       // Call the outlook-calendar-sync edge function
       console.log('📞 Calling outlook-calendar-sync edge function...');
       const { data, error } = await supabase.functions.invoke('outlook-calendar-sync');
@@ -176,7 +153,15 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
       
       if (error) {
         console.error('❌ Edge function error:', error);
-        throw new Error(error.message || 'Sync failed');
+        
+        // Handle specific error types
+        if (error.message.includes('Invalid token format')) {
+          throw new Error('Authentication issue detected. Please reconnect your Outlook account.');
+        } else if (error.message.includes('refresh access token')) {
+          throw new Error('Token refresh failed. Please reconnect your Outlook account.');
+        } else {
+          throw new Error(error.message || 'Sync failed');
+        }
       }
       
       // Update last sync time
@@ -187,6 +172,9 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
       
       toast.success(successMessage);
       
+      // Refresh integration status to get updated info
+      await checkIntegrationStatus();
+      
       // Call the optional sync complete callback
       onSyncComplete?.();
     } catch (error) {
@@ -195,10 +183,14 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
       // Provide more detailed error messages
       let errorMessage = "Failed to sync with Outlook";
       if (error instanceof Error) {
-        if (error.message.includes('401') || error.message.includes('Unauthorized')) {
+        if (error.message.includes('401') || error.message.includes('Unauthorized') || error.message.includes('Authentication')) {
           errorMessage = "Authentication failed - please reconnect your Outlook account";
-        } else if (error.message.includes('refresh')) {
-          errorMessage = "Token refresh failed - please reconnect your Outlook account";
+          // Auto-disconnect if auth failed
+          setIsConnected(false);
+        } else if (error.message.includes('reconnect')) {
+          errorMessage = error.message;
+          // Auto-disconnect if we need to reconnect
+          setIsConnected(false);
         } else {
           errorMessage = error.message;
         }
@@ -232,12 +224,16 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
     }
   };
 
+  // Check if token is expiring soon (within 1 day)
+  const isTokenExpiringSoon = tokenExpiry && new Date(tokenExpiry).getTime() - Date.now() < 24 * 60 * 60 * 1000;
+
   return (
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
-          Outlook Calendar Integration (OAuth)
+          Outlook Calendar Integration
+          <Shield className="h-4 w-4 text-muted-foreground" />
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -261,6 +257,13 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
               Auto-sync: {autoSyncEnabled ? "Enabled" : "Disabled"}
             </Badge>
           )}
+
+          {isTokenExpiringSoon && (
+            <Badge variant="destructive">
+              <AlertCircle className="h-3 w-3 mr-1" />
+              Token Expiring Soon
+            </Badge>
+          )}
           
           {lastSync && (
             <span className="text-sm text-muted-foreground">
@@ -271,9 +274,18 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
 
         {!isConnected && (
           <Alert>
+            <Shield className="h-4 w-4" />
+            <AlertDescription>
+              Connect your Microsoft account using secure OAuth 2.0 authentication for seamless calendar synchronization.
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {isConnected && isTokenExpiringSoon && (
+          <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Connect your Microsoft account for seamless calendar synchronization with proper OAuth authentication.
+              Your authentication token is expiring soon. Please reconnect your account to continue syncing.
             </AlertDescription>
           </Alert>
         )}
@@ -323,17 +335,31 @@ export const OAuthOutlookIntegration = ({ onSyncComplete }: OAuthOutlookIntegrat
 
         {isConnected && (
           <Alert>
-            <CheckCircle className="h-4 w-4" />
+            <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription>
-              🎉 Your Microsoft account is connected! Events will sync {autoSyncEnabled ? 'automatically every 15 minutes' : 'manually when you click sync'}.
+              🎉 Your Microsoft account is securely connected! Events will sync {autoSyncEnabled ? 'automatically every 15 minutes' : 'manually when you click sync'}.
             </AlertDescription>
           </Alert>
         )}
 
         <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
-          <strong>OAuth Integration:</strong> This uses Microsoft's OAuth 2.0 for secure authentication. 
-          Your credentials are never stored directly - only secure tokens are used for API access.
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Shield className="h-3 w-3" />
+              <strong>Secure OAuth 2.0 Integration</strong>
+            </div>
+            <p>• Uses Microsoft's official OAuth 2.0 for secure authentication</p>
+            <p>• Your credentials are never stored - only secure, encrypted tokens</p>
+            <p>• Tokens are automatically refreshed as needed</p>
+            <p>• Full two-way sync: import from Outlook, export to Outlook</p>
+          </div>
         </div>
+
+        {tokenExpiry && (
+          <div className="text-xs text-muted-foreground">
+            Token expires: {new Date(tokenExpiry).toLocaleString()}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

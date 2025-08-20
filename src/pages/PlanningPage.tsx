@@ -16,7 +16,7 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
-import { OAuthOutlookIntegration } from "@/components/planning/OAuthOutlookIntegration";
+import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 import { GoogleCalendarIntegration } from "@/components/planning/GoogleCalendarIntegration";
 import { PlanningCalendar } from "@/components/planning/PlanningCalendar";
 import { FutureTaskCard } from "@/components/planning/FutureTaskCard";
@@ -161,7 +161,7 @@ const PlanningPage = () => {
           <TabsContent value="calendar" className="mt-4">
             <div className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <OAuthOutlookIntegration onSyncComplete={() => {
+                <OutlookIntegrationConsolidated onSyncComplete={() => {
                   eventsQuery.refetch();
                   toast({ title: "Outlook sync completed", description: "Calendar has been updated" });
                 }} />
