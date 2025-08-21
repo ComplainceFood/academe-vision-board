@@ -52,25 +52,6 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
     }
   };
 
-  // Listen for OAuth completion messages from popup
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.origin !== window.location.origin) return;
-
-      if (event.data.type === 'OUTLOOK_OAUTH_SUCCESS') {
-        toast.success("Successfully connected to Outlook! 🎉");
-        checkIntegrationStatus();
-        setIsLoading(false);
-      } else if (event.data.type === 'OUTLOOK_OAUTH_ERROR') {
-        toast.error(event.data.error || "Failed to connect to Outlook");
-        setIsLoading(false);
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
-  }, [user]);
-
   const handleOAuthConnection = useCallback(async () => {
     if (!user) return;
     
@@ -84,6 +65,9 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
         throw new Error('Failed to get OAuth configuration: ' + configError.message);
       }
       
+      // Store the current URL to return to after OAuth
+      sessionStorage.setItem('outlook_oauth_return_url', window.location.href);
+      
       // Build authorization URL
       const params = new URLSearchParams({
         client_id: config.clientId,
@@ -96,31 +80,8 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
       
       const authUrl = `${config.authUrl}?${params.toString()}`;
       
-      // Open popup window for OAuth using the same approach as Google Calendar
-      const width = 500;
-      const height = 650;
-      const left = window.screenX + Math.max(0, (window.outerWidth - width) / 2);
-      const top = window.screenY + Math.max(0, (window.outerHeight - height) / 2);
-      
-      const popup = window.open(
-        authUrl,
-        'outlook_oauth',
-        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-      );
-      
-      if (!popup) {
-        toast.error("Popup blocked. Please allow popups for this site and try again.");
-        setIsLoading(false);
-        return;
-      }
-      
-      // Monitor popup closure
-      const checkClosed = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(checkClosed);
-          setIsLoading(false);
-        }
-      }, 1000);
+      // Direct redirect instead of popup to avoid popup blockers
+      window.location.href = authUrl;
       
     } catch (error) {
       console.error('OAuth connection error:', error);
