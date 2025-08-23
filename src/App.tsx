@@ -80,9 +80,12 @@ const AppContent = () => {
     <>
       <OAuthTokenCapture />
       <Routes>
+        {/* Public routes - no authentication required */}
         <Route path="/auth" element={<AuthPage />} />
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="/auth/outlook/callback" element={<OutlookOAuthCallbackPage />} />
+        
+        {/* Protected routes - authentication required */}
         <Route
           path="/"
           element={
