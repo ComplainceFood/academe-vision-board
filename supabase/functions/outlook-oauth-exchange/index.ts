@@ -87,7 +87,7 @@ serve(async (req) => {
     }
 
     // Exchange authorization code for access token
-    const tokenUrl = `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/token`;
+    const tokenUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/token`;
     // Use the same redirect URI as configured in oauth-config
     const origin = req.headers.get('origin') || req.headers.get('referer')?.split('/').slice(0, 3).join('') || '';
     const redirectUri = `${origin}/auth/outlook/callback`;

@@ -41,18 +41,18 @@ serve(async (req) => {
       hasClientId: !!MICROSOFT_CLIENT_ID
     });
 
-    // Return the OAuth configuration
+    // Return the OAuth configuration with multi-tenant support
     const config = {
       clientId: MICROSOFT_CLIENT_ID,
-      tenantId: MICROSOFT_TENANT_ID,
+      tenantId: 'common', // Use 'common' for multi-tenant support
       scopes: [
         'https://graph.microsoft.com/calendars.readwrite',
         'https://graph.microsoft.com/user.read',
         'offline_access'
       ],
       redirectUri: redirectUri,
-      authUrl: `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/authorize`,
-      tokenUrl: `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/token`
+      authUrl: `https://login.microsoftonline.com/common/oauth2/v2.0/authorize`,
+      tokenUrl: `https://login.microsoftonline.com/common/oauth2/v2.0/token`
     };
 
     return new Response(
