@@ -18,32 +18,23 @@ export function useUserRole() {
       }
 
       try {
-        // First check if user has any role assigned
+        // Check if user has any role assigned
         const { data: roleData, error } = await supabase
           .from('user_roles')
           .select('role')
           .eq('user_id', user.id)
           .order('role', { ascending: true }) // system_admin first, then primary_user, then secondary_user
           .limit(1)
-          .single();
+          .maybeSingle(); // Use maybeSingle to avoid errors when no data found
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows found
+        if (error) {
           console.error('Error fetching user role:', error);
           setRole('primary_user'); // Default to primary_user role
         } else if (roleData) {
           setRole(roleData.role as UserRole);
         } else {
-          // No role assigned, assign default primary_user role
-          const { error: insertError } = await supabase
-            .from('user_roles')
-            .insert({
-              user_id: user.id,
-              role: 'primary_user'
-            });
-
-          if (insertError) {
-            console.error('Error assigning default role:', insertError);
-          }
+          // No role assigned - user will get a role assigned by trigger when they were created
+          // If somehow they don't have a role, default to primary_user
           setRole('primary_user');
         }
       } catch (error) {

@@ -17,6 +17,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
 import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExportImport";
 import SecurityDashboard from "@/components/security/SecurityDashboard";
+import { SecurityScanner } from "@/components/admin/SecurityScanner";
+import { SecurityStatus } from "@/components/security/SecurityStatus";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 
 const SettingsPage = () => {
@@ -464,6 +466,12 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
+            {/* Security Status Overview */}
+            <SecurityStatus />
+            
+            {/* Security Scanner (Admin Only) */}
+            <SecurityScanner />
+            
             {/* Security Dashboard */}
             <SecurityDashboard />
             
