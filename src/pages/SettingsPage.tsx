@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2, Download, Link, Check, Clock } from "lucide-react";
+import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2, Download, Link, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -23,7 +23,8 @@ import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookInt
 
 const SettingsPage = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const { user } = useAuth();
@@ -59,84 +60,90 @@ const SettingsPage = () => {
     }
   }, [profile, user, isLoading]);
 
-  // Auto-save functionality with debouncing and status
-  const debouncedUpdate = useCallback(
-    (() => {
-      let saveTimeoutId: NodeJS.Timeout;
-      let statusTimeoutId: NodeJS.Timeout;
-      
-      return (updates: any) => {
-        setAutoSaveStatus('saving');
-        
-        // Clear existing timeouts
-        clearTimeout(saveTimeoutId);
-        clearTimeout(statusTimeoutId);
-        
-        saveTimeoutId = setTimeout(async () => {
-          if (user) {
-            try {
-              await updateProfile(updates);
-              setAutoSaveStatus('saved');
-              
-              // Clear "saved" status after 2 seconds
-              statusTimeoutId = setTimeout(() => {
-                setAutoSaveStatus('idle');
-              }, 2000);
-            } catch (error) {
-              console.error('Auto-save error:', error);
-              setAutoSaveStatus('idle');
-            }
-          }
-        }, 1000); // Wait 1 second after user stops typing
-      };
-    })(),
-    [updateProfile, user]
-  );
+  // Mark form as having unsaved changes
+  const markAsChanged = () => {
+    setHasUnsavedChanges(true);
+  };
 
-  // Auto-update functions for each field
+  // Handle saving profile changes
+  const handleSaveProfile = async () => {
+    if (!user || !hasUnsavedChanges) return;
+    
+    setSaving(true);
+    try {
+      await updateProfile({
+        display_name: displayName,
+        first_name: firstName,
+        last_name: lastName,
+        email: email,
+        phone: phone,
+        department: department,
+        position: position,
+        bio: bio,
+        office_location: officeLocation,
+      });
+      
+      setHasUnsavedChanges(false);
+      toast({
+        title: "Profile updated",
+        description: "Your profile has been saved successfully",
+      });
+    } catch (error) {
+      console.error('Save error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Form change handlers
   const handleDisplayNameChange = (value: string) => {
     setDisplayName(value);
-    debouncedUpdate({ display_name: value });
+    markAsChanged();
   };
 
   const handleFirstNameChange = (value: string) => {
     setFirstName(value);
-    debouncedUpdate({ first_name: value });
+    markAsChanged();
   };
 
   const handleLastNameChange = (value: string) => {
     setLastName(value);
-    debouncedUpdate({ last_name: value });
+    markAsChanged();
   };
 
   const handleEmailChange = (value: string) => {
     setEmail(value);
-    debouncedUpdate({ email: value });
+    markAsChanged();
   };
 
   const handlePhoneChange = (value: string) => {
     setPhone(value);
-    debouncedUpdate({ phone: value });
+    markAsChanged();
   };
 
   const handleDepartmentChange = (value: string) => {
     setDepartment(value);
-    debouncedUpdate({ department: value });
+    markAsChanged();
   };
 
   const handlePositionChange = (value: string) => {
     setPosition(value);
-    debouncedUpdate({ position: value });
+    markAsChanged();
   };
 
   const handleBioChange = (value: string) => {
     setBio(value);
-    debouncedUpdate({ bio: value });
+    markAsChanged();
   };
 
   const handleOfficeLocationChange = (value: string) => {
     setOfficeLocation(value);
-    debouncedUpdate({ office_location: value });
+    markAsChanged();
   };
 
 
@@ -312,23 +319,23 @@ const SettingsPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   Profile Information
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    {autoSaveStatus === 'saving' && (
-                      <>
-                        <Clock className="h-4 w-4 animate-spin" />
-                        Saving...
-                      </>
+                  <div className="flex items-center gap-2">
+                    {hasUnsavedChanges && (
+                      <span className="text-sm text-muted-foreground">Unsaved changes</span>
                     )}
-                    {autoSaveStatus === 'saved' && (
-                      <>
-                        <Check className="h-4 w-4 text-green-500" />
-                        Saved
-                      </>
-                    )}
+                    <Button 
+                      onClick={handleSaveProfile}
+                      disabled={!hasUnsavedChanges || saving}
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      <Save className="h-4 w-4" />
+                      {saving ? "Saving..." : "Save Changes"}
+                    </Button>
                   </div>
                 </CardTitle>
                 <CardDescription>
-                  Update your personal information and how others see you. Changes are saved automatically.
+                  Update your personal information and how others see you.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
