@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
-type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback' | 'admin_communications';
+type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback' | 'admin_communications' | 'scholastic_achievements';
 
 interface Filter {
   column: string;

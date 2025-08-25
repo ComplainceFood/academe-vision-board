@@ -13,6 +13,7 @@ import MeetingsPage from "./pages/MeetingsPage";
 import SuppliesPage from "./pages/SuppliesPage";
 import PlanningPage from "./pages/PlanningPage";
 import FundingPage from "./pages/FundingPage";
+import AchievementsPage from "./pages/AchievementsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import SettingsPage from "./pages/SettingsPage";
 import FeedbackPage from "./pages/FeedbackPage";
@@ -131,6 +132,14 @@ const AppContent = () => {
           element={
             <ProtectedRoute>
               <FundingPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/achievements"
+          element={
+            <ProtectedRoute>
+              <AchievementsPage />
             </ProtectedRoute>
           }
         />

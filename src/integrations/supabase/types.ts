@@ -874,6 +874,60 @@ export type Database = {
         }
         Relationships: []
       }
+      scholastic_achievements: {
+        Row: {
+          category: string
+          co_authors: string[] | null
+          created_at: string
+          date: string | null
+          description: string | null
+          id: string
+          impact_factor: number | null
+          status: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          url: string | null
+          user_id: string
+          venue: string | null
+          visibility: string
+        }
+        Insert: {
+          category: string
+          co_authors?: string[] | null
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          id?: string
+          impact_factor?: number | null
+          status?: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          url?: string | null
+          user_id: string
+          venue?: string | null
+          visibility?: string
+        }
+        Update: {
+          category?: string
+          co_authors?: string[] | null
+          created_at?: string
+          date?: string | null
+          description?: string | null
+          id?: string
+          impact_factor?: number | null
+          status?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          url?: string | null
+          user_id?: string
+          venue?: string | null
+          visibility?: string
+        }
+        Relationships: []
+      }
       security_audit_log: {
         Row: {
           action: string
