@@ -5,9 +5,10 @@ import { PublicationsList } from "@/components/achievements/PublicationsList";
 import { ResearchPresentationsList } from "@/components/achievements/ResearchPresentationsList";
 import { InvitedTalksList } from "@/components/achievements/InvitedTalksList";
 import { LeadershipRolesList } from "@/components/achievements/LeadershipRolesList";
+import { CoursesTaughtList } from "@/components/achievements/CoursesTaughtList";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Presentation, Mic, Users } from "lucide-react";
+import { BookOpen, Presentation, Mic, Users, GraduationCap } from "lucide-react";
 
 const AchievementsPage = () => {
   const [activeTab, setActiveTab] = useState("publications");
@@ -16,7 +17,8 @@ const AchievementsPage = () => {
     publications: { count: 0, icon: BookOpen },
     presentations: { count: 0, icon: Presentation },
     talks: { count: 0, icon: Mic },
-    leadership: { count: 0, icon: Users }
+    leadership: { count: 0, icon: Users },
+    courses: { count: 0, icon: GraduationCap }
   };
 
   return (
@@ -38,7 +40,7 @@ const AchievementsPage = () => {
           </CardHeader>
           <CardContent>
             <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-              <TabsList className="grid w-full grid-cols-4">
+              <TabsList className="grid w-full grid-cols-5">
                 <TabsTrigger value="publications" className="flex items-center gap-2">
                   <BookOpen className="h-4 w-4" />
                   <span className="hidden sm:inline">Publications</span>
@@ -54,6 +56,10 @@ const AchievementsPage = () => {
                 <TabsTrigger value="leadership" className="flex items-center gap-2">
                   <Users className="h-4 w-4" />
                   <span className="hidden sm:inline">Leadership</span>
+                </TabsTrigger>
+                <TabsTrigger value="courses" className="flex items-center gap-2">
+                  <GraduationCap className="h-4 w-4" />
+                  <span className="hidden sm:inline">Courses</span>
                 </TabsTrigger>
               </TabsList>
 
@@ -83,6 +89,13 @@ const AchievementsPage = () => {
                   <h3 className="text-lg font-semibold">Leadership & Organizational Roles</h3>
                 </div>
                 <LeadershipRolesList />
+              </TabsContent>
+
+              <TabsContent value="courses" className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold">Courses Taught</h3>
+                </div>
+                <CoursesTaughtList />
               </TabsContent>
             </Tabs>
           </CardContent>

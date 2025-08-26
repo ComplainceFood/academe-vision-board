@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 interface CreateAchievementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category: "publication" | "research_presentation" | "invited_talk" | "leadership_role";
+  category: "publication" | "research_presentation" | "invited_talk" | "leadership_role" | "course_taught";
   onSuccess: () => void;
 }
 
