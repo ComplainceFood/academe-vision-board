@@ -14,7 +14,7 @@ import { useAuth } from "@/hooks/useAuth";
 interface CreateAchievementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  category: "publication" | "research_presentation" | "invited_talk" | "leadership_role" | "course_taught";
+  category: "publication" | "research_presentation" | "invited_talk" | "leadership_role" | "course_taught" | "award_honor" | "service_review" | "student_supervision" | "teaching_performance" | "professional_development" | "external_impact";
   onSuccess: () => void;
 }
 
@@ -34,7 +34,15 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
     co_authors: [] as string[],
     tags: [] as string[],
     term: "",
-    student_count: ""
+    student_count: "",
+    award_type: "",
+    organization: "",
+    journal_name: "",
+    review_count: "",
+    student_name: "",
+    student_level: "" as "" | "undergraduate" | "masters" | "phd" | "postdoc",
+    evaluation_score: "",
+    course_code: ""
   });
   const [newCoAuthor, setNewCoAuthor] = useState("");
   const [newTag, setNewTag] = useState("");
@@ -46,6 +54,12 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
       case "invited_talk": return "Invited Talk";
       case "leadership_role": return "Leadership Role";
       case "course_taught": return "Course Taught";
+      case "award_honor": return "Award/Honor";
+      case "service_review": return "Service/Review";
+      case "student_supervision": return "Student Supervision";
+      case "teaching_performance": return "Teaching Performance";
+      case "professional_development": return "Professional Development";
+      case "external_impact": return "External Impact";
       default: return "Achievement";
     }
   };
@@ -72,7 +86,15 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
           co_authors: formData.co_authors.length > 0 ? formData.co_authors : null,
           tags: formData.tags.length > 0 ? formData.tags : null,
           term: formData.term || null,
-          student_count: formData.student_count ? parseInt(formData.student_count) : null
+          student_count: formData.student_count ? parseInt(formData.student_count) : null,
+          award_type: formData.award_type || null,
+          organization: formData.organization || null,
+          journal_name: formData.journal_name || null,
+          review_count: formData.review_count ? parseInt(formData.review_count) : null,
+          student_name: formData.student_name || null,
+          student_level: formData.student_level || null,
+          evaluation_score: formData.evaluation_score ? parseFloat(formData.evaluation_score) : null,
+          course_code: formData.course_code || null
         });
 
       if (error) throw error;
