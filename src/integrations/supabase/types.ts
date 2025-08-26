@@ -884,7 +884,9 @@ export type Database = {
           id: string
           impact_factor: number | null
           status: string
+          student_count: number | null
           tags: string[] | null
+          term: string | null
           title: string
           updated_at: string
           url: string | null
@@ -901,7 +903,9 @@ export type Database = {
           id?: string
           impact_factor?: number | null
           status?: string
+          student_count?: number | null
           tags?: string[] | null
+          term?: string | null
           title: string
           updated_at?: string
           url?: string | null
@@ -918,7 +922,9 @@ export type Database = {
           id?: string
           impact_factor?: number | null
           status?: string
+          student_count?: number | null
           tags?: string[] | null
+          term?: string | null
           title?: string
           updated_at?: string
           url?: string | null

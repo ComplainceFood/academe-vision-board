@@ -32,7 +32,9 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
     status: "completed",
     visibility: "public",
     co_authors: [] as string[],
-    tags: [] as string[]
+    tags: [] as string[],
+    term: "",
+    student_count: ""
   });
   const [newCoAuthor, setNewCoAuthor] = useState("");
   const [newTag, setNewTag] = useState("");
@@ -43,6 +45,7 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
       case "research_presentation": return "Research Presentation";
       case "invited_talk": return "Invited Talk";
       case "leadership_role": return "Leadership Role";
+      case "course_taught": return "Course Taught";
       default: return "Achievement";
     }
   };
@@ -67,7 +70,9 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
           status: formData.status,
           visibility: formData.visibility,
           co_authors: formData.co_authors.length > 0 ? formData.co_authors : null,
-          tags: formData.tags.length > 0 ? formData.tags : null
+          tags: formData.tags.length > 0 ? formData.tags : null,
+          term: formData.term || null,
+          student_count: formData.student_count ? parseInt(formData.student_count) : null
         });
 
       if (error) throw error;
@@ -210,6 +215,31 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
                 onChange={(e) => setFormData(prev => ({ ...prev, impact_factor: e.target.value }))}
                 placeholder="0.000"
               />
+            </div>
+          )}
+
+          {category === "course_taught" && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="term">Term</Label>
+                <Input
+                  id="term"
+                  value={formData.term}
+                  onChange={(e) => setFormData(prev => ({ ...prev, term: e.target.value }))}
+                  placeholder="e.g. Fall 2024"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="student_count">Number of Students</Label>
+                <Input
+                  id="student_count"
+                  type="number"
+                  value={formData.student_count}
+                  onChange={(e) => setFormData(prev => ({ ...prev, student_count: e.target.value }))}
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
             </div>
           )}
 
