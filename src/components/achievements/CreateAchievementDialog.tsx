@@ -265,6 +265,144 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
             </div>
           )}
 
+          {category === "award_honor" && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="award_type">Award Type</Label>
+                <Input
+                  id="award_type"
+                  value={formData.award_type}
+                  onChange={(e) => setFormData(prev => ({ ...prev, award_type: e.target.value }))}
+                  placeholder="e.g. Teaching Award, Fellowship"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="organization">Organization</Label>
+                <Input
+                  id="organization"
+                  value={formData.organization}
+                  onChange={(e) => setFormData(prev => ({ ...prev, organization: e.target.value }))}
+                  placeholder="Awarding organization"
+                />
+              </div>
+            </div>
+          )}
+
+          {category === "service_review" && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="journal_name">Journal/Organization</Label>
+                <Input
+                  id="journal_name"
+                  value={formData.journal_name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, journal_name: e.target.value }))}
+                  placeholder="Journal or organization name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="review_count">Number of Reviews</Label>
+                <Input
+                  id="review_count"
+                  type="number"
+                  value={formData.review_count}
+                  onChange={(e) => setFormData(prev => ({ ...prev, review_count: e.target.value }))}
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+            </div>
+          )}
+
+          {category === "student_supervision" && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="student_name">Student Name</Label>
+                <Input
+                  id="student_name"
+                  value={formData.student_name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, student_name: e.target.value }))}
+                  placeholder="Student's name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="student_level">Student Level</Label>
+                <Select value={formData.student_level} onValueChange={(value) => setFormData(prev => ({ ...prev, student_level: value as any }))}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select level" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="undergraduate">Undergraduate</SelectItem>
+                    <SelectItem value="masters">Masters</SelectItem>
+                    <SelectItem value="phd">PhD</SelectItem>
+                    <SelectItem value="postdoc">Postdoc</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
+
+          {category === "teaching_performance" && (
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="course_code">Course Code</Label>
+                <Input
+                  id="course_code"
+                  value={formData.course_code}
+                  onChange={(e) => setFormData(prev => ({ ...prev, course_code: e.target.value }))}
+                  placeholder="e.g. CS101"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="evaluation_score">Evaluation Score</Label>
+                <Input
+                  id="evaluation_score"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  value={formData.evaluation_score}
+                  onChange={(e) => setFormData(prev => ({ ...prev, evaluation_score: e.target.value }))}
+                  placeholder="4.5"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="student_count">Number of Students</Label>
+                <Input
+                  id="student_count"
+                  type="number"
+                  value={formData.student_count}
+                  onChange={(e) => setFormData(prev => ({ ...prev, student_count: e.target.value }))}
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+            </div>
+          )}
+
+          {category === "professional_development" && (
+            <div className="space-y-2">
+              <Label htmlFor="organization">Organizer/Institution</Label>
+              <Input
+                id="organization"
+                value={formData.organization}
+                onChange={(e) => setFormData(prev => ({ ...prev, organization: e.target.value }))}
+                placeholder="Conference organizer or institution"
+              />
+            </div>
+          )}
+
+          {category === "external_impact" && (
+            <div className="space-y-2">
+              <Label htmlFor="organization">Media/Organization</Label>
+              <Input
+                id="organization"
+                value={formData.organization}
+                onChange={(e) => setFormData(prev => ({ ...prev, organization: e.target.value }))}
+                placeholder="Media outlet or organization"
+              />
+            </div>
+          )}
+
           <div className="space-y-2">
             <Label htmlFor="url">URL</Label>
             <Input

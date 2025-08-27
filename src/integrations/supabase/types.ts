@@ -876,15 +876,23 @@ export type Database = {
       }
       scholastic_achievements: {
         Row: {
+          award_type: string | null
           category: string
           co_authors: string[] | null
+          course_code: string | null
           created_at: string
           date: string | null
           description: string | null
+          evaluation_score: number | null
           id: string
           impact_factor: number | null
+          journal_name: string | null
+          organization: string | null
+          review_count: number | null
           status: string
           student_count: number | null
+          student_level: string | null
+          student_name: string | null
           tags: string[] | null
           term: string | null
           title: string
@@ -895,15 +903,23 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          award_type?: string | null
           category: string
           co_authors?: string[] | null
+          course_code?: string | null
           created_at?: string
           date?: string | null
           description?: string | null
+          evaluation_score?: number | null
           id?: string
           impact_factor?: number | null
+          journal_name?: string | null
+          organization?: string | null
+          review_count?: number | null
           status?: string
           student_count?: number | null
+          student_level?: string | null
+          student_name?: string | null
           tags?: string[] | null
           term?: string | null
           title: string
@@ -914,15 +930,23 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          award_type?: string | null
           category?: string
           co_authors?: string[] | null
+          course_code?: string | null
           created_at?: string
           date?: string | null
           description?: string | null
+          evaluation_score?: number | null
           id?: string
           impact_factor?: number | null
+          journal_name?: string | null
+          organization?: string | null
+          review_count?: number | null
           status?: string
           student_count?: number | null
+          student_level?: string | null
+          student_name?: string | null
           tags?: string[] | null
           term?: string | null
           title?: string
