@@ -1193,6 +1193,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      log_sensitive_data_access: {
+        Args: { operation: string; record_count?: number; table_name: string }
+        Returns: undefined
+      }
       prevent_anonymous_access: {
         Args: Record<PropertyKey, never>
         Returns: boolean
