@@ -1180,6 +1180,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_authenticated_recently: {
+        Args: { minutes_threshold?: number }
+        Returns: boolean
+      }
       log_security_event: {
         Args: {
           action_type: string
@@ -1188,6 +1192,10 @@ export type Database = {
           table_name?: string
         }
         Returns: undefined
+      }
+      prevent_anonymous_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
       seed_demo_data: {
         Args: { target_user_id: string }
