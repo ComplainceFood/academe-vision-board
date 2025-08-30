@@ -1136,57 +1136,7 @@ export type Database = {
       }
     }
     Views: {
-      profiles_secure: {
-        Row: {
-          avatar_url: string | null
-          bio: string | null
-          created_at: string | null
-          department: string | null
-          display_name: string | null
-          email: string | null
-          first_name: string | null
-          id: string | null
-          last_name: string | null
-          office_location: string | null
-          phone: string | null
-          position: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          department?: string | null
-          display_name?: string | null
-          email?: never
-          first_name?: string | null
-          id?: string | null
-          last_name?: string | null
-          office_location?: never
-          phone?: never
-          position?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string | null
-          department?: string | null
-          display_name?: string | null
-          email?: never
-          first_name?: string | null
-          id?: string | null
-          last_name?: string | null
-          office_location?: never
-          phone?: never
-          position?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       check_login_attempts: {
@@ -1232,6 +1182,10 @@ export type Database = {
       }
       is_authenticated_recently: {
         Args: { minutes_threshold?: number }
+        Returns: boolean
+      }
+      is_profile_owner: {
+        Args: { profile_user_id: string }
         Returns: boolean
       }
       log_security_event: {
