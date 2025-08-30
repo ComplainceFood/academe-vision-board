@@ -1136,7 +1136,57 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_secure: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          department: string | null
+          display_name: string | null
+          email: string | null
+          first_name: string | null
+          id: string | null
+          last_name: string | null
+          office_location: string | null
+          phone: string | null
+          position: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          department?: string | null
+          display_name?: string | null
+          email?: never
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          office_location?: never
+          phone?: never
+          position?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          department?: string | null
+          display_name?: string | null
+          email?: never
+          first_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          office_location?: never
+          phone?: never
+          position?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_login_attempts: {
@@ -1208,6 +1258,10 @@ export type Database = {
       validate_password_strength: {
         Args: { password: string }
         Returns: Json
+      }
+      validate_profile_access: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
