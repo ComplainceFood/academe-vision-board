@@ -21,6 +21,7 @@ import CommunicationsPage from "./pages/CommunicationsPage";
 import AuthPage from "./pages/AuthPage";
 import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
 import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
+import LandingPreview from "./pages/LandingPreview";
 import { NotificationManager } from "@/components/notifications/NotificationPopup";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
 // Create a query client with automatic data refresh configuration
@@ -83,6 +84,7 @@ const AppContent = () => {
       <Routes>
         {/* Public routes - no authentication required */}
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/landing" element={<LandingPreview />} />
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="/auth/outlook/callback" element={<OutlookOAuthCallbackPage />} />
         
