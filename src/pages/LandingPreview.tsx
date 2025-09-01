@@ -23,7 +23,7 @@ const LandingPreview = () => {
       description: "Track publications, presentations, awards, and professional development in one comprehensive system.",
       gradient: "from-primary via-primary/80 to-primary/60",
       delay: "0ms",
-      image: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      image: "/screenshots/achievements.png"
     },
     {
       icon: Calendar,
@@ -31,7 +31,7 @@ const LandingPreview = () => {
       description: "Integrate with Google Calendar and Outlook. Plan semesters, schedule meetings, and never miss important deadlines.",
       gradient: "from-secondary via-secondary/80 to-secondary/60",
       delay: "100ms",
-      image: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      image: "/screenshots/planning.png"
     },
     {
       icon: DollarSign,
@@ -39,7 +39,7 @@ const LandingPreview = () => {
       description: "Monitor research grants, track expenditures, and manage funding sources with detailed reporting capabilities.",
       gradient: "from-accent via-accent/80 to-accent/60",
       delay: "200ms",
-      image: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      image: "/screenshots/funding.png"
     },
     {
       icon: Target,
@@ -47,7 +47,7 @@ const LandingPreview = () => {
       description: "Organize notes, commitments, and tasks with intelligent tagging and priority systems.",
       gradient: "from-primary via-secondary to-accent",
       delay: "300ms",
-      image: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      image: "/screenshots/notes.png"
     },
     {
       icon: Users,
@@ -55,7 +55,7 @@ const LandingPreview = () => {
       description: "Schedule meetings, track attendance, manage action items, and collaborate effectively with colleagues.",
       gradient: "from-secondary via-accent to-primary",
       delay: "400ms",
-      image: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      image: "/screenshots/dashboard.png"
     },
     {
       icon: Lightbulb,
@@ -63,7 +63,7 @@ const LandingPreview = () => {
       description: "Monitor lab supplies, track inventory levels, manage shopping lists, and control expenses efficiently.",
       gradient: "from-accent via-primary to-secondary",
       delay: "500ms",
-      image: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      image: "/screenshots/supplies.png"
     },
   ];
 
@@ -77,24 +77,24 @@ const LandingPreview = () => {
   const testimonials = [
     {
       name: "Dr. Sarah Johnson",
-      role: "Professor of Biology",
+      role: "Professor of Biology", 
       institution: "Stanford University",
       content: "SmartProf revolutionized how I manage my research grants and student commitments. The calendar integration alone saved me hours every week.",
-      avatar: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      avatar: "/screenshots/funding.png"
     },
     {
       name: "Prof. Michael Chen",
       role: "Computer Science Department",
-      institution: "MIT",
+      institution: "MIT", 
       content: "The achievement tracking feature is phenomenal. I can now easily compile my annual reports and track publication metrics in real-time.",
-      avatar: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      avatar: "/screenshots/achievements.png"
     },
     {
       name: "Dr. Emily Rodriguez",
       role: "Psychology Department",
       institution: "Harvard University",
       content: "Managing lab supplies and funding has never been easier. The analytics help me make data-driven decisions about resource allocation.",
-      avatar: "/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+      avatar: "/screenshots/supplies.png"
     }
   ];
 
@@ -174,7 +174,7 @@ const LandingPreview = () => {
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 rounded-2xl blur-2xl"></div>
               <div className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-2 shadow-2xl">
                 <img 
-                  src="/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png" 
+                  src="/screenshots/dashboard.png" 
                   alt="SmartProf Dashboard Preview" 
                   className="w-full h-auto rounded-xl shadow-lg"
                 />
