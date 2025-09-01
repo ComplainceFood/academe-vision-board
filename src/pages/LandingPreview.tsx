@@ -2,104 +2,92 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { 
-  BookOpen, 
-  Calendar, 
-  DollarSign, 
-  Target,
-  Users, 
-  Lightbulb,
-  Award,
-  TrendingUp,
-  Shield,
-  Zap
-} from "lucide-react";
-
+import { BookOpen, Calendar, DollarSign, Target, Users, Lightbulb, Award, TrendingUp, Shield, Zap } from "lucide-react";
 const LandingPreview = () => {
-  const features = [
-    {
-      icon: BookOpen,
-      title: "Academic Achievement Tracking",
-      description: "Track publications, presentations, awards, and professional development in one comprehensive system.",
-      gradient: "from-primary via-primary/80 to-primary/60",
-      delay: "0ms",
-      image: "/lovable-uploads/a1063017-2364-4fc3-bb6a-b563f2b32772.png"
-    },
-    {
-      icon: Calendar,
-      title: "Smart Planning & Scheduling",
-      description: "Integrate with Google Calendar and Outlook. Plan semesters, schedule meetings, and never miss important deadlines.",
-      gradient: "from-secondary via-secondary/80 to-secondary/60",
-      delay: "100ms",
-      image: "/lovable-uploads/fde9a6a0-d0b6-4cdc-9563-2ec624b8f322.png"
-    },
-    {
-      icon: DollarSign,
-      title: "Funding & Financial Management",
-      description: "Monitor research grants, track expenditures, and manage funding sources with detailed reporting capabilities.",
-      gradient: "from-accent via-accent/80 to-accent/60",
-      delay: "200ms",
-      image: "/lovable-uploads/15186783-315a-4e51-8119-e337527987ba.png"
-    },
-    {
-      icon: Target,
-      title: "Task & Commitment Management",
-      description: "Organize notes, commitments, and tasks with intelligent tagging and priority systems.",
-      gradient: "from-primary via-secondary to-accent",
-      delay: "300ms",
-      image: "/lovable-uploads/ae10c651-c33c-48aa-a55e-23eb91596796.png"
-    },
-    {
-      icon: Users,
-      title: "Meeting & Collaboration Tools",
-      description: "Schedule meetings, track attendance, manage action items, and collaborate effectively with colleagues.",
-      gradient: "from-secondary via-accent to-primary",
-      delay: "400ms",
-      image: "/lovable-uploads/93aa63a6-6406-458e-abfd-da7c4cd336d2.png"
-    },
-    {
-      icon: Lightbulb,
-      title: "Supplies & Resource Tracking",
-      description: "Monitor lab supplies, track inventory levels, manage shopping lists, and control expenses efficiently.",
-      gradient: "from-accent via-primary to-secondary",
-      delay: "500ms",
-      image: "/lovable-uploads/df81455f-7258-4abe-87ec-08aa3ad5d5ad.png"
-    },
-  ];
-
-  const stats = [
-    { icon: Award, value: "95%", label: "User Satisfaction", gradient: "from-primary to-primary/80" },
-    { icon: TrendingUp, value: "40%", label: "Productivity Increase", gradient: "from-secondary to-secondary/80" },
-    { icon: Shield, value: "100%", label: "Data Security", gradient: "from-accent to-accent/80" },
-    { icon: Zap, value: "24/7", label: "Uptime Reliability", gradient: "from-primary to-secondary" },
-  ];
-
-  const testimonials = [
-    {
-      name: "Dr. Sarah Johnson",
-      role: "Professor of Biology", 
-      institution: "Stanford University",
-      content: "SmartProf revolutionized how I manage my research grants and student commitments. The calendar integration alone saved me hours every week.",
-      avatar: "/lovable-uploads/15186783-315a-4e51-8119-e337527987ba.png"
-    },
-    {
-      name: "Prof. Michael Chen",
-      role: "Computer Science Department",
-      institution: "MIT", 
-      content: "The achievement tracking feature is phenomenal. I can now easily compile my annual reports and track publication metrics in real-time.",
-      avatar: "/lovable-uploads/a1063017-2364-4fc3-bb6a-b563f2b32772.png"
-    },
-    {
-      name: "Dr. Emily Rodriguez",
-      role: "Psychology Department",
-      institution: "Harvard University",
-      content: "Managing lab supplies and funding has never been easier. The analytics help me make data-driven decisions about resource allocation.",
-      avatar: "/lovable-uploads/df81455f-7258-4abe-87ec-08aa3ad5d5ad.png"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+  const features = [{
+    icon: BookOpen,
+    title: "Academic Achievement Tracking",
+    description: "Track publications, presentations, awards, and professional development in one comprehensive system.",
+    gradient: "from-primary via-primary/80 to-primary/60",
+    delay: "0ms",
+    image: "/lovable-uploads/a1063017-2364-4fc3-bb6a-b563f2b32772.png"
+  }, {
+    icon: Calendar,
+    title: "Smart Planning & Scheduling",
+    description: "Integrate with Google Calendar and Outlook. Plan semesters, schedule meetings, and never miss important deadlines.",
+    gradient: "from-secondary via-secondary/80 to-secondary/60",
+    delay: "100ms",
+    image: "/lovable-uploads/fde9a6a0-d0b6-4cdc-9563-2ec624b8f322.png"
+  }, {
+    icon: DollarSign,
+    title: "Funding & Financial Management",
+    description: "Monitor research grants, track expenditures, and manage funding sources with detailed reporting capabilities.",
+    gradient: "from-accent via-accent/80 to-accent/60",
+    delay: "200ms",
+    image: "/lovable-uploads/15186783-315a-4e51-8119-e337527987ba.png"
+  }, {
+    icon: Target,
+    title: "Task & Commitment Management",
+    description: "Organize notes, commitments, and tasks with intelligent tagging and priority systems.",
+    gradient: "from-primary via-secondary to-accent",
+    delay: "300ms",
+    image: "/lovable-uploads/ae10c651-c33c-48aa-a55e-23eb91596796.png"
+  }, {
+    icon: Users,
+    title: "Meeting & Collaboration Tools",
+    description: "Schedule meetings, track attendance, manage action items, and collaborate effectively with colleagues.",
+    gradient: "from-secondary via-accent to-primary",
+    delay: "400ms",
+    image: "/lovable-uploads/93aa63a6-6406-458e-abfd-da7c4cd336d2.png"
+  }, {
+    icon: Lightbulb,
+    title: "Supplies & Resource Tracking",
+    description: "Monitor lab supplies, track inventory levels, manage shopping lists, and control expenses efficiently.",
+    gradient: "from-accent via-primary to-secondary",
+    delay: "500ms",
+    image: "/lovable-uploads/df81455f-7258-4abe-87ec-08aa3ad5d5ad.png"
+  }];
+  const stats = [{
+    icon: Award,
+    value: "95%",
+    label: "User Satisfaction",
+    gradient: "from-primary to-primary/80"
+  }, {
+    icon: TrendingUp,
+    value: "40%",
+    label: "Productivity Increase",
+    gradient: "from-secondary to-secondary/80"
+  }, {
+    icon: Shield,
+    value: "100%",
+    label: "Data Security",
+    gradient: "from-accent to-accent/80"
+  }, {
+    icon: Zap,
+    value: "24/7",
+    label: "Uptime Reliability",
+    gradient: "from-primary to-secondary"
+  }];
+  const testimonials = [{
+    name: "Dr. Sarah Johnson",
+    role: "Professor of Biology",
+    institution: "Stanford University",
+    content: "SmartProf revolutionized how I manage my research grants and student commitments. The calendar integration alone saved me hours every week.",
+    avatar: "/lovable-uploads/15186783-315a-4e51-8119-e337527987ba.png"
+  }, {
+    name: "Prof. Michael Chen",
+    role: "Computer Science Department",
+    institution: "MIT",
+    content: "The achievement tracking feature is phenomenal. I can now easily compile my annual reports and track publication metrics in real-time.",
+    avatar: "/lovable-uploads/a1063017-2364-4fc3-bb6a-b563f2b32772.png"
+  }, {
+    name: "Dr. Emily Rodriguez",
+    role: "Psychology Department",
+    institution: "Harvard University",
+    content: "Managing lab supplies and funding has never been easier. The analytics help me make data-driven decisions about resource allocation.",
+    avatar: "/lovable-uploads/df81455f-7258-4abe-87ec-08aa3ad5d5ad.png"
+  }];
+  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Navigation */}
       <nav className="border-b bg-background/95 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -134,7 +122,9 @@ const LandingPreview = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent"></div>
         <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-2xl animate-pulse" style={{ animationDelay: "2s" }}></div>
+        <div className="absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-2xl animate-pulse" style={{
+        animationDelay: "2s"
+      }}></div>
         
         <div className="relative container mx-auto px-4 py-24 md:py-32 text-center">
           <div className="max-w-6xl mx-auto animate-fade-in">
@@ -173,11 +163,7 @@ const LandingPreview = () => {
             <div className="relative max-w-5xl mx-auto">
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 rounded-2xl blur-2xl"></div>
               <div className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-2 shadow-2xl">
-                <img 
-                  src="/lovable-uploads/78171cf2-715a-43bc-8bff-3ba26023316c.png" 
-                  alt="SmartProf Dashboard Preview" 
-                  className="w-full h-auto rounded-xl shadow-lg"
-                />
+                <img src="/lovable-uploads/78171cf2-715a-43bc-8bff-3ba26023316c.png" alt="SmartProf Dashboard Preview" className="w-full h-auto rounded-xl shadow-lg" />
               </div>
             </div>
           </div>
@@ -196,12 +182,9 @@ const LandingPreview = () => {
             </p>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => (
-              <div 
-                key={stat.label}
-                className="text-center animate-fade-in hover-scale group"
-                style={{ animationDelay: `${index * 100}ms` }}
-              >
+            {stats.map((stat, index) => <div key={stat.label} className="text-center animate-fade-in hover-scale group" style={{
+            animationDelay: `${index * 100}ms`
+          }}>
                 <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-r ${stat.gradient} mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110`}>
                   <stat.icon className="h-10 w-10 text-white" />
                 </div>
@@ -209,8 +192,7 @@ const LandingPreview = () => {
                   {stat.value}
                 </div>
                 <div className="text-muted-foreground font-medium">{stat.label}</div>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -234,22 +216,15 @@ const LandingPreview = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card
-                key={feature.title}
-                className="group relative overflow-hidden border-0 bg-card/50 backdrop-blur-sm hover:bg-card transition-all duration-700 hover:shadow-2xl animate-fade-in hover-scale"
-                style={{ animationDelay: feature.delay }}
-              >
+            {features.map((feature, index) => <Card key={feature.title} className="group relative overflow-hidden border-0 bg-card/50 backdrop-blur-sm hover:bg-card transition-all duration-700 hover:shadow-2xl animate-fade-in hover-scale" style={{
+            animationDelay: feature.delay
+          }}>
                 <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-700`} />
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-primary/[0.05] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
                 
                 {/* Feature Image */}
                 <div className="relative h-48 overflow-hidden rounded-t-lg">
-                  <img 
-                    src={feature.image} 
-                    alt={feature.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  />
+                  <img src={feature.image} alt={feature.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/10"></div>
                   <div className={`absolute top-4 left-4 w-12 h-12 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-500`}>
                     <feature.icon className="h-6 w-6 text-white" />
@@ -269,8 +244,7 @@ const LandingPreview = () => {
                 </CardContent>
                 
                 <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r ${feature.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`} />
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -288,12 +262,9 @@ const LandingPreview = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card 
-                key={testimonial.name}
-                className="group relative overflow-hidden bg-card/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-500 animate-fade-in hover-scale"
-                style={{ animationDelay: `${index * 150}ms` }}
-              >
+            {testimonials.map((testimonial, index) => <Card key={testimonial.name} className="group relative overflow-hidden bg-card/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-500 animate-fade-in hover-scale" style={{
+            animationDelay: `${index * 150}ms`
+          }}>
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 
                 <CardContent className="p-8 relative z-10">
@@ -306,11 +277,7 @@ const LandingPreview = () => {
                   <div className="flex items-center space-x-4">
                     <div className="relative">
                       <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-sm opacity-75"></div>
-                      <img 
-                        src={testimonial.avatar} 
-                        alt={testimonial.name}
-                        className="relative w-12 h-12 rounded-full object-cover shadow-lg"
-                      />
+                      <img src={testimonial.avatar} alt={testimonial.name} className="relative w-12 h-12 rounded-full object-cover shadow-lg" />
                     </div>
                     <div>
                       <div className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
@@ -325,8 +292,7 @@ const LandingPreview = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -336,7 +302,9 @@ const LandingPreview = () => {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10"></div>
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent"></div>
         <div className="absolute top-10 left-10 w-24 h-24 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-2xl animate-float"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-gradient-to-r from-accent/30 to-primary/30 rounded-full blur-2xl animate-float" style={{ animationDelay: "1s" }}></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-gradient-to-r from-accent/30 to-primary/30 rounded-full blur-2xl animate-float" style={{
+        animationDelay: "1s"
+      }}></div>
         
         <div className="relative container mx-auto px-4">
           <Card className="relative overflow-hidden bg-gradient-to-br from-card/80 via-card/60 to-card/80 backdrop-blur-sm border-primary/20 shadow-2xl animate-fade-in">
@@ -361,9 +329,7 @@ const LandingPreview = () => {
                   <Button asChild size="lg" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-lg px-12 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover-scale">
                     <Link to="/auth">Get Started Today</Link>
                   </Button>
-                  <p className="text-sm text-muted-foreground">
-                    Free forever • No credit card required • 2-minute setup
-                  </p>
+                  <p className="text-sm text-muted-foreground">No credit card required • 2-minute setup</p>
                 </div>
               </div>
             </CardContent>
@@ -387,14 +353,10 @@ const LandingPreview = () => {
             <p className="text-muted-foreground text-lg mb-4">
               Empowering academic excellence through intelligent management
             </p>
-            <p className="text-sm text-muted-foreground/80">
-              © 2024 SmartProf. All rights reserved.
-            </p>
+            <p className="text-sm text-muted-foreground/80">© 2025 Smart-Prof. All rights reserved.</p>
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default LandingPreview;
