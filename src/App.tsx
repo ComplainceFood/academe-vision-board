@@ -92,9 +92,7 @@ const AppContent = () => {
         <Route
           path="/"
           element={
-            <ProtectedRoute>
-              <Index />
-            </ProtectedRoute>
+            user ? <Index /> : <LandingPreview />
           }
         />
         <Route

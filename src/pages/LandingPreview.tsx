@@ -31,7 +31,7 @@ const LandingPreview = () => {
       description: "Integrate with Google Calendar and Outlook. Plan semesters, schedule meetings, and never miss important deadlines.",
       gradient: "from-secondary via-secondary/80 to-secondary/60",
       delay: "100ms",
-      image: "/lovable-uploads/93aa63a6-6406-458e-abfd-da7c4cd336d2.png"
+      image: "/lovable-uploads/fde9a6a0-d0b6-4cdc-9563-2ec624b8f322.png"
     },
     {
       icon: DollarSign,
@@ -55,7 +55,7 @@ const LandingPreview = () => {
       description: "Schedule meetings, track attendance, manage action items, and collaborate effectively with colleagues.",
       gradient: "from-secondary via-accent to-primary",
       delay: "400ms",
-      image: "/lovable-uploads/78171cf2-715a-43bc-8bff-3ba26023316c.png"
+      image: "/lovable-uploads/93aa63a6-6406-458e-abfd-da7c4cd336d2.png"
     },
     {
       icon: Lightbulb,
@@ -250,7 +250,7 @@ const LandingPreview = () => {
                     alt={feature.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className={`absolute inset-0 bg-gradient-to-t ${feature.gradient} opacity-20 group-hover:opacity-30 transition-opacity duration-700`} />
+                  <div className="absolute inset-0 bg-black/10"></div>
                   <div className={`absolute top-4 left-4 w-12 h-12 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-500`}>
                     <feature.icon className="h-6 w-6 text-white" />
                   </div>
