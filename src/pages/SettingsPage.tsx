@@ -19,6 +19,8 @@ import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExport
 import SecurityDashboard from "@/components/security/SecurityDashboard";
 import { SecurityScanner } from "@/components/admin/SecurityScanner";
 import { SecurityStatus } from "@/components/security/SecurityStatus";
+import { SecurityMonitor } from "@/components/security/SecurityMonitor";
+import { SecurityAuditLog } from "@/components/security/SecurityAuditLog";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 
 const SettingsPage = () => {
@@ -481,6 +483,12 @@ const SettingsPage = () => {
             
             {/* Security Dashboard */}
             <SecurityDashboard />
+            
+            {/* Security Monitor */}
+            <SecurityMonitor />
+            
+            {/* Security Audit Log */}
+            <SecurityAuditLog />
             
             {/* Data Export/Import Section */}
             <EnhancedDataExportImport />
