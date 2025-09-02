@@ -73,7 +73,7 @@ const LandingPreview = () => {
     role: "Professor of Biology",
     institution: "Stanford University",
     content: "SmartProf revolutionized how I manage my research grants and student commitments. The calendar integration alone saved me hours every week.",
-    avatar: "https://images.unsplash.com/photo-1494790108755-2616c06541e0?w=150&h=150&fit=crop&crop=face"
+    avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face"
   }, {
     name: "Prof. Michael Chen",
     role: "Computer Science Department",
@@ -261,35 +261,48 @@ const LandingPreview = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => <Card key={testimonial.name} className="group relative overflow-hidden bg-card/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-500 animate-fade-in hover-scale" style={{
-            animationDelay: `${index * 150}ms`
+            {testimonials.map((testimonial, index) => <Card key={testimonial.name} className="group relative overflow-hidden bg-card/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-700 animate-fade-in hover-scale transform hover:-translate-y-2" style={{
+            animationDelay: `${index * 200}ms`
           }}>
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+                <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 transition-all duration-700 rounded-lg" />
                 
                 <CardContent className="p-8 relative z-10">
-                  <div className="mb-6">
-                    <p className="text-lg leading-relaxed text-muted-foreground group-hover:text-foreground/90 transition-colors duration-300">
-                      "{testimonial.content}"
-                    </p>
+                  <div className="mb-6 transform transition-transform duration-500 group-hover:scale-[1.02]">
+                    <div className="relative">
+                      <div className="absolute -left-2 -top-1 text-4xl text-primary/20 font-serif">"</div>
+                      <div className="absolute -right-2 -bottom-1 text-4xl text-primary/20 font-serif rotate-180">"</div>
+                      <p className="text-lg leading-relaxed text-muted-foreground group-hover:text-foreground/90 transition-colors duration-500 px-4">
+                        {testimonial.content}
+                      </p>
+                    </div>
                   </div>
                   
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-4 transform transition-transform duration-500 group-hover:translate-x-2">
                     <div className="relative">
-                      <img src={testimonial.avatar} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover shadow-lg border-2 border-primary/20" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <img 
+                        src={testimonial.avatar} 
+                        alt={testimonial.name} 
+                        className="relative w-14 h-14 rounded-full object-cover shadow-lg border-2 border-primary/20 group-hover:border-primary/40 transition-all duration-500 group-hover:scale-110" 
+                      />
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
-                    <div>
-                      <div className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
+                    <div className="space-y-1">
+                      <div className="font-semibold text-foreground group-hover:text-primary transition-colors duration-500 text-base">
                         {testimonial.name}
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-sm text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-500 font-medium">
                         {testimonial.role}
                       </div>
-                      <div className="text-xs text-muted-foreground/80">
+                      <div className="text-xs text-primary/70 group-hover:text-primary transition-colors duration-500 font-medium">
                         {testimonial.institution}
                       </div>
                     </div>
                   </div>
                 </CardContent>
+                
+                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"></div>
               </Card>)}
           </div>
         </div>
