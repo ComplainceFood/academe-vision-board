@@ -1217,6 +1217,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      validate_security_configuration: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      validate_sensitive_operation: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "system_admin" | "primary_user" | "secondary_user"
