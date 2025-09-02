@@ -73,19 +73,19 @@ const LandingPreview = () => {
     role: "Professor of Biology",
     institution: "Stanford University",
     content: "SmartProf revolutionized how I manage my research grants and student commitments. The calendar integration alone saved me hours every week.",
-    avatar: "/lovable-uploads/15186783-315a-4e51-8119-e337527987ba.png"
+    avatar: "https://images.unsplash.com/photo-1494790108755-2616c06541e0?w=150&h=150&fit=crop&crop=face"
   }, {
     name: "Prof. Michael Chen",
     role: "Computer Science Department",
     institution: "MIT",
     content: "The achievement tracking feature is phenomenal. I can now easily compile my annual reports and track publication metrics in real-time.",
-    avatar: "/lovable-uploads/a1063017-2364-4fc3-bb6a-b563f2b32772.png"
+    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
   }, {
     name: "Dr. Emily Rodriguez",
     role: "Psychology Department",
     institution: "Harvard University",
     content: "Managing lab supplies and funding has never been easier. The analytics help me make data-driven decisions about resource allocation.",
-    avatar: "/lovable-uploads/df81455f-7258-4abe-87ec-08aa3ad5d5ad.png"
+    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face"
   }];
   return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Navigation */}
@@ -225,7 +225,6 @@ const LandingPreview = () => {
                 {/* Feature Image */}
                 <div className="relative h-48 overflow-hidden rounded-t-lg">
                   <img src={feature.image} alt={feature.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className="absolute inset-0 bg-black/10"></div>
                   <div className={`absolute top-4 left-4 w-12 h-12 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-500`}>
                     <feature.icon className="h-6 w-6 text-white" />
                   </div>
@@ -276,8 +275,7 @@ const LandingPreview = () => {
                   
                   <div className="flex items-center space-x-4">
                     <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary to-secondary rounded-full blur-sm opacity-75"></div>
-                      <img src={testimonial.avatar} alt={testimonial.name} className="relative w-12 h-12 rounded-full object-cover shadow-lg" />
+                      <img src={testimonial.avatar} alt={testimonial.name} className="w-12 h-12 rounded-full object-cover shadow-lg border-2 border-primary/20" />
                     </div>
                     <div>
                       <div className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
