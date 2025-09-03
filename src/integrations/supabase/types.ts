@@ -1077,6 +1077,425 @@ export type Database = {
         }
         Relationships: []
       }
+      test_automation_configs: {
+        Row: {
+          config_data: Json | null
+          created_at: string
+          framework: string
+          id: string
+          is_active: boolean
+          last_execution: string | null
+          script_path: string | null
+          test_case_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          config_data?: Json | null
+          created_at?: string
+          framework: string
+          id?: string
+          is_active?: boolean
+          last_execution?: string | null
+          script_path?: string | null
+          test_case_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          config_data?: Json | null
+          created_at?: string
+          framework?: string
+          id?: string
+          is_active?: boolean
+          last_execution?: string | null
+          script_path?: string | null
+          test_case_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_automation_configs_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_case_requirements: {
+        Row: {
+          created_at: string
+          id: string
+          requirement_id: string
+          test_case_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requirement_id: string
+          test_case_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requirement_id?: string
+          test_case_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_case_requirements_requirement_id_fkey"
+            columns: ["requirement_id"]
+            isOneToOne: false
+            referencedRelation: "test_requirements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_case_requirements_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_cases: {
+        Row: {
+          created_at: string
+          description: string | null
+          estimated_time: number | null
+          expected_result: string | null
+          id: string
+          preconditions: string | null
+          priority: string
+          status: string
+          suite_id: string
+          tags: string[] | null
+          test_steps: Json
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          estimated_time?: number | null
+          expected_result?: string | null
+          id?: string
+          preconditions?: string | null
+          priority?: string
+          status?: string
+          suite_id: string
+          tags?: string[] | null
+          test_steps?: Json
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          estimated_time?: number | null
+          expected_result?: string | null
+          id?: string
+          preconditions?: string | null
+          priority?: string
+          status?: string
+          suite_id?: string
+          tags?: string[] | null
+          test_steps?: Json
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_cases_suite_id_fkey"
+            columns: ["suite_id"]
+            isOneToOne: false
+            referencedRelation: "test_suites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_defects: {
+        Row: {
+          assignee_id: string | null
+          created_at: string
+          description: string
+          environment: string | null
+          execution_id: string
+          external_id: string | null
+          external_url: string | null
+          id: string
+          priority: string
+          severity: string
+          status: string
+          steps_to_reproduce: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          created_at?: string
+          description: string
+          environment?: string | null
+          execution_id: string
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          priority?: string
+          severity?: string
+          status?: string
+          steps_to_reproduce?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assignee_id?: string | null
+          created_at?: string
+          description?: string
+          environment?: string | null
+          execution_id?: string
+          external_id?: string | null
+          external_url?: string | null
+          id?: string
+          priority?: string
+          severity?: string
+          status?: string
+          steps_to_reproduce?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_defects_execution_id_fkey"
+            columns: ["execution_id"]
+            isOneToOne: false
+            referencedRelation: "test_executions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_executions: {
+        Row: {
+          actual_result: string | null
+          attachments: Json | null
+          browser: string | null
+          build_version: string | null
+          created_at: string
+          environment: string | null
+          execution_date: string
+          execution_time: number | null
+          id: string
+          notes: string | null
+          status: string
+          test_case_id: string
+          user_id: string
+        }
+        Insert: {
+          actual_result?: string | null
+          attachments?: Json | null
+          browser?: string | null
+          build_version?: string | null
+          created_at?: string
+          environment?: string | null
+          execution_date?: string
+          execution_time?: number | null
+          id?: string
+          notes?: string | null
+          status?: string
+          test_case_id: string
+          user_id: string
+        }
+        Update: {
+          actual_result?: string | null
+          attachments?: Json | null
+          browser?: string | null
+          build_version?: string | null
+          created_at?: string
+          environment?: string | null
+          execution_date?: string
+          execution_time?: number | null
+          id?: string
+          notes?: string | null
+          status?: string
+          test_case_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_executions_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_projects: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      test_requirements: {
+        Row: {
+          created_at: string
+          description: string | null
+          external_id: string | null
+          id: string
+          priority: string
+          project_id: string
+          status: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          priority?: string
+          project_id: string
+          status?: string
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          external_id?: string | null
+          id?: string
+          priority?: string
+          project_id?: string
+          status?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_requirements_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "test_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_suites: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          project_id: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          project_id: string
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_suites_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "test_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_team_members: {
+        Row: {
+          created_at: string
+          id: string
+          permissions: Json | null
+          project_id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permissions?: Json | null
+          project_id: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permissions?: Json | null
+          project_id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_team_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "test_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_agreements: {
         Row: {
           agreed_at: string
