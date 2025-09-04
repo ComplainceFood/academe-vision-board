@@ -9,9 +9,10 @@ interface TestSuitesListProps {
   projectId: string;
   suites?: TestSuite[];
   isLoading: boolean;
+  onSelectSuite?: (suiteId: string) => void;
 }
 
-export function TestSuitesList({ projectId, suites, isLoading }: TestSuitesListProps) {
+export function TestSuitesList({ projectId, suites, isLoading, onSelectSuite }: TestSuitesListProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -76,6 +77,7 @@ export function TestSuitesList({ projectId, suites, isLoading }: TestSuitesListP
         <Card 
           key={suite.id} 
           className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => onSelectSuite?.(suite.id)}
         >
           <CardHeader>
             <div className="flex justify-between items-start">

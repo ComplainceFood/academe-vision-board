@@ -8,6 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, Plus, TestTube, Bug, FileText, Settings } from 'lucide-react';
 import { TestSuitesList } from './TestSuitesList';
 import { CreateTestSuiteDialog } from './CreateTestSuiteDialog';
+import { TestSuiteView } from './TestSuiteView';
+import { TeamMembersList } from './TeamMembersList';
 
 interface TestProjectViewProps {
   projectId: string;
@@ -16,6 +18,7 @@ interface TestProjectViewProps {
 
 export function TestProjectView({ projectId, onBack }: TestProjectViewProps) {
   const [showCreateSuiteDialog, setShowCreateSuiteDialog] = useState(false);
+  const [selectedSuite, setSelectedSuite] = useState<string | null>(null);
 
   const { data: projectData, isLoading: projectLoading } = useDataFetching<TestProject>({
     table: 'test_projects' as any,
@@ -177,11 +180,20 @@ export function TestProjectView({ projectId, onBack }: TestProjectViewProps) {
         </TabsList>
 
         <TabsContent value="suites" className="space-y-6">
-          <TestSuitesList 
-            projectId={projectId} 
-            suites={suites} 
-            isLoading={suitesLoading} 
-          />
+          {!selectedSuite ? (
+            <TestSuitesList 
+              projectId={projectId} 
+              suites={suites} 
+              isLoading={suitesLoading}
+              onSelectSuite={setSelectedSuite} 
+            />
+          ) : (
+            <TestSuiteView
+              suiteId={selectedSuite}
+              projectId={projectId}
+              onBack={() => setSelectedSuite(null)}
+            />
+          )}
         </TabsContent>
 
         <TabsContent value="requirements" className="space-y-6">
@@ -197,14 +209,7 @@ export function TestProjectView({ projectId, onBack }: TestProjectViewProps) {
         </TabsContent>
 
         <TabsContent value="team" className="space-y-6">
-          <Card>
-            <CardContent className="pt-6 text-center py-12">
-              <h3 className="text-lg font-semibold text-foreground mb-2">Team Management</h3>
-              <p className="text-muted-foreground">
-                Manage project team members and permissions (Coming Soon)
-              </p>
-            </CardContent>
-          </Card>
+          <TeamMembersList projectId={projectId} />
         </TabsContent>
 
         <TabsContent value="settings" className="space-y-6">

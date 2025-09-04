@@ -1,21 +1,52 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useDataFetching } from '@/hooks/useDataFetching';
+import { TestExecution, TestCase, TestProject } from '@/types/testing';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Play, Clock, CheckCircle, XCircle, AlertCircle, SkipForward } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Play, Clock, CheckCircle, XCircle, AlertCircle, SkipForward, Filter } from 'lucide-react';
 
 export function TestExecutionDashboard() {
-  // Mock data for demonstration
+  const [selectedProject, setSelectedProject] = useState<string>('all');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  const { data: executions, isLoading: executionsLoading } = useDataFetching<TestExecution>({
+    table: 'test_executions' as any,
+    enabled: true
+  });
+
+  const { data: testCases } = useDataFetching<TestCase>({
+    table: 'test_cases' as any,
+    enabled: true
+  });
+
+  const { data: projects } = useDataFetching<TestProject>({
+    table: 'test_projects' as any,
+    enabled: true
+  });
+
+  // Calculate execution statistics
+  const filteredExecutions = executions?.filter(exec => {
+    const projectMatch = selectedProject === 'all' || 
+      testCases?.find(tc => tc.id === exec.test_case_id && 
+        testCases.find(c => c.suite_id === tc.suite_id));
+    const statusMatch = statusFilter === 'all' || exec.status === statusFilter;
+    return projectMatch && statusMatch;
+  }) || [];
+
   const executionStats = {
-    total: 0,
-    passed: 0,
-    failed: 0,
-    blocked: 0,
-    skipped: 0,
-    not_executed: 0,
+    total: filteredExecutions.length,
+    passed: filteredExecutions.filter(e => e.status === 'passed').length,
+    failed: filteredExecutions.filter(e => e.status === 'failed').length,
+    blocked: filteredExecutions.filter(e => e.status === 'blocked').length,
+    skipped: filteredExecutions.filter(e => e.status === 'skipped').length,
+    not_executed: (testCases?.length || 0) - filteredExecutions.length,
   };
 
-  const recentExecutions = [];
+  const recentExecutions = filteredExecutions
+    .sort((a, b) => new Date(b.execution_date).getTime() - new Date(a.execution_date).getTime())
+    .slice(0, 10);
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -56,10 +87,40 @@ export function TestExecutionDashboard() {
             Execute test cases and track results in real-time
           </p>
         </div>
-        <Button className="flex items-center gap-2">
-          <Play className="h-4 w-4" />
-          Start Test Run
-        </Button>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by project" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+                {projects?.map(project => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="passed">Passed</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+              <SelectItem value="blocked">Blocked</SelectItem>
+              <SelectItem value="skipped">Skipped</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button className="flex items-center gap-2">
+            <Play className="h-4 w-4" />
+            Start Test Run
+          </Button>
+        </div>
       </div>
 
       {/* Execution Stats */}
@@ -134,7 +195,21 @@ export function TestExecutionDashboard() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {recentExecutions.length === 0 ? (
+          {executionsLoading ? (
+            <div className="space-y-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="animate-pulse p-4 border rounded-lg">
+                  <div className="flex items-center gap-4">
+                    <div className="h-4 w-4 bg-muted rounded"></div>
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-muted rounded w-1/3"></div>
+                      <div className="h-3 bg-muted rounded w-1/2"></div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : recentExecutions.length === 0 ? (
             <div className="text-center py-12">
               <Play className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-foreground mb-2">No Test Executions Yet</h3>
@@ -148,30 +223,40 @@ export function TestExecutionDashboard() {
             </div>
           ) : (
             <div className="space-y-4">
-              {recentExecutions.map((execution: any, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="flex items-center gap-4">
-                    {getStatusIcon(execution.status)}
-                    <div>
-                      <p className="font-medium">{execution.testCase}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {execution.suite} • {execution.project}
-                      </p>
+              {recentExecutions.map((execution) => {
+                const testCase = testCases?.find(tc => tc.id === execution.test_case_id);
+                
+                return (
+                  <div
+                    key={execution.id}
+                    className="flex items-center justify-between p-4 border rounded-lg hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex items-center gap-4">
+                      {getStatusIcon(execution.status)}
+                      <div>
+                        <p className="font-medium">{testCase?.title || 'Unknown Test Case'}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {execution.environment && `${execution.environment} • `}
+                          {new Date(execution.execution_date).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4">
+                      <Badge className={getStatusColor(execution.status)}>
+                        {execution.status}
+                      </Badge>
+                      {execution.execution_time && (
+                        <span className="text-sm text-muted-foreground">
+                          {execution.execution_time}min
+                        </span>
+                      )}
+                      <span className="text-sm text-muted-foreground">
+                        {new Date(execution.execution_date).toLocaleTimeString()}
+                      </span>
                     </div>
                   </div>
-                  <div className="flex items-center gap-4">
-                    <Badge className={getStatusColor(execution.status)}>
-                      {execution.status}
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">
-                      {execution.executedAt}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </CardContent>

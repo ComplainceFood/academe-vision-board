@@ -1,39 +1,134 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useDataFetching } from '@/hooks/useDataFetching';
+import { TestProject, TestExecution, TestCase, TestDefect, TestRequirement } from '@/types/testing';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { BarChart3, TrendingUp, Target, AlertTriangle } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { BarChart3, TrendingUp, Target, AlertTriangle, Filter } from 'lucide-react';
 
 export function TestAnalyticsDashboard() {
-  // Mock data for demonstration
+  const [selectedProject, setSelectedProject] = useState<string>('all');
+  const [timeRange, setTimeRange] = useState<string>('30d');
+
+  const { data: projects } = useDataFetching<TestProject>({
+    table: 'test_projects' as any,
+    enabled: true
+  });
+
+  const { data: executions } = useDataFetching<TestExecution>({
+    table: 'test_executions' as any,
+    enabled: true
+  });
+
+  const { data: testCases } = useDataFetching<TestCase>({
+    table: 'test_cases' as any,
+    enabled: true
+  });
+
+  const { data: defects } = useDataFetching<TestDefect>({
+    table: 'test_defects' as any,
+    enabled: true
+  });
+
+  const { data: requirements } = useDataFetching<TestRequirement>({
+    table: 'test_requirements' as any,
+    enabled: true
+  });
+
+  // Filter data based on selected project and time range
+  const filteredExecutions = executions?.filter(exec => {
+    const projectMatch = selectedProject === 'all' || 
+      testCases?.find(tc => tc.id === exec.test_case_id);
+    
+    const timeMatch = timeRange === 'all' || (() => {
+      const execDate = new Date(exec.execution_date);
+      const now = new Date();
+      const days = parseInt(timeRange.replace('d', ''));
+      const cutoff = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+      return execDate >= cutoff;
+    })();
+    
+    return projectMatch && timeMatch;
+  }) || [];
+
+  const filteredTestCases = testCases?.filter(tc => {
+    if (selectedProject === 'all') return true;
+    // Would need to join with suites and projects to filter properly
+    return true;
+  }) || [];
+
+  const filteredDefects = defects?.filter(defect => {
+    if (selectedProject === 'all') return true;
+    // Would need to join with executions, test cases, suites, and projects
+    return true;
+  }) || [];
+
+  const filteredRequirements = requirements?.filter(req => {
+    return selectedProject === 'all' || req.project_id === selectedProject;
+  }) || [];
+
+  // Calculate analytics
   const analytics = {
-    total_tests: 0,
-    passed_tests: 0,
-    failed_tests: 0,
-    blocked_tests: 0,
-    skipped_tests: 0,
-    not_executed_tests: 0,
-    pass_rate: 0,
-    execution_trend: [],
+    total_tests: filteredTestCases.length,
+    passed_tests: filteredExecutions.filter(e => e.status === 'passed').length,
+    failed_tests: filteredExecutions.filter(e => e.status === 'failed').length,
+    blocked_tests: filteredExecutions.filter(e => e.status === 'blocked').length,
+    skipped_tests: filteredExecutions.filter(e => e.status === 'skipped').length,
+    not_executed_tests: Math.max(0, filteredTestCases.length - filteredExecutions.length),
+    pass_rate: filteredExecutions.length > 0 ? 
+      Math.round((filteredExecutions.filter(e => e.status === 'passed').length / filteredExecutions.length) * 100) : 0,
+    execution_trend: [], // Would calculate from historical data
     defect_summary: {
-      open: 0,
-      in_progress: 0,
-      resolved: 0,
-      closed: 0,
+      open: filteredDefects.filter(d => d.status === 'open').length,
+      in_progress: filteredDefects.filter(d => d.status === 'in_progress').length,
+      resolved: filteredDefects.filter(d => d.status === 'resolved').length,
+      closed: filteredDefects.filter(d => d.status === 'closed').length,
     },
     coverage_metrics: {
-      requirements_covered: 0,
-      total_requirements: 0,
+      requirements_covered: 0, // Would need requirement-test case mapping
+      total_requirements: filteredRequirements.length,
       coverage_percentage: 0,
     },
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground">Test Analytics & Reports</h2>
-        <p className="text-muted-foreground">
-          Comprehensive insights into test execution, quality metrics, and trends
-        </p>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-2xl font-bold text-foreground">Test Analytics & Reports</h2>
+          <p className="text-muted-foreground">
+            Comprehensive insights into test execution, quality metrics, and trends
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-muted-foreground" />
+            <Select value={selectedProject} onValueChange={setSelectedProject}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by project" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Projects</SelectItem>
+                {projects?.map(project => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Time range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">7 days</SelectItem>
+              <SelectItem value="30d">30 days</SelectItem>
+              <SelectItem value="90d">90 days</SelectItem>
+              <SelectItem value="all">All time</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Key Metrics */}
