@@ -1588,6 +1588,10 @@ export type Database = {
           security_status: string
         }[]
       }
+      get_user_project_role: {
+        Args: { project_id: string; user_id: string }
+        Returns: string
+      }
       get_user_role: {
         Args: { _user_id?: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1605,6 +1609,14 @@ export type Database = {
       }
       is_profile_owner: {
         Args: { profile_user_id: string }
+        Returns: boolean
+      }
+      is_project_member: {
+        Args: { project_id: string; user_id: string }
+        Returns: boolean
+      }
+      is_project_owner_or_admin: {
+        Args: { project_id: string; user_id: string }
         Returns: boolean
       }
       log_security_event: {
