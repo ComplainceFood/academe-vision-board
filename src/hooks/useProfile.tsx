@@ -34,16 +34,33 @@ export function useProfile() {
   }, [user]);
 
   const fetchProfile = async () => {
+    if (!user?.id) {
+      setProfile(null);
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
+      
+      // Enhanced security: Only fetch user's own profile with explicit user_id check
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user?.id)
-        .single();
+        .eq("user_id", user.id)
+        .maybeSingle(); // Use maybeSingle instead of single for better error handling
 
-      if (error && error.code !== 'PGRST116') {
-        throw error;
+      if (error) {
+        console.error("Error fetching profile:", error);
+        setProfile(null);
+        return;
+      }
+
+      // Additional client-side security check
+      if (data && data.user_id !== user.id) {
+        console.error("Security violation: Profile user_id mismatch");
+        setProfile(null);
+        return;
       }
 
       setProfile(data);
