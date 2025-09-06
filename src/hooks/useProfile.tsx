@@ -56,20 +56,44 @@ export function useProfile() {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!user) return;
+    if (!user) return { success: false, error: "User not authenticated" };
 
     try {
+      // Security: Ensure user_id cannot be tampered with
+      const secureUpdates = { ...updates };
+      delete (secureUpdates as any).user_id; // Remove user_id to prevent tampering
+      
+      // Validate sensitive data before sending to database
+      if (secureUpdates.email && !/^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/.test(secureUpdates.email)) {
+        return { success: false, error: "Invalid email format" };
+      }
+      
+      if (secureUpdates.display_name && secureUpdates.display_name.length > 255) {
+        return { success: false, error: "Display name too long (max 255 characters)" };
+      }
+      
+      if (secureUpdates.bio && secureUpdates.bio.length > 5000) {
+        return { success: false, error: "Bio too long (max 5000 characters)" };
+      }
+
       const { error } = await supabase
         .from("profiles")
         .upsert({ 
-          user_id: user.id,
-          ...updates 
+          user_id: user.id, // Always use authenticated user ID
+          ...secureUpdates 
         }, { onConflict: "user_id" });
 
-      if (error) throw error;
+      if (error) {
+        // Log security-related errors
+        if (error.message.includes('SECURITY VIOLATION')) {
+          console.error('Security violation detected:', error.message);
+          return { success: false, error: "Unauthorized operation detected" };
+        }
+        throw error;
+      }
 
       // Immediately update local state
-      setProfile(prev => prev ? { ...prev, ...updates } : null);
+      setProfile(prev => prev ? { ...prev, ...secureUpdates } : null);
       
       return { success: true };
     } catch (error) {
