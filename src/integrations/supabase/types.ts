@@ -1607,6 +1607,10 @@ export type Database = {
         Args: { minutes_threshold?: number }
         Returns: boolean
       }
+      is_profile_access_authorized: {
+        Args: { target_user_id: string }
+        Returns: boolean
+      }
       is_profile_owner: {
         Args: { profile_user_id: string }
         Returns: boolean
