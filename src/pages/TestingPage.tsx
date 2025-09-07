@@ -4,6 +4,7 @@ import { TestProjectsDashboard } from '@/components/testing/TestProjectsDashboar
 import { TestProjectView } from '@/components/testing/TestProjectView';
 import { TestExecutionDashboard } from '@/components/testing/TestExecutionDashboard';
 import { TestAnalyticsDashboard } from '@/components/testing/TestAnalyticsDashboard';
+import { TestManagementDashboard } from '@/components/testing/TestManagementDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TestTube, BarChart3, Play, Settings } from 'lucide-react';
 
@@ -60,14 +61,7 @@ export default function TestingPage() {
           </TabsContent>
 
           <TabsContent value="management" className="space-y-6">
-            <div className="text-center py-12">
-              <h3 className="text-lg font-semibold text-muted-foreground">
-                Test Management Features Coming Soon
-              </h3>
-              <p className="text-sm text-muted-foreground mt-2">
-                Advanced test configuration, automation settings, and team management
-              </p>
-            </div>
+            <TestManagementDashboard />
           </TabsContent>
         </Tabs>
       </div>
