@@ -25,6 +25,9 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // Sign-ups are temporarily disabled
+  const SIGNUPS_ENABLED = false;
+
   // Redirect if already authenticated
   useEffect(() => {
     if (user) {
@@ -82,6 +85,12 @@ const AuthPage = () => {
       }
 
       if (isSignUp) {
+        // Block sign-ups if disabled
+        if (!SIGNUPS_ENABLED) {
+          toast.error("New registrations are temporarily closed. Please check back later.");
+          return;
+        }
+
         // Check if user agreed to terms for signup
         if (!agreedToTerms || !agreedToPrivacy) {
           toast.error("Please agree to the Terms of Service and Privacy Policy to create an account.");
@@ -215,7 +224,9 @@ const AuthPage = () => {
           </CardTitle>
           <CardDescription className="text-center">
             {isSignUp
-              ? "Enter your email and password to create your account"
+              ? SIGNUPS_ENABLED 
+                ? "Enter your email and password to create your account"
+                : "New registrations are temporarily closed"
               : "Enter your email and password to sign in"}
           </CardDescription>
         </CardHeader>
@@ -332,14 +343,22 @@ const AuthPage = () => {
           </form>
 
           <div className="mt-4 text-center">
-            <button
-              onClick={handleModeSwitch}
-              className="text-sm text-muted-foreground hover:text-primary"
-            >
-              {isSignUp
-                ? "Already have an account? Sign in"
-                : "Don't have an account? Sign up"}
-            </button>
+            {SIGNUPS_ENABLED ? (
+              <button
+                onClick={handleModeSwitch}
+                className="text-sm text-muted-foreground hover:text-primary"
+              >
+                {isSignUp
+                  ? "Already have an account? Sign in"
+                  : "Don't have an account? Sign up"}
+              </button>
+            ) : (
+              !isSignUp && (
+                <p className="text-sm text-muted-foreground">
+                  New registrations are temporarily closed
+                </p>
+              )
+            )}
           </div>
         </CardContent>
       </Card>
