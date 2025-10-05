@@ -48,6 +48,9 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       // Add user_id filter for tables that have it (all except admin_communications)
       if (table !== 'admin_communications') {
         query = query.eq('user_id', user.id);
+      } else {
+        // For admin_communications, only show published ones to non-admins
+        query = query.eq('is_published', true);
       }
       
       // Apply any additional filters

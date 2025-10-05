@@ -10,7 +10,10 @@ import { Link } from "react-router-dom";
 export function CommunicationsList() {
   const { data: communications, isLoading } = useDataFetching<AdminCommunication>({
     table: 'admin_communications',
-    enabled: true
+    enabled: true,
+    filters: [
+      { column: 'is_published', value: true }
+    ]
   });
 
   const getPriorityIcon = (priority: string) => {
