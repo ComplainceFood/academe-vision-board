@@ -92,3 +92,6 @@ verify_jwt = false
 
 [functions.google-oauth-config]
 verify_jwt = false
+
+[functions.track-login]
+verify_jwt = false

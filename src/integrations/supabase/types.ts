@@ -496,6 +496,42 @@ export type Database = {
         }
         Relationships: []
       }
+      login_history: {
+        Row: {
+          created_at: string
+          id: string
+          ip_address: unknown
+          location: Json | null
+          login_at: string
+          login_method: string | null
+          success: boolean
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          ip_address: unknown
+          location?: Json | null
+          login_at?: string
+          login_method?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          location?: Json | null
+          login_at?: string
+          login_method?: string | null
+          success?: boolean
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       meetings: {
         Row: {
           action_items: Json
@@ -830,6 +866,9 @@ export type Database = {
           email: string | null
           first_name: string | null
           id: string
+          last_login_at: string | null
+          last_login_ip: unknown | null
+          last_login_location: Json | null
           last_name: string | null
           notification_preferences: Json | null
           office_location: string | null
@@ -847,6 +886,9 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id?: string
+          last_login_at?: string | null
+          last_login_ip?: unknown | null
+          last_login_location?: Json | null
           last_name?: string | null
           notification_preferences?: Json | null
           office_location?: string | null
@@ -864,6 +906,9 @@ export type Database = {
           email?: string | null
           first_name?: string | null
           id?: string
+          last_login_at?: string | null
+          last_login_ip?: unknown | null
+          last_login_location?: Json | null
           last_name?: string | null
           notification_preferences?: Json | null
           office_location?: string | null

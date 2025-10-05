@@ -133,6 +133,11 @@ const AuthPage = () => {
               })
             ];
             await Promise.all(agreementPromises);
+
+            // Track signup with IP and location
+            await supabase.functions.invoke('track-login', {
+              body: { userId: data.user.id, loginMethod: 'signup' }
+            });
           } catch (agreementError) {
             console.error('Error recording agreements:', agreementError);
           }
@@ -158,6 +163,11 @@ const AuthPage = () => {
 
         // Check if user has agreed to legal terms
         if (data.user) {
+          // Track login with IP and location
+          await supabase.functions.invoke('track-login', {
+            body: { userId: data.user.id, loginMethod: 'password' }
+          });
+
           const hasAgreements = await checkExistingAgreements(data.user.id);
           if (!hasAgreements) {
             setShowLegalAgreement(true);
