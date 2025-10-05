@@ -46,11 +46,11 @@ additional_redirect_urls = [
   "https://64d94714-e892-42c9-981a-bb6f485a7ae3.lovableproject.com"
 ]
 jwt_expiry = 3600
-enable_signup = true
+enable_signup = false
 enable_anonymous_users = false
 
 [auth.email]
-enable_signup = true
+enable_signup = false
 double_confirm_changes = true
 enable_confirmations = false
 
