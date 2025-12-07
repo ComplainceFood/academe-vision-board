@@ -867,7 +867,7 @@ export type Database = {
           first_name: string | null
           id: string
           last_login_at: string | null
-          last_login_ip: unknown | null
+          last_login_ip: unknown
           last_login_location: Json | null
           last_name: string | null
           notification_preferences: Json | null
@@ -887,7 +887,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_login_at?: string | null
-          last_login_ip?: unknown | null
+          last_login_ip?: unknown
           last_login_location?: Json | null
           last_name?: string | null
           notification_preferences?: Json | null
@@ -907,7 +907,7 @@ export type Database = {
           first_name?: string | null
           id?: string
           last_login_at?: string | null
-          last_login_ip?: unknown | null
+          last_login_ip?: unknown
           last_login_location?: Json | null
           last_name?: string | null
           notification_preferences?: Json | null
@@ -1008,7 +1008,7 @@ export type Database = {
           action: string
           details: Json | null
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           record_id: string | null
           table_name: string | null
           timestamp: string | null
@@ -1019,7 +1019,7 @@ export type Database = {
           action: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           table_name?: string | null
           timestamp?: string | null
@@ -1030,7 +1030,7 @@ export type Database = {
           action?: string
           details?: Json | null
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           record_id?: string | null
           table_name?: string | null
           timestamp?: string | null
@@ -1547,7 +1547,7 @@ export type Database = {
           agreement_type: string
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
           user_id: string
           version: string
@@ -1557,7 +1557,7 @@ export type Database = {
           agreement_type: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id: string
           version?: string
@@ -1567,7 +1567,7 @@ export type Database = {
           agreement_type?: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string
           version?: string
@@ -1603,10 +1603,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      check_login_attempts: {
-        Args: { user_email: string }
-        Returns: Json
-      }
+      check_login_attempts: { Args: { user_email: string }; Returns: Json }
       check_rate_limit: {
         Args: {
           action_type: string
@@ -1620,12 +1617,9 @@ export type Database = {
         Args: { _role: Database["public"]["Enums"]["app_role"] }
         Returns: boolean
       }
-      get_current_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_current_user_id: { Args: never; Returns: string }
       get_extension_security_info: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           extension_name: string
           recommendation: string
@@ -1656,10 +1650,7 @@ export type Database = {
         Args: { target_user_id: string }
         Returns: boolean
       }
-      is_profile_owner: {
-        Args: { profile_user_id: string }
-        Returns: boolean
-      }
+      is_profile_owner: { Args: { profile_user_id: string }; Returns: boolean }
       is_project_member: {
         Args: { project_id: string; user_id: string }
         Returns: boolean
@@ -1681,30 +1672,12 @@ export type Database = {
         Args: { operation: string; record_count?: number; table_name: string }
         Returns: undefined
       }
-      prevent_anonymous_access: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      seed_demo_data: {
-        Args: { target_user_id: string }
-        Returns: undefined
-      }
-      validate_password_strength: {
-        Args: { password: string }
-        Returns: Json
-      }
-      validate_profile_access: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
-      validate_security_configuration: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      validate_sensitive_operation: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      prevent_anonymous_access: { Args: never; Returns: boolean }
+      seed_demo_data: { Args: { target_user_id: string }; Returns: undefined }
+      validate_password_strength: { Args: { password: string }; Returns: Json }
+      validate_profile_access: { Args: never; Returns: boolean }
+      validate_security_configuration: { Args: never; Returns: Json }
+      validate_sensitive_operation: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "system_admin" | "primary_user" | "secondary_user"
