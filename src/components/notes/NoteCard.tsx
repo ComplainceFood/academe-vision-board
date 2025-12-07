@@ -6,8 +6,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Star, MoreVertical, Calendar as CalendarIcon, User as UserIcon } from "lucide-react";
+import { Star, MoreVertical, Calendar as CalendarIcon, User as UserIcon, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import type { Database } from "@/integrations/supabase/types";
@@ -20,11 +21,12 @@ interface NoteCardProps {
   onDelete?: (id: string) => Promise<any>;
   onToggleStar?: (id: string) => Promise<any>;
   onToggleStatus?: (id: string) => Promise<any>;
+  onDuplicate?: () => Promise<void>;
   className?: string;
   compact?: boolean;
 }
 
-export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatus, className = "", compact = false }: NoteCardProps) => {
+export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatus, onDuplicate, className = "", compact = false }: NoteCardProps) => {
   const { toast } = useToast();
 
   const handleStarToggle = async () => {
@@ -177,7 +179,14 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
                   <DropdownMenuItem onClick={handleStarToggle}>
                     {note.starred ? "Unstar" : "Star"}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDelete}>Delete</DropdownMenuItem>
+                  {onDuplicate && (
+                    <DropdownMenuItem onClick={onDuplicate}>
+                      <Copy className="h-4 w-4 mr-2" />
+                      Duplicate
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">Delete</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

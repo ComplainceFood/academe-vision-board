@@ -22,7 +22,9 @@ import {
 import { useNotes } from '@/hooks/useNotes';
 import { CreateNoteDialog } from '@/components/notes/CreateNoteDialog';
 import { NoteCard } from '@/components/notes/NoteCard';
+import { QuickAdd, QuickAddData } from '@/components/common/QuickAdd';
 import { Note } from '@/types/notes';
+import { useAuth } from '@/hooks/useAuth';
 
 const NotesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -34,7 +36,8 @@ const NotesPage = () => {
   const [viewMode, setViewMode] = useState<'all' | 'starred'>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
-  const { notes, isLoading, deleteNote, toggleStar, toggleStatus, error } = useNotes();
+  const { notes, isLoading, deleteNote, toggleStar, toggleStatus, error, createNote } = useNotes();
+  const { user } = useAuth();
 
   console.log('NotesPage - notes data:', notes, 'isLoading:', isLoading, 'error:', error);
 
@@ -146,6 +149,35 @@ const NotesPage = () => {
     );
   }
 
+  // Handle quick add
+  const handleQuickAdd = async (data: QuickAddData) => {
+    if (!user) throw new Error("Not authenticated");
+    
+    await createNote({
+      title: data.title,
+      content: "",
+      type: (data.type as "note" | "commitment") || "note",
+      course: data.course || "General",
+      tags: [],
+      starred: false,
+    });
+  };
+
+  // Handle duplicate note
+  const handleDuplicateNote = async (note: Note) => {
+    if (!user) return;
+    
+    await createNote({
+      title: `${note.title} (Copy)`,
+      content: note.content,
+      type: note.type as "note" | "commitment",
+      course: note.course,
+      tags: note.tags || [],
+      starred: false,
+      student_name: note.student_name,
+    });
+  };
+
   return (
     <MainLayout>
       <div className="space-y-6">
@@ -155,10 +187,18 @@ const NotesPage = () => {
             <h1 className="text-3xl font-bold">Notes & Commitments</h1>
             <p className="text-muted-foreground">Manage your academic notes, commitments, and reminders</p>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Create Note
-          </Button>
+          <div className="flex gap-2">
+            <QuickAdd 
+              type="note" 
+              onQuickAdd={handleQuickAdd}
+              onOpenFullForm={() => setIsCreateDialogOpen(true)}
+              placeholder="Quick add note..."
+            />
+            <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Create Note
+            </Button>
+          </div>
         </div>
 
         {/* Simplified Statistics Cards */}
@@ -300,6 +340,7 @@ const NotesPage = () => {
                     onDelete={deleteNote}
                     onToggleStar={toggleStar}
                     onToggleStatus={toggleStatus}
+                    onDuplicate={() => handleDuplicateNote(note as Note)}
                   />
                 ))}
               </div>
@@ -317,6 +358,7 @@ const NotesPage = () => {
                 onDelete={deleteNote}
                 onToggleStar={toggleStar}
                 onToggleStatus={toggleStatus}
+                onDuplicate={() => handleDuplicateNote(note as Note)}
               />
             ))}
             </div>

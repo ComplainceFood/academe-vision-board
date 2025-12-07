@@ -9,7 +9,9 @@ import { Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useNotes } from "@/hooks/useNotes";
+import { useProfile } from "@/hooks/useProfile";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { TemplateSelector } from "@/components/common/TemplateSelector";
 
 interface CreateNoteDialogProps {
   open?: boolean;
@@ -29,10 +31,37 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
   const { user } = useAuth();
   const { toast } = useToast();
   const { createNote } = useNotes();
+  const { profile } = useProfile();
 
   // Use external state if provided, otherwise use internal state
   const isOpen = open !== undefined ? open : internalOpen;
   const handleOpenChange = onOpenChange || setInternalOpen;
+
+  // Apply smart defaults from profile
+  const applySmartDefaults = () => {
+    if (profile?.department && !course) {
+      setCourse(profile.department);
+    }
+  };
+
+  // Apply template data
+  const handleApplyTemplate = (data: Record<string, any>) => {
+    if (data.title) setTitle(data.title);
+    if (data.content) setContent(data.content);
+    if (data.course) setCourse(data.course);
+    if (data.type) setType(data.type);
+    if (data.tags) setTags(data.tags);
+  };
+
+  // Get current form data for template saving
+  const getCurrentFormData = () => ({
+    title,
+    content,
+    course,
+    type,
+    tags,
+  });
+
 
   const resetForm = () => {
     setTitle("");
@@ -96,6 +125,9 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
 
   const handleDialogOpenChange = (newOpen: boolean) => {
     handleOpenChange(newOpen);
+    if (newOpen) {
+      applySmartDefaults();
+    }
     if (!newOpen) {
       resetForm();
     }
@@ -114,7 +146,14 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
       )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New {type === "note" ? "Note" : "Commitment"}</DialogTitle>
+          <div className="flex items-center justify-between">
+            <DialogTitle>Create New {type === "note" ? "Note" : "Commitment"}</DialogTitle>
+            <TemplateSelector
+              type="note"
+              currentData={getCurrentFormData()}
+              onApplyTemplate={handleApplyTemplate}
+            />
+          </div>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
