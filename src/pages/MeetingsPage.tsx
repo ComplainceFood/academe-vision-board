@@ -19,19 +19,22 @@ import {
   Repeat,
   Check,
   Edit,
-  Trash2
+  Trash2,
+  Copy
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { CreateMeetingDialog } from "@/components/meetings/CreateMeetingDialog";
 import { MeetingDetailDialog } from "@/components/meetings/MeetingDetailDialog";
+import { QuickAdd, QuickAddData } from "@/components/common/QuickAdd";
 import type { Meeting } from "@/types/meetings";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { format, parseISO, isValid } from "date-fns";
+import { format, parseISO, isValid, addDays } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useMeetings } from "@/hooks/useMeetings";
+import { useAuth } from "@/hooks/useAuth";
 
 const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetails: (meeting: Meeting) => void }) => {
   const { toast } = useToast();
@@ -264,8 +267,8 @@ const MeetingsPage = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   
-  const { meetings, isLoading } = useMeetings();
-
+  const { meetings, isLoading, createMeeting } = useMeetings();
+  const { user } = useAuth();
   // Auto-refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -313,6 +316,26 @@ const MeetingsPage = () => {
     }
   });
 
+  // Handle quick add for meetings
+  const handleQuickAddMeeting = async (data: QuickAddData) => {
+    if (!user) throw new Error("Not authenticated");
+    
+    const tomorrow = addDays(new Date(), 1);
+    const formattedDate = format(tomorrow, 'yyyy-MM-dd');
+    
+    await createMeeting({
+      title: data.title,
+      type: data.type === "group" ? "group" : "one_on_one",
+      start_date: formattedDate,
+      start_time: "10:00",
+      end_time: "11:00",
+      location: data.location || "TBD",
+      attendees: [],
+      is_recurring: false,
+      reminder_minutes: 15,
+    });
+  };
+
   return (
     <MainLayout>
       <div className="animate-fade-in">
@@ -321,7 +344,13 @@ const MeetingsPage = () => {
             <h1 className="text-3xl font-bold mb-1">Meetings & 1:1s</h1>
             <p className="text-muted-foreground">Schedule and manage your meetings</p>
           </div>
-          <div className="mt-4 md:mt-0">
+          <div className="mt-4 md:mt-0 flex gap-2">
+            <QuickAdd
+              type="meeting"
+              onQuickAdd={handleQuickAddMeeting}
+              onOpenFullForm={() => setIsCreateOpen(true)}
+              placeholder="Quick add meeting..."
+            />
             <Button onClick={() => setIsCreateOpen(true)}>
               <Calendar className="h-4 w-4 mr-2" />
               Schedule Meeting
