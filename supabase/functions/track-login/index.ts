@@ -5,11 +5,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface LoginTrackingRequest {
-  userId: string;
-  loginMethod?: string;
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -19,15 +14,45 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
+    // Get the authorization header to verify the user
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Authorization header required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create client with user's token to verify identity
+    const supabaseAuth = createClient(supabaseUrl, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Get the authenticated user from the token
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+    
+    if (authError || !user) {
+      console.error('Auth error:', authError);
+      return new Response(
+        JSON.stringify({ error: 'Invalid or expired token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use service role client for inserting login history
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { userId, loginMethod = 'password' }: LoginTrackingRequest = await req.json();
-
-    if (!userId) {
-      return new Response(
-        JSON.stringify({ error: 'User ID is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Parse request body for optional login method
+    let loginMethod = 'password';
+    try {
+      const body = await req.json();
+      if (body.loginMethod && typeof body.loginMethod === 'string') {
+        // Sanitize login method - only allow specific values
+        const allowedMethods = ['password', 'oauth', 'magic_link', 'otp'];
+        loginMethod = allowedMethods.includes(body.loginMethod) ? body.loginMethod : 'password';
+      }
+    } catch {
+      // Body parsing failed, use default
     }
 
     // Get IP address from request headers
@@ -41,30 +66,33 @@ Deno.serve(async (req) => {
     // Get location data from IP using ipapi.co (free tier: 1000 req/day)
     let locationData = {};
     try {
-      const locationResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
-      if (locationResponse.ok) {
-        const locationJson = await locationResponse.json();
-        locationData = {
-          city: locationJson.city,
-          region: locationJson.region,
-          country: locationJson.country_name,
-          country_code: locationJson.country_code,
-          latitude: locationJson.latitude,
-          longitude: locationJson.longitude,
-          timezone: locationJson.timezone,
-          postal: locationJson.postal,
-        };
+      // Skip location lookup for localhost/private IPs
+      if (!ipAddress.startsWith('127.') && !ipAddress.startsWith('192.168.') && !ipAddress.startsWith('10.') && ipAddress !== '0.0.0.0') {
+        const locationResponse = await fetch(`https://ipapi.co/${ipAddress}/json/`);
+        if (locationResponse.ok) {
+          const locationJson = await locationResponse.json();
+          locationData = {
+            city: locationJson.city,
+            region: locationJson.region,
+            country: locationJson.country_name,
+            country_code: locationJson.country_code,
+            latitude: locationJson.latitude,
+            longitude: locationJson.longitude,
+            timezone: locationJson.timezone,
+            postal: locationJson.postal,
+          };
+        }
       }
     } catch (error) {
       console.error('Error fetching location data:', error);
       // Continue without location data
     }
 
-    // Insert login history record
+    // Insert login history record using the authenticated user's ID from the token
     const { error: insertError } = await supabase
       .from('login_history')
       .insert({
-        user_id: userId,
+        user_id: user.id, // Use verified user ID from token, not from request body
         ip_address: ipAddress,
         location: locationData,
         user_agent: userAgent,
@@ -79,6 +107,8 @@ Deno.serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log(`Login tracked for user ${user.id} from ${ipAddress}`);
 
     return new Response(
       JSON.stringify({ 

@@ -134,9 +134,9 @@ const AuthPage = () => {
             ];
             await Promise.all(agreementPromises);
 
-            // Track signup with IP and location
+            // Track signup with IP and location (user ID extracted from JWT on server)
             await supabase.functions.invoke('track-login', {
-              body: { userId: data.user.id, loginMethod: 'signup' }
+              body: { loginMethod: 'password' }
             });
           } catch (agreementError) {
             console.error('Error recording agreements:', agreementError);
@@ -163,9 +163,9 @@ const AuthPage = () => {
 
         // Check if user has agreed to legal terms
         if (data.user) {
-          // Track login with IP and location
+          // Track login with IP and location (user ID extracted from JWT on server)
           await supabase.functions.invoke('track-login', {
-            body: { userId: data.user.id, loginMethod: 'password' }
+            body: { loginMethod: 'password' }
           });
 
           const hasAgreements = await checkExistingAgreements(data.user.id);
