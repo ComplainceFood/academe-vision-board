@@ -27,24 +27,28 @@ serve(async (req) => {
     // Validate API key for automated sync
     const providedApiKey = req.headers.get('x-sync-api-key');
     
-    // If SYNC_API_KEY is configured, require it for access
-    if (SYNC_API_KEY && SYNC_API_KEY.length > 0) {
-      if (!providedApiKey || providedApiKey !== SYNC_API_KEY) {
-        console.error('Unauthorized sync attempt - invalid API key');
-        return new Response(
-          JSON.stringify({ error: 'Unauthorized - invalid API key' }),
-          { 
-            status: 401,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-          }
-        );
-      }
-    } else {
-      // If no API key is configured, check for authorization header as fallback
-      const authHeader = req.headers.get('authorization');
-      if (!authHeader) {
-        console.warn('No SYNC_API_KEY configured and no auth header - consider configuring SYNC_API_KEY secret');
-      }
+    // Security: Fail-closed approach - always require valid authentication
+    if (!SYNC_API_KEY || SYNC_API_KEY.length === 0) {
+      console.error('SYNC_API_KEY not configured - denying access (fail-closed security)');
+      return new Response(
+        JSON.stringify({ error: 'Service not configured - contact administrator' }),
+        { 
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+    
+    // Validate the provided API key
+    if (!providedApiKey || providedApiKey !== SYNC_API_KEY) {
+      console.error('Unauthorized sync attempt - invalid or missing API key');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - invalid API key' }),
+        { 
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
     }
 
     const supabaseClient = createClient(
