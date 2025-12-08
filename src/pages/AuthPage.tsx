@@ -107,8 +107,9 @@ const AuthPage = () => {
         });
         
         if (error) {
+          // Use generic message to prevent account enumeration
           if (error.message.includes("User already registered")) {
-            toast.error("An account with this email already exists. Please sign in instead.");
+            toast.error("Unable to create account. Please try signing in or use a different email.");
             setIsSignUp(false);
             return;
           }
@@ -151,13 +152,9 @@ const AuthPage = () => {
         });
         
         if (error) {
-          if (error.message.includes("Invalid login credentials")) {
-            toast.error("Invalid email or password. Please check your credentials and try again.");
-          } else if (error.message.includes("Email not confirmed")) {
-            toast.error("Please check your email and click the confirmation link before signing in.");
-          } else {
-            toast.error(error.message);
-          }
+          // Use generic message to prevent account enumeration
+          // All auth errors get the same message to prevent attackers from discovering valid accounts
+          toast.error("Unable to sign in. Please check your email and password, or verify your email if you recently signed up.");
           return;
         }
 
@@ -179,19 +176,12 @@ const AuthPage = () => {
         window.location.href = '/';
       }
     } catch (error: any) {
-      // Enhanced error handling with specific messages
-      let errorMessage = "Authentication failed";
+      // Use generic error messages to prevent account enumeration
+      // Only show specific errors for password format issues (not revealing account existence)
+      let errorMessage = "Authentication failed. Please check your credentials and try again.";
       
-      if (error.message?.includes("Invalid login credentials")) {
-        errorMessage = "Invalid email or password. Please try again.";
-      } else if (error.message?.includes("Email not confirmed")) {
-        errorMessage = "Please check your email and confirm your account before signing in.";
-      } else if (error.message?.includes("User already registered")) {
-        errorMessage = "An account with this email already exists. Try signing in instead.";
-      } else if (error.message?.includes("Password should be at least")) {
+      if (error.message?.includes("Password should be at least")) {
         errorMessage = "Password must be at least 6 characters long.";
-      } else if (error.message) {
-        errorMessage = error.message;
       }
       
       console.error("Auth error:", error);
