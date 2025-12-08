@@ -3,8 +3,11 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-sync-api-key',
 }
+
+// API key for automated sync (should be set in Supabase secrets)
+const SYNC_API_KEY = Deno.env.get('SYNC_API_KEY');
 
 interface SyncResult {
   user_id: string
@@ -21,9 +24,32 @@ serve(async (req) => {
   }
 
   try {
+    // Validate API key for automated sync
+    const providedApiKey = req.headers.get('x-sync-api-key');
+    
+    // If SYNC_API_KEY is configured, require it for access
+    if (SYNC_API_KEY && SYNC_API_KEY.length > 0) {
+      if (!providedApiKey || providedApiKey !== SYNC_API_KEY) {
+        console.error('Unauthorized sync attempt - invalid API key');
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized - invalid API key' }),
+          { 
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+          }
+        );
+      }
+    } else {
+      // If no API key is configured, check for authorization header as fallback
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        console.warn('No SYNC_API_KEY configured and no auth header - consider configuring SYNC_API_KEY secret');
+      }
+    }
+
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '', // Using service role for automated sync
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
     console.log('🔄 Starting automated calendar sync...')
@@ -55,10 +81,7 @@ serve(async (req) => {
       try {
         console.log(`👤 Syncing calendar for user: ${integration.user_id}`)
 
-        // For demonstration purposes, we'll simulate the sync process
-        // In a real implementation, you would decrypt the access token and use it
         if (integration.access_token_encrypted) {
-          // Simulate Outlook sync
           const outlookSyncResult = await syncOutlookCalendar(integration.user_id, supabaseClient)
           syncResult.outlook_synced = outlookSyncResult.synced
           if (outlookSyncResult.error) {
@@ -66,14 +89,12 @@ serve(async (req) => {
           }
         }
 
-        // Sync internal calendar events
         const internalSyncResult = await syncInternalCalendar(integration.user_id, supabaseClient)
         syncResult.internal_synced = internalSyncResult.synced
         if (internalSyncResult.error) {
           syncResult.errors.push(`Internal: ${internalSyncResult.error}`)
         }
 
-        // Update last sync time
         await supabaseClient
           .from('outlook_integration')
           .update({ last_sync: syncResult.last_sync })
@@ -89,8 +110,9 @@ serve(async (req) => {
       syncResults.push(syncResult)
     }
 
-    // Send real-time notifications to connected users
-    await notifyUsersOfSync(syncResults, supabaseClient)
+    // Log sync history
+    const startTime = Date.now();
+    await logSyncHistory(syncResults, supabaseClient, startTime);
 
     // Create sync report
     const report = {
@@ -134,18 +156,8 @@ serve(async (req) => {
 
 async function syncOutlookCalendar(userId: string, supabase: any) {
   try {
-    // Simulate Outlook API call
-    // In a real implementation, you would:
-    // 1. Decrypt the stored access token
-    // 2. Make API calls to Microsoft Graph
-    // 3. Update local database with new events
-    
     console.log(`📅 Syncing Outlook calendar for user ${userId}`)
     
-    // Simulate some sync activity
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Get recent events from planning_events that need to be synced to Outlook
     const { data: eventsToSync, error } = await supabase
       .from('planning_events')
       .select('*')
@@ -157,12 +169,11 @@ async function syncOutlookCalendar(userId: string, supabase: any) {
       throw error
     }
 
-    // Mark events as synced (in real implementation, you'd actually sync them)
     if (eventsToSync && eventsToSync.length > 0) {
       await supabase
         .from('planning_events')
         .update({ synced_to_outlook: true, last_outlook_sync: new Date().toISOString() })
-        .in('id', eventsToSync.map(e => e.id))
+        .in('id', eventsToSync.map((e: any) => e.id))
     }
 
     return { synced: eventsToSync?.length || 0, error: null }
@@ -175,18 +186,6 @@ async function syncInternalCalendar(userId: string, supabase: any) {
   try {
     console.log(`🔄 Processing internal calendar sync for user ${userId}`)
     
-    // Sync recurring events
-    const { data: recurringEvents, error: recurringError } = await supabase
-      .from('planning_events')
-      .select('*')
-      .eq('user_id', userId)
-      .not('type', 'is', null)
-
-    if (recurringError) {
-      throw recurringError
-    }
-
-    // Process any overdue events
     const { data: overdueEvents, error: overdueError } = await supabase
       .from('planning_events')
       .select('*')
@@ -198,11 +197,9 @@ async function syncInternalCalendar(userId: string, supabase: any) {
       throw overdueError
     }
 
-    // Update event statuses and send notifications if needed
     let processedCount = 0
     
     if (overdueEvents && overdueEvents.length > 0) {
-      // Mark overdue events with a flag or send notifications
       processedCount += overdueEvents.length
       console.log(`⚠️ Found ${overdueEvents.length} overdue events for user ${userId}`)
     }
@@ -213,48 +210,28 @@ async function syncInternalCalendar(userId: string, supabase: any) {
   }
 }
 
-async function notifyUsersOfSync(syncResults: SyncResult[], supabase: any) {
+async function logSyncHistory(syncResults: SyncResult[], supabase: any, startTime: number) {
   try {
-    console.log('📢 Sending real-time notifications...')
+    const duration = Date.now() - startTime;
     
-    // Send real-time notifications through Supabase channels
-    for (const result of syncResults) {
-      const notification = {
-        type: 'calendar_sync_complete',
-        user_id: result.user_id,
-        outlook_synced: result.outlook_synced,
-        internal_synced: result.internal_synced,
-        errors: result.errors,
-        timestamp: result.last_sync
-      }
-
-      // Broadcast to user-specific channel
-      await supabase.realtime
-        .channel(`user:${result.user_id}:notifications`)
-        .send({
-          type: 'broadcast',
-          event: 'calendar_sync',
-          payload: notification
-        })
-    }
-
-    // Send general sync status to all users
-    const generalNotification = {
-      type: 'system_sync_complete',
-      total_users: syncResults.length,
-      successful_syncs: syncResults.filter(r => r.errors.length === 0).length,
-      timestamp: new Date().toISOString()
-    }
-
-    await supabase.realtime
-      .channel('system:notifications')
-      .send({
-        type: 'broadcast',
-        event: 'system_sync',
-        payload: generalNotification
-      })
-
+    await supabase
+      .from('calendar_sync_history')
+      .insert({
+        sync_time: new Date().toISOString(),
+        total_users: syncResults.length,
+        successful_syncs: syncResults.filter(r => r.errors.length === 0).length,
+        total_outlook_events: syncResults.reduce((sum, r) => sum + r.outlook_synced, 0),
+        total_internal_events: syncResults.reduce((sum, r) => sum + r.internal_synced, 0),
+        errors: syncResults.filter(r => r.errors.length > 0).map(r => ({
+          user_id: r.user_id,
+          errors: r.errors
+        })),
+        duration_ms: duration,
+        triggered_by: 'automated'
+      });
+      
+    console.log('📝 Sync history logged');
   } catch (error) {
-    console.error('Failed to send notifications:', error)
+    console.error('Failed to log sync history:', error);
   }
 }

@@ -3,6 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+// Get the allowed origin for postMessage - must match parent window
+const getAllowedOrigin = (): string => {
+  // In production, use the actual origin; in development, allow current origin
+  return window.location.origin;
+};
+
 export const OutlookOAuthCallback = () => {
   const [searchParams] = useSearchParams();
 
@@ -11,6 +17,7 @@ export const OutlookOAuthCallback = () => {
       const code = searchParams.get('code');
       const state = searchParams.get('state');
       const error = searchParams.get('error');
+      const allowedOrigin = getAllowedOrigin();
 
       // Check for errors
       if (error) {
@@ -20,7 +27,7 @@ export const OutlookOAuthCallback = () => {
           window.opener.postMessage({ 
             type: 'OUTLOOK_OAUTH_ERROR', 
             error: error 
-          }, '*');
+          }, allowedOrigin);
         }
         toast.error('OAuth authorization failed: ' + error);
         setTimeout(() => window.close(), 1000);
@@ -34,7 +41,7 @@ export const OutlookOAuthCallback = () => {
           window.opener.postMessage({ 
             type: 'OUTLOOK_OAUTH_ERROR', 
             error: errorMsg 
-          }, '*');
+          }, allowedOrigin);
         }
         toast.error(errorMsg);
         setTimeout(() => window.close(), 1000);
@@ -42,14 +49,12 @@ export const OutlookOAuthCallback = () => {
       }
 
       try {
-        console.log('Starting OAuth token exchange...', { code: code.substring(0, 10) + '...', state });
+        console.log('Starting OAuth token exchange...');
         
         // Exchange code for tokens using our edge function
         const { data, error: exchangeError } = await supabase.functions.invoke('outlook-oauth-exchange', {
           body: { code, state }
         });
-
-        console.log('Token exchange response:', { data, error: exchangeError });
 
         if (exchangeError) {
           throw new Error(exchangeError.message);
@@ -63,11 +68,11 @@ export const OutlookOAuthCallback = () => {
         
         // Check if this is a popup (has opener) or full redirect
         if (window.opener) {
-          // Popup mode: communicate success to parent window
+          // Popup mode: communicate success to parent window with specific origin
           window.opener.postMessage({ 
             type: 'OUTLOOK_OAUTH_SUCCESS',
-            data: data
-          }, '*');
+            data: { success: true } // Don't send sensitive token data via postMessage
+          }, allowedOrigin);
           setTimeout(() => window.close(), 1000);
         } else {
           // Full redirect mode: redirect back to the planning page
@@ -85,11 +90,11 @@ export const OutlookOAuthCallback = () => {
         const errorMessage = error instanceof Error ? error.message : 'Failed to complete OAuth authorization';
         
         if (window.opener) {
-          // Popup mode: communicate error to parent window
+          // Popup mode: communicate error to parent window with specific origin
           window.opener.postMessage({ 
             type: 'OUTLOOK_OAUTH_ERROR', 
             error: errorMessage 
-          }, '*');
+          }, allowedOrigin);
           setTimeout(() => window.close(), 1000);
         } else {
           // Full redirect mode: show error and redirect back

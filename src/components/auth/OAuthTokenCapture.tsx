@@ -23,14 +23,13 @@ export const OAuthTokenCapture = () => {
     if (provider === "google" && providerToken) {
       savedRef.current = true; // prevent duplicate writes on rerenders
 
-      // See if we initiated a linking flow from an existing signed-in user
-      let original: any = null;
+      // Check for linking flow indicator using sessionStorage (more secure, cleared on tab close)
+      let originalUserId: string | null = null;
       try {
-        const raw = localStorage.getItem('sp_original_session');
-        original = raw ? JSON.parse(raw) : null;
+        originalUserId = sessionStorage.getItem('sp_linking_user_id');
       } catch {}
 
-      const targetUserId = original?.user_id || user.id;
+      const targetUserId = originalUserId || user.id;
 
       (async () => {
         try {
@@ -52,22 +51,11 @@ export const OAuthTokenCapture = () => {
             );
 
           if (!error) {
-            // If the OAuth flow switched us to the Google user, restore the original session
-            if (original && targetUserId !== user.id && original.access_token && original.refresh_token) {
-              try {
-                await supabase.auth.setSession({
-                  access_token: original.access_token,
-                  refresh_token: original.refresh_token,
-                });
-              } catch (err) {
-                console.error('Failed to restore original session', err);
-              }
-            }
-
-            // Notify main window and cleanup
+            // Cleanup session storage
             try {
-              localStorage.setItem('sp_google_link_done', '1');
-              localStorage.removeItem('sp_original_session');
+              sessionStorage.removeItem('sp_linking_user_id');
+              // Set completion flag for parent window detection
+              sessionStorage.setItem('sp_google_link_done', '1');
             } catch {}
 
             toast({
@@ -85,7 +73,7 @@ export const OAuthTokenCapture = () => {
         }
       })();
     }
-  }, [session, user]);
+  }, [session, user, toast]);
 
   return null;
 };
