@@ -1,139 +1,137 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { MainLayout } from '@/components/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Badge } from '@/components/ui/badge';
 import { 
   Plus, 
   Search, 
-  Star, 
-  Filter, 
-  SortAsc, 
-  SortDesc, 
+  ListTodo,
+  StickyNote,
+  GraduationCap,
+  Users,
+  FileText,
+  Settings,
   Calendar,
-  BookOpen,
-  CheckCircle,
-  Clock,
-  AlertTriangle
+  CheckCircle2,
+  Circle,
+  Star,
+  Trash2,
+  MoreHorizontal
 } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
-import { CreateNoteDialog } from '@/components/notes/CreateNoteDialog';
-import { NoteCard } from '@/components/notes/NoteCard';
-import { QuickAdd, QuickAddData } from '@/components/common/QuickAdd';
+import { CreateTaskDialog } from '@/components/notes/CreateTaskDialog';
+import { TaskItem } from '@/components/notes/TaskItem';
+import { QuickNoteInput } from '@/components/notes/QuickNoteInput';
 import { Note } from '@/types/notes';
 import { useAuth } from '@/hooks/useAuth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+// Academic categories for teachers
+const CATEGORIES = [
+  { id: 'all', label: 'All Tasks', icon: ListTodo },
+  { id: 'teaching', label: 'Teaching', icon: GraduationCap },
+  { id: 'students', label: 'Students', icon: Users },
+  { id: 'admin', label: 'Admin', icon: FileText },
+  { id: 'meetings', label: 'Meetings', icon: Calendar },
+  { id: 'grading', label: 'Grading', icon: Settings },
+];
 
 const NotesPage = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedType, setSelectedType] = useState<string>('all');
-  const [selectedStatus, setSelectedStatus] = useState<string>('all');
-  const [selectedPriority, setSelectedPriority] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
-  const [viewMode, setViewMode] = useState<'all' | 'starred'>('all');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [activeTab, setActiveTab] = useState<'tasks' | 'notes'>('tasks');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(false);
 
-  const { notes, isLoading, deleteNote, toggleStar, toggleStatus, error, createNote } = useNotes();
+  const { notes, isLoading, deleteNote, toggleStar, toggleStatus, createNote } = useNotes();
   const { user } = useAuth();
 
-  console.log('NotesPage - notes data:', notes, 'isLoading:', isLoading, 'error:', error);
-
-  // Auto-refresh every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      // The useNotes hook will automatically refetch due to React Query's stale time settings
-      window.dispatchEvent(new CustomEvent('refreshData'));
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
-
-  // Filter and sort notes
-  const filteredAndSortedNotes = useMemo(() => {
-    let filtered = notes.filter(note => {
-      const matchesSearch = 
-        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        note.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (note.student_name && note.student_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        note.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
-
-      const matchesType = selectedType === 'all' || note.type === selectedType;
-      const matchesStatus = selectedStatus === 'all' || note.status === selectedStatus;
-      const matchesPriority = selectedPriority === 'all' || note.priority === selectedPriority;
-      const matchesView = viewMode === 'all' || (viewMode === 'starred' && note.starred);
-
-      return matchesSearch && matchesType && matchesStatus && matchesPriority && matchesView;
-    });
-
-    // Sort notes
-    filtered.sort((a, b) => {
-      let aValue: any, bValue: any;
-
-      switch (sortBy) {
-        case 'title':
-          aValue = a.title.toLowerCase();
-          bValue = b.title.toLowerCase();
-          break;
-        case 'course':
-          aValue = a.course.toLowerCase();
-          bValue = b.course.toLowerCase();
-          break;
-        case 'priority':
-          const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
-          aValue = priorityOrder[a.priority];
-          bValue = priorityOrder[b.priority];
-          break;
-        case 'due_date':
-          aValue = a.due_date ? new Date(a.due_date).getTime() : 0;
-          bValue = b.due_date ? new Date(b.due_date).getTime() : 0;
-          break;
-        case 'created_at':
-        default:
-          aValue = new Date(a.created_at).getTime();
-          bValue = new Date(b.created_at).getTime();
-          break;
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-
-    return filtered;
-  }, [notes, searchQuery, selectedType, selectedStatus, selectedPriority, sortBy, sortOrder, viewMode]);
-
-  // Get simplified statistics
-  const stats = useMemo(() => {
-    const totalNotes = notes.length;
-    const activeNotes = notes.filter(n => n.status === 'active').length;
-    const starredNotes = notes.filter(n => n.starred).length;
-    const urgentNotes = notes.filter(n => n.priority === 'urgent' && n.status === 'active').length;
-
-    return {
-      totalNotes,
-      activeNotes,
-      starredNotes,
-      urgentNotes,
-    };
+  // Separate tasks (commitments/reminders) from notes
+  const { tasks, quickNotes } = useMemo(() => {
+    const allTasks = notes.filter(n => n.type === 'commitment' || n.type === 'reminder');
+    const allNotes = notes.filter(n => n.type === 'note');
+    return { tasks: allTasks, quickNotes: allNotes };
   }, [notes]);
 
-  const typeLabels = {
-    note: 'Notes',
-    commitment: 'Commitments',
-    reminder: 'Reminders',
+  // Filter tasks
+  const filteredTasks = useMemo(() => {
+    return tasks.filter(task => {
+      const matchesSearch = 
+        task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        task.course.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesCategory = selectedCategory === 'all' || 
+        task.course.toLowerCase() === selectedCategory.toLowerCase() ||
+        task.tags?.some(tag => tag.toLowerCase() === selectedCategory.toLowerCase());
+
+      const matchesCompleted = showCompleted || task.status !== 'completed';
+
+      return matchesSearch && matchesCategory && matchesCompleted;
+    }).sort((a, b) => {
+      // Sort by: starred first, then by priority, then by date
+      if (a.starred !== b.starred) return a.starred ? -1 : 1;
+      const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
+      if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
+        return priorityOrder[b.priority] - priorityOrder[a.priority];
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [tasks, searchQuery, selectedCategory, showCompleted]);
+
+  // Filter notes
+  const filteredNotes = useMemo(() => {
+    return quickNotes.filter(note => {
+      const matchesSearch = 
+        note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        note.content.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesSearch;
+    }).sort((a, b) => {
+      if (a.starred !== b.starred) return a.starred ? -1 : 1;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
+  }, [quickNotes, searchQuery]);
+
+  // Statistics
+  const stats = useMemo(() => ({
+    totalTasks: tasks.length,
+    completedTasks: tasks.filter(t => t.status === 'completed').length,
+    pendingTasks: tasks.filter(t => t.status === 'active').length,
+    urgentTasks: tasks.filter(t => t.priority === 'urgent' && t.status === 'active').length,
+    totalNotes: quickNotes.length,
+  }), [tasks, quickNotes]);
+
+  const handleQuickNote = async (title: string, content: string) => {
+    if (!user) return;
+    await createNote({
+      title,
+      content,
+      type: 'note',
+      course: 'Quick Notes',
+      tags: [],
+      starred: false,
+    });
   };
 
-  const priorityColors = {
-    low: 'bg-green-100 text-green-700',
-    medium: 'bg-blue-100 text-blue-700',
-    high: 'bg-orange-100 text-orange-700',
-    urgent: 'bg-red-100 text-red-700',
+  const handleQuickTask = async (title: string) => {
+    if (!user) return;
+    await createNote({
+      title,
+      content: '',
+      type: 'commitment',
+      course: selectedCategory === 'all' ? 'General' : selectedCategory,
+      tags: selectedCategory !== 'all' ? [selectedCategory] : [],
+      starred: false,
+    });
   };
 
   if (isLoading) {
@@ -142,41 +140,12 @@ const NotesPage = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
-            <p className="mt-2 text-muted-foreground">Loading notes...</p>
+            <p className="mt-2 text-muted-foreground">Loading...</p>
           </div>
         </div>
       </MainLayout>
     );
   }
-
-  // Handle quick add
-  const handleQuickAdd = async (data: QuickAddData) => {
-    if (!user) throw new Error("Not authenticated");
-    
-    await createNote({
-      title: data.title,
-      content: "",
-      type: (data.type as "note" | "commitment") || "note",
-      course: data.course || "General",
-      tags: [],
-      starred: false,
-    });
-  };
-
-  // Handle duplicate note
-  const handleDuplicateNote = async (note: Note) => {
-    if (!user) return;
-    
-    await createNote({
-      title: `${note.title} (Copy)`,
-      content: note.content,
-      type: note.type as "note" | "commitment",
-      course: note.course,
-      tags: note.tags || [],
-      starred: false,
-      student_name: note.student_name,
-    });
-  };
 
   return (
     <MainLayout>
@@ -184,191 +153,273 @@ const NotesPage = () => {
         {/* Header */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Notes & Commitments</h1>
-            <p className="text-muted-foreground">Manage your academic notes, commitments, and reminders</p>
+            <h1 className="text-3xl font-bold">Academic Workspace</h1>
+            <p className="text-muted-foreground">Manage your tasks, notes, and academic responsibilities</p>
           </div>
-          <div className="flex gap-2">
-            <QuickAdd 
-              type="note" 
-              onQuickAdd={handleQuickAdd}
-              onOpenFullForm={() => setIsCreateDialogOpen(true)}
-              placeholder="Quick add note..."
-            />
-            <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              Create Note
-            </Button>
-          </div>
+          <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
+            <Plus className="h-4 w-4" />
+            New Task
+          </Button>
         </div>
 
-        {/* Simplified Statistics Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <BookOpen className="h-5 w-5 text-blue-500" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.totalNotes}</p>
-                  <p className="text-sm text-muted-foreground">Total Notes</p>
-                </div>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <Card className="bg-primary/5 border-primary/20">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <ListTodo className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.pendingTasks}</p>
+                <p className="text-xs text-muted-foreground">Pending</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Clock className="h-5 w-5 text-green-500" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.activeNotes}</p>
-                  <p className="text-sm text-muted-foreground">Active</p>
-                </div>
+          <Card className="bg-green-500/5 border-green-500/20">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <CheckCircle2 className="h-5 w-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.completedTasks}</p>
+                <p className="text-xs text-muted-foreground">Completed</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <Star className="h-5 w-5 text-yellow-500" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.starredNotes}</p>
-                  <p className="text-sm text-muted-foreground">Starred</p>
-                </div>
+          <Card className="bg-red-500/5 border-red-500/20">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-red-500/10">
+                <Circle className="h-5 w-5 text-red-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.urgentTasks}</p>
+                <p className="text-xs text-muted-foreground">Urgent</p>
               </div>
             </CardContent>
           </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="h-5 w-5 text-orange-500" />
-                <div>
-                  <p className="text-2xl font-bold">{stats.urgentNotes}</p>
-                  <p className="text-sm text-muted-foreground">Urgent</p>
-                </div>
+          <Card className="bg-amber-500/5 border-amber-500/20">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-amber-500/10">
+                <StickyNote className="h-5 w-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.totalNotes}</p>
+                <p className="text-xs text-muted-foreground">Notes</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card className="bg-blue-500/5 border-blue-500/20">
+            <CardContent className="p-4 flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <GraduationCap className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{stats.totalTasks}</p>
+                <p className="text-xs text-muted-foreground">Total Tasks</p>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Simplified Search and Filters */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex flex-col md:flex-row gap-4">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search notes, content, courses..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
-                />
+        {/* Main Content Tabs */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'tasks' | 'notes')} className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <TabsList className="bg-muted/50">
+              <TabsTrigger value="tasks" className="gap-2">
+                <ListTodo className="h-4 w-4" />
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger value="notes" className="gap-2">
+                <StickyNote className="h-4 w-4" />
+                Quick Notes
+              </TabsTrigger>
+            </TabsList>
+
+            {/* Search */}
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder={activeTab === 'tasks' ? "Search tasks..." : "Search notes..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </div>
+
+          {/* Tasks Tab */}
+          <TabsContent value="tasks" className="space-y-4">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Categories Sidebar */}
+              <div className="lg:w-56 space-y-2">
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">Categories</CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-2">
+                    <div className="space-y-1">
+                      {CATEGORIES.map((cat) => {
+                        const Icon = cat.icon;
+                        const count = cat.id === 'all' 
+                          ? tasks.filter(t => t.status !== 'completed').length
+                          : tasks.filter(t => 
+                              (t.course.toLowerCase() === cat.id || 
+                               t.tags?.some(tag => tag.toLowerCase() === cat.id)) &&
+                              t.status !== 'completed'
+                            ).length;
+                        return (
+                          <button
+                            key={cat.id}
+                            onClick={() => setSelectedCategory(cat.id)}
+                            className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                              selectedCategory === cat.id
+                                ? 'bg-primary text-primary-foreground'
+                                : 'hover:bg-muted'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2">
+                              <Icon className="h-4 w-4" />
+                              <span>{cat.label}</span>
+                            </div>
+                            {count > 0 && (
+                              <Badge variant={selectedCategory === cat.id ? "secondary" : "outline"} className="text-xs">
+                                {count}
+                              </Badge>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Show Completed Toggle */}
+                <Card>
+                  <CardContent className="p-3">
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox 
+                        checked={showCompleted} 
+                        onCheckedChange={(checked) => setShowCompleted(checked as boolean)} 
+                      />
+                      Show completed
+                    </label>
+                  </CardContent>
+                </Card>
               </div>
-              
-              <div className="flex gap-2">
-                <Select value={selectedType} onValueChange={setSelectedType}>
-                  <SelectTrigger className="w-[130px] bg-background">
-                    <SelectValue placeholder="Type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border z-50">
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="note">Notes</SelectItem>
-                    <SelectItem value="commitment">Commitments</SelectItem>
-                    <SelectItem value="reminder">Reminders</SelectItem>
-                  </SelectContent>
-                </Select>
 
-                <Select value={selectedPriority} onValueChange={setSelectedPriority}>
-                  <SelectTrigger className="w-[120px] bg-background">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border z-50">
-                    <SelectItem value="all">All Priority</SelectItem>
-                    <SelectItem value="urgent">Urgent</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
+              {/* Task List */}
+              <div className="flex-1 space-y-3">
+                {/* Quick Add Task */}
+                <Card>
+                  <CardContent className="p-3">
+                    <div className="flex items-center gap-2">
+                      <Plus className="h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Add a task and press Enter..."
+                        className="border-0 shadow-none focus-visible:ring-0 px-0"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && e.currentTarget.value.trim()) {
+                            handleQuickTask(e.currentTarget.value.trim());
+                            e.currentTarget.value = '';
+                          }
+                        }}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
 
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-[140px] bg-background">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background border z-50">
-                    <SelectItem value="created_at">Most Recent</SelectItem>
-                    <SelectItem value="title">Title A-Z</SelectItem>
-                    <SelectItem value="course">Course</SelectItem>
-                    <SelectItem value="priority">Priority</SelectItem>
-                  </SelectContent>
-                </Select>
+                {/* Tasks */}
+                {filteredTasks.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <ListTodo className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                      <h3 className="font-medium mb-1">No tasks found</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {searchQuery ? 'Try a different search term' : 'Add your first task to get started'}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredTasks.map((task) => (
+                      <TaskItem
+                        key={task.id}
+                        task={task}
+                        onToggleStatus={toggleStatus}
+                        onToggleStar={toggleStar}
+                        onDelete={deleteNote}
+                      />
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </TabsContent>
 
-        {/* Simplified Tabs */}
-        <Tabs value={viewMode} onValueChange={(value) => setViewMode(value as 'all' | 'starred')}>
-          <TabsList className="bg-background">
-            <TabsTrigger value="all">All Notes ({filteredAndSortedNotes.length})</TabsTrigger>
-            <TabsTrigger value="starred">Starred ({stats.starredNotes})</TabsTrigger>
-          </TabsList>
+          {/* Notes Tab */}
+          <TabsContent value="notes" className="space-y-4">
+            {/* Quick Note Input */}
+            <QuickNoteInput onSave={handleQuickNote} />
 
-          <TabsContent value="all" className="space-y-4">
-            {filteredAndSortedNotes.length === 0 ? (
+            {/* Notes Grid */}
+            {filteredNotes.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
-                  <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No notes found</h3>
-                  <p className="text-muted-foreground mb-4">
-                    {searchQuery || selectedType !== 'all' || selectedStatus !== 'all' || selectedPriority !== 'all'
-                      ? 'Try adjusting your filters or search terms.'
-                      : 'Create your first note to get started.'
-                    }
+                  <StickyNote className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                  <h3 className="font-medium mb-1">No notes yet</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Add a quick note above to get started
                   </p>
-                  <Button onClick={() => setIsCreateDialogOpen(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Create Note
-                  </Button>
                 </CardContent>
               </Card>
             ) : (
-              <div className="space-y-4">
-                {filteredAndSortedNotes.map((note) => (
-                  <NoteCard 
-                    key={note.id} 
-                    note={note as any} 
-                    onUpdate={() => {}}
-                    onDelete={deleteNote}
-                    onToggleStar={toggleStar}
-                    onToggleStatus={toggleStatus}
-                    onDuplicate={() => handleDuplicateNote(note as Note)}
-                  />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredNotes.map((note) => (
+                  <Card key={note.id} className={`group relative ${note.starred ? 'ring-2 ring-amber-400/50' : ''}`}>
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-2">
+                        <h3 className="font-medium line-clamp-1">{note.title}</h3>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => toggleStar(note.id)}
+                          >
+                            <Star className={`h-4 w-4 ${note.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-destructive"
+                            onClick={() => deleteNote(note.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-4 whitespace-pre-wrap">{note.content}</p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(note.created_at).toLocaleDateString()}
+                        </span>
+                        {note.course && note.course !== 'Quick Notes' && (
+                          <Badge variant="secondary" className="text-xs">{note.course}</Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
             )}
           </TabsContent>
-
-          <TabsContent value="starred">
-            {/* Starred notes content - same structure as all notes but filtered */}
-            <div className="space-y-4">
-            {filteredAndSortedNotes.filter(note => note.starred).map((note) => (
-              <NoteCard 
-                key={note.id} 
-                note={note as any} 
-                onUpdate={() => {}}
-                onDelete={deleteNote}
-                onToggleStar={toggleStar}
-                onToggleStatus={toggleStatus}
-                onDuplicate={() => handleDuplicateNote(note as Note)}
-              />
-            ))}
-            </div>
-          </TabsContent>
         </Tabs>
 
-        {/* Create Note Dialog */}
-        <CreateNoteDialog 
+        {/* Create Task Dialog */}
+        <CreateTaskDialog 
           open={isCreateDialogOpen} 
-          onOpenChange={setIsCreateDialogOpen} 
+          onOpenChange={setIsCreateDialogOpen}
+          categories={CATEGORIES.filter(c => c.id !== 'all')}
         />
       </div>
     </MainLayout>
