@@ -22,6 +22,7 @@ import { AddItemDialog } from "@/components/supplies/AddItemDialog";
 import { EditItemDialog } from "@/components/supplies/EditItemDialog";
 import { ItemHistoryDialog } from "@/components/supplies/ItemHistoryDialog";
 import { SupplyItem } from "@/types/shoppingList";
+import { InventoryCsvManager } from "@/components/supplies/InventoryCsvManager";
 interface Expense {
   id: string;
   date: string;
@@ -301,7 +302,8 @@ const SuppliesPage = () => {
             <h1 className="text-3xl font-bold mb-1">Supplies & Expenses</h1>
             <p className="text-muted-foreground">Track your inventory and expenses of your lab</p>
           </div>
-          <div className="mt-4 md:mt-0 flex gap-2">
+          <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
+            <InventoryCsvManager supplies={supplies} onRefetch={refetchSupplies} />
             <Button className="flex items-center gap-2" onClick={() => setIsAddItemDialogOpen(true)} disabled={isProcessing}>
               <Plus className="h-4 w-4" />
               <span>Add Item</span>
