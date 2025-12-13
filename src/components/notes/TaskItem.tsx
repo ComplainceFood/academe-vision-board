@@ -8,12 +8,15 @@ import {
   Trash2, 
   Calendar,
   User,
-  MoreHorizontal
+  MoreHorizontal,
+  Edit,
+  Eye
 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Note } from '@/types/notes';
@@ -23,6 +26,7 @@ interface TaskItemProps {
   onToggleStatus: (id: string) => Promise<any>;
   onToggleStar: (id: string) => Promise<any>;
   onDelete: (id: string) => Promise<any>;
+  onEdit?: (task: Note) => void;
 }
 
 const priorityStyles = {
@@ -39,7 +43,7 @@ const priorityBadges = {
   low: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
 };
 
-export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete }: TaskItemProps) {
+export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete, onEdit }: TaskItemProps) {
   const isCompleted = task.status === 'completed';
 
   return (
@@ -69,14 +73,9 @@ export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete }: TaskI
 
               {/* Star & Actions */}
               <div className="flex items-center gap-1">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                  onClick={() => onToggleStar(task.id)}
-                >
-                  <Star className={`h-4 w-4 ${task.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
-                </Button>
+                {task.starred && (
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
+                )}
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -88,16 +87,25 @@ export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete }: TaskI
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
+                    {onEdit && (
+                      <DropdownMenuItem onClick={() => onEdit(task)}>
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem onClick={() => onToggleStatus(task.id)}>
                       {isCompleted ? 'Mark as pending' : 'Mark as complete'}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onToggleStar(task.id)}>
+                      <Star className={`h-4 w-4 mr-2 ${task.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
                       {task.starred ? 'Remove star' : 'Add star'}
                     </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem 
                       onClick={() => onDelete(task.id)}
                       className="text-destructive"
                     >
+                      <Trash2 className="h-4 w-4 mr-2" />
                       Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
