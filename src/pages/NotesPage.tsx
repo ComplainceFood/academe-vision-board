@@ -20,20 +20,36 @@ import {
   Circle,
   Star,
   Trash2,
+  Edit,
+  Eye,
   MoreHorizontal
 } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
 import { CreateTaskDialog } from '@/components/notes/CreateTaskDialog';
 import { TaskItem } from '@/components/notes/TaskItem';
 import { QuickNoteInput } from '@/components/notes/QuickNoteInput';
+import { EditNoteDialog } from '@/components/notes/EditNoteDialog';
+import { ViewNoteDialog } from '@/components/notes/ViewNoteDialog';
+import { EditTaskDialog } from '@/components/notes/EditTaskDialog';
 import { Note } from '@/types/notes';
 import { useAuth } from '@/hooks/useAuth';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // Academic categories for teachers
 const CATEGORIES = [
@@ -51,6 +67,16 @@ const NotesPage = () => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'notes'>('tasks');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  
+  // Dialog states for notes
+  const [selectedNote, setSelectedNote] = useState<Note | null>(null);
+  const [isViewNoteOpen, setIsViewNoteOpen] = useState(false);
+  const [isEditNoteOpen, setIsEditNoteOpen] = useState(false);
+  const [isDeleteNoteOpen, setIsDeleteNoteOpen] = useState(false);
+  
+  // Dialog states for tasks
+  const [selectedTask, setSelectedTask] = useState<Note | null>(null);
+  const [isEditTaskOpen, setIsEditTaskOpen] = useState(false);
 
   const { notes, isLoading, deleteNote, toggleStar, toggleStatus, createNote } = useNotes();
   const { user } = useAuth();
@@ -132,6 +158,31 @@ const NotesPage = () => {
       tags: selectedCategory !== 'all' ? [selectedCategory] : [],
       starred: false,
     });
+  };
+
+  const handleViewNote = (note: Note) => {
+    setSelectedNote(note);
+    setIsViewNoteOpen(true);
+  };
+
+  const handleEditNote = (note: Note) => {
+    setSelectedNote(note);
+    setIsEditNoteOpen(true);
+    setIsViewNoteOpen(false);
+  };
+
+  const handleDeleteNote = async () => {
+    if (selectedNote) {
+      await deleteNote(selectedNote.id);
+      setIsDeleteNoteOpen(false);
+      setIsViewNoteOpen(false);
+      setSelectedNote(null);
+    }
+  };
+
+  const handleEditTask = (task: Note) => {
+    setSelectedTask(task);
+    setIsEditTaskOpen(true);
   };
 
   if (isLoading) {
@@ -348,6 +399,7 @@ const NotesPage = () => {
                         onToggleStatus={toggleStatus}
                         onToggleStar={toggleStar}
                         onDelete={deleteNote}
+                        onEdit={() => handleEditTask(task)}
                       />
                     ))}
                   </div>
@@ -375,27 +427,51 @@ const NotesPage = () => {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredNotes.map((note) => (
-                  <Card key={note.id} className={`group relative ${note.starred ? 'ring-2 ring-amber-400/50' : ''}`}>
+                  <Card 
+                    key={note.id} 
+                    className={`group relative cursor-pointer hover:shadow-md transition-shadow ${note.starred ? 'ring-2 ring-amber-400/50' : ''}`}
+                    onClick={() => handleViewNote(note)}
+                  >
                     <CardContent className="p-4">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-medium line-clamp-1">{note.title}</h3>
-                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7"
-                            onClick={() => toggleStar(note.id)}
-                          >
-                            <Star className={`h-4 w-4 ${note.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-destructive"
-                            onClick={() => deleteNote(note.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
+                        <h3 className="font-medium line-clamp-1 flex-1">{note.title}</h3>
+                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleViewNote(note)}>
+                                <Eye className="h-4 w-4 mr-2" />
+                                View
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEditNote(note)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => toggleStar(note.id)}>
+                                <Star className={`h-4 w-4 mr-2 ${note.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
+                                {note.starred ? 'Unstar' : 'Star'}
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={() => {
+                                  setSelectedNote(note);
+                                  setIsDeleteNoteOpen(true);
+                                }}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
                       <p className="text-sm text-muted-foreground line-clamp-4 whitespace-pre-wrap">{note.content}</p>
@@ -403,9 +479,12 @@ const NotesPage = () => {
                         <span className="text-xs text-muted-foreground">
                           {new Date(note.created_at).toLocaleDateString()}
                         </span>
-                        {note.course && note.course !== 'Quick Notes' && (
-                          <Badge variant="secondary" className="text-xs">{note.course}</Badge>
-                        )}
+                        <div className="flex items-center gap-1">
+                          {note.starred && <Star className="h-3 w-3 fill-amber-400 text-amber-400" />}
+                          {note.course && note.course !== 'Quick Notes' && (
+                            <Badge variant="secondary" className="text-xs">{note.course}</Badge>
+                          )}
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
@@ -421,6 +500,51 @@ const NotesPage = () => {
           onOpenChange={setIsCreateDialogOpen}
           categories={CATEGORIES.filter(c => c.id !== 'all')}
         />
+
+        {/* View Note Dialog */}
+        <ViewNoteDialog
+          note={selectedNote}
+          open={isViewNoteOpen}
+          onOpenChange={setIsViewNoteOpen}
+          onEdit={() => handleEditNote(selectedNote!)}
+          onDelete={() => {
+            setIsViewNoteOpen(false);
+            setIsDeleteNoteOpen(true);
+          }}
+        />
+
+        {/* Edit Note Dialog */}
+        <EditNoteDialog
+          note={selectedNote}
+          open={isEditNoteOpen}
+          onOpenChange={setIsEditNoteOpen}
+        />
+
+        {/* Edit Task Dialog */}
+        <EditTaskDialog
+          task={selectedTask}
+          open={isEditTaskOpen}
+          onOpenChange={setIsEditTaskOpen}
+          categories={CATEGORIES.filter(c => c.id !== 'all')}
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={isDeleteNoteOpen} onOpenChange={setIsDeleteNoteOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Note</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete "{selectedNote?.title}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteNote} className="bg-destructive hover:bg-destructive/90">
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </MainLayout>
   );

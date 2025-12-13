@@ -27,6 +27,7 @@ import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { CreateMeetingDialog } from "@/components/meetings/CreateMeetingDialog";
 import { MeetingDetailDialog } from "@/components/meetings/MeetingDetailDialog";
+import { EditMeetingDialog } from "@/components/meetings/EditMeetingDialog";
 import { QuickAdd, QuickAddData } from "@/components/common/QuickAdd";
 import type { Meeting } from "@/types/meetings";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,7 +37,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useMeetings } from "@/hooks/useMeetings";
 import { useAuth } from "@/hooks/useAuth";
 
-const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetails: (meeting: Meeting) => void }) => {
+const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onViewDetails: (meeting: Meeting) => void; onEdit: (meeting: Meeting) => void }) => {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const { updateStatus, deleteMeeting } = useMeetings();
@@ -132,7 +133,7 @@ const MeetingCard = ({ meeting, onViewDetails }: { meeting: Meeting; onViewDetai
               <DropdownMenuItem onClick={() => onViewDetails(meeting)}>
                 <FileText className="h-4 w-4 mr-2" /> View Details
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={() => onEdit(meeting)}>
                 <Edit className="h-4 w-4 mr-2" /> Edit Meeting
               </DropdownMenuItem>
               
@@ -266,6 +267,7 @@ const MeetingsPage = () => {
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   
   const { meetings, isLoading, createMeeting } = useMeetings();
   const { user } = useAuth();
@@ -282,6 +284,11 @@ const MeetingsPage = () => {
   const handleViewDetails = (meeting: Meeting) => {
     setSelectedMeeting(meeting);
     setIsDetailOpen(true);
+  };
+
+  const handleEditMeeting = (meeting: Meeting) => {
+    setSelectedMeeting(meeting);
+    setIsEditOpen(true);
   };
 
   const filteredMeetings = (meetings || []).filter(meeting => {
@@ -403,7 +410,7 @@ const MeetingsPage = () => {
                 <div className="text-center py-12">Loading meetings...</div>
               ) : sortedMeetings.length > 0 ? (
                 sortedMeetings.map(meeting => (
-                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} />
+                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
                 ))
               ) : (
                 <div className="text-center py-12">
@@ -425,7 +432,7 @@ const MeetingsPage = () => {
                 <div className="text-center py-12">Loading meetings...</div>
               ) : sortedMeetings.length > 0 ? (
                 sortedMeetings.map(meeting => (
-                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} />
+                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
                 ))
               ) : (
                 <div className="text-center py-12">
@@ -441,7 +448,7 @@ const MeetingsPage = () => {
                 <div className="text-center py-12">Loading meetings...</div>
               ) : sortedMeetings.length > 0 ? (
                 sortedMeetings.map(meeting => (
-                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} />
+                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
                 ))
               ) : (
                 <div className="text-center py-12">
@@ -464,6 +471,12 @@ const MeetingsPage = () => {
       <CreateMeetingDialog 
         isOpen={isCreateOpen}
         onOpenChange={setIsCreateOpen}
+      />
+
+      <EditMeetingDialog
+        meeting={selectedMeeting}
+        open={isEditOpen}
+        onOpenChange={setIsEditOpen}
       />
     </MainLayout>
   );
