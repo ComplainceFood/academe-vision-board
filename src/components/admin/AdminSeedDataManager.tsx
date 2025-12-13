@@ -13,172 +13,322 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { useQueryClient } from "@tanstack/react-query";
 import { Database, TestTube, RotateCcw, Zap, Info, CheckCircle } from "lucide-react";
 
-// Enhanced mock data sets
+// Enhanced mock data sets for academic administration
 const mockDataSets = {
   notes: {
-    name: "Academic Notes & Commitments",
-    description: "Various types of notes including commitments, research notes, and course materials",
-    count: 15,
+    name: "Academic Tasks & Notes",
+    description: "Tasks, commitments, and quick notes for academic administration",
+    count: 12,
     data: [
+      // Tasks (type: commitment/reminder)
       {
-        title: "Project Extension",
-        content: "Promised 2-week extension for final project to CS101 students who attended workshop.",
+        title: "Grade Midterm Exams",
+        content: "Complete grading for CS101 midterm exams. 45 students submitted. Deadline: Friday.",
         type: "commitment",
-        course: "CS101",
-        tags: ["extension", "project"],
+        course: "Grading",
+        priority: "urgent",
+        tags: ["grading", "deadline"],
         starred: true
       },
       {
-        title: "Lab Equipment Order",
-        content: "Need to order 5 more Raspberry Pi kits for the robotics lab by next Monday.",
-        type: "note",
-        course: "CS202",
+        title: "Submit Final Grades",
+        content: "Submit all final grades to registrar office by end of semester.",
+        type: "commitment",
+        course: "Admin",
+        priority: "high",
+        tags: ["admin", "grades"],
+        starred: false
+      },
+      {
+        title: "Review Thesis Draft - Sarah Johnson",
+        content: "Review Chapter 3 of Sarah's thesis on machine learning applications. Provide feedback on methodology section.",
+        type: "commitment",
+        course: "Students",
+        priority: "high",
+        tags: ["thesis", "review"],
+        student_name: "Sarah Johnson"
+      },
+      {
+        title: "Prepare Lecture Slides",
+        content: "Update slides for next week's Data Structures lecture. Add new examples for binary trees.",
+        type: "commitment",
+        course: "Teaching",
+        priority: "medium",
+        tags: ["lecture", "preparation"]
+      },
+      {
+        title: "Schedule Office Hours",
+        content: "Set up additional office hours before final exams. Coordinate with TA availability.",
+        type: "reminder",
+        course: "Admin",
+        priority: "medium",
+        tags: ["office-hours", "scheduling"]
+      },
+      {
+        title: "Department Meeting Preparation",
+        content: "Prepare curriculum proposal presentation for department meeting next Monday.",
+        type: "commitment",
+        course: "Meetings",
+        priority: "high",
+        tags: ["meeting", "curriculum"],
+        starred: true
+      },
+      {
+        title: "Order Lab Equipment",
+        content: "Submit purchase order for new Arduino kits and sensors for robotics course.",
+        type: "reminder",
+        course: "Admin",
+        priority: "low",
         tags: ["supplies", "lab"]
       },
+      // Quick Notes (type: note)
       {
-        title: "Research Paper Draft",
-        content: "Review draft on machine learning applications in education - due next week.",
-        type: "commitment",
-        course: "Research",
-        tags: ["research", "paper", "ml"],
-        student: "Dr. Jane Smith"
-      },
-      {
-        title: "Guest Lecture Planning",
-        content: "Arrange guest speaker for advanced algorithms class - contact industry professional.",
+        title: "Student Accommodation Request",
+        content: "John D. requested extended time for exams due to documented disability. Approved - notify testing center.",
         type: "note",
-        course: "CS301",
-        tags: ["guest", "lecture", "industry"]
+        course: "Quick Notes",
+        priority: "medium",
+        tags: ["accommodation"]
       },
       {
-        title: "Student Conference Support",
-        content: "Committed to provide funding support for 3 students to attend conference.",
-        type: "commitment",
-        course: "Research",
-        tags: ["conference", "funding", "students"],
+        title: "Research Paper Ideas",
+        content: "Potential topics: 1) AI in education assessment, 2) Gamification in programming courses, 3) Remote lab accessibility",
+        type: "note",
+        course: "Quick Notes",
+        priority: "low",
+        tags: ["research", "ideas"]
+      },
+      {
+        title: "Conference Submission Deadline",
+        content: "SIGCSE 2025 abstract deadline: March 15. Full paper due: April 20. Consider submitting the assessment tool paper.",
+        type: "note",
+        course: "Quick Notes",
+        priority: "high",
+        tags: ["conference", "deadline"],
         starred: true
       }
     ]
   },
   meetings: {
     name: "Academic Meetings",
-    description: "Various types of meetings including 1:1s, committee meetings, and office hours",
-    count: 12,
+    description: "Faculty meetings, student advising, and committee sessions",
+    count: 8,
     data: [
       {
-        title: "Academic Advisory Meeting",
+        title: "PhD Student Advisory Meeting",
         type: "1:1",
         status: "scheduled",
-        date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        time: "10:00 AM",
-        duration: "30 min",
-        attendees: ["John Smith"],
-        location: "Office 302"
+        start_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        start_time: "10:00",
+        end_time: "10:30",
+        attendees: ["Sarah Johnson"],
+        location: "Office 302",
+        notes: "Discuss thesis progress and timeline for defense."
       },
       {
-        title: "Department Committee",
+        title: "Curriculum Committee Meeting",
         type: "committee",
         status: "scheduled",
-        date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        time: "2:00 PM",
-        duration: "90 min",
-        attendees: ["Dr. Brown", "Dr. Davis", "Dr. Wilson"],
-        location: "Conference Room A"
+        start_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        start_time: "14:00",
+        end_time: "15:30",
+        attendees: ["Dr. Smith", "Dr. Brown", "Dr. Wilson"],
+        location: "Conference Room A",
+        notes: "Review proposed changes to undergraduate CS requirements."
       },
       {
-        title: "Research Progress Review",
+        title: "Teaching Assistant Weekly Sync",
+        type: "1:1",
+        status: "scheduled",
+        start_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        start_time: "15:00",
+        end_time: "15:30",
+        attendees: ["Michael Chen (TA)"],
+        location: "Office 302",
+        notes: "Review grading rubric for upcoming assignment."
+      },
+      {
+        title: "Department Faculty Meeting",
+        type: "department",
+        status: "scheduled",
+        start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        start_time: "09:00",
+        end_time: "11:00",
+        attendees: ["All Faculty"],
+        location: "Main Conference Hall",
+        notes: "Monthly department meeting. Agenda: Budget review, hiring updates."
+      },
+      {
+        title: "Student Office Hours",
+        type: "office-hours",
+        status: "scheduled",
+        start_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        start_time: "13:00",
+        end_time: "15:00",
+        attendees: [],
+        location: "Office 302",
+        notes: "Open office hours for CS101 and CS202 students."
+      },
+      {
+        title: "Research Collaboration Discussion",
         type: "1:1",
         status: "completed",
-        date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        time: "11:30 AM",
-        duration: "45 min",
-        attendees: ["Emily Johnson"],
-        location: "Lab 204",
-        notes: "Discussed thesis progress. Emily has completed chapter 2 and is working on experimental design.",
+        start_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        start_time: "11:00",
+        end_time: "12:00",
+        attendees: ["Dr. Emily Clark (External)"],
+        location: "Zoom",
+        notes: "Discussed potential NSF grant collaboration on AI education tools.",
         action_items: [
-          "Provide feedback on methodology section",
-          "Schedule equipment training session",
-          "Review literature recommendations"
+          "Draft preliminary proposal outline",
+          "Share previous research papers",
+          "Schedule follow-up in 2 weeks"
         ]
       }
     ]
   },
   supplies: {
-    name: "Laboratory & Office Supplies",
-    description: "Equipment, materials, and supplies for courses and research",
-    count: 20,
+    name: "Lab & Office Supplies",
+    description: "Teaching materials, lab equipment, and office supplies inventory",
+    count: 15,
     data: [
       {
-        name: "Whiteboard Markers",
+        name: "Dry Erase Markers (Assorted)",
         category: "Office Supplies",
-        course: "All Courses",
-        current_count: 12,
+        course: "General",
+        current_count: 8,
         total_count: 50,
-        threshold: 10,
-        cost: 2.99,
-        last_restocked: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        threshold: 15,
+        cost: 2.49
       },
       {
-        name: "Raspberry Pi Kits",
+        name: "Arduino Uno Boards",
         category: "Lab Equipment",
-        course: "CS202",
-        current_count: 8,
+        course: "CS202 - Embedded Systems",
+        current_count: 12,
+        total_count: 25,
+        threshold: 8,
+        cost: 24.99
+      },
+      {
+        name: "Raspberry Pi 4 Kits",
+        category: "Lab Equipment",
+        course: "CS301 - IoT Applications",
+        current_count: 6,
         total_count: 15,
         threshold: 5,
-        cost: 65.00,
-        last_restocked: new Date(Date.now() - 45 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        cost: 89.99
       },
       {
-        name: "Arduino Boards",
+        name: "USB-C Cables (6ft)",
+        category: "Cables & Accessories",
+        course: "General Lab",
+        current_count: 25,
+        total_count: 50,
+        threshold: 10,
+        cost: 8.99
+      },
+      {
+        name: "Breadboards (Large)",
         category: "Lab Equipment",
-        course: "CS202",
+        course: "CS202 - Embedded Systems",
+        current_count: 4,
+        total_count: 30,
+        threshold: 10,
+        cost: 5.99
+      },
+      {
+        name: "LED Assortment Kit",
+        category: "Components",
+        course: "CS202 - Embedded Systems",
         current_count: 3,
         total_count: 10,
+        threshold: 3,
+        cost: 12.99
+      },
+      {
+        name: "Printer Paper (Ream)",
+        category: "Office Supplies",
+        course: "General",
+        current_count: 5,
+        total_count: 20,
         threshold: 5,
-        cost: 24.99,
-        last_restocked: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        cost: 7.99
+      },
+      {
+        name: "HDMI Cables (10ft)",
+        category: "Cables & Accessories",
+        course: "General Lab",
+        current_count: 15,
+        total_count: 20,
+        threshold: 5,
+        cost: 12.99
       }
     ]
   },
   expenses: {
     name: "Academic Expenses",
-    description: "Course materials, equipment, and professional development expenses",
-    count: 18,
+    description: "Course materials, equipment purchases, and professional development",
+    count: 10,
     data: [
       {
-        description: "Conference Registration Fee",
-        amount: 299.99,
+        description: "SIGCSE Conference Registration",
+        amount: 450.00,
         date: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         category: "Professional Development",
-        course: "CS404",
+        course: "Research",
         receipt: true
       },
       {
-        description: "Lab Equipment Replacement",
-        amount: 412.87,
+        description: "Arduino Starter Kits (10x)",
+        amount: 289.90,
         date: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        category: "Equipment",
+        category: "Lab Equipment",
         course: "CS202",
         receipt: true
       },
       {
-        description: "Reference Books",
+        description: "Textbooks for Course Development",
         amount: 156.45,
         date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        category: "Materials",
+        category: "Course Materials",
         course: "CS101",
+        receipt: true
+      },
+      {
+        description: "Office Supplies Restock",
+        amount: 67.32,
+        date: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        category: "Office Supplies",
+        course: "General",
+        receipt: true
+      },
+      {
+        description: "Student Worker Hourly Wages",
+        amount: 320.00,
+        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        category: "Personnel",
+        course: "Lab Support",
+        receipt: false
+      },
+      {
+        description: "Cloud Computing Credits (AWS)",
+        amount: 150.00,
+        date: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        category: "Software & Services",
+        course: "CS401",
         receipt: true
       }
     ]
   },
   planningEvents: {
-    name: "Planning Events",
-    description: "Academic calendar events and planning items",
-    count: 10,
+    name: "Calendar Events",
+    description: "Academic deadlines, exams, and important dates",
+    count: 8,
     data: [
       {
-        title: "Midterm Exam Preparation",
-        type: "academic",
+        title: "CS101 Midterm Exam",
+        type: "exam",
         date: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         time: "14:00",
         end_time: "16:00",
@@ -187,84 +337,99 @@ const mockDataSets = {
         location: "Lecture Hall A"
       },
       {
-        title: "Final Project Presentations",
+        title: "Project Proposal Deadline",
+        type: "deadline",
+        date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        time: "23:59",
+        course: "CS301",
+        priority: "high"
+      },
+      {
+        title: "Guest Lecture: Industry Speaker",
+        type: "lecture",
+        date: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+        time: "10:00",
+        end_time: "11:30",
+        course: "CS401",
+        priority: "medium",
+        location: "Room 205"
+      },
+      {
+        title: "Final Exam Period Begins",
         type: "academic",
         date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        time: "09:00",
-        end_time: "17:00",
-        course: "CS301",
-        priority: "high",
-        location: "Multiple Rooms"
+        time: "08:00",
+        priority: "high"
       }
     ]
   },
   futureTasksAndPlanning: {
-    name: "Future Tasks & Planning",
-    description: "Long-term planning items and future semester preparation",
-    count: 8,
+    name: "Semester Planning",
+    description: "Long-term planning and future semester preparation",
+    count: 6,
     data: [
       {
-        title: "Curriculum Update for Fall Semester",
+        title: "Update CS101 Curriculum",
         semester: "Fall 2025",
         priority: "high",
-        estimated_hours: 40
+        estimated_hours: 40,
+        description: "Revise introductory programming curriculum to include Python alongside Java."
+      },
+      {
+        title: "Develop New AI Ethics Course",
+        semester: "Spring 2026",
+        priority: "medium",
+        estimated_hours: 60,
+        description: "Create new elective course on ethical considerations in AI development."
       },
       {
         title: "Lab Equipment Modernization",
         semester: "Summer 2025",
         priority: "medium",
-        estimated_hours: 20
+        estimated_hours: 20,
+        description: "Replace aging computers in Lab 204 and upgrade to newer Raspberry Pi models."
+      },
+      {
+        title: "Grant Proposal: NSF CAREER",
+        semester: "Fall 2025",
+        priority: "high",
+        estimated_hours: 80,
+        description: "Prepare and submit NSF CAREER award proposal on CS education research."
       }
     ]
   },
   feedback: {
     name: "Platform Feedback",
-    description: "Sample feedback submissions for testing the feedback system",
-    count: 6,
+    description: "Sample feedback for testing the feedback system",
+    count: 4,
     data: [
       {
-        category: "notes",
-        subject: "Improve note organization",
-        description: "It would be great to have better tagging and filtering options for notes. Currently it's hard to find specific notes when you have many.",
-        priority: "medium",
-        status: "in_progress",
-        admin_response: "Thank you for this suggestion! We're currently working on enhanced filtering and tagging features that should be available in the next update."
-      },
-      {
-        category: "supplies",
-        subject: "Low stock notifications",
-        description: "The low stock alerts don't seem to be working properly. I didn't get notified when my supplies went below threshold.",
+        category: "feature_request",
+        subject: "Calendar Integration with Canvas LMS",
+        description: "Would be helpful to sync assignment deadlines from Canvas directly into the planning calendar.",
         priority: "high",
-        status: "resolved",
-        admin_response: "This issue has been identified and fixed. The notification system was not properly checking threshold values. Please test it again and let us know if you still experience issues.",
-        resolved_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+        status: "open"
       },
       {
         category: "bug_report",
-        subject: "Calendar sync issues",
-        description: "The calendar synchronization with Outlook sometimes fails without any error message. Would be helpful to have better error reporting.",
-        priority: "urgent",
-        status: "open"
-      },
-      {
-        category: "feature_request",
-        subject: "Mobile app support",
-        description: "A mobile app or responsive mobile interface would be very helpful for accessing the platform on the go.",
-        priority: "low",
-        status: "open"
+        subject: "Meeting Reminder Notifications",
+        description: "Meeting reminders are not showing up 15 minutes before as configured in settings.",
+        priority: "medium",
+        status: "in_progress",
+        admin_response: "We've identified the issue and are working on a fix. Expected in next update."
       },
       {
         category: "general",
-        subject: "Overall great platform",
-        description: "I love using this platform for managing my academic work. The interface is clean and intuitive. Keep up the great work!",
+        subject: "Great Tool for Academic Management",
+        description: "This platform has really helped me stay organized with grading, meetings, and supplies tracking. Thank you!",
         priority: "low",
         status: "closed",
-        admin_response: "Thank you so much for the positive feedback! We're glad you're enjoying the platform. Your support motivates us to keep improving."
+        admin_response: "Thank you for the positive feedback! We're glad SmartProf is helping with your academic work."
       },
       {
-        category: "analytics",
-        subject: "Export functionality needed",
-        description: "Would love to be able to export analytics data to Excel or CSV format for external reporting and analysis.",
+        category: "supplies",
+        subject: "Bulk Import for Inventory",
+        description: "It would save time to be able to import supplies from a CSV or spreadsheet file.",
         priority: "medium",
         status: "open"
       }
