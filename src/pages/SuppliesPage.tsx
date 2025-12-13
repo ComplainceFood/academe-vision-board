@@ -362,6 +362,7 @@ const SuppliesPage = () => {
               isLoading={isLoadingExpenses} 
               onDeleteExpense={id => setExpenseToDelete(id)} 
               onBulkDelete={handleBulkDeleteExpenses}
+              onRefetch={refetchExpenses}
             />
           </TabsContent>
         </Tabs>

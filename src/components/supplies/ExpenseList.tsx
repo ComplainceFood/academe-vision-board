@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useRefreshContext } from "@/App";
+import { ExpenseCsvManager } from "./ExpenseCsvManager";
 
 interface Expense {
   id: string;
@@ -29,13 +30,15 @@ interface ExpenseListProps {
   isLoading: boolean;
   onDeleteExpense: (id: string) => void;
   onBulkDelete?: (ids: string[]) => void;
+  onRefetch?: () => void;
 }
 
 export const ExpenseList = ({ 
   expenses,
   isLoading,
   onDeleteExpense,
-  onBulkDelete
+  onBulkDelete,
+  onRefetch
 }: ExpenseListProps) => {
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
   const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
@@ -263,9 +266,10 @@ export const ExpenseList = ({
   return (
     <Card>
       <CardHeader className="pb-0">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <CardTitle>Expense Tracker ({expenses.length} items)</CardTitle>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {onRefetch && <ExpenseCsvManager expenses={expenses} onRefetch={onRefetch} />}
             {selectedExpenses.length > 0 && onBulkDelete && (
               <Button 
                 variant="destructive" 
