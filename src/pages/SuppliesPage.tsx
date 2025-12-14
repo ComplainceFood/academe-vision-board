@@ -34,6 +34,7 @@ interface Expense {
 }
 const SuppliesPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false);
   const [activeTab, setActiveTab] = useState("inventory");
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
   const [expenseToDelete, setExpenseToDelete] = useState<string | null>(null);
@@ -49,6 +50,7 @@ const SuppliesPage = () => {
   const [sortOrder, setSortOrder] = useState<string>('stock-asc');
   const [isProcessing, setIsProcessing] = useState(false);
   const [bulkDeleteItems, setBulkDeleteItems] = useState<string[]>([]);
+  const [bulkShoppingListItems, setBulkShoppingListItems] = useState<SupplyItem[]>([]);
   const {
     toast
   } = useToast();
@@ -274,17 +276,68 @@ const SuppliesPage = () => {
     setIsHistoryDialogOpen(true);
   };
 
-  // Filter supplies based on search query
-  const filteredSupplies = supplies.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()) || item.category.toLowerCase().includes(searchQuery.toLowerCase()) || item.course.toLowerCase().includes(searchQuery.toLowerCase()));
+  // Filter supplies based on search query and low stock filter
+  const filteredSupplies = supplies.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      item.category.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      item.course.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesLowStock = showLowStockOnly ? item.current_count <= item.threshold : true;
+    return matchesSearch && matchesLowStock;
+  });
 
   // Filter expenses based on search query
   const filteredExpenses = expenses.filter(expense => expense.description.toLowerCase().includes(searchQuery.toLowerCase()) || expense.category.toLowerCase().includes(searchQuery.toLowerCase()) || expense.course.toLowerCase().includes(searchQuery.toLowerCase()));
 
-  // Calculate warning items
+  // Calculate warning items (low stock)
   const warningItems = supplies.filter(item => item.current_count <= item.threshold);
 
   // Calculate total expenses
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+  // Handle bulk add to shopping list
+  const handleBulkAddToShoppingList = (items: SupplyItem[]) => {
+    setBulkShoppingListItems(items);
+  };
+
+  const confirmBulkAddToShoppingList = async () => {
+    if (bulkShoppingListItems.length === 0 || !user || isProcessing) return;
+    
+    try {
+      setIsProcessing(true);
+      const itemsToInsert = bulkShoppingListItems.map(item => ({
+        name: item.name,
+        quantity: Math.max(1, item.threshold - item.current_count + 5),
+        priority: item.current_count <= item.threshold ? "high" : "medium",
+        notes: `Auto-added from inventory - ${item.category}`,
+        purchased: false,
+        user_id: user.id,
+        supply_id: item.id
+      }));
+
+      const { error } = await supabase
+        .from('shopping_list')
+        .insert(itemsToInsert);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Added ${bulkShoppingListItems.length} items to shopping list`
+      });
+      triggerRefresh('shopping_list');
+      refetchShoppingItems();
+    } catch (error) {
+      console.error("Error adding to shopping list:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add items to shopping list",
+        variant: "destructive"
+      });
+    } finally {
+      setBulkShoppingListItems([]);
+      setIsProcessing(false);
+    }
+  };
 
   // Handle tab change to trigger data refresh
   const handleTabChange = (newTab: string) => {
@@ -322,7 +375,13 @@ const SuppliesPage = () => {
         <SuppliesStats warningItems={warningItems.length} totalSupplies={supplies.length} totalExpenses={totalExpenses} />
         
         {/* Search and Filter */}
-        <SearchAndFilter searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+        <SearchAndFilter 
+          searchQuery={searchQuery} 
+          setSearchQuery={setSearchQuery} 
+          showLowStockOnly={showLowStockOnly}
+          setShowLowStockOnly={setShowLowStockOnly}
+          lowStockCount={warningItems.length}
+        />
         
         {/* Tab Navigation */}
         <Tabs defaultValue="inventory" onValueChange={handleTabChange} className="mb-6">
@@ -348,6 +407,7 @@ const SuppliesPage = () => {
               onDeleteItem={id => setItemToDelete(id)} 
               onBulkDelete={handleBulkDeleteSupplies}
               onAddToShoppingList={item => setItemToAddToList(item)} 
+              onBulkAddToShoppingList={handleBulkAddToShoppingList}
               onAddItemClick={() => setIsAddItemDialogOpen(true)} 
               onEditItem={handleEditItem} 
               onViewHistory={handleViewHistory} 
@@ -416,6 +476,24 @@ const SuppliesPage = () => {
             <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={confirmBulkDelete} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
               {isProcessing ? 'Deleting...' : `Delete ${bulkDeleteItems.length} Items`}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Bulk add to shopping list confirmation dialog */}
+      <AlertDialog open={bulkShoppingListItems.length > 0} onOpenChange={open => !open && setBulkShoppingListItems([])}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Add Items to Shopping List</AlertDialogTitle>
+            <AlertDialogDescription>
+              Add {bulkShoppingListItems.length} selected items to your shopping list? Quantities will be calculated based on threshold levels.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmBulkAddToShoppingList} disabled={isProcessing}>
+              {isProcessing ? 'Adding...' : `Add ${bulkShoppingListItems.length} Items`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

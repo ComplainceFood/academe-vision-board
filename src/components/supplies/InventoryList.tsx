@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowUpDown, MoreVertical, PackageOpen, Plus, Trash2 } from "lucide-react";
+import { ArrowUpDown, MoreVertical, PackageOpen, Plus, Trash2, ShoppingCart } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { SupplyItem } from "@/types/shoppingList";
 
@@ -17,6 +17,7 @@ interface InventoryListProps {
   onDeleteItem: (id: string) => void;
   onBulkDelete: (ids: string[]) => void;
   onAddToShoppingList: (item: SupplyItem) => void;
+  onBulkAddToShoppingList: (items: SupplyItem[]) => void;
   onAddItemClick: () => void;
   onEditItem: (item: SupplyItem) => void;
   onViewHistory: (item: SupplyItem) => void;
@@ -31,6 +32,7 @@ export const InventoryList = ({
   onDeleteItem,
   onBulkDelete,
   onAddToShoppingList,
+  onBulkAddToShoppingList,
   onAddItemClick,
   onEditItem,
   onViewHistory,
@@ -66,6 +68,20 @@ export const InventoryList = ({
       return;
     }
     onBulkDelete(selectedItems);
+    setSelectedItems([]);
+  };
+
+  const handleBulkAddToShoppingList = () => {
+    if (selectedItems.length === 0) {
+      toast({
+        title: "No items selected",
+        description: "Please select items to add to shopping list",
+        variant: "destructive"
+      });
+      return;
+    }
+    const itemsToAdd = supplies.filter(item => selectedItems.includes(item.id));
+    onBulkAddToShoppingList(itemsToAdd);
     setSelectedItems([]);
   };
 
@@ -132,15 +148,26 @@ export const InventoryList = ({
           </CardTitle>
           <div className="flex gap-2">
             {selectedItems.length > 0 && (
-              <Button 
-                variant="destructive" 
-                size="sm" 
-                onClick={handleBulkDelete}
-                className="flex items-center gap-2"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete Selected ({selectedItems.length})
-              </Button>
+              <>
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  onClick={handleBulkAddToShoppingList}
+                  className="flex items-center gap-2"
+                >
+                  <ShoppingCart className="h-4 w-4" />
+                  Add to Shopping List ({selectedItems.length})
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={handleBulkDelete}
+                  className="flex items-center gap-2"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete ({selectedItems.length})
+                </Button>
+              </>
             )}
             <Button 
               variant="outline" 
