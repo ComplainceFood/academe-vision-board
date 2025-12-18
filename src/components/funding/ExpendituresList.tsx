@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -10,8 +10,8 @@ import {
   Receipt,
   MoreVertical,
   FileText,
-  User,
-  Tag
+  DollarSign,
+  ArrowDownRight
 } from "lucide-react";
 import { FundingExpenditure } from "@/types/funding";
 import { ExpenditureDialog } from "./ExpenditureDialog";
@@ -100,15 +100,15 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
     });
   };
 
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'equipment': 'bg-chart-1/10 text-chart-1',
-      'supplies': 'bg-chart-2/10 text-chart-2',
-      'travel': 'bg-chart-3/10 text-chart-3',
-      'personnel': 'bg-chart-4/10 text-chart-4',
-      'services': 'bg-chart-5/10 text-chart-5',
+  const getCategoryConfig = (category: string) => {
+    const configs: Record<string, { color: string; bg: string }> = {
+      'equipment': { color: 'text-violet-600', bg: 'bg-violet-500/10 border-violet-500/30' },
+      'supplies': { color: 'text-emerald-600', bg: 'bg-emerald-500/10 border-emerald-500/30' },
+      'travel': { color: 'text-blue-600', bg: 'bg-blue-500/10 border-blue-500/30' },
+      'personnel': { color: 'text-amber-600', bg: 'bg-amber-500/10 border-amber-500/30' },
+      'services': { color: 'text-pink-600', bg: 'bg-pink-500/10 border-pink-500/30' },
     };
-    return colors[category.toLowerCase()] || 'bg-muted text-muted-foreground';
+    return configs[category.toLowerCase()] || { color: 'text-muted-foreground', bg: 'bg-muted' };
   };
 
   const totalAmount = expenditures.reduce((sum, exp) => sum + exp.amount, 0);
@@ -137,17 +137,20 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
 
   if (expenditures.length === 0) {
     return (
-      <Card className="border-dashed">
-        <CardContent className="flex flex-col items-center justify-center py-16">
-          <div className="rounded-full bg-muted p-4 mb-4">
-            <Receipt className="h-8 w-8 text-muted-foreground" />
+      <Card className="border-dashed border-2 bg-gradient-to-br from-muted/30 to-muted/10">
+        <CardContent className="flex flex-col items-center justify-center py-20">
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-orange-500/20 blur-xl rounded-full" />
+            <div className="relative rounded-full bg-gradient-to-br from-orange-500/20 to-amber-500/20 p-6">
+              <Receipt className="h-12 w-12 text-orange-600" />
+            </div>
           </div>
-          <h3 className="text-xl font-semibold mb-2">No expenses recorded</h3>
-          <p className="text-muted-foreground text-center max-w-sm mb-6">
-            Start tracking your grant expenditures to monitor your spending.
+          <h3 className="text-2xl font-bold mb-2">No expenses recorded</h3>
+          <p className="text-muted-foreground text-center max-w-md mb-8">
+            Start tracking your grant expenditures to monitor your spending and stay within budget.
           </p>
-          <Button onClick={() => setIsAddDialogOpen(true)} size="lg">
-            <Plus className="h-4 w-4 mr-2" />
+          <Button onClick={() => setIsAddDialogOpen(true)} size="lg" className="gap-2">
+            <Plus className="h-5 w-5" />
             Record First Expense
           </Button>
         </CardContent>
@@ -159,95 +162,107 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-xl font-semibold">All Expenses</h2>
-          <p className="text-sm text-muted-foreground">
-            {expenditures.length} transaction{expenditures.length !== 1 ? 's' : ''} • Total: {formatCurrency(totalAmount)}
-          </p>
+          <h2 className="text-2xl font-bold">All Expenses</h2>
+          <div className="flex items-center gap-3 mt-1">
+            <p className="text-sm text-muted-foreground">
+              {expenditures.length} transaction{expenditures.length !== 1 ? 's' : ''}
+            </p>
+            <div className="flex items-center gap-1 text-sm font-medium text-orange-600">
+              <ArrowDownRight className="h-4 w-4" />
+              {formatCurrency(totalAmount)}
+            </div>
+          </div>
         </div>
-        <Button onClick={() => setIsAddDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+        <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
+          <Plus className="h-4 w-4" />
           Record Expense
         </Button>
       </div>
       
-      <Card>
+      <Card className="overflow-hidden border-0 shadow-md">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/50">
-                  <TableHead>Description</TableHead>
-                  <TableHead>Grant</TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                <TableRow className="bg-muted/50 hover:bg-muted/50">
+                  <TableHead className="font-semibold">Description</TableHead>
+                  <TableHead className="font-semibold">Grant</TableHead>
+                  <TableHead className="font-semibold">Category</TableHead>
+                  <TableHead className="font-semibold">Date</TableHead>
+                  <TableHead className="text-right font-semibold">Amount</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {expenditures.map((expenditure) => (
-                  <TableRow key={expenditure.id} className="group hover:bg-muted/30">
-                    <TableCell>
-                      <div className="space-y-1">
-                        <p className="font-medium">{expenditure.description}</p>
-                        {expenditure.receipt_number && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <FileText className="h-3 w-3" />
-                            {expenditure.receipt_number}
-                          </div>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <span className="text-sm text-muted-foreground">
-                        {expenditure.funding_source?.name || 'Unknown'}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className={getCategoryColor(expenditure.category)}>
-                        {expenditure.category}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <Calendar className="h-3 w-3" />
-                        {formatDate(expenditure.expenditure_date)}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <span className="font-semibold text-accent">{formatCurrency(expenditure.amount)}</span>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => {
-                            setEditingExpenditure(expenditure);
-                            setIsEditDialogOpen(true);
-                          }}>
-                            <Edit className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => setExpenditureToDelete(expenditure)}
-                            className="text-destructive focus:text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {expenditures.map((expenditure, idx) => {
+                  const categoryConfig = getCategoryConfig(expenditure.category);
+                  return (
+                    <TableRow 
+                      key={expenditure.id} 
+                      className="group hover:bg-muted/30 transition-colors"
+                    >
+                      <TableCell>
+                        <div className="space-y-1">
+                          <p className="font-medium group-hover:text-primary transition-colors">{expenditure.description}</p>
+                          {expenditure.receipt_number && (
+                            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                              <FileText className="h-3 w-3" />
+                              {expenditure.receipt_number}
+                            </div>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-sm text-muted-foreground">
+                          {expenditure.funding_source?.name || 'Unknown'}
+                        </span>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`${categoryConfig.bg} ${categoryConfig.color} capitalize`}>
+                          {expenditure.category}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {formatDate(expenditure.expenditure_date)}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <span className="font-bold text-orange-600">{formatCurrency(expenditure.amount)}</span>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => {
+                              setEditingExpenditure(expenditure);
+                              setIsEditDialogOpen(true);
+                            }}>
+                              <Edit className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => setExpenditureToDelete(expenditure)}
+                              className="text-destructive focus:text-destructive"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </div>
