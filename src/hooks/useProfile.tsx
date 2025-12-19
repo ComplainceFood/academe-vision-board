@@ -15,6 +15,7 @@ interface UserProfile {
   bio: string | null;
   avatar_url: string | null;
   office_location: string | null;
+  orcid_id: string | null;
   created_at: string;
   updated_at: string;
 }
