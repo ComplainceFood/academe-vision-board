@@ -872,6 +872,7 @@ export type Database = {
           last_name: string | null
           notification_preferences: Json | null
           office_location: string | null
+          orcid_id: string | null
           phone: string | null
           position: string | null
           updated_at: string
@@ -892,6 +893,7 @@ export type Database = {
           last_name?: string | null
           notification_preferences?: Json | null
           office_location?: string | null
+          orcid_id?: string | null
           phone?: string | null
           position?: string | null
           updated_at?: string
@@ -912,6 +914,7 @@ export type Database = {
           last_name?: string | null
           notification_preferences?: Json | null
           office_location?: string | null
+          orcid_id?: string | null
           phone?: string | null
           position?: string | null
           updated_at?: string

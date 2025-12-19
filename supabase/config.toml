@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.track-login]
 verify_jwt = true
+
+[functions.fetch-orcid-works]
+verify_jwt = true
