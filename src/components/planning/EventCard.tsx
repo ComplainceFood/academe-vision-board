@@ -1,6 +1,5 @@
-
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { 
   DropdownMenu, 
@@ -16,7 +15,10 @@ import {
   MoreVertical, 
   Calendar as CalendarIcon, 
   CheckCircle2,
-  X
+  Circle,
+  MapPin,
+  Edit2,
+  Trash2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PlanningEvent } from "@/services/planningService";
@@ -30,116 +32,148 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, onEdit, onDelete, onToggleCompletion }: EventCardProps) {
-  const eventTypeStyles = {
-    deadline: "bg-destructive/15 text-destructive border-destructive/20",
-    event: "bg-secondary/15 text-secondary border-secondary/20",
-    task: "bg-accent/15 text-accent border-accent/20",
-    meeting: "bg-primary/15 text-primary border-primary/20"
-  };
-  
-  const eventTypeIcons = {
-    deadline: <AlertCircle className="h-4 w-4" />,
-    event: <CalendarDays className="h-4 w-4" />,
-    task: <FileText className="h-4 w-4" />,
-    meeting: <Clock className="h-4 w-4" />
+  const typeConfig = {
+    deadline: { 
+      icon: AlertCircle, 
+      color: "text-destructive",
+      bg: "bg-destructive/10",
+      border: "border-l-destructive"
+    },
+    event: { 
+      icon: CalendarDays, 
+      color: "text-secondary",
+      bg: "bg-secondary/10",
+      border: "border-l-secondary"
+    },
+    task: { 
+      icon: FileText, 
+      color: "text-accent",
+      bg: "bg-accent/10",
+      border: "border-l-accent"
+    },
+    meeting: { 
+      icon: Clock, 
+      color: "text-primary",
+      bg: "bg-primary/10",
+      border: "border-l-primary"
+    }
   };
 
-  const formattedDate = format(new Date(`${event.date}T00:00:00`), "PPP");
+  const config = typeConfig[event.type as keyof typeof typeConfig] || typeConfig.event;
+  const Icon = config.icon;
+  const formattedDate = format(new Date(`${event.date}T00:00:00`), "EEE, MMM d");
   
   return (
-    <Card className={`mb-3 border-l-4 ${event.type === 'deadline' ? 'border-l-destructive' : event.type === 'event' ? 'border-l-secondary' : event.type === 'task' ? 'border-l-accent' : 'border-l-primary'} glassmorphism`}>
-      <CardHeader className="p-4 pb-2 flex flex-row justify-between items-start">
-        <div>
-          <div className="flex flex-wrap gap-2 items-center mb-1">
-            <span className={`px-2 py-1 rounded-full text-xs flex items-center gap-1 ${eventTypeStyles[event.type]}`}>
-              {eventTypeIcons[event.type]}
-              <span className="capitalize">{event.type}</span>
-            </span>
-            
-            {event.course && (
-              <span className="text-xs bg-muted px-2 py-1 rounded">
-                {event.course}
-              </span>
-            )}
-            
-            {event.type === 'task' && (
-              <span className={`text-xs px-2 py-1 rounded ${event.completed ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'}`}>
-                {event.completed ? 'Completed' : 'Pending'}
-              </span>
-            )}
-            
-            {event.priority && (
-              <Badge variant={event.priority === 'high' ? 'destructive' : event.priority === 'medium' ? 'outline' : 'secondary'}>
-                {event.priority} priority
-              </Badge>
-            )}
-          </div>
-          
-          <h3 className="text-base font-medium">{event.title}</h3>
+    <Card className={cn(
+      "p-4 transition-all duration-200 hover:shadow-md group border-l-4",
+      config.border,
+      event.completed && "opacity-60"
+    )}>
+      <div className="flex items-start gap-3">
+        {/* Type Icon */}
+        <div className={cn("h-10 w-10 rounded-xl flex items-center justify-center shrink-0", config.bg)}>
+          <Icon className={cn("h-5 w-5", config.color)} />
         </div>
         
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => onEdit(event)}>Edit</DropdownMenuItem>
-            {event.type === 'task' && onToggleCompletion && (
-              <DropdownMenuItem 
-                onClick={() => onToggleCompletion(event.id, !event.completed)}
-              >
-                {event.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem 
-              className="text-destructive focus:text-destructive" 
-              onClick={() => onDelete(event.id)}
-            >
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </CardHeader>
-      
-      <CardContent className="p-4 pt-0">
-        {event.description && (
-          <p className="text-sm text-muted-foreground mb-2">{event.description}</p>
-        )}
-        
-        <div className="flex items-center text-xs text-muted-foreground">
-          <CalendarIcon className="h-3 w-3 mr-1" />
-          <span>{formattedDate}</span>
-          {event.time && (
-            <>
-              <span className="mx-1">•</span>
-              <Clock className="h-3 w-3 mr-1" />
-              <span>{event.time}</span>
-            </>
-          )}
-        </div>
-        
-        {event.type === 'task' && onToggleCompletion && (
-          <div className="mt-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className={cn(
-                "h-8 px-2 text-xs", 
-                event.completed ? "bg-green-50 text-green-700 hover:bg-green-100" : "bg-orange-50 text-orange-700 hover:bg-orange-100"
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <h3 className={cn(
+                "font-medium text-sm leading-snug mb-1",
+                event.completed && "line-through text-muted-foreground"
+              )}>
+                {event.title}
+              </h3>
+              
+              <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                <span className="flex items-center gap-1">
+                  <CalendarIcon className="h-3 w-3" />
+                  {formattedDate}
+                </span>
+                {event.time && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    {event.time}
+                  </span>
+                )}
+                {event.course && (
+                  <Badge variant="outline" className="text-xs h-5">
+                    {event.course}
+                  </Badge>
+                )}
+              </div>
+              
+              {event.description && (
+                <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                  {event.description}
+                </p>
               )}
-              onClick={() => onToggleCompletion(event.id, !event.completed)}
-            >
-              {event.completed ? (
-                <><CheckCircle2 className="h-3 w-3 mr-1" /> Completed</>
-              ) : (
-                <><X className="h-3 w-3 mr-1" /> Pending</>
+            </div>
+            
+            {/* Actions */}
+            <div className="flex items-center gap-1">
+              {event.type === 'task' && onToggleCompletion && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8"
+                  onClick={() => onToggleCompletion(event.id!, !event.completed)}
+                >
+                  {event.completed ? (
+                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                  ) : (
+                    <Circle className="h-5 w-5 text-muted-foreground" />
+                  )}
+                </Button>
               )}
-            </Button>
+              
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-40">
+                  <DropdownMenuItem onClick={() => onEdit(event)} className="gap-2">
+                    <Edit2 className="h-4 w-4" />
+                    Edit
+                  </DropdownMenuItem>
+                  {event.type === 'task' && onToggleCompletion && (
+                    <DropdownMenuItem 
+                      onClick={() => onToggleCompletion(event.id!, !event.completed)}
+                      className="gap-2"
+                    >
+                      {event.completed ? (
+                        <>
+                          <Circle className="h-4 w-4" />
+                          Mark Incomplete
+                        </>
+                      ) : (
+                        <>
+                          <CheckCircle2 className="h-4 w-4" />
+                          Mark Complete
+                        </>
+                      )}
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem 
+                    className="text-destructive focus:text-destructive gap-2" 
+                    onClick={() => onDelete(event.id!)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
-        )}
-      </CardContent>
+        </div>
+      </div>
     </Card>
   );
 }
