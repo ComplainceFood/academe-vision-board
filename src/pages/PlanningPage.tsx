@@ -1,18 +1,26 @@
 import { MainLayout } from "@/components/MainLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 import {
   CalendarDays,
   Plus,
-  CheckCircle,
+  CheckCircle2,
   AlertCircle,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   ListTodo,
+  Clock,
+  Target,
+  TrendingUp,
+  Sparkles,
+  GraduationCap,
+  BookOpen,
+  Layers,
+  ArrowRight,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
@@ -30,266 +38,477 @@ import {
   EventFormData,
   FutureTaskFormData
 } from "@/services/planningService";
+import { format, isAfter, isBefore, startOfDay, addDays } from "date-fns";
+
+const SEMESTERS = [
+  { value: "Spring 2025", label: "Spring 2025", icon: Sparkles },
+  { value: "Fall 2025", label: "Fall 2025", icon: GraduationCap },
+  { value: "Spring 2026", label: "Spring 2026", icon: BookOpen },
+  { value: "Fall 2026", label: "Fall 2026", icon: Layers },
+];
 
 const PlanningPage = () => {
   const { toast } = useToast();
   
-  // Fetch planning data
   const eventsQuery = usePlanningEvents();
   const { data: eventsData = [], isLoading: eventsLoading } = eventsQuery;
   const { data: futureTasksData = [], isLoading: tasksLoading } = useFuturePlanning();
   
-  // Ensure proper typing for our data
   const events = eventsData as PlanningEvent[];
   const futureTasks = futureTasksData as FutureTask[];
   
-  // Event actions
   const { createPlanningEvent, updatePlanningEvent, toggleEventCompletion, deletePlanningEvent } = usePlanningEventActions();
   const { createFutureTask, updateFutureTask, deleteFutureTask } = useFutureTaskActions();
 
-  // Dialog states
   const [isEventDialogOpen, setIsEventDialogOpen] = useState(false);
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<PlanningEvent | undefined>(undefined);
   const [currentTask, setCurrentTask] = useState<FutureTask | undefined>(undefined);
-  
-  // Tab states
   const [activeFutureTab, setActiveFutureTab] = useState("Fall 2025");
 
-  // Handle event dialog
+  // Calculate stats
+  const stats = useMemo(() => {
+    const today = startOfDay(new Date());
+    const nextWeek = addDays(today, 7);
+    
+    const upcomingEvents = events.filter(e => {
+      const eventDate = new Date(`${e.date}T00:00:00`);
+      return isAfter(eventDate, today) || format(eventDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+    });
+    
+    const thisWeekEvents = upcomingEvents.filter(e => {
+      const eventDate = new Date(`${e.date}T00:00:00`);
+      return isBefore(eventDate, nextWeek);
+    });
+    
+    const completedTasks = events.filter(e => e.type === 'task' && e.completed).length;
+    const totalTasks = events.filter(e => e.type === 'task').length;
+    const taskProgress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+    
+    const deadlines = events.filter(e => e.type === 'deadline' && !e.completed);
+    const urgentDeadlines = deadlines.filter(e => {
+      const eventDate = new Date(`${e.date}T00:00:00`);
+      return isBefore(eventDate, nextWeek);
+    });
+
+    const totalFutureTasks = futureTasks.length;
+    const highPriorityTasks = futureTasks.filter(t => t.priority === 'high').length;
+    const totalEstimatedHours = futureTasks.reduce((acc, t) => acc + (t.estimated_hours || 0), 0);
+
+    return {
+      totalEvents: upcomingEvents.length,
+      thisWeekEvents: thisWeekEvents.length,
+      taskProgress,
+      completedTasks,
+      totalTasks,
+      urgentDeadlines: urgentDeadlines.length,
+      totalFutureTasks,
+      highPriorityTasks,
+      totalEstimatedHours
+    };
+  }, [events, futureTasks]);
+
   const handleOpenEventDialog = (event?: PlanningEvent) => {
     setCurrentEvent(event);
     setIsEventDialogOpen(true);
   };
 
-  // Handle task dialog
   const handleOpenTaskDialog = (task?: FutureTask) => {
     setCurrentTask(task);
     setIsTaskDialogOpen(true);
   };
 
-  // Handle event save
   const handleEventSave = async (eventData: EventFormData) => {
     try {
       if (currentEvent?.id) {
         await updatePlanningEvent({ id: currentEvent.id, updates: eventData });
-        toast({ 
-          title: "Event updated successfully",
-          description: "Your event has been updated in the calendar"
-        });
+        toast({ title: "Event updated", description: "Your changes have been saved" });
       } else {
         await createPlanningEvent(eventData);
-        toast({ 
-          title: "Event created successfully",
-          description: "Your event has been added to the calendar"
-        });
+        toast({ title: "Event created", description: "Added to your calendar" });
       }
-      // Force a refresh of events
       eventsQuery.refetch();
     } catch (error) {
-      console.error('Error saving event:', error);
-      const message = (error as any)?.message || 'Please check your details and try again';
-      toast({ 
-        title: "Failed to save event",
-        description: message,
-        variant: "destructive" 
-      });
+      toast({ title: "Error", description: "Failed to save event", variant: "destructive" });
     }
   };
 
-  // Handle task save
   const handleTaskSave = async (taskData: FutureTaskFormData) => {
     if (currentTask?.id) {
       await updateFutureTask({ id: currentTask.id, updates: taskData });
+      toast({ title: "Task updated" });
     } else {
       await createFutureTask({...taskData, semester: activeFutureTab});
+      toast({ title: "Task added" });
     }
   };
 
-  // Handle task semester filter - ensure type safety
-  const filteredTasks = futureTasks.filter(task => {
-    return task.semester === activeFutureTab;
-  });
+  const filteredTasks = futureTasks.filter(task => task.semester === activeFutureTab);
 
-  // Fixed function to handle toggle completion properly
   const handleToggleCompletion = async (id: string, completed: boolean) => {
     await toggleEventCompletion({ id, completed });
   };
 
-  // Fixed function to handle event deletion properly
   const handleDeleteEvent = async (id: string) => {
     await deletePlanningEvent(id);
+    toast({ title: "Event deleted" });
   };
 
-  // Fixed function to handle task deletion properly
   const handleDeleteTask = async (id: string) => {
     await deleteFutureTask(id);
+    toast({ title: "Task deleted" });
   };
+
+  // Group tasks by priority for better visualization
+  const tasksByPriority = useMemo(() => {
+    return {
+      high: filteredTasks.filter(t => t.priority === 'high'),
+      medium: filteredTasks.filter(t => t.priority === 'medium'),
+      low: filteredTasks.filter(t => t.priority === 'low'),
+    };
+  }, [filteredTasks]);
 
   return (
     <MainLayout>
-      <div className="animate-fade-in">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-1">Semester & Planning</h1>
-            <p className="text-muted-foreground">Plan your schedule and upcoming semesters</p>
+      <div className="animate-fade-in space-y-6">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 border border-border/50 p-6 md:p-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="relative flex flex-col lg:flex-row justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Calendar className="h-6 w-6 text-primary" />
+                <Badge variant="secondary" className="text-xs">Academic Planner</Badge>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
+                Semester Planning
+              </h1>
+              <p className="text-muted-foreground max-w-xl">
+                Organize your academic calendar, track deadlines, and plan future semesters with intelligent scheduling.
+              </p>
+            </div>
+            
+            <div className="flex flex-wrap gap-3">
+              <Button 
+                size="lg" 
+                className="gap-2 shadow-lg"
+                onClick={() => handleOpenEventDialog()}
+              >
+                <Plus className="h-4 w-4" />
+                New Event
+              </Button>
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="gap-2"
+                onClick={() => handleOpenTaskDialog()}
+              >
+                <ListTodo className="h-4 w-4" />
+                Plan Task
+              </Button>
+            </div>
           </div>
-          <div className="mt-4 md:mt-0 flex gap-2">
-            <Button className="flex items-center gap-2" onClick={() => handleOpenEventDialog()}>
-              <Plus className="h-4 w-4" />
-              <span>New Event</span>
-            </Button>
-            <Button variant="outline" className="flex items-center gap-2" onClick={() => handleOpenTaskDialog()}>
-              <ListTodo className="h-4 w-4" />
-              <span>New Task</span>
-            </Button>
+
+          {/* Quick Stats */}
+          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <CalendarDays className="h-4 w-4" />
+                <span className="text-xs font-medium">This Week</span>
+              </div>
+              <p className="text-2xl font-bold">{stats.thisWeekEvents}</p>
+              <p className="text-xs text-muted-foreground">events scheduled</p>
+            </div>
+            
+            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <Target className="h-4 w-4" />
+                <span className="text-xs font-medium">Task Progress</span>
+              </div>
+              <p className="text-2xl font-bold">{stats.taskProgress}%</p>
+              <Progress value={stats.taskProgress} className="h-1.5 mt-1" />
+            </div>
+            
+            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <AlertCircle className="h-4 w-4" />
+                <span className="text-xs font-medium">Urgent</span>
+              </div>
+              <p className="text-2xl font-bold text-destructive">{stats.urgentDeadlines}</p>
+              <p className="text-xs text-muted-foreground">deadlines this week</p>
+            </div>
+            
+            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
+              <div className="flex items-center gap-2 text-muted-foreground mb-1">
+                <TrendingUp className="h-4 w-4" />
+                <span className="text-xs font-medium">Future Tasks</span>
+              </div>
+              <p className="text-2xl font-bold">{stats.totalFutureTasks}</p>
+              <p className="text-xs text-muted-foreground">across semesters</p>
+            </div>
           </div>
         </div>
         
-        <Tabs defaultValue="calendar" className="mb-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="calendar" className="flex items-center gap-1">
+        {/* Main Content */}
+        <Tabs defaultValue="calendar" className="space-y-6">
+          <TabsList className="grid w-full max-w-md grid-cols-2 p-1 h-12">
+            <TabsTrigger value="calendar" className="flex items-center gap-2 h-full">
               <Calendar className="h-4 w-4" />
-              <span>Calendar</span>
+              <span>Calendar View</span>
             </TabsTrigger>
-            <TabsTrigger value="future" className="flex items-center gap-1">
-              <CalendarDays className="h-4 w-4" />
+            <TabsTrigger value="future" className="flex items-center gap-2 h-full">
+              <Layers className="h-4 w-4" />
               <span>Future Planning</span>
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="calendar" className="mt-4">
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <OutlookIntegrationConsolidated onSyncComplete={() => {
-                  eventsQuery.refetch();
-                  toast({ title: "Outlook sync completed", description: "Calendar has been updated" });
-                }} />
-                <GoogleCalendarIntegration onSyncComplete={() => {
-                  // Refresh events when sync completes and show feedback
-                  eventsQuery.refetch();
-                  toast({
-                    title: "Events refreshed",
-                    description: "Calendar has been updated with latest events"
-                  });
-                }} />
-              </div>
+          <TabsContent value="calendar" className="space-y-6 mt-0">
+            {/* Integrations */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <OutlookIntegrationConsolidated onSyncComplete={() => {
+                eventsQuery.refetch();
+                toast({ title: "Outlook synced" });
+              }} />
+              <GoogleCalendarIntegration onSyncComplete={() => {
+                eventsQuery.refetch();
+                toast({ title: "Google Calendar synced" });
+              }} />
+            </div>
+            
+            {/* Calendar */}
+            <Card className="border-border/50 shadow-sm">
+              <CardContent className="p-6">
+                {eventsLoading ? (
+                  <div className="py-12 text-center">
+                    <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading calendar...</p>
+                  </div>
+                ) : (
+                  <PlanningCalendar 
+                    events={events} 
+                    onEditEvent={handleOpenEventDialog}
+                    onDeleteEvent={handleDeleteEvent}
+                    onToggleCompletion={handleToggleCompletion}
+                  />
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+          <TabsContent value="future" className="space-y-6 mt-0">
+            {/* Semester Stats Overview */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Card className="border-border/50">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-destructive/10 flex items-center justify-center">
+                    <AlertCircle className="h-6 w-6 text-destructive" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">High Priority</p>
+                    <p className="text-2xl font-bold">{stats.highPriorityTasks}</p>
+                  </div>
+                </CardContent>
+              </Card>
               
-              <Card className="glassmorphism">
-                <CardContent className="p-6">
-                  {eventsLoading ? (
-                    <div className="py-12 text-center">Loading calendar...</div>
-                  ) : (
-                    <PlanningCalendar 
-                      events={events} 
-                      onEditEvent={handleOpenEventDialog}
-                      onDeleteEvent={handleDeleteEvent}
-                      onToggleCompletion={handleToggleCompletion}
-                    />
-                  )}
+              <Card className="border-border/50">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Clock className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Est. Hours</p>
+                    <p className="text-2xl font-bold">{stats.totalEstimatedHours}h</p>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-border/50">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="h-12 w-12 rounded-xl bg-secondary/10 flex items-center justify-center">
+                    <CheckCircle2 className="h-6 w-6 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Tasks</p>
+                    <p className="text-2xl font-bold">{stats.totalFutureTasks}</p>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="future" className="mt-4">
-            <Card className="glassmorphism">
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                  <CardTitle>Future Semester Planning</CardTitle>
-                  <Button className="flex items-center gap-2" onClick={() => handleOpenTaskDialog()}>
+
+            {/* Semester Tabs */}
+            <Card className="border-border/50">
+              <CardHeader className="pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <GraduationCap className="h-5 w-5 text-primary" />
+                      Semester Planning
+                    </CardTitle>
+                    <CardDescription>Plan and track tasks for upcoming semesters</CardDescription>
+                  </div>
+                  <Button onClick={() => handleOpenTaskDialog()} className="gap-2">
                     <Plus className="h-4 w-4" />
-                    <span>Add Task</span>
+                    Add Task
                   </Button>
                 </div>
               </CardHeader>
               <CardContent>
                 <Tabs value={activeFutureTab} onValueChange={setActiveFutureTab}>
-                  <TabsList className="mb-4">
-                    <TabsTrigger value="Fall 2025">Fall 2025</TabsTrigger>
-                    <TabsTrigger value="Spring 2026">Spring 2026</TabsTrigger>
-                    <TabsTrigger value="Fall 2026">Fall 2026</TabsTrigger>
-                    <TabsTrigger value="Spring 2027">Spring 2027</TabsTrigger>
+                  <TabsList className="mb-6 flex-wrap h-auto gap-2 bg-transparent p-0">
+                    {SEMESTERS.map((semester) => {
+                      const Icon = semester.icon;
+                      const count = futureTasks.filter(t => t.semester === semester.value).length;
+                      return (
+                        <TabsTrigger 
+                          key={semester.value} 
+                          value={semester.value}
+                          className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2 px-4"
+                        >
+                          <Icon className="h-4 w-4" />
+                          {semester.label}
+                          {count > 0 && (
+                            <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                              {count}
+                            </Badge>
+                          )}
+                        </TabsTrigger>
+                      );
+                    })}
                   </TabsList>
                   
-                  <TabsContent value={activeFutureTab}>
-                    <div className="space-y-3">
-                      {tasksLoading ? (
-                        <div className="py-12 text-center">Loading tasks...</div>
-                      ) : filteredTasks.length > 0 ? (
-                        filteredTasks.map(task => (
-                          <FutureTaskCard 
-                            key={task.id} 
-                            task={task} 
-                            onEdit={() => handleOpenTaskDialog(task)}
-                            onDelete={() => task.id && handleDeleteTask(task.id)}
-                          />
-                        ))
-                      ) : (
-                        <div className="text-center py-12">
-                          <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                          <h3 className="text-lg font-medium mb-1">No tasks planned</h3>
-                          <p className="text-muted-foreground">Add tasks for {activeFutureTab} semester</p>
-                          <Button 
-                            className="mt-4" 
-                            onClick={() => handleOpenTaskDialog(undefined)}
-                          >
-                            Add Task
-                          </Button>
+                  <TabsContent value={activeFutureTab} className="mt-0">
+                    {tasksLoading ? (
+                      <div className="py-12 text-center">
+                        <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                        <p className="text-muted-foreground">Loading tasks...</p>
+                      </div>
+                    ) : filteredTasks.length > 0 ? (
+                      <div className="space-y-6">
+                        {/* Priority Sections */}
+                        {tasksByPriority.high.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="h-2 w-2 rounded-full bg-destructive" />
+                              <h4 className="text-sm font-medium text-muted-foreground">High Priority</h4>
+                            </div>
+                            <div className="grid gap-3">
+                              {tasksByPriority.high.map(task => (
+                                <FutureTaskCard 
+                                  key={task.id} 
+                                  task={task} 
+                                  onEdit={() => handleOpenTaskDialog(task)}
+                                  onDelete={() => task.id && handleDeleteTask(task.id)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {tasksByPriority.medium.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="h-2 w-2 rounded-full bg-orange-500" />
+                              <h4 className="text-sm font-medium text-muted-foreground">Medium Priority</h4>
+                            </div>
+                            <div className="grid gap-3">
+                              {tasksByPriority.medium.map(task => (
+                                <FutureTaskCard 
+                                  key={task.id} 
+                                  task={task} 
+                                  onEdit={() => handleOpenTaskDialog(task)}
+                                  onDelete={() => task.id && handleDeleteTask(task.id)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        
+                        {tasksByPriority.low.length > 0 && (
+                          <div>
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="h-2 w-2 rounded-full bg-green-500" />
+                              <h4 className="text-sm font-medium text-muted-foreground">Low Priority</h4>
+                            </div>
+                            <div className="grid gap-3">
+                              {tasksByPriority.low.map(task => (
+                                <FutureTaskCard 
+                                  key={task.id} 
+                                  task={task} 
+                                  onEdit={() => handleOpenTaskDialog(task)}
+                                  onDelete={() => task.id && handleDeleteTask(task.id)}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="text-center py-16 px-4">
+                        <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
+                          <ListTodo className="h-8 w-8 text-muted-foreground" />
                         </div>
-                      )}
-                    </div>
+                        <h3 className="text-lg font-semibold mb-2">No tasks for {activeFutureTab}</h3>
+                        <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                          Start planning ahead by adding tasks and goals for this semester.
+                        </p>
+                        <Button onClick={() => handleOpenTaskDialog()} className="gap-2">
+                          <Plus className="h-4 w-4" />
+                          Add First Task
+                        </Button>
+                      </div>
+                    )}
                   </TabsContent>
                 </Tabs>
               </CardContent>
             </Card>
             
-            <Card className="mt-6 glassmorphism">
+            {/* Roadmap */}
+            <Card className="border-border/50">
               <CardHeader>
-                <CardTitle>Course Development Roadmap</CardTitle>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  Academic Roadmap
+                </CardTitle>
+                <CardDescription>Your long-term academic development plan</CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="relative">
-                  <div className="absolute h-full w-0.5 bg-border left-3 top-0"></div>
+                  <div className="absolute h-full w-0.5 bg-gradient-to-b from-primary via-secondary to-accent left-4 top-0 rounded-full" />
                   
-                  <div className="mb-6 relative pl-12">
-                    <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <span className="text-xs font-bold text-primary-foreground">1</span>
-                    </span>
-                    <h3 className="text-lg font-medium mb-1">Curriculum Review</h3>
-                    <p className="text-muted-foreground text-sm">Review and update all course materials and curriculum to reflect latest industry practices and research.</p>
-                  </div>
-                  
-                  <div className="mb-6 relative pl-12">
-                    <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <span className="text-xs font-bold text-primary-foreground">2</span>
-                    </span>
-                    <h3 className="text-lg font-medium mb-1">New Course Development</h3>
-                    <p className="text-muted-foreground text-sm">Create new data science and machine learning electives for upper-level undergraduates.</p>
-                  </div>
-                  
-                  <div className="mb-6 relative pl-12">
-                    <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <span className="text-xs font-bold text-primary-foreground">3</span>
-                    </span>
-                    <h3 className="text-lg font-medium mb-1">Lab Redesign</h3>
-                    <p className="text-muted-foreground text-sm">Modernize lab environments and update equipment to support new curriculum.</p>
-                  </div>
-                  
-                  <div className="relative pl-12">
-                    <span className="absolute left-0 top-1 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
-                      <span className="text-xs font-bold text-primary-foreground">4</span>
-                    </span>
-                    <h3 className="text-lg font-medium mb-1">Teaching Methods Improvement</h3>
-                    <p className="text-muted-foreground text-sm">Research and implement innovative teaching methods to improve student engagement and learning outcomes.</p>
-                  </div>
+                  {[
+                    { title: "Curriculum Review", desc: "Update course materials to reflect latest industry practices", status: "in-progress" },
+                    { title: "New Course Development", desc: "Create new electives for data science and machine learning", status: "planned" },
+                    { title: "Lab Modernization", desc: "Upgrade lab environments and equipment for new curriculum", status: "planned" },
+                    { title: "Teaching Innovation", desc: "Implement innovative teaching methods for better engagement", status: "planned" },
+                  ].map((item, idx) => (
+                    <div key={idx} className="mb-6 relative pl-12 last:mb-0">
+                      <span className={`absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
+                        item.status === 'in-progress' 
+                          ? 'bg-primary text-primary-foreground' 
+                          : 'bg-muted text-muted-foreground'
+                      }`}>
+                        {idx + 1}
+                      </span>
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <h3 className="font-semibold mb-1">{item.title}</h3>
+                          <p className="text-sm text-muted-foreground">{item.desc}</p>
+                        </div>
+                        <Badge variant={item.status === 'in-progress' ? 'default' : 'outline'} className="shrink-0">
+                          {item.status === 'in-progress' ? 'In Progress' : 'Planned'}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
         </Tabs>
         
-        {/* Event Dialog */}
+        {/* Dialogs */}
         <EventDialog
           open={isEventDialogOpen}
           onOpenChange={setIsEventDialogOpen}
@@ -298,7 +517,6 @@ const PlanningPage = () => {
           title={currentEvent ? "Edit Event" : "Create New Event"}
         />
         
-        {/* Future Task Dialog */}
         <FutureTaskDialog
           open={isTaskDialogOpen}
           onOpenChange={setIsTaskDialogOpen}
