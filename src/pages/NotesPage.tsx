@@ -14,15 +14,17 @@ import {
   GraduationCap,
   Users,
   FileText,
-  Settings,
   Calendar,
   CheckCircle2,
-  Circle,
+  AlertTriangle,
   Star,
   Trash2,
   Edit,
   Eye,
-  MoreHorizontal
+  MoreHorizontal,
+  Clock,
+  Repeat,
+  FolderOpen
 } from 'lucide-react';
 import { useNotes } from '@/hooks/useNotes';
 import { CreateTaskDialog } from '@/components/notes/CreateTaskDialog';
@@ -31,6 +33,8 @@ import { QuickNoteInput } from '@/components/notes/QuickNoteInput';
 import { EditNoteDialog } from '@/components/notes/EditNoteDialog';
 import { ViewNoteDialog } from '@/components/notes/ViewNoteDialog';
 import { EditTaskDialog } from '@/components/notes/EditTaskDialog';
+import { FolderSidebar } from '@/components/notes/FolderSidebar';
+import { getDeadlineGroup, DEADLINE_GROUP_ORDER, DEADLINE_GROUP_LABELS } from '@/components/notes/SmartDeadlineIndicator';
 import { Note } from '@/types/notes';
 import { useAuth } from '@/hooks/useAuth';
 import {
@@ -58,7 +62,7 @@ const CATEGORIES = [
   { id: 'students', label: 'Students', icon: Users },
   { id: 'admin', label: 'Admin', icon: FileText },
   { id: 'meetings', label: 'Meetings', icon: Calendar },
-  { id: 'grading', label: 'Grading', icon: Settings },
+  { id: 'grading', label: 'Grading', icon: Clock },
 ];
 
 const NotesPage = () => {
@@ -67,6 +71,8 @@ const NotesPage = () => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'notes'>('tasks');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [groupByDeadline, setGroupByDeadline] = useState(true);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   
   // Dialog states for notes
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
@@ -78,10 +84,20 @@ const NotesPage = () => {
   const [selectedTask, setSelectedTask] = useState<Note | null>(null);
   const [isEditTaskOpen, setIsEditTaskOpen] = useState(false);
 
-  const { notes, isLoading, deleteNote, toggleStar, toggleStatus, createNote } = useNotes();
+  const { 
+    notes, 
+    folders, 
+    isLoading, 
+    deleteNote, 
+    toggleStar, 
+    toggleStatus, 
+    createNote, 
+    createFolder, 
+    updateSubtasks 
+  } = useNotes();
   const { user } = useAuth();
 
-  // Separate tasks (commitments/reminders) from notes
+  // Separate tasks from notes
   const { tasks, quickNotes } = useMemo(() => {
     const allTasks = notes.filter(n => n.type === 'commitment' || n.type === 'reminder');
     const allNotes = notes.filter(n => n.type === 'note');
@@ -104,7 +120,6 @@ const NotesPage = () => {
 
       return matchesSearch && matchesCategory && matchesCompleted;
     }).sort((a, b) => {
-      // Sort by: starred first, then by priority, then by date
       if (a.starred !== b.starred) return a.starred ? -1 : 1;
       const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
       if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
@@ -114,27 +129,59 @@ const NotesPage = () => {
     });
   }, [tasks, searchQuery, selectedCategory, showCompleted]);
 
-  // Filter notes
+  // Group tasks by deadline
+  const groupedTasks = useMemo(() => {
+    if (!groupByDeadline) return { all: filteredTasks };
+    
+    const groups: Record<string, Note[]> = {};
+    filteredTasks.forEach(task => {
+      const group = getDeadlineGroup(task.due_date, task.status);
+      if (!groups[group]) groups[group] = [];
+      groups[group].push(task);
+    });
+    return groups;
+  }, [filteredTasks, groupByDeadline]);
+
+  // Filter notes by folder
   const filteredNotes = useMemo(() => {
     return quickNotes.filter(note => {
       const matchesSearch = 
         note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         note.content.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesSearch;
+      const matchesFolder = selectedFolderId === null || note.parent_folder_id === selectedFolderId;
+      return matchesSearch && matchesFolder;
     }).sort((a, b) => {
       if (a.starred !== b.starred) return a.starred ? -1 : 1;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [quickNotes, searchQuery]);
+  }, [quickNotes, searchQuery, selectedFolderId]);
 
   // Statistics
-  const stats = useMemo(() => ({
-    totalTasks: tasks.length,
-    completedTasks: tasks.filter(t => t.status === 'completed').length,
-    pendingTasks: tasks.filter(t => t.status === 'active').length,
-    urgentTasks: tasks.filter(t => t.priority === 'urgent' && t.status === 'active').length,
-    totalNotes: quickNotes.length,
-  }), [tasks, quickNotes]);
+  const stats = useMemo(() => {
+    const overdueTasks = tasks.filter(t => {
+      if (!t.due_date || t.status === 'completed') return false;
+      return new Date(t.due_date) < new Date();
+    }).length;
+
+    const dueTodayTasks = tasks.filter(t => {
+      if (!t.due_date || t.status === 'completed') return false;
+      const today = new Date();
+      const due = new Date(t.due_date);
+      return due.toDateString() === today.toDateString();
+    }).length;
+
+    const recurringTasks = tasks.filter(t => t.recurrence_pattern && t.status === 'active').length;
+
+    return {
+      totalTasks: tasks.length,
+      completedTasks: tasks.filter(t => t.status === 'completed').length,
+      pendingTasks: tasks.filter(t => t.status === 'active').length,
+      overdueTasks,
+      dueTodayTasks,
+      recurringTasks,
+      totalNotes: quickNotes.length,
+    };
+  }, [tasks, quickNotes]);
 
   const handleQuickNote = async (title: string, content: string) => {
     if (!user) return;
@@ -145,6 +192,7 @@ const NotesPage = () => {
       course: 'Quick Notes',
       tags: [],
       starred: false,
+      parent_folder_id: selectedFolderId,
     });
   };
 
@@ -185,6 +233,23 @@ const NotesPage = () => {
     setIsEditTaskOpen(true);
   };
 
+  const handleCreateFolder = async (name: string, color: string) => {
+    await createFolder({ title: name, folder_color: color });
+  };
+
+  const handleDeleteFolder = async (id: string) => {
+    await deleteNote(id);
+    if (selectedFolderId === id) {
+      setSelectedFolderId(null);
+    }
+  };
+
+  const handleUpdateSubtasks = async (noteId: string, subtasks: Note['subtasks']) => {
+    if (subtasks) {
+      await updateSubtasks({ noteId, subtasks });
+    }
+  };
+
   if (isLoading) {
     return (
       <MainLayout>
@@ -201,75 +266,53 @@ const NotesPage = () => {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-bold">Academic Workspace</h1>
-            <p className="text-muted-foreground">Manage your tasks, notes, and academic responsibilities</p>
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 text-white">
+          <div className="absolute inset-0 bg-black/10" />
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <h1 className="text-3xl font-bold">Academic Workspace</h1>
+                <p className="text-white/80 mt-1">Manage tasks, track deadlines, and organize your notes</p>
+              </div>
+              <Button 
+                onClick={() => setIsCreateDialogOpen(true)} 
+                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30"
+                variant="outline"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                New Task
+              </Button>
+            </div>
+            
+            {/* Quick Stats */}
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mt-6">
+              <div className="text-center">
+                <p className="text-3xl font-bold">{stats.pendingTasks}</p>
+                <p className="text-xs text-white/70">Pending</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-red-200">{stats.overdueTasks}</p>
+                <p className="text-xs text-white/70">Overdue</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-amber-200">{stats.dueTodayTasks}</p>
+                <p className="text-xs text-white/70">Due Today</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-green-200">{stats.completedTasks}</p>
+                <p className="text-xs text-white/70">Completed</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold text-purple-200">{stats.recurringTasks}</p>
+                <p className="text-xs text-white/70">Recurring</p>
+              </div>
+              <div className="text-center">
+                <p className="text-3xl font-bold">{stats.totalNotes}</p>
+                <p className="text-xs text-white/70">Notes</p>
+              </div>
+            </div>
           </div>
-          <Button onClick={() => setIsCreateDialogOpen(true)} className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            New Task
-          </Button>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <Card className="bg-primary/5 border-primary/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <ListTodo className="h-5 w-5 text-primary" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.pendingTasks}</p>
-                <p className="text-xs text-muted-foreground">Pending</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-green-500/5 border-green-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-green-500/10">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.completedTasks}</p>
-                <p className="text-xs text-muted-foreground">Completed</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-red-500/5 border-red-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-red-500/10">
-                <Circle className="h-5 w-5 text-red-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.urgentTasks}</p>
-                <p className="text-xs text-muted-foreground">Urgent</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-amber-500/5 border-amber-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-amber-500/10">
-                <StickyNote className="h-5 w-5 text-amber-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.totalNotes}</p>
-                <p className="text-xs text-muted-foreground">Notes</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-blue-500/5 border-blue-500/20">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-blue-500/10">
-                <GraduationCap className="h-5 w-5 text-blue-500" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{stats.totalTasks}</p>
-                <p className="text-xs text-muted-foreground">Total Tasks</p>
-              </div>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Main Content Tabs */}
@@ -282,7 +325,7 @@ const NotesPage = () => {
               </TabsTrigger>
               <TabsTrigger value="notes" className="gap-2">
                 <StickyNote className="h-4 w-4" />
-                Quick Notes
+                Notebooks
               </TabsTrigger>
             </TabsList>
 
@@ -344,9 +387,9 @@ const NotesPage = () => {
                   </CardContent>
                 </Card>
 
-                {/* Show Completed Toggle */}
+                {/* Filters */}
                 <Card>
-                  <CardContent className="p-3">
+                  <CardContent className="p-3 space-y-3">
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
                       <Checkbox 
                         checked={showCompleted} 
@@ -354,12 +397,19 @@ const NotesPage = () => {
                       />
                       Show completed
                     </label>
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <Checkbox 
+                        checked={groupByDeadline} 
+                        onCheckedChange={(checked) => setGroupByDeadline(checked as boolean)} 
+                      />
+                      Group by deadline
+                    </label>
                   </CardContent>
                 </Card>
               </div>
 
               {/* Task List */}
-              <div className="flex-1 space-y-3">
+              <div className="flex-1 space-y-4">
                 {/* Quick Add Task */}
                 <Card>
                   <CardContent className="p-3">
@@ -379,30 +429,61 @@ const NotesPage = () => {
                   </CardContent>
                 </Card>
 
-                {/* Tasks */}
-                {filteredTasks.length === 0 ? (
-                  <Card>
-                    <CardContent className="p-8 text-center">
-                      <ListTodo className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                      <h3 className="font-medium mb-1">No tasks found</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {searchQuery ? 'Try a different search term' : 'Add your first task to get started'}
-                      </p>
-                    </CardContent>
-                  </Card>
+                {/* Grouped Tasks */}
+                {groupByDeadline ? (
+                  DEADLINE_GROUP_ORDER.map(groupKey => {
+                    const groupTasks = groupedTasks[groupKey];
+                    if (!groupTasks || groupTasks.length === 0) return null;
+                    
+                    return (
+                      <div key={groupKey} className="space-y-2">
+                        <h3 className="text-sm font-medium text-muted-foreground px-1">
+                          {DEADLINE_GROUP_LABELS[groupKey]} ({groupTasks.length})
+                        </h3>
+                        <div className="space-y-2">
+                          {groupTasks.map((task) => (
+                            <TaskItem
+                              key={task.id}
+                              task={task}
+                              onToggleStatus={toggleStatus}
+                              onToggleStar={toggleStar}
+                              onDelete={deleteNote}
+                              onEdit={() => handleEditTask(task)}
+                              onUpdateSubtasks={handleUpdateSubtasks}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })
                 ) : (
-                  <div className="space-y-2">
-                    {filteredTasks.map((task) => (
-                      <TaskItem
-                        key={task.id}
-                        task={task}
-                        onToggleStatus={toggleStatus}
-                        onToggleStar={toggleStar}
-                        onDelete={deleteNote}
-                        onEdit={() => handleEditTask(task)}
-                      />
-                    ))}
-                  </div>
+                  <>
+                    {filteredTasks.length === 0 ? (
+                      <Card>
+                        <CardContent className="p-8 text-center">
+                          <ListTodo className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                          <h3 className="font-medium mb-1">No tasks found</h3>
+                          <p className="text-sm text-muted-foreground">
+                            {searchQuery ? 'Try a different search term' : 'Add your first task to get started'}
+                          </p>
+                        </CardContent>
+                      </Card>
+                    ) : (
+                      <div className="space-y-2">
+                        {filteredTasks.map((task) => (
+                          <TaskItem
+                            key={task.id}
+                            task={task}
+                            onToggleStatus={toggleStatus}
+                            onToggleStar={toggleStar}
+                            onDelete={deleteNote}
+                            onEdit={() => handleEditTask(task)}
+                            onUpdateSubtasks={handleUpdateSubtasks}
+                          />
+                        ))}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -410,98 +491,116 @@ const NotesPage = () => {
 
           {/* Notes Tab */}
           <TabsContent value="notes" className="space-y-4">
-            {/* Quick Note Input */}
-            <QuickNoteInput onSave={handleQuickNote} />
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* Folder Sidebar */}
+              <div className="lg:w-56">
+                <FolderSidebar
+                  folders={folders}
+                  notes={quickNotes}
+                  selectedFolderId={selectedFolderId}
+                  onSelectFolder={setSelectedFolderId}
+                  onCreateFolder={handleCreateFolder}
+                  onDeleteFolder={handleDeleteFolder}
+                />
+              </div>
 
-            {/* Notes Grid */}
-            {filteredNotes.length === 0 ? (
-              <Card>
-                <CardContent className="p-8 text-center">
-                  <StickyNote className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                  <h3 className="font-medium mb-1">No notes yet</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Add a quick note above to get started
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredNotes.map((note) => (
-                  <Card 
-                    key={note.id} 
-                    className={`group relative cursor-pointer hover:shadow-md transition-shadow ${note.starred ? 'ring-2 ring-amber-400/50' : ''}`}
-                    onClick={() => handleViewNote(note)}
-                  >
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-medium line-clamp-1 flex-1">{note.title}</h3>
-                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                              >
-                                <MoreHorizontal className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem onClick={() => handleViewNote(note)}>
-                                <Eye className="h-4 w-4 mr-2" />
-                                View
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleEditNote(note)}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit
-                              </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => toggleStar(note.id)}>
-                                <Star className={`h-4 w-4 mr-2 ${note.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
-                                {note.starred ? 'Unstar' : 'Star'}
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem 
-                                className="text-destructive"
-                                onClick={() => {
-                                  setSelectedNote(note);
-                                  setIsDeleteNoteOpen(true);
-                                }}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-4 whitespace-pre-wrap">{note.content}</p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(note.created_at).toLocaleDateString()}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          {note.starred && <Star className="h-3 w-3 fill-amber-400 text-amber-400" />}
-                          {note.course && note.course !== 'Quick Notes' && (
-                            <Badge variant="secondary" className="text-xs">{note.course}</Badge>
-                          )}
-                        </div>
-                      </div>
+              {/* Notes Content */}
+              <div className="flex-1 space-y-4">
+                {/* Quick Note Input */}
+                <QuickNoteInput onSave={handleQuickNote} />
+
+                {/* Notes Grid */}
+                {filteredNotes.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-8 text-center">
+                      <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
+                      <h3 className="font-medium mb-1">
+                        {selectedFolderId ? 'No notes in this folder' : 'No notes yet'}
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Add a quick note above to get started
+                      </p>
                     </CardContent>
                   </Card>
-                ))}
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredNotes.map((note) => (
+                      <Card 
+                        key={note.id} 
+                        className={`group relative cursor-pointer hover:shadow-md transition-shadow ${note.starred ? 'ring-2 ring-amber-400/50' : ''}`}
+                        onClick={() => handleViewNote(note)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <h3 className="font-medium line-clamp-1 flex-1">{note.title}</h3>
+                            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  >
+                                    <MoreHorizontal className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleViewNote(note)}>
+                                    <Eye className="h-4 w-4 mr-2" />
+                                    View
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleEditNote(note)}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => toggleStar(note.id)}>
+                                    <Star className={`h-4 w-4 mr-2 ${note.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
+                                    {note.starred ? 'Unstar' : 'Star'}
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem 
+                                    className="text-destructive"
+                                    onClick={() => {
+                                      setSelectedNote(note);
+                                      setIsDeleteNoteOpen(true);
+                                    }}
+                                  >
+                                    <Trash2 className="h-4 w-4 mr-2" />
+                                    Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </div>
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-4 whitespace-pre-wrap">{note.content}</p>
+                          <div className="mt-3 flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">
+                              {new Date(note.created_at).toLocaleDateString()}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {note.starred && <Star className="h-3 w-3 fill-amber-400 text-amber-400" />}
+                              {note.course && note.course !== 'Quick Notes' && (
+                                <Badge variant="secondary" className="text-xs">{note.course}</Badge>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
           </TabsContent>
         </Tabs>
 
-        {/* Create Task Dialog */}
+        {/* Dialogs */}
         <CreateTaskDialog 
           open={isCreateDialogOpen} 
           onOpenChange={setIsCreateDialogOpen}
           categories={CATEGORIES.filter(c => c.id !== 'all')}
         />
 
-        {/* View Note Dialog */}
         <ViewNoteDialog
           note={selectedNote}
           open={isViewNoteOpen}
@@ -513,14 +612,12 @@ const NotesPage = () => {
           }}
         />
 
-        {/* Edit Note Dialog */}
         <EditNoteDialog
           note={selectedNote}
           open={isEditNoteOpen}
           onOpenChange={setIsEditNoteOpen}
         />
 
-        {/* Edit Task Dialog */}
         <EditTaskDialog
           task={selectedTask}
           open={isEditTaskOpen}
@@ -528,7 +625,6 @@ const NotesPage = () => {
           categories={CATEGORIES.filter(c => c.id !== 'all')}
         />
 
-        {/* Delete Confirmation Dialog */}
         <AlertDialog open={isDeleteNoteOpen} onOpenChange={setIsDeleteNoteOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
