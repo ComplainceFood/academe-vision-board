@@ -7,12 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CalendarIcon, Plus, X, Repeat } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useNotes } from "@/hooks/useNotes";
+import { Subtask, RECURRENCE_LABELS, RecurrencePattern } from "@/types/notes";
+import { Switch } from "@/components/ui/switch";
 
 interface Category {
   id: string;
@@ -34,6 +37,13 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
   const [studentName, setStudentName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // New fields
+  const [subtasks, setSubtasks] = useState<Subtask[]>([]);
+  const [newSubtask, setNewSubtask] = useState("");
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>("weekly");
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>();
+  
   const { user } = useAuth();
   const { toast } = useToast();
   const { createNote } = useNotes();
@@ -45,6 +55,25 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
     setPriority("medium");
     setDueDate(undefined);
     setStudentName("");
+    setSubtasks([]);
+    setNewSubtask("");
+    setIsRecurring(false);
+    setRecurrencePattern("weekly");
+    setRecurrenceEndDate(undefined);
+  };
+
+  const addSubtask = () => {
+    if (!newSubtask.trim()) return;
+    setSubtasks([...subtasks, {
+      id: crypto.randomUUID(),
+      title: newSubtask.trim(),
+      completed: false,
+    }]);
+    setNewSubtask("");
+  };
+
+  const removeSubtask = (id: string) => {
+    setSubtasks(subtasks.filter(s => s.id !== id));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,6 +100,9 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
         due_date: dueDate?.toISOString(),
         student_name: studentName || undefined,
         starred: false,
+        subtasks: subtasks.length > 0 ? subtasks : undefined,
+        recurrence_pattern: isRecurring ? recurrencePattern : null,
+        recurrence_end_date: isRecurring && recurrenceEndDate ? recurrenceEndDate.toISOString().split('T')[0] : null,
       });
 
       onOpenChange?.(false);
@@ -89,105 +121,238 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">Task Title *</Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="What needs to be done?"
-              required
-            />
-          </div>
+          <Tabs defaultValue="basic" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="basic">Basic</TabsTrigger>
+              <TabsTrigger value="subtasks">Subtasks</TabsTrigger>
+              <TabsTrigger value="recurring">Recurring</TabsTrigger>
+            </TabsList>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Add more details..."
-              rows={3}
-            />
-          </div>
+            <TabsContent value="basic" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label htmlFor="title">Task Title *</Label>
+                <Input
+                  id="title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="What needs to be done?"
+                  required
+                />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Category</Label>
-              <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((cat) => (
-                    <SelectItem key={cat.id} value={cat.id}>
-                      {cat.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  placeholder="Add more details..."
+                  rows={3}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label>Priority</Label>
-              <Select value={priority} onValueChange={(v) => setPriority(v as any)}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="urgent">Urgent</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Category</Label>
+                  <Select value={category} onValueChange={setCategory}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Due Date</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      "w-full justify-start text-left font-normal",
-                      !dueDate && "text-muted-foreground"
-                    )}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {dueDate ? format(dueDate, "PPP") : "Pick a date"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={dueDate}
-                    onSelect={setDueDate}
-                    initialFocus
+                <div className="space-y-2">
+                  <Label>Priority</Label>
+                  <Select value={priority} onValueChange={(v) => setPriority(v as typeof priority)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="low">Low</SelectItem>
+                      <SelectItem value="medium">Medium</SelectItem>
+                      <SelectItem value="high">High</SelectItem>
+                      <SelectItem value="urgent">Urgent</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Due Date</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={cn(
+                          "w-full justify-start text-left font-normal",
+                          !dueDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {dueDate ? format(dueDate, "PPP") : "Pick a date"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={dueDate}
+                        onSelect={setDueDate}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="student">Student Name</Label>
+                  <Input
+                    id="student"
+                    value={studentName}
+                    onChange={(e) => setStudentName(e.target.value)}
+                    placeholder="Optional"
                   />
-                </PopoverContent>
-              </Popover>
-            </div>
+                </div>
+              </div>
+            </TabsContent>
 
-            <div className="space-y-2">
-              <Label htmlFor="student">Student Name</Label>
-              <Input
-                id="student"
-                value={studentName}
-                onChange={(e) => setStudentName(e.target.value)}
-                placeholder="Optional"
-              />
-            </div>
-          </div>
+            <TabsContent value="subtasks" className="space-y-4 mt-4">
+              <div className="space-y-2">
+                <Label>Break down your task into steps</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Add a subtask..."
+                    value={newSubtask}
+                    onChange={(e) => setNewSubtask(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addSubtask();
+                      }
+                    }}
+                  />
+                  <Button type="button" variant="outline" onClick={addSubtask} disabled={!newSubtask.trim()}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
 
-          <div className="flex justify-end gap-2 pt-4">
+              {subtasks.length > 0 && (
+                <div className="space-y-2 border rounded-lg p-3">
+                  {subtasks.map((subtask, index) => (
+                    <div key={subtask.id} className="flex items-center justify-between gap-2 py-1">
+                      <span className="text-sm flex items-center gap-2">
+                        <span className="text-muted-foreground">{index + 1}.</span>
+                        {subtask.title}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6"
+                        onClick={() => removeSubtask(subtask.id)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {subtasks.length === 0 && (
+                <div className="text-center py-8 text-muted-foreground">
+                  <p>No subtasks yet. Add steps to track progress.</p>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="recurring" className="space-y-4 mt-4">
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Repeat className="h-5 w-5 text-purple-500" />
+                  <div>
+                    <p className="font-medium">Make this a recurring task</p>
+                    <p className="text-sm text-muted-foreground">
+                      Task will auto-regenerate when completed
+                    </p>
+                  </div>
+                </div>
+                <Switch checked={isRecurring} onCheckedChange={setIsRecurring} />
+              </div>
+
+              {isRecurring && (
+                <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                  <div className="space-y-2">
+                    <Label>Repeat Pattern</Label>
+                    <Select value={recurrencePattern} onValueChange={(v) => setRecurrencePattern(v as RecurrencePattern)}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(RECURRENCE_LABELS).map(([key, label]) => (
+                          <SelectItem key={key} value={key}>
+                            {label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>End Date (Optional)</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !recurrenceEndDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {recurrenceEndDate ? format(recurrenceEndDate, "PPP") : "No end date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={recurrenceEndDate}
+                          onSelect={setRecurrenceEndDate}
+                          initialFocus
+                          disabled={(date) => date < new Date()}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    {recurrenceEndDate && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setRecurrenceEndDate(undefined)}
+                        className="text-xs"
+                      >
+                        Clear end date
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
+
+          <div className="flex justify-end gap-2 pt-4 border-t">
             <Button type="button" variant="outline" onClick={() => onOpenChange?.(false)}>
               Cancel
             </Button>

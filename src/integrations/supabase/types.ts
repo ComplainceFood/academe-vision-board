@@ -610,11 +610,18 @@ export type Database = {
           course: string
           created_at: string
           due_date: string | null
+          folder_color: string | null
           id: string
+          is_folder: boolean | null
+          next_occurrence: string | null
+          parent_folder_id: string | null
           priority: string
+          recurrence_end_date: string | null
+          recurrence_pattern: string | null
           starred: boolean
           status: string
           student_name: string | null
+          subtasks: Json | null
           tags: string[] | null
           title: string
           type: string
@@ -626,11 +633,18 @@ export type Database = {
           course: string
           created_at?: string
           due_date?: string | null
+          folder_color?: string | null
           id?: string
+          is_folder?: boolean | null
+          next_occurrence?: string | null
+          parent_folder_id?: string | null
           priority?: string
+          recurrence_end_date?: string | null
+          recurrence_pattern?: string | null
           starred?: boolean
           status?: string
           student_name?: string | null
+          subtasks?: Json | null
           tags?: string[] | null
           title: string
           type: string
@@ -642,11 +656,18 @@ export type Database = {
           course?: string
           created_at?: string
           due_date?: string | null
+          folder_color?: string | null
           id?: string
+          is_folder?: boolean | null
+          next_occurrence?: string | null
+          parent_folder_id?: string | null
           priority?: string
+          recurrence_end_date?: string | null
+          recurrence_pattern?: string | null
           starred?: boolean
           status?: string
           student_name?: string | null
+          subtasks?: Json | null
           tags?: string[] | null
           title?: string
           type?: string
