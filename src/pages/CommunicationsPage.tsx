@@ -21,32 +21,44 @@ export default function CommunicationsPage() {
 
   return (
     <MainLayout>
-      <div className="animate-fade-in">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-            <Megaphone className="h-8 w-8 text-primary" />
-            Admin Communications
-          </h1>
-          <p className="text-muted-foreground">
-            Stay updated with administrative announcements and platform updates
-          </p>
+      <div className="animate-fade-in space-y-6">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-rose-500 via-pink-500 to-fuchsia-600 p-8 text-white">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse" />
+            <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-3xl" />
+          </div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                <Megaphone className="h-10 w-10" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold tracking-tight">Admin Communications</h1>
+                <p className="text-white/80 text-lg mt-1">
+                  Stay updated with administrative announcements and platform updates
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <Tabs defaultValue="announcements" className="space-y-6">
-          <TabsList className={`grid w-full ${isSystemAdmin() ? 'grid-cols-3' : 'grid-cols-1'}`}>
-            <TabsTrigger value="announcements" className="flex items-center gap-2">
+          <TabsList className={`p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl ${isSystemAdmin() ? 'grid grid-cols-3 w-full max-w-2xl' : 'inline-flex'}`}>
+            <TabsTrigger value="announcements" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <MessageSquare className="h-4 w-4" />
               Announcements
             </TabsTrigger>
             {isSystemAdmin() && (
               <>
-                <TabsTrigger value="admin" className="flex items-center gap-2">
+                <TabsTrigger value="admin" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
                   <Settings className="h-4 w-4" />
-                  Manage Communications
+                  Manage
                 </TabsTrigger>
-                <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <TabsTrigger value="analytics" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
                   <Megaphone className="h-4 w-4" />
-                  Analytics & Reports
+                  Analytics
                 </TabsTrigger>
               </>
             )}

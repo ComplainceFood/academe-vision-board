@@ -172,93 +172,80 @@ const PlanningPage = () => {
     <MainLayout>
       <div className="animate-fade-in space-y-6">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 border border-border/50 p-6 md:p-8">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-48 h-48 bg-secondary/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
-          
-          <div className="relative flex flex-col lg:flex-row justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <Calendar className="h-6 w-6 text-primary" />
-                <Badge variant="secondary" className="text-xs">Academic Planner</Badge>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold tracking-tight mb-2">
-                Semester Planning
-              </h1>
-              <p className="text-muted-foreground max-w-xl">
-                Organize your academic calendar, track deadlines, and plan future semesters with intelligent scheduling.
-              </p>
-            </div>
-            
-            <div className="flex flex-wrap gap-3">
-              <Button 
-                size="lg" 
-                className="gap-2 shadow-lg"
-                onClick={() => handleOpenEventDialog()}
-              >
-                <Plus className="h-4 w-4" />
-                New Event
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="gap-2"
-                onClick={() => handleOpenTaskDialog()}
-              >
-                <ListTodo className="h-4 w-4" />
-                Plan Task
-              </Button>
-            </div>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-emerald-500 to-green-600 p-8 text-white">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse" />
+            <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-3xl" />
           </div>
-
-          {/* Quick Stats */}
-          <div className="relative grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <CalendarDays className="h-4 w-4" />
-                <span className="text-xs font-medium">This Week</span>
+          
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                    <Calendar className="h-10 w-10" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-4xl font-bold tracking-tight">Semester Planning</h1>
+                      <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+                    </div>
+                    <p className="text-white/80 text-lg mt-1">
+                      Organize your academic calendar and plan future semesters
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p className="text-2xl font-bold">{stats.thisWeekEvents}</p>
-              <p className="text-xs text-muted-foreground">events scheduled</p>
+              <div className="flex flex-wrap gap-3">
+                <Button 
+                  size="lg" 
+                  className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
+                  onClick={() => handleOpenEventDialog()}
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  New Event
+                </Button>
+                <Button 
+                  size="lg" 
+                  className="bg-white text-emerald-700 hover:bg-white/90 shadow-lg transition-all hover:scale-105"
+                  onClick={() => handleOpenTaskDialog()}
+                >
+                  <ListTodo className="h-5 w-5 mr-2" />
+                  Plan Task
+                </Button>
+              </div>
             </div>
             
-            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <Target className="h-4 w-4" />
-                <span className="text-xs font-medium">Task Progress</span>
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">This Week</p>
+                <p className="text-3xl font-bold">{stats.thisWeekEvents}</p>
               </div>
-              <p className="text-2xl font-bold">{stats.taskProgress}%</p>
-              <Progress value={stats.taskProgress} className="h-1.5 mt-1" />
-            </div>
-            
-            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <AlertCircle className="h-4 w-4" />
-                <span className="text-xs font-medium">Urgent</span>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">Task Progress</p>
+                <p className="text-3xl font-bold">{stats.taskProgress}%</p>
               </div>
-              <p className="text-2xl font-bold text-destructive">{stats.urgentDeadlines}</p>
-              <p className="text-xs text-muted-foreground">deadlines this week</p>
-            </div>
-            
-            <div className="bg-background/60 backdrop-blur-sm rounded-xl p-4 border border-border/50">
-              <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                <TrendingUp className="h-4 w-4" />
-                <span className="text-xs font-medium">Future Tasks</span>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">Urgent</p>
+                <p className="text-3xl font-bold text-red-200">{stats.urgentDeadlines}</p>
               </div>
-              <p className="text-2xl font-bold">{stats.totalFutureTasks}</p>
-              <p className="text-xs text-muted-foreground">across semesters</p>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">Future Tasks</p>
+                <p className="text-3xl font-bold">{stats.totalFutureTasks}</p>
+              </div>
             </div>
           </div>
         </div>
         
         {/* Main Content */}
         <Tabs defaultValue="calendar" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-2 p-1 h-12">
-            <TabsTrigger value="calendar" className="flex items-center gap-2 h-full">
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="calendar" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Calendar className="h-4 w-4" />
               <span>Calendar View</span>
             </TabsTrigger>
-            <TabsTrigger value="future" className="flex items-center gap-2 h-full">
+            <TabsTrigger value="future" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Layers className="h-4 w-4" />
               <span>Future Planning</span>
             </TabsTrigger>
