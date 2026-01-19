@@ -349,30 +349,73 @@ const SuppliesPage = () => {
     }
   };
   return <MainLayout>
-      <div className="animate-fade-in">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-          <div>
-            <h1 className="text-3xl font-bold mb-1">Supplies & Expenses</h1>
-            <p className="text-muted-foreground">Track your inventory and expenses of your lab</p>
+      <div className="animate-fade-in space-y-6">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-amber-500 via-orange-500 to-red-600 p-8 text-white">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse" />
+            <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-3xl" />
           </div>
-          <div className="mt-4 md:mt-0 flex flex-wrap gap-2">
-            <InventoryCsvManager supplies={supplies} onRefetch={refetchSupplies} />
-            <Button className="flex items-center gap-2" onClick={() => setIsAddItemDialogOpen(true)} disabled={isProcessing}>
-              <Plus className="h-4 w-4" />
-              <span>Add Item</span>
-            </Button>
-            <Button variant="outline" className="flex items-center gap-2" onClick={() => setIsShoppingListOpen(true)} disabled={isProcessing}>
-              <ShoppingBag className="h-4 w-4" />
-              <span>
-                Shopping List
-                {shoppingListCount > 0 && <Badge variant="secondary" className="ml-1">{shoppingListCount}</Badge>}
-              </span>
-            </Button>
+          
+          <div className="relative z-10">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="space-y-3">
+                <div className="flex items-center gap-4">
+                  <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                    <ShoppingBag className="h-10 w-10" />
+                  </div>
+                  <div>
+                    <h1 className="text-4xl font-bold tracking-tight">Supplies & Expenses</h1>
+                    <p className="text-white/80 text-lg mt-1">Track your inventory and lab expenses</p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <InventoryCsvManager supplies={supplies} onRefetch={refetchSupplies} />
+                <Button 
+                  onClick={() => setIsAddItemDialogOpen(true)} 
+                  disabled={isProcessing}
+                  size="lg"
+                  className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
+                >
+                  <Plus className="h-5 w-5 mr-2" />
+                  Add Item
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setIsShoppingListOpen(true)} 
+                  disabled={isProcessing}
+                  size="lg"
+                  className="bg-white text-orange-700 hover:bg-white/90 shadow-lg transition-all hover:scale-105"
+                >
+                  <ShoppingBag className="h-5 w-5 mr-2" />
+                  Shopping List
+                  {shoppingListCount > 0 && <Badge variant="secondary" className="ml-2">{shoppingListCount}</Badge>}
+                </Button>
+              </div>
+            </div>
+            
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">Total Items</p>
+                <p className="text-3xl font-bold">{supplies.length}</p>
+              </div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">Low Stock</p>
+                <p className="text-3xl font-bold text-red-200">{warningItems.length}</p>
+              </div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">Total Expenses</p>
+                <p className="text-3xl font-bold text-green-200">${totalExpenses.toLocaleString()}</p>
+              </div>
+              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
+                <p className="text-white/70 text-xs uppercase tracking-wider">Shopping List</p>
+                <p className="text-3xl font-bold">{shoppingListCount}</p>
+              </div>
+            </div>
           </div>
         </div>
-        
-        {/* Stats Cards */}
-        <SuppliesStats warningItems={warningItems.length} totalSupplies={supplies.length} totalExpenses={totalExpenses} />
         
         {/* Search and Filter */}
         <SearchAndFilter 
@@ -384,13 +427,13 @@ const SuppliesPage = () => {
         />
         
         {/* Tab Navigation */}
-        <Tabs defaultValue="inventory" onValueChange={handleTabChange} className="mb-6">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="inventory" className="flex items-center gap-1">
+        <Tabs defaultValue="inventory" onValueChange={handleTabChange}>
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="inventory" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <ShoppingBag className="h-4 w-4" />
               <span>Inventory</span>
             </TabsTrigger>
-            <TabsTrigger value="expenses" className="flex items-center gap-1">
+            <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <ShoppingBag className="h-4 w-4" />
               <span>Expenses</span>
             </TabsTrigger>

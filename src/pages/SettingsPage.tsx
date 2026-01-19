@@ -286,33 +286,44 @@ const SettingsPage = () => {
 
   return (
     <MainLayout>
-      <div className="animate-fade-in max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-            <Settings className="h-8 w-8" />
-            Settings
-          </h1>
-          <p className="text-muted-foreground">Manage your account settings and preferences</p>
+      <div className="animate-fade-in max-w-4xl mx-auto space-y-6">
+        {/* Hero Header */}
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-600 via-gray-600 to-zinc-700 p-8 text-white">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse" />
+            <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-3xl" />
+          </div>
+          
+          <div className="relative z-10">
+            <div className="flex items-center gap-4">
+              <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                <Settings className="h-10 w-10" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold tracking-tight">Settings</h1>
+                <p className="text-white/80 text-lg mt-1">Manage your account settings and preferences</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="profile" className="flex items-center gap-2">
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-4">
+            <TabsTrigger value="profile" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <User className="h-4 w-4" />
-              Profile
+              <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <TabsTrigger value="notifications" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Bell className="h-4 w-4" />
-              Notifications
+              <span className="hidden sm:inline">Notifications</span>
             </TabsTrigger>
-            <TabsTrigger value="connections" className="flex items-center gap-2">
+            <TabsTrigger value="connections" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Link className="h-4 w-4" />
-              Connections
+              <span className="hidden sm:inline">Connections</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
+            <TabsTrigger value="security" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Shield className="h-4 w-4" />
-              Security & Data
+              <span className="hidden sm:inline">Security</span>
             </TabsTrigger>
           </TabsList>
 
