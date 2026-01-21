@@ -2,372 +2,593 @@ import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { BookOpen, Calendar, DollarSign, Target, Users, Lightbulb, Award, TrendingUp, Shield, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { 
+  GraduationCap, 
+  Calendar, 
+  DollarSign, 
+  Users, 
+  Award, 
+  TrendingUp, 
+  Shield, 
+  Zap,
+  ArrowRight,
+  Sparkles,
+  Star,
+  ChevronRight,
+  CheckCircle2,
+  Play,
+  ListTodo,
+  RefreshCw,
+  FolderOpen,
+  Package,
+  Wallet,
+  Bell,
+  LineChart,
+  Clock,
+  LayoutDashboard,
+  BarChart
+} from "lucide-react";
+
+// Import preview images
+import notesPreview from "@/assets/landing/notes-preview.png";
+import meetingsPreview from "@/assets/landing/meetings-preview.png";
+import planningPreview from "@/assets/landing/planning-preview.png";
+import suppliesPreview from "@/assets/landing/supplies-preview.png";
+import analyticsPreview from "@/assets/landing/analytics-preview.png";
+import fundingPreview from "@/assets/landing/funding-preview.png";
+
 const LandingPreview = () => {
-  const features = [{
-    icon: BookOpen,
-    title: "Academic Achievement Tracking",
-    description: "Track publications, presentations, awards, and professional development in one comprehensive system.",
-    gradient: "from-primary via-primary/80 to-primary/60",
-    delay: "0ms",
-    image: "/lovable-uploads/a1063017-2364-4fc3-bb6a-b563f2b32772.png"
-  }, {
-    icon: Calendar,
-    title: "Smart Planning & Scheduling",
-    description: "Integrate with Google Calendar and Outlook. Plan semesters, schedule meetings, and never miss important deadlines.",
-    gradient: "from-secondary via-secondary/80 to-secondary/60",
-    delay: "100ms",
-    image: "/lovable-uploads/fde9a6a0-d0b6-4cdc-9563-2ec624b8f322.png"
-  }, {
-    icon: DollarSign,
-    title: "Funding & Financial Management",
-    description: "Monitor research grants, track expenditures, and manage funding sources with detailed reporting capabilities.",
-    gradient: "from-accent via-accent/80 to-accent/60",
-    delay: "200ms",
-    image: "/lovable-uploads/15186783-315a-4e51-8119-e337527987ba.png"
-  }, {
-    icon: Target,
-    title: "Task & Commitment Management",
-    description: "Organize notes, commitments, and tasks with intelligent tagging and priority systems.",
-    gradient: "from-primary via-secondary to-accent",
-    delay: "300ms",
-    image: "/lovable-uploads/ae10c651-c33c-48aa-a55e-23eb91596796.png"
-  }, {
-    icon: Users,
-    title: "Meeting & Collaboration Tools",
-    description: "Schedule meetings, track attendance, manage action items, and collaborate effectively with colleagues.",
-    gradient: "from-secondary via-accent to-primary",
-    delay: "400ms",
-    image: "/lovable-uploads/93aa63a6-6406-458e-abfd-da7c4cd336d2.png"
-  }, {
-    icon: Lightbulb,
-    title: "Supplies & Resource Tracking",
-    description: "Monitor lab supplies, track inventory levels, manage shopping lists, and control expenses efficiently.",
-    gradient: "from-accent via-primary to-secondary",
-    delay: "500ms",
-    image: "/lovable-uploads/df81455f-7258-4abe-87ec-08aa3ad5d5ad.png"
-  }];
-  const stats = [{
-    icon: Award,
-    value: "95%",
-    label: "User Satisfaction",
-    gradient: "from-primary to-primary/80"
-  }, {
-    icon: TrendingUp,
-    value: "40%",
-    label: "Productivity Increase",
-    gradient: "from-secondary to-secondary/80"
-  }, {
-    icon: Shield,
-    value: "100%",
-    label: "Data Security",
-    gradient: "from-accent to-accent/80"
-  }, {
-    icon: Zap,
-    value: "24/7",
-    label: "Uptime Reliability",
-    gradient: "from-primary to-secondary"
-  }];
-  const testimonials = [{
-    name: "Dr. Sarah Johnson",
-    role: "Professor of Biology",
-    institution: "Stanford University",
-    content: "SmartProf revolutionized how I manage my research grants and student commitments. The calendar integration alone saved me hours every week.",
-    avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face"
-  }, {
-    name: "Prof. Michael Chen",
-    role: "Computer Science Department",
-    institution: "MIT",
-    content: "The achievement tracking feature is phenomenal. I can now easily compile my annual reports and track publication metrics in real-time.",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-  }, {
-    name: "Dr. Emily Rodriguez",
-    role: "Psychology Department",
-    institution: "Harvard University",
-    content: "Managing lab supplies and funding has never been easier. The analytics help me make data-driven decisions about resource allocation.",
-    avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face"
-  }];
-  return <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+  const features = [
+    {
+      icon: ListTodo,
+      title: "Smart Task Management",
+      description: "Break down complex tasks into subtasks with visual progress tracking. Smart deadline indicators show overdue, today, tomorrow, and this week at a glance.",
+      image: notesPreview,
+      gradient: "from-violet-500 to-purple-600",
+      bgGradient: "from-violet-50 to-purple-50 dark:from-violet-950/30 dark:to-purple-950/30",
+      highlights: ["Subtask Progress Bars", "Smart Deadline Alerts", "Priority Sorting"],
+      badge: "Most Popular"
+    },
+    {
+      icon: RefreshCw,
+      title: "Recurring Tasks & Automation",
+      description: "Set up daily, weekly, biweekly, or monthly recurring tasks that auto-regenerate upon completion. Never forget routine responsibilities again.",
+      image: planningPreview,
+      gradient: "from-teal-500 to-emerald-500",
+      bgGradient: "from-teal-50 to-emerald-50 dark:from-teal-950/30 dark:to-emerald-950/30",
+      highlights: ["Auto-Regeneration", "Pattern Scheduling", "End Date Control"],
+      badge: "New"
+    },
+    {
+      icon: FolderOpen,
+      title: "Folder & Notebook System",
+      description: "Create color-coded folders to organize notes, commitments, and research materials. Hierarchical structure keeps everything accessible.",
+      image: notesPreview,
+      gradient: "from-amber-500 to-orange-500",
+      bgGradient: "from-amber-50 to-orange-50 dark:from-amber-950/30 dark:to-orange-950/30",
+      highlights: ["Color Coding", "Hierarchical View", "Quick Navigation"],
+      badge: "New"
+    },
+    {
+      icon: Users,
+      title: "Meeting & Collaboration Hub",
+      description: "Schedule meetings, track action items, and manage attendees with calendar integration. Record meeting notes and follow-up tasks seamlessly.",
+      image: meetingsPreview,
+      gradient: "from-blue-500 to-indigo-500",
+      bgGradient: "from-blue-50 to-indigo-50 dark:from-blue-950/30 dark:to-indigo-950/30",
+      highlights: ["Calendar Sync", "Action Items", "Recurring Meetings"],
+      badge: null
+    },
+    {
+      icon: Wallet,
+      title: "Grant & Funding Tracker",
+      description: "Track research grants, monitor expenditures, and generate detailed financial reports. Stay on top of budget allocations and spending.",
+      image: fundingPreview,
+      gradient: "from-emerald-500 to-green-500",
+      bgGradient: "from-emerald-50 to-green-50 dark:from-emerald-950/30 dark:to-green-950/30",
+      highlights: ["Budget Tracking", "Expenditure Reports", "Multi-source Support"],
+      badge: null
+    },
+    {
+      icon: Package,
+      title: "Inventory & Supply Management",
+      description: "Monitor lab supplies with threshold alerts, manage shopping lists, and track inventory costs. Never run out of essential materials.",
+      image: suppliesPreview,
+      gradient: "from-orange-500 to-red-500",
+      bgGradient: "from-orange-50 to-red-50 dark:from-orange-950/30 dark:to-red-950/30",
+      highlights: ["Low Stock Alerts", "Shopping Lists", "Cost Analytics"],
+      badge: null
+    },
+  ];
+
+  const stats = [
+    { icon: GraduationCap, value: "10K+", label: "Academics Empowered", gradient: "from-violet-500 to-purple-600" },
+    { icon: TrendingUp, value: "40%", label: "Productivity Increase", gradient: "from-blue-500 to-cyan-500" },
+    { icon: Shield, value: "100%", label: "Secure & Private", gradient: "from-emerald-500 to-teal-500" },
+    { icon: Zap, value: "24/7", label: "Always Available", gradient: "from-amber-500 to-orange-500" },
+  ];
+
+  const testimonials = [
+    {
+      name: "Dr. Sarah Johnson",
+      role: "Professor of Biology",
+      institution: "Stanford University",
+      content: "The smart deadline indicators and recurring task features have transformed how I manage my research commitments. I never miss a deadline now.",
+      avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
+      rating: 5
+    },
+    {
+      name: "Prof. Michael Chen",
+      role: "Computer Science Department",
+      institution: "MIT",
+      content: "The folder organization system is phenomenal. I can now easily categorize all my notes, publications, and student commitments in one place.",
+      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+      rating: 5
+    },
+    {
+      name: "Dr. Emily Rodriguez",
+      role: "Psychology Department",
+      institution: "Harvard University",
+      content: "Managing lab supplies with threshold alerts has eliminated emergency supply runs. The subtask feature helps me break down complex research tasks.",
+      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
+      rating: 5
+    }
+  ];
+
+  const keyFeatures = [
+    { icon: CheckCircle2, title: "Subtasks & Progress", description: "Visual progress bars for complex tasks" },
+    { icon: Clock, title: "Smart Deadlines", description: "Color-coded deadline indicators" },
+    { icon: RefreshCw, title: "Recurring Tasks", description: "Auto-regenerating scheduled tasks" },
+    { icon: FolderOpen, title: "Folder System", description: "Color-coded organizational folders" },
+    { icon: Bell, title: "Smart Notifications", description: "Never miss important deadlines" },
+    { icon: LineChart, title: "Analytics Dashboard", description: "Insights into your productivity" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-background">
       {/* Navigation */}
-      <nav className="border-b bg-background/95 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+      <nav className="border-b bg-background/95 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/60 rounded-lg blur-sm opacity-75"></div>
-              <BookOpen className="relative h-8 w-8 text-primary-foreground bg-gradient-to-r from-primary to-primary/80 p-1.5 rounded-lg shadow-lg" />
+              <div className="absolute inset-0 bg-gradient-to-r from-violet-500 to-purple-600 rounded-xl blur-sm opacity-75"></div>
+              <div className="relative bg-gradient-to-r from-violet-500 to-purple-600 p-2.5 rounded-xl shadow-lg">
+                <GraduationCap className="h-6 w-6 text-white" />
+              </div>
             </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
               SmartProf
             </span>
           </div>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" asChild className="hidden md:inline-flex">
+          <div className="flex items-center gap-2 md:gap-4">
+            <Button variant="ghost" asChild className="hidden md:inline-flex hover:bg-primary/5 font-medium">
               <a href="#features">Features</a>
             </Button>
-            <Button variant="ghost" asChild className="hidden md:inline-flex">
+            <Button variant="ghost" asChild className="hidden md:inline-flex hover:bg-primary/5 font-medium">
+              <a href="#showcase">Showcase</a>
+            </Button>
+            <Button variant="ghost" asChild className="hidden md:inline-flex hover:bg-primary/5 font-medium">
               <a href="#testimonials">Reviews</a>
             </Button>
-            <Button variant="ghost" asChild>
-              <Link to="/">Back to Dashboard</Link>
-            </Button>
-            <Button asChild className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg hover:shadow-xl transition-all duration-300 hover-scale">
-              <Link to="/auth">Get Started</Link>
+            <Button asChild size="lg" className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-lg hover:shadow-xl transition-all duration-300 text-white font-semibold">
+              <Link to="/auth">
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </Button>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-secondary/10"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent"></div>
-        <div className="absolute top-20 left-10 w-20 h-20 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-10 w-32 h-32 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-2xl animate-pulse" style={{
-        animationDelay: "2s"
-      }}></div>
+      <section className="relative overflow-hidden py-20 md:py-32">
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-500/5 via-background to-purple-500/5"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-violet-500/10 via-transparent to-transparent"></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-violet-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl"></div>
         
-        <div className="relative container mx-auto px-4 py-24 md:py-32 text-center">
-          <div className="max-w-6xl mx-auto animate-fade-in">
-            <div className="mb-6 inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 rounded-full text-sm font-medium text-primary animate-scale-in shadow-lg backdrop-blur-sm">
-              <Zap className="h-4 w-4 mr-2" />
-              The Future of Academic Management
-            </div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-4xl mx-auto">
+            <Badge className="mb-6 bg-gradient-to-r from-violet-500/10 to-purple-500/10 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800 px-4 py-1.5">
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+              Now with Subtasks, Recurring Tasks & Folders
+            </Badge>
             
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-tight">
-              <span className="bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-                Elevate Your
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                Teaching Smarter.
               </span>
               <br />
-              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-                Academic Excellence
-              </span>
+              <span className="text-foreground">Managing Better.</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-              The comprehensive platform that empowers professors and academics to manage achievements, funding, research, and daily tasks with unprecedented efficiency and intelligence.
+            <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
+              The all-in-one academic workspace designed for professors, researchers, and educators. 
+              Organize tasks, track grants, manage supplies, and boost your productivity.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
-              <Button asChild size="lg" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-lg px-12 py-6 shadow-xl hover:shadow-2xl transition-all duration-300 animate-scale-in">
-                <Link to="/auth">Start Your Journey</Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+              <Button asChild size="lg" className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-xl hover:shadow-2xl transition-all duration-300 text-white h-14 px-8 text-lg font-semibold">
+                <Link to="/auth">
+                  Start Free Today
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
               </Button>
-              <Button variant="outline" size="lg" className="text-lg px-12 py-6 border-primary/30 hover:border-primary/50 hover:bg-primary/5 hover-scale group">
-                <a href="#features" className="flex items-center">
-                  Explore Features
-                  <TrendingUp className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform duration-300" />
+              <Button asChild size="lg" variant="outline" className="h-14 px-8 text-lg font-semibold border-2 hover:bg-muted/50">
+                <a href="#showcase">
+                  <Play className="mr-2 h-5 w-5" />
+                  See It In Action
                 </a>
               </Button>
             </div>
 
-            {/* Hero Image/Screenshot */}
-            <div className="relative max-w-5xl mx-auto">
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 rounded-2xl blur-2xl"></div>
-              <div className="relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-2 shadow-2xl">
-                <img src="/lovable-uploads/78171cf2-715a-43bc-8bff-3ba26023316c.png" alt="SmartProf Dashboard Preview" className="w-full h-auto rounded-xl shadow-lg" />
-              </div>
+            {/* Key Features Pills */}
+            <div className="flex flex-wrap justify-center gap-3">
+              {keyFeatures.map((feature, index) => (
+                <div 
+                  key={index}
+                  className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border rounded-full px-4 py-2 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-0.5"
+                >
+                  <feature.icon className="h-4 w-4 text-violet-500" />
+                  <span className="text-sm font-medium">{feature.title}</span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-gradient-to-r from-muted/30 via-background to-muted/30">
+      <section className="py-16 border-y bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Trusted by Leading Academics
-            </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Join thousands of professors and researchers who have transformed their productivity
-            </p>
-          </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, index) => <div key={stat.label} className="text-center animate-fade-in hover-scale group" style={{
-            animationDelay: `${index * 100}ms`
-          }}>
-                <div className={`inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-r ${stat.gradient} mb-6 shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110`}>
-                  <stat.icon className="h-10 w-10 text-white" />
+            {stats.map((stat, index) => (
+              <div key={index} className="text-center group">
+                <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${stat.gradient} mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105`}>
+                  <stat.icon className="h-7 w-7 text-white" />
                 </div>
-                <div className="text-3xl md:text-4xl font-bold mb-2 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
-                  {stat.value}
-                </div>
-                <div className="text-muted-foreground font-medium">{stat.label}</div>
-              </div>)}
+                <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text">{stat.value}</h3>
+                <p className="text-muted-foreground font-medium">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-background via-muted/20 to-background"></div>
-        
-        <div className="relative container mx-auto px-4">
-          <div className="text-center mb-20 animate-fade-in">
-            <h2 className="text-4xl md:text-6xl font-bold mb-6">
-              <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-                Everything You Need,
-              </span>
-              <br />
-              <span className="text-foreground">All in One Place</span>
+      <section id="features" className="py-24">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300">
+              <LayoutDashboard className="h-3.5 w-3.5 mr-1.5" />
+              Powerful Features
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              Everything You Need to <span className="bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">Excel</span>
             </h2>
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Streamline your academic workflow with our comprehensive suite of tools designed specifically for modern educators and researchers.
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Comprehensive tools designed specifically for academic professionals
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => <Card key={feature.title} className="group relative overflow-hidden border-0 bg-card/50 backdrop-blur-sm hover:bg-card transition-all duration-700 hover:shadow-2xl animate-fade-in hover-scale" style={{
-            animationDelay: feature.delay
-          }}>
-                <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-700`} />
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-primary/[0.05] opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {features.map((feature, index) => (
+              <Card 
+                key={index} 
+                className={`group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 bg-gradient-to-br ${feature.bgGradient}`}
+              >
+                <div className={`absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r ${feature.gradient}`}></div>
                 
-                {/* Feature Image */}
-                <div className="relative h-48 overflow-hidden rounded-t-lg">
-                  <img src={feature.image} alt={feature.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                  <div className={`absolute top-4 left-4 w-12 h-12 bg-gradient-to-br ${feature.gradient} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-110 transition-all duration-500`}>
-                    <feature.icon className="h-6 w-6 text-white" />
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className={`p-3 rounded-xl bg-gradient-to-br ${feature.gradient} shadow-lg`}>
+                      <feature.icon className="h-6 w-6 text-white" />
+                    </div>
+                    {feature.badge && (
+                      <Badge className={`text-xs font-semibold ${feature.badge === 'New' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300'}`}>
+                        {feature.badge}
+                      </Badge>
+                    )}
                   </div>
-                </div>
-                
-                <CardHeader className="relative z-10 pb-4">
-                  <CardTitle className="text-xl font-bold group-hover:text-primary transition-colors duration-300 leading-tight">
-                    {feature.title}
-                  </CardTitle>
+                  <CardTitle className="text-xl font-bold">{feature.title}</CardTitle>
                 </CardHeader>
                 
-                <CardContent className="relative z-10 pt-0">
-                  <CardDescription className="text-base leading-relaxed text-muted-foreground group-hover:text-foreground/80 transition-colors duration-300">
-                    {feature.description}
-                  </CardDescription>
+                <CardContent className="space-y-4">
+                  <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {feature.highlights.map((highlight, hIndex) => (
+                      <span 
+                        key={hIndex}
+                        className="text-xs font-medium bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full border shadow-sm"
+                      >
+                        {highlight}
+                      </span>
+                    ))}
+                  </div>
                 </CardContent>
-                
-                <div className={`absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r ${feature.gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-left`} />
-              </Card>)}
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Showcase Section */}
+      <section id="showcase" className="py-24 bg-gradient-to-br from-muted/50 via-background to-muted/50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+              Platform Showcase
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              See <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">SmartProf</span> in Action
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+              Explore the powerful features that make academic management effortless
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            {/* Notes & Tasks Preview */}
+            <div className="group">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-violet-500 to-purple-600"></div>
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500 to-purple-600">
+                      <ListTodo className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Notes & Task Management</h3>
+                      <p className="text-xs text-muted-foreground">Subtasks, deadlines, and organization</p>
+                    </div>
+                  </div>
+                </div>
+                <img 
+                  src={notesPreview} 
+                  alt="Notes and Task Management Dashboard" 
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+
+            {/* Meetings Preview */}
+            <div className="group">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600"></div>
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600">
+                      <Users className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Meeting Scheduler</h3>
+                      <p className="text-xs text-muted-foreground">Calendar sync and action items</p>
+                    </div>
+                  </div>
+                </div>
+                <img 
+                  src={meetingsPreview} 
+                  alt="Meeting Scheduling Dashboard" 
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+
+            {/* Planning Preview */}
+            <div className="group">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-600"></div>
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600">
+                      <Calendar className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Academic Planning</h3>
+                      <p className="text-xs text-muted-foreground">Semester planning and roadmaps</p>
+                    </div>
+                  </div>
+                </div>
+                <img 
+                  src={planningPreview} 
+                  alt="Academic Planning Dashboard" 
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+
+            {/* Analytics Preview */}
+            <div className="group">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-blue-600"></div>
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600">
+                      <BarChart className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Analytics Dashboard</h3>
+                      <p className="text-xs text-muted-foreground">Productivity insights and reports</p>
+                    </div>
+                  </div>
+                </div>
+                <img 
+                  src={analyticsPreview} 
+                  alt="Analytics Dashboard" 
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Supplies Preview */}
+            <div className="group">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-600"></div>
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600">
+                      <Package className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Inventory Management</h3>
+                      <p className="text-xs text-muted-foreground">Stock alerts and shopping lists</p>
+                    </div>
+                  </div>
+                </div>
+                <img 
+                  src={suppliesPreview} 
+                  alt="Inventory Management Dashboard" 
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+
+            {/* Funding Preview */}
+            <div className="group">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background">
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-green-600"></div>
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600">
+                      <Wallet className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold">Grant & Funding Tracker</h3>
+                      <p className="text-xs text-muted-foreground">Budget tracking and expenditures</p>
+                    </div>
+                  </div>
+                </div>
+                <img 
+                  src={fundingPreview} 
+                  alt="Grant Funding Management Dashboard" 
+                  className="w-full h-auto group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-24 bg-gradient-to-br from-muted/30 via-background to-muted/30">
+      <section id="testimonials" className="py-24">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-20 animate-fade-in">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              What Academics Are Saying
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300">
+              <Star className="h-3.5 w-3.5 mr-1.5" />
+              Testimonials
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              Trusted by <span className="bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">Academics</span> Worldwide
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Discover how SmartProf is transforming academic productivity worldwide
+              See what professors and researchers are saying about SmartProf
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => <Card key={testimonial.name} className="group relative overflow-hidden bg-card/70 backdrop-blur-sm border-0 shadow-lg hover:shadow-2xl transition-all duration-700 animate-fade-in hover-scale transform hover:-translate-y-2" style={{
-            animationDelay: `${index * 200}ms`
-          }}>
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 transition-all duration-700 rounded-lg" />
-                
-                <CardContent className="p-8 relative z-10">
-                  <div className="mb-6 transform transition-transform duration-500 group-hover:scale-[1.02]">
-                    <div className="relative">
-                      <div className="absolute -left-2 -top-1 text-4xl text-primary/20 font-serif">"</div>
-                      <div className="absolute -right-2 -bottom-1 text-4xl text-primary/20 font-serif rotate-180">"</div>
-                      <p className="text-lg leading-relaxed text-muted-foreground group-hover:text-foreground/90 transition-colors duration-500 px-4">
-                        {testimonial.content}
-                      </p>
-                    </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {testimonials.map((testimonial, index) => (
+              <Card key={index} className="relative overflow-hidden border shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
+                <CardContent className="pt-8">
+                  {/* Rating Stars */}
+                  <div className="flex gap-1 mb-4">
+                    {[...Array(testimonial.rating)].map((_, i) => (
+                      <Star key={i} className="h-5 w-5 fill-amber-400 text-amber-400" />
+                    ))}
                   </div>
                   
-                  <div className="flex items-center space-x-4 transform transition-transform duration-500 group-hover:translate-x-2">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                      <img 
-                        src={testimonial.avatar} 
-                        alt={testimonial.name} 
-                        className="relative w-14 h-14 rounded-full object-cover shadow-lg border-2 border-primary/20 group-hover:border-primary/40 transition-all duration-500 group-hover:scale-110" 
-                      />
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-r from-primary/10 to-secondary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    </div>
-                    <div className="space-y-1">
-                      <div className="font-semibold text-foreground group-hover:text-primary transition-colors duration-500 text-base">
-                        {testimonial.name}
-                      </div>
-                      <div className="text-sm text-muted-foreground group-hover:text-muted-foreground/80 transition-colors duration-500 font-medium">
-                        {testimonial.role}
-                      </div>
-                      <div className="text-xs text-primary/70 group-hover:text-primary transition-colors duration-500 font-medium">
-                        {testimonial.institution}
-                      </div>
+                  <p className="text-muted-foreground mb-6 leading-relaxed italic">
+                    "{testimonial.content}"
+                  </p>
+                  
+                  <div className="flex items-center gap-4">
+                    <img 
+                      src={testimonial.avatar} 
+                      alt={testimonial.name}
+                      className="w-12 h-12 rounded-full object-cover ring-2 ring-primary/10"
+                    />
+                    <div>
+                      <p className="font-semibold">{testimonial.name}</p>
+                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
+                      <p className="text-xs text-primary">{testimonial.institution}</p>
                     </div>
                   </div>
                 </CardContent>
-                
-                <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-secondary to-primary transform scale-x-0 group-hover:scale-x-100 transition-transform duration-700 origin-center"></div>
-              </Card>)}
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-background to-secondary/10"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent"></div>
-        <div className="absolute top-10 left-10 w-24 h-24 bg-gradient-to-r from-primary/30 to-secondary/30 rounded-full blur-2xl animate-float"></div>
-        <div className="absolute bottom-10 right-10 w-32 h-32 bg-gradient-to-r from-accent/30 to-primary/30 rounded-full blur-2xl animate-float" style={{
-        animationDelay: "1s"
-      }}></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent"></div>
         
-        <div className="relative container mx-auto px-4">
-          <Card className="relative overflow-hidden bg-gradient-to-br from-card/80 via-card/60 to-card/80 backdrop-blur-sm border-primary/20 shadow-2xl animate-fade-in">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10"></div>
-            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent"></div>
+        <div className="container mx-auto px-4 relative z-10">
+          <div className="text-center max-w-3xl mx-auto">
+            <Badge className="mb-6 bg-white/20 text-white border-white/30">
+              <Zap className="h-3.5 w-3.5 mr-1.5" />
+              Start Your Journey
+            </Badge>
             
-            <CardContent className="relative z-10 p-12 md:p-16 text-center">
-              <div className="max-w-4xl mx-auto">
-                <h3 className="text-4xl md:text-5xl font-bold mb-6 leading-tight">
-                  <span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
-                    Ready to Transform
-                  </span>
-                  <br />
-                  <span className="text-foreground">Your Academic Workflow?</span>
-                </h3>
-                
-                <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
-                  Join thousands of professors and researchers who have already elevated their productivity and streamlined their academic management with SmartProf.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                  <Button asChild size="lg" className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 text-lg px-12 py-4 shadow-xl hover:shadow-2xl transition-all duration-300 hover-scale">
-                    <Link to="/auth">Get Started Today</Link>
-                  </Button>
-                  <p className="text-sm text-muted-foreground">No credit card required • 2-minute setup</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
+              Ready to Transform Your Academic Workflow?
+            </h2>
+            
+            <p className="text-xl text-white/80 mb-10">
+              Join thousands of academics who are already using SmartProf to boost their productivity and organize their professional lives.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button asChild size="lg" className="bg-white text-violet-700 hover:bg-white/90 shadow-xl h-14 px-8 text-lg font-semibold">
+                <Link to="/auth">
+                  Get Started Free
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline" className="border-2 border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg font-semibold bg-transparent">
+                <a href="#features">
+                  Learn More
+                  <ChevronRight className="ml-1 h-5 w-5" />
+                </a>
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/30 py-16">
+      <footer className="py-12 border-t bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center space-x-3 mb-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-primary to-primary/60 rounded-lg blur-sm"></div>
-                <BookOpen className="relative h-8 w-8 text-primary-foreground bg-gradient-to-r from-primary to-primary/80 p-1.5 rounded-lg" />
+          <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div className="flex items-center space-x-3">
+              <div className="bg-gradient-to-r from-violet-500 to-purple-600 p-2 rounded-xl">
+                <GraduationCap className="h-5 w-5 text-white" />
               </div>
-              <span className="text-2xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
                 SmartProf
               </span>
             </div>
-            <p className="text-muted-foreground text-lg mb-4">
-              Empowering academic excellence through intelligent management
+            
+            <p className="text-muted-foreground text-sm">
+              © {new Date().getFullYear()} SmartProf. Empowering academics worldwide.
             </p>
-            <p className="text-sm text-muted-foreground/80">© 2025 Smart-Prof. All rights reserved.</p>
+            
+            <div className="flex gap-6">
+              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Privacy</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Terms</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Contact</a>
+            </div>
           </div>
         </div>
       </footer>
-    </div>;
+    </div>
+  );
 };
+
 export default LandingPreview;
