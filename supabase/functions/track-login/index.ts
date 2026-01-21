@@ -58,7 +58,22 @@ Deno.serve(async (req) => {
     // Get IP address from request headers
     const forwardedFor = req.headers.get('x-forwarded-for');
     const realIp = req.headers.get('x-real-ip');
-    const ipAddress = forwardedFor?.split(',')[0].trim() || realIp || '0.0.0.0';
+    let rawIp = forwardedFor?.split(',')[0].trim() || realIp || '127.0.0.1';
+    
+    // Validate and sanitize IP address for inet type
+    // Remove any port numbers (e.g., "192.168.1.1:8080" -> "192.168.1.1")
+    rawIp = rawIp.split(':').length === 2 ? rawIp.split(':')[0] : rawIp;
+    
+    // Handle IPv6 addresses (remove brackets if present)
+    if (rawIp.startsWith('[')) {
+      rawIp = rawIp.replace(/^\[|\]$/g, '');
+    }
+    
+    // Validate IP format - use fallback if invalid
+    const ipv4Regex = /^(\d{1,3}\.){3}\d{1,3}$/;
+    const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$|^([0-9a-fA-F]{1,4}:)*::([0-9a-fA-F]{1,4}:)*[0-9a-fA-F]{1,4}$|^::1$/;
+    
+    const ipAddress = (ipv4Regex.test(rawIp) || ipv6Regex.test(rawIp)) ? rawIp : '127.0.0.1';
 
     // Get user agent
     const userAgent = req.headers.get('user-agent') || 'Unknown';
