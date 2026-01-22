@@ -1,6 +1,6 @@
 import React from "react";
 import { motion, type Easing } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
@@ -25,8 +25,10 @@ import {
   Bell,
   LineChart,
   Clock,
-  LayoutDashboard,
-  BarChart
+  BarChart,
+  Award,
+  Target,
+  Layers
 } from "lucide-react";
 
 // Import preview images
@@ -37,106 +39,92 @@ import suppliesPreview from "@/assets/landing/supplies-preview.png";
 import analyticsPreview from "@/assets/landing/analytics-preview.png";
 import fundingPreview from "@/assets/landing/funding-preview.png";
 
-// Animation variants with proper typing
+// Animation variants
 const easeOut: Easing = [0.16, 1, 0.3, 1];
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 40 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: easeOut } }
+  hidden: { opacity: 0, y: 30 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: easeOut } }
 };
 
 const fadeInLeft = {
-  hidden: { opacity: 0, x: -40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: easeOut } }
+  hidden: { opacity: 0, x: -30 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: easeOut } }
 };
 
 const fadeInRight = {
-  hidden: { opacity: 0, x: 40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6, ease: easeOut } }
+  hidden: { opacity: 0, x: 30 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: easeOut } }
 };
 
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 }
+    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
   }
 };
 
 const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
+  hidden: { opacity: 0, scale: 0.95 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: easeOut } }
 };
+
+// Pine Green color palette (using CSS custom properties approach)
+// Primary: #1B4332 (Pine Green), #2D6A4F, #40916C, #52B788, #74C69D
+// Accent: #081C15 (Deep Forest), #D8F3DC (Mint Cream)
 
 const LandingPreview = () => {
   const features = [
     {
       icon: ListTodo,
       title: "Smart Task Management",
-      description: "Break down complex tasks into subtasks with visual progress tracking. Smart deadline indicators show overdue, today, tomorrow, and this week at a glance.",
-      image: notesPreview,
-      gradient: "from-teal-500 to-emerald-600",
-      bgGradient: "from-teal-50/50 to-emerald-50/50 dark:from-teal-950/20 dark:to-emerald-950/20",
-      highlights: ["Subtask Progress Bars", "Smart Deadline Alerts", "Priority Sorting"],
-      badge: "Most Popular"
+      description: "Break down complex tasks with visual progress tracking and smart deadline indicators.",
+      highlights: ["Subtask Progress", "Deadline Alerts", "Priority Sorting"],
+      badge: "Popular"
     },
     {
       icon: RefreshCw,
-      title: "Recurring Tasks & Automation",
-      description: "Set up daily, weekly, biweekly, or monthly recurring tasks that auto-regenerate upon completion. Never forget routine responsibilities again.",
-      image: planningPreview,
-      gradient: "from-emerald-500 to-green-600",
-      bgGradient: "from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20",
+      title: "Recurring Automation",
+      description: "Set up auto-regenerating tasks that keep your routine responsibilities on track.",
       highlights: ["Auto-Regeneration", "Pattern Scheduling", "End Date Control"],
       badge: "New"
     },
     {
       icon: FolderOpen,
-      title: "Folder & Notebook System",
-      description: "Create color-coded folders to organize notes, commitments, and research materials. Hierarchical structure keeps everything accessible.",
-      image: notesPreview,
-      gradient: "from-cyan-500 to-teal-600",
-      bgGradient: "from-cyan-50/50 to-teal-50/50 dark:from-cyan-950/20 dark:to-teal-950/20",
-      highlights: ["Color Coding", "Hierarchical View", "Quick Navigation"],
-      badge: "New"
+      title: "Folder Organization",
+      description: "Color-coded folders for notes, commitments, and research materials.",
+      highlights: ["Color Coding", "Hierarchical View", "Quick Access"],
+      badge: null
     },
     {
       icon: Users,
-      title: "Meeting & Collaboration Hub",
-      description: "Schedule meetings, track action items, and manage attendees with calendar integration. Record meeting notes and follow-up tasks seamlessly.",
-      image: meetingsPreview,
-      gradient: "from-teal-600 to-cyan-500",
-      bgGradient: "from-teal-50/50 to-cyan-50/50 dark:from-teal-950/20 dark:to-cyan-950/20",
+      title: "Meeting Hub",
+      description: "Schedule meetings, track action items, and sync with your calendar seamlessly.",
       highlights: ["Calendar Sync", "Action Items", "Recurring Meetings"],
       badge: null
     },
     {
       icon: Wallet,
-      title: "Grant & Funding Tracker",
-      description: "Track research grants, monitor expenditures, and generate detailed financial reports. Stay on top of budget allocations and spending.",
-      image: fundingPreview,
-      gradient: "from-green-500 to-emerald-600",
-      bgGradient: "from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20",
-      highlights: ["Budget Tracking", "Expenditure Reports", "Multi-source Support"],
+      title: "Grant Tracker",
+      description: "Monitor research grants, track expenditures, and generate financial reports.",
+      highlights: ["Budget Tracking", "Reports", "Multi-source"],
       badge: null
     },
     {
       icon: Package,
-      title: "Inventory & Supply Management",
-      description: "Monitor lab supplies with threshold alerts, manage shopping lists, and track inventory costs. Never run out of essential materials.",
-      image: suppliesPreview,
-      gradient: "from-emerald-600 to-teal-500",
-      bgGradient: "from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/20",
-      highlights: ["Low Stock Alerts", "Shopping Lists", "Cost Analytics"],
+      title: "Inventory Control",
+      description: "Threshold alerts, shopping lists, and cost analytics for lab supplies.",
+      highlights: ["Stock Alerts", "Shopping Lists", "Analytics"],
       badge: null
     },
   ];
 
   const stats = [
-    { icon: GraduationCap, value: "10K+", label: "Academics Empowered" },
-    { icon: TrendingUp, value: "40%", label: "Productivity Increase" },
-    { icon: Shield, value: "100%", label: "Secure & Private" },
-    { icon: Zap, value: "24/7", label: "Always Available" },
+    { icon: GraduationCap, value: "10K+", label: "Academics" },
+    { icon: TrendingUp, value: "40%", label: "More Productive" },
+    { icon: Shield, value: "100%", label: "Secure" },
+    { icon: Zap, value: "24/7", label: "Available" },
   ];
 
   const testimonials = [
@@ -144,15 +132,15 @@ const LandingPreview = () => {
       name: "Dr. Sarah Johnson",
       role: "Professor of Biology",
       institution: "Stanford University",
-      content: "The smart deadline indicators and recurring task features have transformed how I manage my research commitments. I never miss a deadline now.",
+      content: "The smart deadline indicators have transformed how I manage my research commitments. I never miss a deadline now.",
       avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
       rating: 5
     },
     {
       name: "Prof. Michael Chen",
-      role: "Computer Science Department",
+      role: "Computer Science",
       institution: "MIT",
-      content: "The folder organization system is phenomenal. I can now easily categorize all my notes, publications, and student commitments in one place.",
+      content: "The folder organization system is phenomenal. I can easily categorize all my notes and student commitments.",
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
       rating: 5
     },
@@ -160,85 +148,89 @@ const LandingPreview = () => {
       name: "Dr. Emily Rodriguez",
       role: "Psychology Department",
       institution: "Harvard University",
-      content: "Managing lab supplies with threshold alerts has eliminated emergency supply runs. The subtask feature helps me break down complex research tasks.",
+      content: "Managing lab supplies with threshold alerts has eliminated emergency supply runs completely.",
       avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
       rating: 5
     }
   ];
 
-  const keyFeatures = [
-    { icon: CheckCircle2, title: "Subtasks & Progress", description: "Visual progress bars for complex tasks" },
-    { icon: Clock, title: "Smart Deadlines", description: "Color-coded deadline indicators" },
-    { icon: RefreshCw, title: "Recurring Tasks", description: "Auto-regenerating scheduled tasks" },
-    { icon: FolderOpen, title: "Folder System", description: "Color-coded organizational folders" },
-    { icon: Bell, title: "Smart Notifications", description: "Never miss important deadlines" },
-    { icon: LineChart, title: "Analytics Dashboard", description: "Insights into your productivity" },
+  const showcaseItems = [
+    { title: "Notes & Tasks", subtitle: "Subtasks, deadlines, folders", image: notesPreview, icon: ListTodo },
+    { title: "Meetings", subtitle: "Calendar sync, action items", image: meetingsPreview, icon: Users },
+    { title: "Planning", subtitle: "Semester roadmaps", image: planningPreview, icon: Calendar },
+    { title: "Analytics", subtitle: "Productivity insights", image: analyticsPreview, icon: BarChart },
+    { title: "Supplies", subtitle: "Inventory management", image: suppliesPreview, icon: Package },
+    { title: "Funding", subtitle: "Grant tracking", image: fundingPreview, icon: Wallet },
   ];
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden" style={{ background: 'linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 50%, #F0FDF4 100%)' }}>
       {/* Navigation */}
       <motion.nav 
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-        className="border-b bg-background/80 backdrop-blur-xl sticky top-0 z-50"
+        initial={{ y: -100, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="sticky top-0 z-50 backdrop-blur-xl border-b"
+        style={{ 
+          background: 'rgba(255, 255, 255, 0.9)',
+          borderColor: 'rgba(27, 67, 50, 0.1)'
+        }}
       >
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
-            <div className="relative group">
-              <div className="absolute inset-0 bg-gradient-to-r from-teal-500 to-emerald-500 rounded-xl blur-md opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative bg-gradient-to-r from-teal-500 to-emerald-600 p-2.5 rounded-xl shadow-lg">
+            <motion.div 
+              whileHover={{ scale: 1.05, rotate: 5 }}
+              className="relative"
+            >
+              <div className="p-2.5 rounded-xl shadow-lg" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
                 <GraduationCap className="h-6 w-6 text-white" />
               </div>
-            </div>
-            <span className="text-2xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
+            </motion.div>
+            <span className="text-2xl font-bold" style={{ color: '#1B4332' }}>
               SmartProf
             </span>
           </div>
-          <div className="flex items-center gap-2 md:gap-4">
-            <Button variant="ghost" asChild className="hidden md:inline-flex hover:bg-teal-500/10 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors">
-              <a href="#features">Features</a>
-            </Button>
-            <Button variant="ghost" asChild className="hidden md:inline-flex hover:bg-teal-500/10 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors">
-              <a href="#showcase">Showcase</a>
-            </Button>
-            <Button variant="ghost" asChild className="hidden md:inline-flex hover:bg-teal-500/10 hover:text-teal-700 dark:hover:text-teal-300 font-medium transition-colors">
-              <a href="#testimonials">Reviews</a>
-            </Button>
-            <Button asChild size="lg" className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 shadow-lg hover:shadow-teal-500/25 hover:shadow-xl transition-all duration-300 text-white font-semibold">
-              <Link to="/auth">
-                Get Started
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+          <div className="flex items-center gap-2 md:gap-6">
+            <a href="#features" className="hidden md:block text-sm font-medium transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Features</a>
+            <a href="#showcase" className="hidden md:block text-sm font-medium transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Showcase</a>
+            <a href="#testimonials" className="hidden md:block text-sm font-medium transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Reviews</a>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 text-white font-semibold" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
+                <Link to="/auth">
+                  Get Started
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </motion.div>
           </div>
         </div>
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden py-20 md:py-32">
-        {/* Animated background elements */}
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-500/5 via-background to-emerald-500/5"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-teal-500/10 via-transparent to-transparent"></div>
-        <motion.div 
-          animate={{ 
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3]
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 left-10 w-72 h-72 bg-teal-500/20 rounded-full blur-3xl"
-        />
-        <motion.div 
-          animate={{ 
-            scale: [1.2, 1, 1.2],
-            opacity: [0.2, 0.4, 0.2]
-          }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl"
-        />
+      <section className="relative py-24 md:py-36 overflow-hidden">
+        {/* Background decorations */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div 
+            animate={{ 
+              y: [0, -20, 0],
+              opacity: [0.3, 0.5, 0.3]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl"
+            style={{ background: 'radial-gradient(circle, rgba(82, 183, 136, 0.2) 0%, transparent 70%)' }}
+          />
+          <motion.div 
+            animate={{ 
+              y: [0, 20, 0],
+              opacity: [0.2, 0.4, 0.2]
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full blur-3xl"
+            style={{ background: 'radial-gradient(circle, rgba(27, 67, 50, 0.15) 0%, transparent 70%)' }}
+          />
+        </div>
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             initial="hidden"
             animate="visible"
@@ -246,63 +238,101 @@ const LandingPreview = () => {
             className="text-center max-w-4xl mx-auto"
           >
             <motion.div variants={fadeInUp}>
-              <Badge className="mb-6 bg-gradient-to-r from-teal-500/10 to-emerald-500/10 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800 px-4 py-1.5 backdrop-blur-sm">
-                <Sparkles className="h-3.5 w-3.5 mr-1.5" />
-                Now with Subtasks, Recurring Tasks & Folders
+              <Badge 
+                className="mb-8 px-5 py-2 text-sm font-medium border-0"
+                style={{ 
+                  background: 'rgba(27, 67, 50, 0.08)',
+                  color: '#1B4332'
+                }}
+              >
+                <Sparkles className="h-4 w-4 mr-2" style={{ color: '#40916C' }} />
+                Trusted by 10,000+ Academics Worldwide
               </Badge>
             </motion.div>
             
             <motion.h1 
               variants={fadeInUp}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.1] tracking-tight"
             >
-              <span className="bg-gradient-to-r from-teal-600 via-emerald-600 to-green-600 bg-clip-text text-transparent">
-                Teaching Smarter.
+              <span style={{ color: '#1B4332' }}>Academic</span>
+              <br />
+              <span className="relative">
+                <span style={{ 
+                  background: 'linear-gradient(135deg, #2D6A4F 0%, #40916C 50%, #52B788 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text'
+                }}>
+                  Excellence
+                </span>
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: '100%' }}
+                  transition={{ delay: 0.8, duration: 0.8, ease: easeOut }}
+                  className="absolute -bottom-2 left-0 h-1 rounded-full"
+                  style={{ background: 'linear-gradient(90deg, #40916C, #74C69D)' }}
+                />
               </span>
               <br />
-              <span className="text-foreground">Managing Better.</span>
+              <span style={{ color: '#081C15' }}>Simplified.</span>
             </motion.h1>
             
             <motion.p 
               variants={fadeInUp}
-              className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed"
+              className="text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed"
+              style={{ color: '#2D6A4F' }}
             >
-              The all-in-one academic workspace designed for professors, researchers, and educators. 
-              Organize tasks, track grants, manage supplies, and boost your productivity.
+              The all-in-one workspace for professors, researchers, and educators. 
+              Organize tasks, track grants, manage supplies, and boost productivity.
             </motion.p>
             
             <motion.div 
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-12"
+              className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
             >
-              <Button asChild size="lg" className="group bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 shadow-xl hover:shadow-2xl hover:shadow-teal-500/20 transition-all duration-300 text-white h-14 px-8 text-lg font-semibold">
-                <Link to="/auth">
-                  Start Free Today
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="h-14 px-8 text-lg font-semibold border-2 border-teal-200 dark:border-teal-800 hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:border-teal-300 transition-all duration-300">
-                <a href="#showcase">
-                  <Play className="mr-2 h-5 w-5" />
-                  See It In Action
-                </a>
-              </Button>
+              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
+                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 text-white" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
+                  <Link to="/auth">
+                    Start Free Today
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Link>
+                </Button>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
+                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold transition-all duration-300" style={{ borderColor: '#2D6A4F', color: '#1B4332', borderWidth: '2px' }}>
+                  <a href="#showcase">
+                    <Play className="mr-2 h-5 w-5" />
+                    Watch Demo
+                  </a>
+                </Button>
+              </motion.div>
             </motion.div>
 
-            {/* Key Features Pills */}
+            {/* Feature pills */}
             <motion.div 
               variants={staggerContainer}
               className="flex flex-wrap justify-center gap-3"
             >
-              {keyFeatures.map((feature, index) => (
+              {[
+                { icon: CheckCircle2, label: "Subtasks" },
+                { icon: Clock, label: "Smart Deadlines" },
+                { icon: RefreshCw, label: "Recurring Tasks" },
+                { icon: FolderOpen, label: "Folders" },
+                { icon: Bell, label: "Notifications" },
+                { icon: LineChart, label: "Analytics" },
+              ].map((item, index) => (
                 <motion.div 
                   key={index}
                   variants={scaleIn}
-                  whileHover={{ y: -4, scale: 1.02 }}
-                  className="flex items-center gap-2 bg-background/80 backdrop-blur-sm border border-teal-100 dark:border-teal-900/50 rounded-full px-4 py-2 shadow-sm hover:shadow-lg hover:shadow-teal-500/10 transition-all duration-300"
+                  whileHover={{ y: -3, scale: 1.02 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full shadow-sm transition-all duration-300"
+                  style={{ 
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    border: '1px solid rgba(27, 67, 50, 0.1)'
+                  }}
                 >
-                  <feature.icon className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                  <span className="text-sm font-medium">{feature.title}</span>
+                  <item.icon className="h-4 w-4" style={{ color: '#40916C' }} />
+                  <span className="text-sm font-medium" style={{ color: '#1B4332' }}>{item.label}</span>
                 </motion.div>
               ))}
             </motion.div>
@@ -311,8 +341,8 @@ const LandingPreview = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 border-y bg-gradient-to-r from-teal-50/50 via-background to-emerald-50/50 dark:from-teal-950/20 dark:via-background dark:to-emerald-950/20">
-        <div className="container mx-auto px-4">
+      <section className="py-20" style={{ background: 'linear-gradient(180deg, #1B4332 0%, #081C15 100%)' }}>
+        <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
@@ -325,13 +355,17 @@ const LandingPreview = () => {
                 key={index} 
                 variants={scaleIn}
                 whileHover={{ scale: 1.05 }}
-                className="text-center group"
+                className="text-center"
               >
-                <div className="inline-flex p-4 rounded-2xl bg-gradient-to-br from-teal-500 to-emerald-600 mb-4 shadow-lg group-hover:shadow-xl group-hover:shadow-teal-500/20 transition-all duration-300">
-                  <stat.icon className="h-7 w-7 text-white" />
-                </div>
-                <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-teal-700 to-emerald-700 dark:from-teal-400 dark:to-emerald-400 bg-clip-text text-transparent">{stat.value}</h3>
-                <p className="text-muted-foreground font-medium">{stat.label}</p>
+                <motion.div 
+                  whileHover={{ rotate: [0, -5, 5, 0] }}
+                  className="inline-flex p-4 rounded-2xl mb-4"
+                  style={{ background: 'rgba(82, 183, 136, 0.2)' }}
+                >
+                  <stat.icon className="h-7 w-7" style={{ color: '#74C69D' }} />
+                </motion.div>
+                <h3 className="text-4xl md:text-5xl font-bold mb-1" style={{ color: '#D8F3DC' }}>{stat.value}</h3>
+                <p className="font-medium" style={{ color: '#74C69D' }}>{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -339,23 +373,23 @@ const LandingPreview = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24">
-        <div className="container mx-auto px-4">
+      <section id="features" className="py-28">
+        <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={fadeInUp}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <Badge className="mb-4 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
-              <LayoutDashboard className="h-3.5 w-3.5 mr-1.5" />
+            <Badge className="mb-6 px-4 py-1.5 border-0" style={{ background: 'rgba(27, 67, 50, 0.08)', color: '#1B4332' }}>
+              <Layers className="h-3.5 w-3.5 mr-1.5" style={{ color: '#40916C' }} />
               Powerful Features
             </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Everything You Need to <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">Excel</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#1B4332' }}>
+              Everything You Need
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#2D6A4F' }}>
               Comprehensive tools designed specifically for academic professionals
             </p>
           </motion.div>
@@ -371,43 +405,40 @@ const LandingPreview = () => {
               <motion.div
                 key={index}
                 variants={fadeInUp}
-                whileHover={{ y: -8, scale: 1.02 }}
+                whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card 
-                  className={`group relative overflow-hidden border-0 shadow-lg hover:shadow-2xl hover:shadow-teal-500/10 transition-all duration-500 bg-gradient-to-br ${feature.bgGradient} h-full`}
-                >
-                  <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${feature.gradient}`}></div>
+                <Card className="group relative overflow-hidden h-full border-0 shadow-lg hover:shadow-xl transition-all duration-500" style={{ background: 'rgba(255, 255, 255, 0.9)' }}>
+                  <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #1B4332, #40916C)' }} />
                   
-                  {/* Shimmer effect on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full"></div>
-                  
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between mb-3">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
                       <motion.div 
                         whileHover={{ rotate: [0, -10, 10, 0] }}
-                        transition={{ duration: 0.5 }}
-                        className={`p-3 rounded-xl bg-gradient-to-br ${feature.gradient} shadow-lg`}
+                        className="p-3 rounded-xl"
+                        style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}
                       >
                         <feature.icon className="h-6 w-6 text-white" />
                       </motion.div>
                       {feature.badge && (
-                        <Badge className={`text-xs font-semibold ${feature.badge === 'New' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 border-emerald-200' : 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-300 border-teal-200'}`}>
+                        <Badge className="text-xs font-semibold border-0" style={{ background: feature.badge === 'New' ? 'rgba(82, 183, 136, 0.15)' : 'rgba(27, 67, 50, 0.1)', color: feature.badge === 'New' ? '#2D6A4F' : '#1B4332' }}>
                           {feature.badge}
                         </Badge>
                       )}
                     </div>
-                    <CardTitle className="text-xl font-bold">{feature.title}</CardTitle>
-                  </CardHeader>
-                  
-                  <CardContent className="space-y-4">
-                    <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                    
+                    <h3 className="text-xl font-bold mb-2" style={{ color: '#1B4332' }}>{feature.title}</h3>
+                    <p className="mb-4 leading-relaxed" style={{ color: '#2D6A4F' }}>{feature.description}</p>
                     
                     <div className="flex flex-wrap gap-2">
                       {feature.highlights.map((highlight, hIndex) => (
                         <span 
                           key={hIndex}
-                          className="text-xs font-medium bg-background/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-teal-100 dark:border-teal-900/50 shadow-sm"
+                          className="text-xs font-medium px-3 py-1.5 rounded-full"
+                          style={{ 
+                            background: 'rgba(27, 67, 50, 0.06)',
+                            color: '#2D6A4F'
+                          }}
                         >
                           {highlight}
                         </span>
@@ -422,24 +453,24 @@ const LandingPreview = () => {
       </section>
 
       {/* Showcase Section */}
-      <section id="showcase" className="py-24 bg-gradient-to-br from-teal-50/30 via-background to-emerald-50/30 dark:from-teal-950/10 dark:via-background dark:to-emerald-950/10">
-        <div className="container mx-auto px-4">
+      <section id="showcase" className="py-28" style={{ background: 'linear-gradient(180deg, #F0FDF4 0%, #D8F3DC 50%, #F0FDF4 100%)' }}>
+        <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={fadeInUp}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <Badge className="mb-4 bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 border-teal-200 dark:border-teal-800">
-              <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+            <Badge className="mb-6 px-4 py-1.5 border-0" style={{ background: 'rgba(27, 67, 50, 0.1)', color: '#1B4332' }}>
+              <Target className="h-3.5 w-3.5 mr-1.5" style={{ color: '#40916C' }} />
               Platform Showcase
             </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              See <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">SmartProf</span> in Action
+            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#1B4332' }}>
+              See It In Action
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Explore the powerful features that make academic management effortless
+            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#2D6A4F' }}>
+              Explore the features that make academic management effortless
             </p>
           </motion.div>
 
@@ -448,188 +479,64 @@ const LandingPreview = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={staggerContainer}
-            className="grid md:grid-cols-2 gap-8 mb-8"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
           >
-            {/* Notes & Tasks Preview */}
-            <motion.div variants={fadeInLeft} whileHover={{ scale: 1.02 }} className="group">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background hover:shadow-teal-500/10 transition-shadow duration-500">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-emerald-600"></div>
-                <div className="p-4 border-b bg-gradient-to-r from-teal-50/50 to-emerald-50/50 dark:from-teal-950/20 dark:to-emerald-950/20">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-teal-500 to-emerald-600 shadow-md">
-                      <ListTodo className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Notes & Task Management</h3>
-                      <p className="text-xs text-muted-foreground">Subtasks, deadlines, and organization</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="overflow-hidden">
-                  <img 
-                    src={notesPreview} 
-                    alt="Notes and Task Management Dashboard" 
-                    className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Meetings Preview */}
-            <motion.div variants={fadeInRight} whileHover={{ scale: 1.02 }} className="group">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background hover:shadow-teal-500/10 transition-shadow duration-500">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-cyan-500 to-teal-600"></div>
-                <div className="p-4 border-b bg-gradient-to-r from-cyan-50/50 to-teal-50/50 dark:from-cyan-950/20 dark:to-teal-950/20">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-600 shadow-md">
-                      <Users className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Meeting Scheduler</h3>
-                      <p className="text-xs text-muted-foreground">Calendar sync and action items</p>
+            {showcaseItems.map((item, index) => (
+              <motion.div
+                key={index}
+                variants={index % 2 === 0 ? fadeInLeft : fadeInRight}
+                whileHover={{ y: -6, scale: 1.01 }}
+                className="group"
+              >
+                <div 
+                  className="rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500"
+                  style={{ background: 'white' }}
+                >
+                  <div className="h-1" style={{ background: 'linear-gradient(90deg, #1B4332, #52B788)' }} />
+                  <div className="p-4" style={{ background: 'rgba(27, 67, 50, 0.03)' }}>
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
+                        <item.icon className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold" style={{ color: '#1B4332' }}>{item.title}</h3>
+                        <p className="text-xs" style={{ color: '#40916C' }}>{item.subtitle}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="overflow-hidden">
-                  <img 
-                    src={meetingsPreview} 
-                    alt="Meeting Scheduling Dashboard" 
-                    className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Planning Preview */}
-            <motion.div variants={fadeInLeft} whileHover={{ scale: 1.02 }} className="group">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background hover:shadow-teal-500/10 transition-shadow duration-500">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-green-600"></div>
-                <div className="p-4 border-b bg-gradient-to-r from-emerald-50/50 to-green-50/50 dark:from-emerald-950/20 dark:to-green-950/20">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-green-600 shadow-md">
-                      <Calendar className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Academic Planning</h3>
-                      <p className="text-xs text-muted-foreground">Semester planning and roadmaps</p>
-                    </div>
+                  <div className="overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
+                    />
                   </div>
                 </div>
-                <div className="overflow-hidden">
-                  <img 
-                    src={planningPreview} 
-                    alt="Academic Planning Dashboard" 
-                    className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Analytics Preview */}
-            <motion.div variants={fadeInRight} whileHover={{ scale: 1.02 }} className="group">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background hover:shadow-teal-500/10 transition-shadow duration-500">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-teal-500 to-cyan-500"></div>
-                <div className="p-4 border-b bg-gradient-to-r from-teal-50/50 to-cyan-50/50 dark:from-teal-950/20 dark:to-cyan-950/20">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-500 shadow-md">
-                      <BarChart className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Analytics Dashboard</h3>
-                      <p className="text-xs text-muted-foreground">Productivity insights and reports</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="overflow-hidden">
-                  <img 
-                    src={analyticsPreview} 
-                    alt="Analytics Dashboard" 
-                    className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-
-          <motion.div 
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
-            variants={staggerContainer}
-            className="grid md:grid-cols-2 gap-8"
-          >
-            {/* Supplies Preview */}
-            <motion.div variants={fadeInLeft} whileHover={{ scale: 1.02 }} className="group">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background hover:shadow-teal-500/10 transition-shadow duration-500">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500 to-emerald-600"></div>
-                <div className="p-4 border-b bg-gradient-to-r from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 shadow-md">
-                      <Package className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Inventory Management</h3>
-                      <p className="text-xs text-muted-foreground">Stock alerts and shopping lists</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="overflow-hidden">
-                  <img 
-                    src={suppliesPreview} 
-                    alt="Inventory Management Dashboard" 
-                    className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Funding Preview */}
-            <motion.div variants={fadeInRight} whileHover={{ scale: 1.02 }} className="group">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border bg-background hover:shadow-teal-500/10 transition-shadow duration-500">
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-                <div className="p-4 border-b bg-gradient-to-r from-emerald-50/50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-950/20">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500 shadow-md">
-                      <Wallet className="h-4 w-4 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Grant & Funding Tracker</h3>
-                      <p className="text-xs text-muted-foreground">Budget tracking and expenditures</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="overflow-hidden">
-                  <img 
-                    src={fundingPreview} 
-                    alt="Grant Funding Management Dashboard" 
-                    className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
-                  />
-                </div>
-              </div>
-            </motion.div>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-24">
-        <div className="container mx-auto px-4">
+      <section id="testimonials" className="py-28">
+        <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={fadeInUp}
-            className="text-center mb-16"
+            className="text-center mb-20"
           >
-            <Badge className="mb-4 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
-              <Star className="h-3.5 w-3.5 mr-1.5" />
+            <Badge className="mb-6 px-4 py-1.5 border-0" style={{ background: 'rgba(27, 67, 50, 0.08)', color: '#1B4332' }}>
+              <Award className="h-3.5 w-3.5 mr-1.5" style={{ color: '#40916C' }} />
               Testimonials
             </Badge>
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">
-              Trusted by <span className="bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">Academics</span> Worldwide
+            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#1B4332' }}>
+              Loved by Academics
             </h2>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              See what professors and researchers are saying about SmartProf
+            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#2D6A4F' }}>
+              See what professors and researchers are saying
             </p>
           </motion.div>
 
@@ -644,19 +551,17 @@ const LandingPreview = () => {
               <motion.div
                 key={index}
                 variants={fadeInUp}
-                whileHover={{ y: -8 }}
-                transition={{ duration: 0.3 }}
+                whileHover={{ y: -6 }}
               >
-                <Card className="relative overflow-hidden border shadow-lg hover:shadow-xl hover:shadow-teal-500/5 transition-all duration-300 h-full bg-gradient-to-br from-background to-teal-50/30 dark:to-teal-950/10">
-                  <CardContent className="pt-8">
-                    {/* Rating Stars */}
-                    <div className="flex gap-1 mb-4">
+                <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ background: 'white' }}>
+                  <CardContent className="p-8">
+                    <div className="flex gap-1 mb-6">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-5 w-5 fill-emerald-400 text-emerald-400" />
+                        <Star key={i} className="h-5 w-5 fill-current" style={{ color: '#40916C' }} />
                       ))}
                     </div>
                     
-                    <p className="text-muted-foreground mb-6 leading-relaxed italic">
+                    <p className="mb-8 leading-relaxed text-lg italic" style={{ color: '#2D6A4F' }}>
                       "{testimonial.content}"
                     </p>
                     
@@ -664,12 +569,13 @@ const LandingPreview = () => {
                       <img 
                         src={testimonial.avatar} 
                         alt={testimonial.name}
-                        className="w-12 h-12 rounded-full object-cover ring-2 ring-teal-500/20"
+                        className="w-14 h-14 rounded-full object-cover"
+                        style={{ border: '3px solid rgba(27, 67, 50, 0.1)' }}
                       />
                       <div>
-                        <p className="font-semibold">{testimonial.name}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                        <p className="text-xs text-teal-600 dark:text-teal-400">{testimonial.institution}</p>
+                        <p className="font-semibold" style={{ color: '#1B4332' }}>{testimonial.name}</p>
+                        <p className="text-sm" style={{ color: '#40916C' }}>{testimonial.role}</p>
+                        <p className="text-sm" style={{ color: '#2D6A4F' }}>{testimonial.institution}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -681,28 +587,28 @@ const LandingPreview = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-600 via-emerald-600 to-green-700"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/10 via-transparent to-transparent"></div>
-        
-        {/* Animated particles */}
+      <section className="py-28 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #081C15 100%)' }}>
+        {/* Decorative elements */}
         <motion.div 
-          animate={{ y: [-20, 20, -20] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 left-20 w-4 h-4 bg-white/20 rounded-full blur-sm"
-        />
-        <motion.div 
-          animate={{ y: [20, -20, 20] }}
+          animate={{ y: [-15, 15, -15], x: [-10, 10, -10] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-40 right-32 w-6 h-6 bg-white/15 rounded-full blur-sm"
+          className="absolute top-20 left-20 w-4 h-4 rounded-full"
+          style={{ background: 'rgba(116, 198, 157, 0.3)' }}
         />
         <motion.div 
-          animate={{ y: [-15, 15, -15] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-40 right-20 w-3 h-3 bg-white/25 rounded-full blur-sm"
+          animate={{ y: [15, -15, 15], x: [10, -10, 10] }}
+          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute bottom-32 right-32 w-6 h-6 rounded-full"
+          style={{ background: 'rgba(82, 183, 136, 0.2)' }}
+        />
+        <motion.div 
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-10"
+          style={{ background: 'radial-gradient(circle, #52B788 0%, transparent 70%)' }}
         />
         
-        <div className="container mx-auto px-4 relative z-10">
+        <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             initial="hidden"
             whileInView="visible"
@@ -710,30 +616,30 @@ const LandingPreview = () => {
             variants={fadeInUp}
             className="text-center max-w-3xl mx-auto"
           >
-            <Badge className="mb-6 bg-white/20 text-white border-white/30 backdrop-blur-sm">
+            <Badge className="mb-8 px-4 py-1.5 border-0" style={{ background: 'rgba(116, 198, 157, 0.2)', color: '#D8F3DC' }}>
               <Zap className="h-3.5 w-3.5 mr-1.5" />
               Start Your Journey
             </Badge>
             
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">
-              Ready to Transform Your Academic Workflow?
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8" style={{ color: '#D8F3DC' }}>
+              Ready to Transform Your Workflow?
             </h2>
             
-            <p className="text-xl text-white/80 mb-10">
-              Join thousands of academics who are already using SmartProf to boost their productivity and organize their professional lives.
+            <p className="text-xl mb-12" style={{ color: '#74C69D' }}>
+              Join thousands of academics already using SmartProf to boost their productivity.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" className="bg-white text-teal-700 hover:bg-white/90 shadow-xl hover:shadow-2xl h-14 px-8 text-lg font-semibold">
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl" style={{ background: '#D8F3DC', color: '#1B4332' }}>
                   <Link to="/auth">
                     Get Started Free
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" variant="outline" className="border-2 border-white/30 text-white hover:bg-white/10 h-14 px-8 text-lg font-semibold bg-transparent backdrop-blur-sm">
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
+                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold" style={{ borderColor: 'rgba(116, 198, 157, 0.4)', color: '#D8F3DC', background: 'transparent' }}>
                   <a href="#features">
                     Learn More
                     <ChevronRight className="ml-1 h-5 w-5" />
@@ -746,26 +652,24 @@ const LandingPreview = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t bg-gradient-to-r from-teal-50/30 via-background to-emerald-50/30 dark:from-teal-950/10 dark:via-background dark:to-emerald-950/10">
-        <div className="container mx-auto px-4">
+      <footer className="py-12 border-t" style={{ background: '#F0FDF4', borderColor: 'rgba(27, 67, 50, 0.1)' }}>
+        <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-teal-500 to-emerald-600 p-2 rounded-xl shadow-md">
+              <div className="p-2 rounded-xl shadow-sm" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
                 <GraduationCap className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                SmartProf
-              </span>
+              <span className="text-xl font-bold" style={{ color: '#1B4332' }}>SmartProf</span>
             </div>
             
-            <p className="text-muted-foreground text-sm">
+            <p className="text-sm" style={{ color: '#40916C' }}>
               © {new Date().getFullYear()} SmartProf. Empowering academics worldwide.
             </p>
             
             <div className="flex gap-6">
-              <a href="#" className="text-sm text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Privacy</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Terms</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-teal-600 dark:hover:text-teal-400 transition-colors">Contact</a>
+              <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Privacy</a>
+              <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Terms</a>
+              <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Contact</a>
             </div>
           </div>
         </div>
