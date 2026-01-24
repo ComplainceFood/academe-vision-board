@@ -70,10 +70,6 @@ const scaleIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: easeOut } }
 };
 
-// Pine Green color palette (using CSS custom properties approach)
-// Primary: #1B4332 (Pine Green), #2D6A4F, #40916C, #52B788, #74C69D
-// Accent: #081C15 (Deep Forest), #D8F3DC (Mint Cream)
-
 const LandingPreview = () => {
   const features = [
     {
@@ -164,17 +160,13 @@ const LandingPreview = () => {
   ];
 
   return (
-    <div className="min-h-screen overflow-x-hidden" style={{ background: 'linear-gradient(180deg, #F0FDF4 0%, #FFFFFF 50%, #F0FDF4 100%)' }}>
+    <div className="min-h-screen overflow-x-hidden bg-background">
       {/* Navigation */}
       <motion.nav 
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="sticky top-0 z-50 backdrop-blur-xl border-b"
-        style={{ 
-          background: 'rgba(255, 255, 255, 0.9)',
-          borderColor: 'rgba(27, 67, 50, 0.1)'
-        }}
+        className="sticky top-0 z-50 backdrop-blur-xl border-b border-border bg-background/90"
       >
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
@@ -182,20 +174,20 @@ const LandingPreview = () => {
               whileHover={{ scale: 1.05, rotate: 5 }}
               className="relative"
             >
-              <div className="p-2.5 rounded-xl shadow-lg" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
-                <GraduationCap className="h-6 w-6 text-white" />
+              <div className="p-2.5 rounded-xl shadow-lg bg-primary">
+                <GraduationCap className="h-6 w-6 text-primary-foreground" />
               </div>
             </motion.div>
-            <span className="text-2xl font-bold" style={{ color: '#1B4332' }}>
+            <span className="text-2xl font-bold text-primary">
               SmartProf
             </span>
           </div>
           <div className="flex items-center gap-2 md:gap-6">
-            <a href="#features" className="hidden md:block text-sm font-medium transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Features</a>
-            <a href="#showcase" className="hidden md:block text-sm font-medium transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Showcase</a>
-            <a href="#testimonials" className="hidden md:block text-sm font-medium transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Reviews</a>
+            <a href="#features" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Features</a>
+            <a href="#showcase" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Showcase</a>
+            <a href="#testimonials" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Reviews</a>
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 text-white font-semibold" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
+              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300">
                 <Link to="/auth">
                   Get Started
                   <ArrowRight className="ml-2 h-4 w-4" />
@@ -216,8 +208,7 @@ const LandingPreview = () => {
               opacity: [0.3, 0.5, 0.3]
             }}
             transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl"
-            style={{ background: 'radial-gradient(circle, rgba(82, 183, 136, 0.2) 0%, transparent 70%)' }}
+            className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl bg-primary/20"
           />
           <motion.div 
             animate={{ 
@@ -225,8 +216,7 @@ const LandingPreview = () => {
               opacity: [0.2, 0.4, 0.2]
             }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full blur-3xl"
-            style={{ background: 'radial-gradient(circle, rgba(27, 67, 50, 0.15) 0%, transparent 70%)' }}
+            className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full blur-3xl bg-secondary/15"
           />
         </div>
         
@@ -238,14 +228,8 @@ const LandingPreview = () => {
             className="text-center max-w-4xl mx-auto"
           >
             <motion.div variants={fadeInUp}>
-              <Badge 
-                className="mb-8 px-5 py-2 text-sm font-medium border-0"
-                style={{ 
-                  background: 'rgba(27, 67, 50, 0.08)',
-                  color: '#1B4332'
-                }}
-              >
-                <Sparkles className="h-4 w-4 mr-2" style={{ color: '#40916C' }} />
+              <Badge className="mb-8 px-5 py-2 text-sm font-medium border-0 bg-primary/10 text-primary">
+                <Sparkles className="h-4 w-4 mr-2 text-secondary" />
                 Trusted by 10,000+ Academics Worldwide
               </Badge>
             </motion.div>
@@ -254,33 +238,26 @@ const LandingPreview = () => {
               variants={fadeInUp}
               className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.1] tracking-tight"
             >
-              <span style={{ color: '#1B4332' }}>Academic</span>
+              <span className="text-foreground">Academic</span>
               <br />
               <span className="relative">
-                <span style={{ 
-                  background: 'linear-gradient(135deg, #2D6A4F 0%, #40916C 50%, #52B788 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text'
-                }}>
+                <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
                   Excellence
                 </span>
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: '100%' }}
                   transition={{ delay: 0.8, duration: 0.8, ease: easeOut }}
-                  className="absolute -bottom-2 left-0 h-1 rounded-full"
-                  style={{ background: 'linear-gradient(90deg, #40916C, #74C69D)' }}
+                  className="absolute -bottom-2 left-0 h-1 rounded-full bg-gradient-to-r from-primary to-secondary"
                 />
               </span>
               <br />
-              <span style={{ color: '#081C15' }}>Simplified.</span>
+              <span className="text-foreground">Simplified.</span>
             </motion.h1>
             
             <motion.p 
               variants={fadeInUp}
-              className="text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed"
-              style={{ color: '#2D6A4F' }}
+              className="text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed text-muted-foreground"
             >
               The all-in-one workspace for professors, researchers, and educators. 
               Organize tasks, track grants, manage supplies, and boost productivity.
@@ -291,7 +268,7 @@ const LandingPreview = () => {
               className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
             >
               <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 text-white" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
+                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300">
                   <Link to="/auth">
                     Start Free Today
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -299,7 +276,7 @@ const LandingPreview = () => {
                 </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold transition-all duration-300" style={{ borderColor: '#2D6A4F', color: '#1B4332', borderWidth: '2px' }}>
+                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300">
                   <a href="#showcase">
                     <Play className="mr-2 h-5 w-5" />
                     Watch Demo
@@ -325,14 +302,10 @@ const LandingPreview = () => {
                   key={index}
                   variants={scaleIn}
                   whileHover={{ y: -3, scale: 1.02 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-full shadow-sm transition-all duration-300"
-                  style={{ 
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    border: '1px solid rgba(27, 67, 50, 0.1)'
-                  }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full shadow-sm transition-all duration-300 bg-card border border-border"
                 >
-                  <item.icon className="h-4 w-4" style={{ color: '#40916C' }} />
-                  <span className="text-sm font-medium" style={{ color: '#1B4332' }}>{item.label}</span>
+                  <item.icon className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">{item.label}</span>
                 </motion.div>
               ))}
             </motion.div>
@@ -341,7 +314,7 @@ const LandingPreview = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20" style={{ background: 'linear-gradient(180deg, #1B4332 0%, #081C15 100%)' }}>
+      <section className="py-20 bg-primary">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -359,13 +332,12 @@ const LandingPreview = () => {
               >
                 <motion.div 
                   whileHover={{ rotate: [0, -5, 5, 0] }}
-                  className="inline-flex p-4 rounded-2xl mb-4"
-                  style={{ background: 'rgba(82, 183, 136, 0.2)' }}
+                  className="inline-flex p-4 rounded-2xl mb-4 bg-primary-foreground/20"
                 >
-                  <stat.icon className="h-7 w-7" style={{ color: '#74C69D' }} />
+                  <stat.icon className="h-7 w-7 text-primary-foreground" />
                 </motion.div>
-                <h3 className="text-4xl md:text-5xl font-bold mb-1" style={{ color: '#D8F3DC' }}>{stat.value}</h3>
-                <p className="font-medium" style={{ color: '#74C69D' }}>{stat.label}</p>
+                <h3 className="text-4xl md:text-5xl font-bold mb-1 text-primary-foreground">{stat.value}</h3>
+                <p className="font-medium text-primary-foreground/80">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -373,7 +345,7 @@ const LandingPreview = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-28">
+      <section id="features" className="py-28 bg-background">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -382,14 +354,14 @@ const LandingPreview = () => {
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <Badge className="mb-6 px-4 py-1.5 border-0" style={{ background: 'rgba(27, 67, 50, 0.08)', color: '#1B4332' }}>
-              <Layers className="h-3.5 w-3.5 mr-1.5" style={{ color: '#40916C' }} />
+            <Badge className="mb-6 px-4 py-1.5 border-0 bg-primary/10 text-primary">
+              <Layers className="h-3.5 w-3.5 mr-1.5 text-secondary" />
               Powerful Features
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#1B4332' }}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
               Everything You Need
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#2D6A4F' }}>
+            <p className="text-xl max-w-2xl mx-auto text-muted-foreground">
               Comprehensive tools designed specifically for academic professionals
             </p>
           </motion.div>
@@ -408,37 +380,32 @@ const LandingPreview = () => {
                 whileHover={{ y: -8 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="group relative overflow-hidden h-full border-0 shadow-lg hover:shadow-xl transition-all duration-500" style={{ background: 'rgba(255, 255, 255, 0.9)' }}>
-                  <div className="absolute top-0 left-0 right-0 h-1" style={{ background: 'linear-gradient(90deg, #1B4332, #40916C)' }} />
+                <Card className="group relative overflow-hidden h-full border shadow-lg hover:shadow-xl transition-all duration-500 bg-card">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary" />
                   
                   <CardContent className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <motion.div 
                         whileHover={{ rotate: [0, -10, 10, 0] }}
-                        className="p-3 rounded-xl"
-                        style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}
+                        className="p-3 rounded-xl bg-primary"
                       >
-                        <feature.icon className="h-6 w-6 text-white" />
+                        <feature.icon className="h-6 w-6 text-primary-foreground" />
                       </motion.div>
                       {feature.badge && (
-                        <Badge className="text-xs font-semibold border-0" style={{ background: feature.badge === 'New' ? 'rgba(82, 183, 136, 0.15)' : 'rgba(27, 67, 50, 0.1)', color: feature.badge === 'New' ? '#2D6A4F' : '#1B4332' }}>
+                        <Badge className={`text-xs font-semibold border-0 ${feature.badge === 'New' ? 'bg-secondary/15 text-secondary' : 'bg-primary/10 text-primary'}`}>
                           {feature.badge}
                         </Badge>
                       )}
                     </div>
                     
-                    <h3 className="text-xl font-bold mb-2" style={{ color: '#1B4332' }}>{feature.title}</h3>
-                    <p className="mb-4 leading-relaxed" style={{ color: '#2D6A4F' }}>{feature.description}</p>
+                    <h3 className="text-xl font-bold mb-2 text-foreground">{feature.title}</h3>
+                    <p className="mb-4 leading-relaxed text-muted-foreground">{feature.description}</p>
                     
                     <div className="flex flex-wrap gap-2">
                       {feature.highlights.map((highlight, hIndex) => (
                         <span 
                           key={hIndex}
-                          className="text-xs font-medium px-3 py-1.5 rounded-full"
-                          style={{ 
-                            background: 'rgba(27, 67, 50, 0.06)',
-                            color: '#2D6A4F'
-                          }}
+                          className="text-xs font-medium px-3 py-1.5 rounded-full bg-muted text-muted-foreground"
                         >
                           {highlight}
                         </span>
@@ -453,7 +420,7 @@ const LandingPreview = () => {
       </section>
 
       {/* Showcase Section */}
-      <section id="showcase" className="py-28" style={{ background: 'linear-gradient(180deg, #F0FDF4 0%, #D8F3DC 50%, #F0FDF4 100%)' }}>
+      <section id="showcase" className="py-28 bg-muted">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -462,14 +429,14 @@ const LandingPreview = () => {
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <Badge className="mb-6 px-4 py-1.5 border-0" style={{ background: 'rgba(27, 67, 50, 0.1)', color: '#1B4332' }}>
-              <Target className="h-3.5 w-3.5 mr-1.5" style={{ color: '#40916C' }} />
+            <Badge className="mb-6 px-4 py-1.5 border-0 bg-primary/10 text-primary">
+              <Target className="h-3.5 w-3.5 mr-1.5 text-secondary" />
               Platform Showcase
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#1B4332' }}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
               See It In Action
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#2D6A4F' }}>
+            <p className="text-xl max-w-2xl mx-auto text-muted-foreground">
               Explore the features that make academic management effortless
             </p>
           </motion.div>
@@ -488,19 +455,16 @@ const LandingPreview = () => {
                 whileHover={{ y: -6, scale: 1.01 }}
                 className="group"
               >
-                <div 
-                  className="rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500"
-                  style={{ background: 'white' }}
-                >
-                  <div className="h-1" style={{ background: 'linear-gradient(90deg, #1B4332, #52B788)' }} />
-                  <div className="p-4" style={{ background: 'rgba(27, 67, 50, 0.03)' }}>
+                <div className="rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 bg-card">
+                  <div className="h-1 bg-gradient-to-r from-primary to-secondary" />
+                  <div className="p-4 bg-muted/50">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
-                        <item.icon className="h-4 w-4 text-white" />
+                      <div className="p-2 rounded-lg bg-primary">
+                        <item.icon className="h-4 w-4 text-primary-foreground" />
                       </div>
                       <div>
-                        <h3 className="font-semibold" style={{ color: '#1B4332' }}>{item.title}</h3>
-                        <p className="text-xs" style={{ color: '#40916C' }}>{item.subtitle}</p>
+                        <h3 className="font-semibold text-foreground">{item.title}</h3>
+                        <p className="text-xs text-muted-foreground">{item.subtitle}</p>
                       </div>
                     </div>
                   </div>
@@ -519,7 +483,7 @@ const LandingPreview = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-28">
+      <section id="testimonials" className="py-28 bg-background">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -528,14 +492,14 @@ const LandingPreview = () => {
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <Badge className="mb-6 px-4 py-1.5 border-0" style={{ background: 'rgba(27, 67, 50, 0.08)', color: '#1B4332' }}>
-              <Award className="h-3.5 w-3.5 mr-1.5" style={{ color: '#40916C' }} />
+            <Badge className="mb-6 px-4 py-1.5 border-0 bg-primary/10 text-primary">
+              <Award className="h-3.5 w-3.5 mr-1.5 text-secondary" />
               Testimonials
             </Badge>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: '#1B4332' }}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
               Loved by Academics
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: '#2D6A4F' }}>
+            <p className="text-xl max-w-2xl mx-auto text-muted-foreground">
               See what professors and researchers are saying
             </p>
           </motion.div>
@@ -553,15 +517,15 @@ const LandingPreview = () => {
                 variants={fadeInUp}
                 whileHover={{ y: -6 }}
               >
-                <Card className="h-full border-0 shadow-lg hover:shadow-xl transition-all duration-300" style={{ background: 'white' }}>
+                <Card className="h-full border shadow-lg hover:shadow-xl transition-all duration-300 bg-card">
                   <CardContent className="p-8">
                     <div className="flex gap-1 mb-6">
                       {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-5 w-5 fill-current" style={{ color: '#40916C' }} />
+                        <Star key={i} className="h-5 w-5 fill-current text-secondary" />
                       ))}
                     </div>
                     
-                    <p className="mb-8 leading-relaxed text-lg italic" style={{ color: '#2D6A4F' }}>
+                    <p className="mb-8 leading-relaxed text-lg italic text-muted-foreground">
                       "{testimonial.content}"
                     </p>
                     
@@ -569,13 +533,12 @@ const LandingPreview = () => {
                       <img 
                         src={testimonial.avatar} 
                         alt={testimonial.name}
-                        className="w-14 h-14 rounded-full object-cover"
-                        style={{ border: '3px solid rgba(27, 67, 50, 0.1)' }}
+                        className="w-14 h-14 rounded-full object-cover border-2 border-border"
                       />
                       <div>
-                        <p className="font-semibold" style={{ color: '#1B4332' }}>{testimonial.name}</p>
-                        <p className="text-sm" style={{ color: '#40916C' }}>{testimonial.role}</p>
-                        <p className="text-sm" style={{ color: '#2D6A4F' }}>{testimonial.institution}</p>
+                        <p className="font-semibold text-foreground">{testimonial.name}</p>
+                        <p className="text-sm text-primary">{testimonial.role}</p>
+                        <p className="text-sm text-muted-foreground">{testimonial.institution}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -587,25 +550,22 @@ const LandingPreview = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-28 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #081C15 100%)' }}>
+      <section className="py-28 relative overflow-hidden bg-primary">
         {/* Decorative elements */}
         <motion.div 
           animate={{ y: [-15, 15, -15], x: [-10, 10, -10] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 left-20 w-4 h-4 rounded-full"
-          style={{ background: 'rgba(116, 198, 157, 0.3)' }}
+          className="absolute top-20 left-20 w-4 h-4 rounded-full bg-primary-foreground/30"
         />
         <motion.div 
           animate={{ y: [15, -15, 15], x: [10, -10, 10] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-32 right-32 w-6 h-6 rounded-full"
-          style={{ background: 'rgba(82, 183, 136, 0.2)' }}
+          className="absolute bottom-32 right-32 w-6 h-6 rounded-full bg-primary-foreground/20"
         />
         <motion.div 
           animate={{ scale: [1, 1.2, 1] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-10"
-          style={{ background: 'radial-gradient(circle, #52B788 0%, transparent 70%)' }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-10 bg-secondary"
         />
         
         <div className="container mx-auto px-6 relative z-10">
@@ -616,22 +576,22 @@ const LandingPreview = () => {
             variants={fadeInUp}
             className="text-center max-w-3xl mx-auto"
           >
-            <Badge className="mb-8 px-4 py-1.5 border-0" style={{ background: 'rgba(116, 198, 157, 0.2)', color: '#D8F3DC' }}>
+            <Badge className="mb-8 px-4 py-1.5 border-0 bg-primary-foreground/20 text-primary-foreground">
               <Zap className="h-3.5 w-3.5 mr-1.5" />
               Start Your Journey
             </Badge>
             
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8" style={{ color: '#D8F3DC' }}>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-foreground">
               Ready to Transform Your Workflow?
             </h2>
             
-            <p className="text-xl mb-12" style={{ color: '#74C69D' }}>
+            <p className="text-xl mb-12 text-primary-foreground/80">
               Join thousands of academics already using SmartProf to boost their productivity.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl" style={{ background: '#D8F3DC', color: '#1B4332' }}>
+                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl bg-background text-primary hover:bg-background/90">
                   <Link to="/auth">
                     Get Started Free
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -639,7 +599,7 @@ const LandingPreview = () => {
                 </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold" style={{ borderColor: 'rgba(116, 198, 157, 0.4)', color: '#D8F3DC', background: 'transparent' }}>
+                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-primary-foreground/40 text-primary-foreground bg-transparent hover:bg-primary-foreground/10">
                   <a href="#features">
                     Learn More
                     <ChevronRight className="ml-1 h-5 w-5" />
@@ -652,24 +612,24 @@ const LandingPreview = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t" style={{ background: '#F0FDF4', borderColor: 'rgba(27, 67, 50, 0.1)' }}>
+      <footer className="py-12 border-t border-border bg-background">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl shadow-sm" style={{ background: 'linear-gradient(135deg, #1B4332 0%, #2D6A4F 100%)' }}>
-                <GraduationCap className="h-5 w-5 text-white" />
+              <div className="p-2 rounded-xl shadow-sm bg-primary">
+                <GraduationCap className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-xl font-bold" style={{ color: '#1B4332' }}>SmartProf</span>
+              <span className="text-xl font-bold text-foreground">SmartProf</span>
             </div>
             
-            <p className="text-sm" style={{ color: '#40916C' }}>
+            <p className="text-sm text-muted-foreground">
               © {new Date().getFullYear()} SmartProf. Empowering academics worldwide.
             </p>
             
             <div className="flex gap-6">
-              <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Privacy</a>
-              <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Terms</a>
-              <a href="#" className="text-sm transition-colors hover:opacity-70" style={{ color: '#2D6A4F' }}>Contact</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</a>
             </div>
           </div>
         </div>

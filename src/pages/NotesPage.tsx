@@ -267,17 +267,24 @@ const NotesPage = () => {
     <MainLayout>
       <div className="space-y-6">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 p-8 text-white">
-          <div className="absolute inset-0 bg-black/10" />
+        <div className="relative overflow-hidden rounded-2xl bg-primary p-8 text-primary-foreground">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
+          </div>
           <div className="relative z-10">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div>
-                <h1 className="text-3xl font-bold">Academic Workspace</h1>
-                <p className="text-white/80 mt-1">Manage tasks, track deadlines, and organize your notes</p>
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20">
+                  <ListTodo className="h-8 w-8" />
+                </div>
+                <div>
+                  <h1 className="text-3xl font-bold">Academic Workspace</h1>
+                  <p className="text-primary-foreground/80 mt-1">Manage tasks, track deadlines, and organize your notes</p>
+                </div>
               </div>
               <Button 
                 onClick={() => setIsCreateDialogOpen(true)} 
-                className="bg-white/20 hover:bg-white/30 backdrop-blur-sm border-white/30"
+                className="bg-primary-foreground/15 hover:bg-primary-foreground/25 backdrop-blur-sm border-primary-foreground/30"
                 variant="outline"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -287,29 +294,29 @@ const NotesPage = () => {
             
             {/* Quick Stats */}
             <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mt-6">
-              <div className="text-center">
-                <p className="text-3xl font-bold">{stats.pendingTasks}</p>
-                <p className="text-xs text-white/70">Pending</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold">{stats.pendingTasks}</p>
+                <p className="text-xs text-primary-foreground/70">Pending</p>
               </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-red-200">{stats.overdueTasks}</p>
-                <p className="text-xs text-white/70">Overdue</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold text-destructive">{stats.overdueTasks}</p>
+                <p className="text-xs text-primary-foreground/70">Overdue</p>
               </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-amber-200">{stats.dueTodayTasks}</p>
-                <p className="text-xs text-white/70">Due Today</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold text-accent">{stats.dueTodayTasks}</p>
+                <p className="text-xs text-primary-foreground/70">Due Today</p>
               </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-green-200">{stats.completedTasks}</p>
-                <p className="text-xs text-white/70">Completed</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold text-secondary">{stats.completedTasks}</p>
+                <p className="text-xs text-primary-foreground/70">Completed</p>
               </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold text-purple-200">{stats.recurringTasks}</p>
-                <p className="text-xs text-white/70">Recurring</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold">{stats.recurringTasks}</p>
+                <p className="text-xs text-primary-foreground/70">Recurring</p>
               </div>
-              <div className="text-center">
-                <p className="text-3xl font-bold">{stats.totalNotes}</p>
-                <p className="text-xs text-white/70">Notes</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold">{stats.totalNotes}</p>
+                <p className="text-xs text-primary-foreground/70">Notes</p>
               </div>
             </div>
           </div>
