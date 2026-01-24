@@ -172,25 +172,24 @@ const PlanningPage = () => {
     <MainLayout>
       <div className="animate-fade-in space-y-6">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-teal-500 via-emerald-500 to-green-600 p-8 text-white">
+        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse" />
-            <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-3xl" />
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
           
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                  <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
                     <Calendar className="h-10 w-10" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h1 className="text-4xl font-bold tracking-tight">Semester Planning</h1>
-                      <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+                      <Sparkles className="h-6 w-6 text-accent animate-pulse" />
                     </div>
-                    <p className="text-white/80 text-lg mt-1">
+                    <p className="text-primary-foreground/80 text-lg mt-1">
                       Organize your academic calendar and plan future semesters
                     </p>
                   </div>
@@ -199,7 +198,7 @@ const PlanningPage = () => {
               <div className="flex flex-wrap gap-3">
                 <Button 
                   size="lg" 
-                  className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
+                  className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground border border-primary-foreground/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
                   onClick={() => handleOpenEventDialog()}
                 >
                   <Plus className="h-5 w-5 mr-2" />
@@ -207,7 +206,7 @@ const PlanningPage = () => {
                 </Button>
                 <Button 
                   size="lg" 
-                  className="bg-white text-emerald-700 hover:bg-white/90 shadow-lg transition-all hover:scale-105"
+                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105"
                   onClick={() => handleOpenTaskDialog()}
                 >
                   <ListTodo className="h-5 w-5 mr-2" />
@@ -218,20 +217,20 @@ const PlanningPage = () => {
             
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">This Week</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">This Week</p>
                 <p className="text-3xl font-bold">{stats.thisWeekEvents}</p>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">Task Progress</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Task Progress</p>
                 <p className="text-3xl font-bold">{stats.taskProgress}%</p>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">Urgent</p>
-                <p className="text-3xl font-bold text-red-200">{stats.urgentDeadlines}</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Urgent</p>
+                <p className="text-3xl font-bold text-destructive">{stats.urgentDeadlines}</p>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">Future Tasks</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Future Tasks</p>
                 <p className="text-3xl font-bold">{stats.totalFutureTasks}</p>
               </div>
             </div>

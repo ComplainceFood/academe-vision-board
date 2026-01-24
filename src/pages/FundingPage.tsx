@@ -60,27 +60,25 @@ const FundingPage = () => {
     <MainLayout>
       <div className="animate-fade-in space-y-8">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-teal-600 to-cyan-700 p-8 text-white">
+        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
           {/* Animated background elements */}
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse" />
-            <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-3xl" />
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
           
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                  <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
                     <PiggyBank className="h-10 w-10" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
                       <h1 className="text-4xl font-bold tracking-tight">Grant Management</h1>
-                      <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+                      <Sparkles className="h-6 w-6 text-accent animate-pulse" />
                     </div>
-                    <p className="text-white/80 text-lg mt-1">
+                    <p className="text-primary-foreground/80 text-lg mt-1">
                       Track research grants, funding sources & expenditures
                     </p>
                   </div>
@@ -90,7 +88,7 @@ const FundingPage = () => {
                 <Button 
                   onClick={() => setShowSourceDialog(true)}
                   size="lg"
-                  className="bg-white/15 hover:bg-white/25 text-white border border-white/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
+                  className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground border border-primary-foreground/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
                 >
                   <Plus className="h-5 w-5 mr-2" />
                   New Grant
@@ -98,7 +96,7 @@ const FundingPage = () => {
                 <Button 
                   onClick={() => setShowExpenditureDialog(true)}
                   size="lg"
-                  className="bg-white text-emerald-700 hover:bg-white/90 shadow-lg transition-all hover:scale-105"
+                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105"
                 >
                   <Receipt className="h-5 w-5 mr-2" />
                   Record Expense

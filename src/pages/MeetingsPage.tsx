@@ -355,22 +355,21 @@ const MeetingsPage = () => {
     <MainLayout>
       <div className="animate-fade-in space-y-6">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 p-8 text-white">
+        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-white/10 to-transparent rounded-full blur-3xl animate-pulse" />
-            <div className="absolute -bottom-1/2 -left-1/2 w-full h-full bg-gradient-to-tr from-white/5 to-transparent rounded-full blur-3xl" />
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
           
           <div className="relative z-10">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                  <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
                     <Calendar className="h-10 w-10" />
                   </div>
                   <div>
                     <h1 className="text-4xl font-bold tracking-tight">Meetings & 1:1s</h1>
-                    <p className="text-white/80 text-lg mt-1">Schedule and manage your meetings</p>
+                    <p className="text-primary-foreground/80 text-lg mt-1">Schedule and manage your meetings</p>
                   </div>
                 </div>
               </div>
@@ -384,7 +383,7 @@ const MeetingsPage = () => {
                 <Button 
                   onClick={() => setIsCreateOpen(true)}
                   size="lg"
-                  className="bg-white text-indigo-700 hover:bg-white/90 shadow-lg transition-all hover:scale-105"
+                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105"
                 >
                   <Calendar className="h-5 w-5 mr-2" />
                   Schedule Meeting
@@ -394,20 +393,20 @@ const MeetingsPage = () => {
             
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">Upcoming</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Upcoming</p>
                 <p className="text-3xl font-bold">{stats.upcoming}</p>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">This Week</p>
-                <p className="text-3xl font-bold text-amber-200">{stats.thisWeek}</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">This Week</p>
+                <p className="text-3xl font-bold text-accent">{stats.thisWeek}</p>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">Completed</p>
-                <p className="text-3xl font-bold text-green-200">{stats.past}</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Completed</p>
+                <p className="text-3xl font-bold text-secondary">{stats.past}</p>
               </div>
-              <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-white/20">
-                <p className="text-white/70 text-xs uppercase tracking-wider">Total</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total</p>
                 <p className="text-3xl font-bold">{stats.total}</p>
               </div>
             </div>
