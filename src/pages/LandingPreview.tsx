@@ -18,8 +18,6 @@ import {
   CheckCircle2,
   Play,
   ListTodo,
-  RefreshCw,
-  FolderOpen,
   Package,
   Wallet,
   Bell,
@@ -28,7 +26,12 @@ import {
   BarChart,
   Award,
   Target,
-  Layers
+  Layers,
+  Rocket,
+  TestTube,
+  Megaphone,
+  MessageCircle,
+  FolderOpen
 } from "lucide-react";
 
 // Import preview images
@@ -74,24 +77,10 @@ const LandingPreview = () => {
   const features = [
     {
       icon: ListTodo,
-      title: "Smart Task Management",
-      description: "Break down complex tasks with visual progress tracking and smart deadline indicators.",
-      highlights: ["Subtask Progress", "Deadline Alerts", "Priority Sorting"],
+      title: "Notes & Commitments",
+      description: "Manage tasks with subtasks, recurring automation, smart deadlines, and color-coded folder organization.",
+      highlights: ["Subtask Progress", "Recurring Tasks", "Folder Organization"],
       badge: "Popular"
-    },
-    {
-      icon: RefreshCw,
-      title: "Recurring Automation",
-      description: "Set up auto-regenerating tasks that keep your routine responsibilities on track.",
-      highlights: ["Auto-Regeneration", "Pattern Scheduling", "End Date Control"],
-      badge: "New"
-    },
-    {
-      icon: FolderOpen,
-      title: "Folder Organization",
-      description: "Color-coded folders for notes, commitments, and research materials.",
-      highlights: ["Color Coding", "Hierarchical View", "Quick Access"],
-      badge: null
     },
     {
       icon: Users,
@@ -101,18 +90,32 @@ const LandingPreview = () => {
       badge: null
     },
     {
+      icon: Calendar,
+      title: "Semester Planning",
+      description: "Plan your academic calendar with event scheduling, future task planning, and calendar integrations.",
+      highlights: ["Event Scheduling", "Outlook Sync", "Google Calendar"],
+      badge: null
+    },
+    {
       icon: Wallet,
-      title: "Grant Tracker",
-      description: "Monitor research grants, track expenditures, and generate financial reports.",
-      highlights: ["Budget Tracking", "Reports", "Multi-source"],
+      title: "Grant Management",
+      description: "Monitor research grants, track expenditures, manage commitments, and generate financial reports.",
+      highlights: ["Budget Tracking", "Expenditure Reports", "Multi-source"],
       badge: null
     },
     {
       icon: Package,
-      title: "Inventory Control",
-      description: "Threshold alerts, shopping lists, and cost analytics for lab supplies.",
-      highlights: ["Stock Alerts", "Shopping Lists", "Analytics"],
+      title: "Supplies & Expenses",
+      description: "Threshold alerts, shopping lists, expense tracking, and cost analytics for lab supplies.",
+      highlights: ["Stock Alerts", "Shopping Lists", "Expense Tracking"],
       badge: null
+    },
+    {
+      icon: Award,
+      title: "Scholastic Achievements",
+      description: "Track publications, awards, teaching performance, research presentations, and student supervision.",
+      highlights: ["Publications", "Awards", "ORCID Integration"],
+      badge: "New"
     },
   ];
 
@@ -157,6 +160,13 @@ const LandingPreview = () => {
     { title: "Analytics", subtitle: "Productivity insights", image: analyticsPreview, icon: BarChart },
     { title: "Supplies", subtitle: "Inventory management", image: suppliesPreview, icon: Package },
     { title: "Funding", subtitle: "Grant tracking", image: fundingPreview, icon: Wallet },
+  ];
+
+  const comingSoonFeatures = [
+    { icon: TestTube, title: "Testing Platform", description: "Full test management with suites, cases, and execution tracking" },
+    { icon: Megaphone, title: "Admin Communications", description: "Centralized announcements and organizational updates" },
+    { icon: MessageCircle, title: "Enhanced Feedback", description: "Advanced feedback analytics and response workflows" },
+    { icon: Rocket, title: "AI-Powered Insights", description: "Smart recommendations and automated productivity analysis" },
   ];
 
   return (
@@ -234,11 +244,11 @@ const LandingPreview = () => {
             
             <motion.h1 
               variants={fadeInUp}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.08] tracking-tight"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.15] tracking-tight"
             >
               <span className="text-foreground">Academic</span>
               <br />
-              <span className="relative inline-block">
+              <span className="relative inline-block pb-3">
                 <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
                   Excellence
                 </span>
@@ -246,7 +256,7 @@ const LandingPreview = () => {
                   initial={{ scaleX: 0 }}
                   animate={{ scaleX: 1 }}
                   transition={{ delay: 1, duration: 0.8, ease: easeOut }}
-                  className="absolute -bottom-1.5 left-0 right-0 h-[3px] origin-left rounded-full bg-gradient-to-r from-primary via-secondary to-primary"
+                  className="absolute bottom-0 left-[5%] right-[5%] h-[3px] origin-left rounded-full bg-gradient-to-r from-primary via-secondary to-primary"
                 />
               </span>
               <br />
@@ -291,9 +301,9 @@ const LandingPreview = () => {
               {[
                 { icon: CheckCircle2, label: "Subtasks" },
                 { icon: Clock, label: "Smart Deadlines" },
-                { icon: RefreshCw, label: "Recurring Tasks" },
+                { icon: Calendar, label: "Planning" },
                 { icon: FolderOpen, label: "Folders" },
-                { icon: Bell, label: "Notifications" },
+                { icon: Award, label: "Achievements" },
                 { icon: LineChart, label: "Analytics" },
               ].map((item, index) => (
                 <motion.div 
@@ -498,8 +508,101 @@ const LandingPreview = () => {
         </div>
       </section>
 
+      {/* Coming Soon Banner */}
+      <section className="py-24 bg-background relative overflow-hidden">
+        {/* Animated background particles */}
+        <div className="absolute inset-0 pointer-events-none">
+          <motion.div
+            animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute top-10 left-[10%] w-2 h-2 rounded-full bg-primary/20"
+          />
+          <motion.div
+            animate={{ x: [0, -80, 0], y: [0, 60, 0] }}
+            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+            className="absolute bottom-20 right-[15%] w-3 h-3 rounded-full bg-secondary/15"
+          />
+          <motion.div
+            animate={{ scale: [1, 1.5, 1], opacity: [0.05, 0.1, 0.05] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[80px] bg-primary/8"
+          />
+        </div>
+
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-80px" }}
+            variants={fadeInUp}
+            className="text-center mb-16"
+          >
+            <motion.div
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-block mb-6"
+            >
+              <Badge className="px-5 py-2 text-sm font-semibold border border-accent/30 bg-accent/10 text-accent">
+                <Rocket className="h-4 w-4 mr-2" />
+                Coming Soon
+              </Badge>
+            </motion.div>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
+              What's Next
+            </h2>
+            <p className="text-xl max-w-2xl mx-auto text-muted-foreground">
+              Exciting new features currently in development
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {comingSoonFeatures.map((feature, index) => (
+              <motion.div
+                key={index}
+                variants={scaleIn}
+                whileHover={{ y: -6, scale: 1.03 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                <Card className="group relative overflow-hidden h-full border border-dashed border-border bg-card/50 backdrop-blur-sm hover:border-primary/40 hover:bg-card transition-all duration-500">
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+                    <motion.div
+                      animate={{ x: ["-100%", "200%"] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 2 }}
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent skew-x-12"
+                    />
+                  </div>
+
+                  <CardContent className="relative p-6 text-center">
+                    <motion.div
+                      whileHover={{ rotate: [0, -10, 10, 0] }}
+                      transition={{ duration: 0.5 }}
+                      className="inline-flex p-3 rounded-xl mb-4 border border-primary/20 bg-primary/8 group-hover:bg-primary/15 transition-colors duration-300"
+                    >
+                      <feature.icon className="h-6 w-6 text-primary" />
+                    </motion.div>
+                    <h3 className="text-lg font-bold mb-2 text-foreground group-hover:text-primary transition-colors duration-300">
+                      {feature.title}
+                    </h3>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-32 bg-background relative">
+      <section id="testimonials" className="py-32 bg-muted/30 relative">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
@@ -604,18 +707,7 @@ const LandingPreview = () => {
             </Badge>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-foreground">
-              Ready to Transform{" "}
-              <span className="relative inline-block">
-                Your Workflow
-                <motion.span
-                  initial={{ scaleX: 0 }}
-                  whileInView={{ scaleX: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.5, duration: 0.7, ease: easeOut }}
-                  className="absolute -bottom-1 left-0 right-0 h-[3px] origin-left rounded-full bg-primary-foreground/50"
-                />
-              </span>
-              ?
+              Ready to Transform Your Workflow?
             </h2>
             
             <p className="text-xl mb-14 text-primary-foreground/80 max-w-xl mx-auto">
