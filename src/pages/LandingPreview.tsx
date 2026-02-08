@@ -39,35 +39,35 @@ import suppliesPreview from "@/assets/landing/supplies-preview.png";
 import analyticsPreview from "@/assets/landing/analytics-preview.png";
 import fundingPreview from "@/assets/landing/funding-preview.png";
 
-// Animation variants
+// Animation config
 const easeOut: Easing = [0.16, 1, 0.3, 1];
 
 const fadeInUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: easeOut } }
+  hidden: { opacity: 0, y: 40 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: easeOut } }
 };
 
 const fadeInLeft = {
-  hidden: { opacity: 0, x: -30 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: easeOut } }
+  hidden: { opacity: 0, x: -40 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: easeOut } }
 };
 
 const fadeInRight = {
-  hidden: { opacity: 0, x: 30 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.7, ease: easeOut } }
+  hidden: { opacity: 0, x: 40 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.8, ease: easeOut } }
 };
 
 const staggerContainer = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.1 }
+    transition: { staggerChildren: 0.1, delayChildren: 0.15 }
   }
 };
 
 const scaleIn = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5, ease: easeOut } }
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.6, ease: easeOut } }
 };
 
 const LandingPreview = () => {
@@ -166,26 +166,25 @@ const LandingPreview = () => {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="sticky top-0 z-50 backdrop-blur-xl border-b border-border bg-background/90"
+        className="sticky top-0 z-50 backdrop-blur-xl border-b border-border/50 bg-background/80"
       >
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <motion.div 
               whileHover={{ scale: 1.05, rotate: 5 }}
+              transition={{ type: "spring", stiffness: 300 }}
               className="relative"
             >
               <div className="p-2.5 rounded-xl shadow-lg bg-primary">
                 <GraduationCap className="h-6 w-6 text-primary-foreground" />
               </div>
             </motion.div>
-            <span className="text-2xl font-bold text-primary">
-              SmartProf
-            </span>
+            <span className="text-2xl font-bold text-primary">SmartProf</span>
           </div>
-          <div className="flex items-center gap-2 md:gap-6">
-            <a href="#features" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Features</a>
-            <a href="#showcase" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Showcase</a>
-            <a href="#testimonials" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Reviews</a>
+          <div className="flex items-center gap-2 md:gap-8">
+            <a href="#features" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">Features</a>
+            <a href="#showcase" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">Showcase</a>
+            <a href="#testimonials" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">Reviews</a>
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300">
                 <Link to="/auth">
@@ -199,24 +198,23 @@ const LandingPreview = () => {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="relative py-24 md:py-36 overflow-hidden">
-        {/* Background decorations */}
-        <div className="absolute inset-0 overflow-hidden">
+      <section className="relative py-28 md:py-40 overflow-hidden">
+        {/* Ambient background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div 
-            animate={{ 
-              y: [0, -20, 0],
-              opacity: [0.3, 0.5, 0.3]
-            }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-20 -right-20 w-96 h-96 rounded-full blur-3xl bg-primary/20"
+            animate={{ y: [0, -30, 0], opacity: [0.15, 0.3, 0.15] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full blur-[100px] bg-primary/25"
           />
           <motion.div 
-            animate={{ 
-              y: [0, 20, 0],
-              opacity: [0.2, 0.4, 0.2]
-            }}
-            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full blur-3xl bg-secondary/15"
+            animate={{ y: [0, 30, 0], opacity: [0.1, 0.25, 0.1] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full blur-[100px] bg-secondary/20"
+          />
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.12, 0.05] }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[120px] bg-primary/10"
           />
         </div>
         
@@ -228,7 +226,7 @@ const LandingPreview = () => {
             className="text-center max-w-4xl mx-auto"
           >
             <motion.div variants={fadeInUp}>
-              <Badge className="mb-8 px-5 py-2 text-sm font-medium border-0 bg-primary/10 text-primary">
+              <Badge className="mb-8 px-5 py-2 text-sm font-medium border border-primary/20 bg-primary/8 text-primary backdrop-blur-sm">
                 <Sparkles className="h-4 w-4 mr-2 text-secondary" />
                 Trusted by 10,000+ Academics Worldwide
               </Badge>
@@ -236,19 +234,19 @@ const LandingPreview = () => {
             
             <motion.h1 
               variants={fadeInUp}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.1] tracking-tight"
+              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.08] tracking-tight"
             >
               <span className="text-foreground">Academic</span>
               <br />
-              <span className="relative">
+              <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
                   Excellence
                 </span>
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: '100%' }}
-                  transition={{ delay: 0.8, duration: 0.8, ease: easeOut }}
-                  className="absolute -bottom-2 left-0 h-1 rounded-full bg-gradient-to-r from-primary to-secondary"
+                <motion.span
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ delay: 1, duration: 0.8, ease: easeOut }}
+                  className="absolute -bottom-1.5 left-0 right-0 h-[3px] origin-left rounded-full bg-gradient-to-r from-primary via-secondary to-primary"
                 />
               </span>
               <br />
@@ -257,7 +255,7 @@ const LandingPreview = () => {
             
             <motion.p 
               variants={fadeInUp}
-              className="text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed text-muted-foreground"
+              className="text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed text-muted-foreground"
             >
               The all-in-one workspace for professors, researchers, and educators. 
               Organize tasks, track grants, manage supplies, and boost productivity.
@@ -265,18 +263,18 @@ const LandingPreview = () => {
             
             <motion.div 
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-16"
+              className="flex flex-col sm:flex-row gap-4 justify-center mb-20"
             >
-              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300">
+              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
+                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-shadow duration-300">
                   <Link to="/auth">
                     Start Free Today
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-2 border-primary text-primary hover:bg-primary/10 transition-all duration-300">
+              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
+                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-2 border-primary/30 text-primary hover:bg-primary/8 hover:border-primary/50 transition-all duration-300">
                   <a href="#showcase">
                     <Play className="mr-2 h-5 w-5" />
                     Watch Demo
@@ -301,8 +299,9 @@ const LandingPreview = () => {
                 <motion.div 
                   key={index}
                   variants={scaleIn}
-                  whileHover={{ y: -3, scale: 1.02 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-full shadow-sm transition-all duration-300 bg-card border border-border"
+                  whileHover={{ y: -4, scale: 1.05, boxShadow: "0 8px 25px -5px hsl(var(--primary) / 0.15)" }}
+                  transition={{ type: "spring", stiffness: 400 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full shadow-sm border border-border/60 bg-card/80 backdrop-blur-sm cursor-default"
                 >
                   <item.icon className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium text-foreground">{item.label}</span>
@@ -314,12 +313,15 @@ const LandingPreview = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-primary">
-        <div className="container mx-auto px-6">
+      <section className="py-20 bg-primary relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary-foreground)/0.08),transparent_60%)]" />
+        </div>
+        <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             variants={staggerContainer}
             className="grid grid-cols-2 md:grid-cols-4 gap-8"
           >
@@ -327,17 +329,19 @@ const LandingPreview = () => {
               <motion.div 
                 key={index} 
                 variants={scaleIn}
-                whileHover={{ scale: 1.05 }}
-                className="text-center"
+                whileHover={{ scale: 1.08, y: -4 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="text-center group"
               >
                 <motion.div 
-                  whileHover={{ rotate: [0, -5, 5, 0] }}
-                  className="inline-flex p-4 rounded-2xl mb-4 bg-primary-foreground/20"
+                  whileHover={{ rotate: [0, -8, 8, 0] }}
+                  transition={{ duration: 0.5 }}
+                  className="inline-flex p-4 rounded-2xl mb-4 bg-primary-foreground/15 group-hover:bg-primary-foreground/25 transition-colors duration-300"
                 >
                   <stat.icon className="h-7 w-7 text-primary-foreground" />
                 </motion.div>
                 <h3 className="text-4xl md:text-5xl font-bold mb-1 text-primary-foreground">{stat.value}</h3>
-                <p className="font-medium text-primary-foreground/80">{stat.label}</p>
+                <p className="font-medium text-primary-foreground/75">{stat.label}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -345,16 +349,16 @@ const LandingPreview = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-28 bg-background">
+      <section id="features" className="py-32 bg-background relative">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <Badge className="mb-6 px-4 py-1.5 border-0 bg-primary/10 text-primary">
+            <Badge className="mb-6 px-4 py-1.5 border border-primary/20 bg-primary/8 text-primary">
               <Layers className="h-3.5 w-3.5 mr-1.5 text-secondary" />
               Powerful Features
             </Badge>
@@ -369,43 +373,48 @@ const LandingPreview = () => {
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-60px" }}
             variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {features.map((feature, index) => (
               <motion.div
                 key={index}
                 variants={fadeInUp}
-                whileHover={{ y: -8 }}
-                transition={{ duration: 0.3 }}
+                whileHover={{ y: -10 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <Card className="group relative overflow-hidden h-full border shadow-lg hover:shadow-xl transition-all duration-500 bg-card">
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary to-secondary" />
+                <Card className="group relative overflow-hidden h-full border border-border/60 bg-card shadow-md hover:shadow-2xl hover:border-primary/30 transition-all duration-500">
+                  {/* Top accent line with glow */}
+                  <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-primary to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between mb-4">
+                  {/* Hover glow effect */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
+                  
+                  <CardContent className="relative p-7">
+                    <div className="flex items-center justify-between mb-5">
                       <motion.div 
-                        whileHover={{ rotate: [0, -10, 10, 0] }}
-                        className="p-3 rounded-xl bg-primary"
+                        whileHover={{ rotate: [0, -10, 10, 0], scale: 1.1 }}
+                        transition={{ duration: 0.4 }}
+                        className="p-3.5 rounded-xl bg-primary shadow-lg shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-500"
                       >
                         <feature.icon className="h-6 w-6 text-primary-foreground" />
                       </motion.div>
                       {feature.badge && (
-                        <Badge className={`text-xs font-semibold border-0 ${feature.badge === 'New' ? 'bg-secondary/15 text-secondary' : 'bg-primary/10 text-primary'}`}>
+                        <Badge className={`text-xs font-semibold border ${feature.badge === 'New' ? 'border-secondary/30 bg-secondary/10 text-secondary' : 'border-primary/30 bg-primary/10 text-primary'}`}>
                           {feature.badge}
                         </Badge>
                       )}
                     </div>
                     
-                    <h3 className="text-xl font-bold mb-2 text-foreground">{feature.title}</h3>
-                    <p className="mb-4 leading-relaxed text-muted-foreground">{feature.description}</p>
+                    <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors duration-300">{feature.title}</h3>
+                    <p className="mb-5 leading-relaxed text-muted-foreground">{feature.description}</p>
                     
                     <div className="flex flex-wrap gap-2">
                       {feature.highlights.map((highlight, hIndex) => (
                         <span 
                           key={hIndex}
-                          className="text-xs font-medium px-3 py-1.5 rounded-full bg-muted text-muted-foreground"
+                          className="text-xs font-medium px-3 py-1.5 rounded-full border border-border/50 bg-muted/60 text-muted-foreground group-hover:border-primary/20 group-hover:bg-primary/5 transition-colors duration-300"
                         >
                           {highlight}
                         </span>
@@ -420,16 +429,19 @@ const LandingPreview = () => {
       </section>
 
       {/* Showcase Section */}
-      <section id="showcase" className="py-28 bg-muted">
-        <div className="container mx-auto px-6">
+      <section id="showcase" className="py-32 bg-muted/50 relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.06),transparent_60%)]" />
+        </div>
+        <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <Badge className="mb-6 px-4 py-1.5 border-0 bg-primary/10 text-primary">
+            <Badge className="mb-6 px-4 py-1.5 border border-primary/20 bg-primary/8 text-primary">
               <Target className="h-3.5 w-3.5 mr-1.5 text-secondary" />
               Platform Showcase
             </Badge>
@@ -444,35 +456,39 @@ const LandingPreview = () => {
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-60px" }}
             variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {showcaseItems.map((item, index) => (
               <motion.div
                 key={index}
                 variants={index % 2 === 0 ? fadeInLeft : fadeInRight}
-                whileHover={{ y: -6, scale: 1.01 }}
+                whileHover={{ y: -8, scale: 1.02 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className="group"
               >
-                <div className="rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500 bg-card">
-                  <div className="h-1 bg-gradient-to-r from-primary to-secondary" />
-                  <div className="p-4 bg-muted/50">
+                <div className="rounded-2xl overflow-hidden border border-border/50 bg-card shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all duration-500">
+                  {/* Header */}
+                  <div className="p-4 border-b border-border/30 bg-gradient-to-r from-muted/80 to-muted/40">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-primary">
+                      <div className="p-2 rounded-lg bg-primary shadow-md shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-500">
                         <item.icon className="h-4 w-4 text-primary-foreground" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground">{item.title}</h3>
+                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">{item.title}</h3>
                         <p className="text-xs text-muted-foreground">{item.subtitle}</p>
                       </div>
+                      <ArrowRight className="h-4 w-4 ml-auto text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
                     </div>
                   </div>
-                  <div className="overflow-hidden">
+                  {/* Image */}
+                  <div className="overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-card/20 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <img 
                       src={item.image} 
                       alt={item.title}
-                      className="w-full h-auto group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-auto group-hover:scale-[1.06] transition-transform duration-700 ease-out"
                     />
                   </div>
                 </div>
@@ -483,16 +499,16 @@ const LandingPreview = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-28 bg-background">
+      <section id="testimonials" className="py-32 bg-background relative">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
             className="text-center mb-20"
           >
-            <Badge className="mb-6 px-4 py-1.5 border-0 bg-primary/10 text-primary">
+            <Badge className="mb-6 px-4 py-1.5 border border-primary/20 bg-primary/8 text-primary">
               <Award className="h-3.5 w-3.5 mr-1.5 text-secondary" />
               Testimonials
             </Badge>
@@ -507,7 +523,7 @@ const LandingPreview = () => {
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-60px" }}
             variants={staggerContainer}
             className="grid md:grid-cols-3 gap-8"
           >
@@ -515,10 +531,14 @@ const LandingPreview = () => {
               <motion.div
                 key={index}
                 variants={fadeInUp}
-                whileHover={{ y: -6 }}
+                whileHover={{ y: -8 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <Card className="h-full border shadow-lg hover:shadow-xl transition-all duration-300 bg-card">
-                  <CardContent className="p-8">
+                <Card className="group h-full border border-border/60 bg-card shadow-md hover:shadow-2xl hover:border-primary/25 transition-all duration-500 relative overflow-hidden">
+                  {/* Subtle hover glow */}
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-gradient-to-br from-primary/4 via-transparent to-secondary/4" />
+                  
+                  <CardContent className="relative p-8">
                     <div className="flex gap-1 mb-6">
                       {[...Array(testimonial.rating)].map((_, i) => (
                         <Star key={i} className="h-5 w-5 fill-current text-secondary" />
@@ -529,15 +549,15 @@ const LandingPreview = () => {
                       "{testimonial.content}"
                     </p>
                     
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 pt-4 border-t border-border/40">
                       <img 
                         src={testimonial.avatar} 
                         alt={testimonial.name}
-                        className="w-14 h-14 rounded-full object-cover border-2 border-border"
+                        className="w-14 h-14 rounded-full object-cover ring-2 ring-border group-hover:ring-primary/30 transition-all duration-300"
                       />
                       <div>
                         <p className="font-semibold text-foreground">{testimonial.name}</p>
-                        <p className="text-sm text-primary">{testimonial.role}</p>
+                        <p className="text-sm font-medium text-primary">{testimonial.role}</p>
                         <p className="text-sm text-muted-foreground">{testimonial.institution}</p>
                       </div>
                     </div>
@@ -550,56 +570,69 @@ const LandingPreview = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-28 relative overflow-hidden bg-primary">
-        {/* Decorative elements */}
-        <motion.div 
-          animate={{ y: [-15, 15, -15], x: [-10, 10, -10] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-20 left-20 w-4 h-4 rounded-full bg-primary-foreground/30"
-        />
-        <motion.div 
-          animate={{ y: [15, -15, 15], x: [10, -10, 10] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-32 right-32 w-6 h-6 rounded-full bg-primary-foreground/20"
-        />
-        <motion.div 
-          animate={{ scale: [1, 1.2, 1] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-10 bg-secondary"
-        />
+      <section className="py-32 relative overflow-hidden bg-primary">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary-foreground)/0.06),transparent_60%)]" />
+          <motion.div 
+            animate={{ y: [-20, 20, -20], x: [-15, 15, -15] }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-20 left-[15%] w-3 h-3 rounded-full bg-primary-foreground/25"
+          />
+          <motion.div 
+            animate={{ y: [20, -20, 20], x: [10, -10, 10] }}
+            transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute bottom-24 right-[20%] w-5 h-5 rounded-full bg-primary-foreground/15"
+          />
+          <motion.div 
+            animate={{ scale: [1, 1.3, 1], opacity: [0.05, 0.1, 0.05] }}
+            transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[100px] bg-secondary/20"
+          />
+        </div>
         
         <div className="container mx-auto px-6 relative z-10">
           <motion.div 
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: "-100px" }}
+            viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
             className="text-center max-w-3xl mx-auto"
           >
-            <Badge className="mb-8 px-4 py-1.5 border-0 bg-primary-foreground/20 text-primary-foreground">
+            <Badge className="mb-8 px-4 py-1.5 border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground">
               <Zap className="h-3.5 w-3.5 mr-1.5" />
               Start Your Journey
             </Badge>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-foreground">
-              Ready to Transform Your Workflow?
+              Ready to Transform{" "}
+              <span className="relative inline-block">
+                Your Workflow
+                <motion.span
+                  initial={{ scaleX: 0 }}
+                  whileInView={{ scaleX: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.5, duration: 0.7, ease: easeOut }}
+                  className="absolute -bottom-1 left-0 right-0 h-[3px] origin-left rounded-full bg-primary-foreground/50"
+                />
+              </span>
+              ?
             </h2>
             
-            <p className="text-xl mb-12 text-primary-foreground/80">
+            <p className="text-xl mb-14 text-primary-foreground/80 max-w-xl mx-auto">
               Join thousands of academics already using SmartProf to boost their productivity.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl bg-background text-primary hover:bg-background/90">
+              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
+                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl bg-background text-primary hover:bg-background/90 hover:shadow-2xl transition-all duration-300">
                   <Link to="/auth">
                     Get Started Free
                     <ArrowRight className="ml-2 h-5 w-5" />
                   </Link>
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.98 }}>
-                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-primary-foreground/40 text-primary-foreground bg-transparent hover:bg-primary-foreground/10">
+              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
+                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 hover:border-primary-foreground/50 transition-all duration-300">
                   <a href="#features">
                     Learn More
                     <ChevronRight className="ml-1 h-5 w-5" />
@@ -612,7 +645,7 @@ const LandingPreview = () => {
       </section>
 
       {/* Footer */}
-      <footer className="py-12 border-t border-border bg-background">
+      <footer className="py-12 border-t border-border/50 bg-background">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-3">
@@ -627,9 +660,9 @@ const LandingPreview = () => {
             </p>
             
             <div className="flex gap-6">
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Privacy</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Terms</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors">Contact</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Privacy</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Terms</a>
+              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Contact</a>
             </div>
           </div>
         </div>
