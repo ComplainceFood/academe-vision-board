@@ -357,13 +357,13 @@ const SuppliesPage = () => {
           </div>
           
           <div className="relative z-10">
-            <div className="flex-col gap-6 lg:flex-row flex lg:items-center lg:justify-between">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
               <div className="space-y-3">
-                <div className="gap-4 flex-row flex items-center justify-center">
+                <div className="flex items-center gap-4">
                   <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
                     <ShoppingBag className="h-10 w-10" />
                   </div>
-                  <div className="mx-[10px]">
+                  <div>
                     <h1 className="text-4xl font-bold tracking-tight">Supplies & Expenses</h1>
                     <p className="text-primary-foreground/80 text-lg mt-1">Track your inventory and lab expenses</p>
                   </div>
@@ -397,20 +397,20 @@ const SuppliesPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Items</p>
-                <p className="text-3xl font-bold">{supplies.length}</p>
+                <p className="text-xs uppercase tracking-wider text-primary-foreground">Total Items</p>
+                <p className="text-3xl font-bold text-primary-foreground">{supplies.length}</p>
               </div>
-              <div className="bg-destructive/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20 bg-destructive">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Low Stock</p>
                 <p className="text-3xl font-bold text-primary-foreground">{warningItems.length}</p>
               </div>
               <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Expenses</p>
+                <p className="text-xs uppercase tracking-wider text-primary-foreground">Total Expenses</p>
                 <p className="text-3xl font-bold text-primary-foreground">${totalExpenses.toLocaleString()}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Shopping List</p>
-                <p className="text-3xl font-bold">{shoppingListCount}</p>
+                <p className="text-xs uppercase tracking-wider text-primary-foreground">Shopping List</p>
+                <p className="text-3xl font-bold text-primary-foreground">{shoppingListCount}</p>
               </div>
             </div>
           </div>
