@@ -51,7 +51,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b px-6 flex items-center justify-between bg-primary">
+          <header className="h-16 border-b px-6 flex items-center justify-between bg-sidebar-accent">
              <div className="flex items-center gap-3">
                <SidebarTrigger />
                <img
