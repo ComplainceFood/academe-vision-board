@@ -44,10 +44,10 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onV
   
   const statusColors = {
     scheduled: "bg-primary/15 text-primary",
-    in_progress: "bg-orange-100 text-orange-700",
-    completed: "bg-secondary/15 text-secondary",
+    in_progress: "bg-accent/15 text-accent-foreground dark:text-accent",
+    completed: "bg-secondary/15 text-secondary-foreground dark:text-secondary",
     cancelled: "bg-destructive/15 text-destructive",
-    postponed: "bg-yellow-100 text-yellow-700"
+    postponed: "bg-muted text-muted-foreground"
   };
   
   const formatDate = (dateString: string) => {
@@ -397,13 +397,13 @@ const MeetingsPage = () => {
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Upcoming</p>
                 <p className="text-3xl font-bold">{stats.upcoming}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-accent/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">This Week</p>
-                <p className="text-3xl font-bold text-accent">{stats.thisWeek}</p>
+                <p className="text-3xl font-bold text-primary-foreground">{stats.thisWeek}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Completed</p>
-                <p className="text-3xl font-bold text-secondary">{stats.past}</p>
+                <p className="text-3xl font-bold text-primary-foreground">{stats.past}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total</p>
