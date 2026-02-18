@@ -41,7 +41,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       toast({
         title: "Error signing out",
         description: "Please try again",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
@@ -55,24 +55,24 @@ export function MainLayout({ children }: MainLayoutProps) {
              <div className="flex items-center gap-3">
                <SidebarTrigger />
                <img
-                 src="/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
-                 alt="Smart-Prof logo — Organize, Optimize, Excel"
-                 className="h-8 w-auto"
-                 loading="lazy"
-               />
+                src="/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
+                alt="Smart-Prof logo — Organize, Optimize, Excel"
+                className="h-8 w-auto"
+                loading="lazy" />
+
                <h1 className="sr-only">Smart-Prof — Organize, Optimize, Excel</h1>
              </div>
             <div className="flex items-center gap-4">
               <GlobalSearch />
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
+                <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="bg-accent">
                   {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
-                {user && (
-                  <Button variant="ghost" size="icon" onClick={handleLogout}>
+                {user &&
+                <Button variant="ghost" size="icon" onClick={handleLogout} className="bg-accent">
                     <LogOut className="h-5 w-5" />
                   </Button>
-                )}
+                }
               </div>
             </div>
           </header>
@@ -81,6 +81,6 @@ export function MainLayout({ children }: MainLayoutProps) {
           </main>
         </div>
       </div>
-    </SidebarProvider>
-  );
+    </SidebarProvider>);
+
 }

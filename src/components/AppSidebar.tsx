@@ -96,71 +96,71 @@ export function AppSidebar() {
           }
         });
       };
-      
+
       cleanupAuthState();
-      
+
       // Attempt global sign out
       try {
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
+
+
+
+
+
+
+
+
+
+
+
         // Ignore errors
-      }
-      
-      // Force page reload for clean state
-      window.location.href = '/auth';
-    } catch (error) {
-      console.error("Error signing out:", error);
-      // Even if signout fails, clean up and redirect
-      window.location.href = '/auth';
-    }
-  };
-  return <Sidebar>
+      } // Force page reload for clean state
+      window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
+      window.location.href = '/auth';}};return <Sidebar>
       <SidebarHeader className="p-4">
-        <div className="flex items-center gap-2 px-2">
+        <div className="flex items-center gap-2 px-2 text-primary-foreground">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
             <span className="text-xl font-bold text-white">SP</span>
           </div>
           <div className="flex flex-col text-left">
             <span className="text-lg font-bold">Smart-Prof</span>
-            <span className="text-xs text-muted-foreground">Teaching Smarter</span>
+            <span className="text-xs text-primary-foreground">Teaching Smarter</span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {navigationItems.map(item => {
-            const isActive = location.pathname === item.path;
-            return (
-              <SidebarMenuItem key={item.id}>
+          {navigationItems.map((item) => {const isActive = location.pathname === item.path;return <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton asChild className={cn(isActive && "bg-primary/10 text-primary")}>
-                  <Link to={item.path} className="flex items-center gap-3">
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
+                  <Link to={item.path} className="flex items-center gap-3 text-primary-foreground">
+                    <item.icon className="h-5 w-5 text-primary" />
+                    <span className="text-primary-foreground">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-            );
+              </SidebarMenuItem>;
+
           })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 text-primary-foreground">
           <div className="flex items-center gap-2">
             <Avatar className="h-8 w-8">
               <AvatarImage src={profile?.avatar_url || ""} />
               <AvatarFallback className="bg-primary text-primary-foreground">
-                {profile?.display_name?.charAt(0)?.toUpperCase() || 
-                 profile?.first_name?.charAt(0)?.toUpperCase() || 
-                 "U"}
+                {profile?.display_name?.charAt(0)?.toUpperCase() ||
+              profile?.first_name?.charAt(0)?.toUpperCase() ||
+              "U"}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <span className="text-sm font-medium">
-                {profile?.display_name || 
-                 `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() || 
-                 "User"}
+                {profile?.display_name ||
+              `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() ||
+              "User"}
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-xs text-primary-foreground">
                 {profile?.position || "Academic"}
               </span>
             </div>
@@ -168,11 +168,11 @@ export function AppSidebar() {
         </div>
         <div className="flex gap-2">
           <Button variant="outline" size="icon" className="w-full" asChild>
-            <Link to="/settings">
+            <Link to="/settings" className="bg-accent">
               <Settings className="h-4 w-4" />
             </Link>
           </Button>
-          <Button variant="outline" size="icon" className="w-full" onClick={handleLogout}>
+          <Button variant="outline" size="icon" className="w-full bg-accent" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
