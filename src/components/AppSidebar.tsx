@@ -104,43 +104,43 @@ export function AppSidebar() {
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
 
-
-
-
-
-
-
-
-
-
-
         // Ignore errors
-      } // Force page reload for clean state
-      window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
-      window.location.href = '/auth';}};return <Sidebar className="border">
-      <SidebarHeader className="p-4 rounded-md">
-        <div className="flex items-center gap-2 px-2 bg-primary-foreground text-primary border-solid shadow-sm">
+      }
+      // Force page reload for clean state
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error("Error signing out:", error);
+      // Even if signout fails, clean up and redirect
+      window.location.href = '/auth';
+    }
+  };
+  return <Sidebar>
+      <SidebarHeader className="p-4">
+        <div className="flex items-center gap-2 px-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
             <span className="text-xl font-bold text-white">SP</span>
           </div>
-          <div className="flex flex-col text-left">
+          <div className="flex flex-col text-left border-2">
             <span className="text-lg font-bold">Smart-Prof</span>
-            <span className="text-xs text-primary">Teaching Smarter</span>
+            <span className="text-xs text-muted-foreground">Teaching Smarter</span>
           </div>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>
-          {navigationItems.map((item) => {const isActive = location.pathname === item.path;return <SidebarMenuItem key={item.id}>
+          {navigationItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton asChild className={cn(isActive && "bg-primary/10 text-primary")}>
                   <Link to={item.path} className="flex items-center gap-3">
                     <item.icon className="h-5 w-5" />
                     <span>{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>;
+              </SidebarMenuItem>);
 
-          })}
+        })}
         </SidebarMenu>
       </SidebarContent>
       <SidebarFooter className="p-4 border-t">
@@ -172,7 +172,7 @@ export function AppSidebar() {
               <Settings className="h-4 w-4" />
             </Link>
           </Button>
-          <Button variant="outline" size="icon" className="w-full bg-accent" onClick={handleLogout}>
+          <Button variant="outline" size="icon" className="w-full" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
