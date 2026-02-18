@@ -117,28 +117,28 @@ const Index = () => {
             <DashboardCard 
               title="Student Commitments" 
               value={promiseCount} 
-              icon={<CheckSquare className="h-5 w-5 text-blue-500" />}
+              icon={<CheckSquare className="h-5 w-5 text-primary" />}
               linkTo="/notes"
-              color="bg-blue-50 dark:bg-blue-900/20"
-              iconColor="text-blue-500 dark:text-blue-400"
+              color="bg-primary/10"
+              iconColor="text-primary"
               description="Academic commitments to students"
             />
             <DashboardCard 
               title="Upcoming Meetings" 
               value={upcomingMeetings} 
-              icon={<Users className="h-5 w-5 text-violet-500" />}
+              icon={<Users className="h-5 w-5 text-primary" />}
               linkTo="/meetings"
-              color="bg-violet-50 dark:bg-violet-900/20"
-              iconColor="text-violet-500 dark:text-violet-400"
+              color="bg-primary/10"
+              iconColor="text-primary"
               description="Scheduled meetings"
             />
             <DashboardCard 
               title="Low Resources" 
               value={lowSuppliesCount} 
-              icon={<ShoppingBag className="h-5 w-5 text-amber-500" />}
+              icon={<ShoppingBag className="h-5 w-5 text-destructive" />}
               linkTo="/supplies"
-              color="bg-amber-50 dark:bg-amber-900/20"
-              iconColor="text-amber-500 dark:text-amber-400"
+              color="bg-destructive/10"
+              iconColor="text-destructive"
               description="Resources below threshold"
               badge={lowSuppliesCount > 0 ? "Action Needed" : undefined}
               badgeVariant={lowSuppliesCount > 0 ? "destructive" : undefined}
@@ -146,10 +146,10 @@ const Index = () => {
             <DashboardCard 
               title="Resource Requests" 
               value={shoppingItemsCount} 
-              icon={<ShoppingBag className="h-5 w-5 text-green-500" />}
+              icon={<ShoppingBag className="h-5 w-5 text-secondary-foreground" />}
               linkTo="/supplies"
-              color="bg-green-50 dark:bg-green-900/20"
-              iconColor="text-green-500 dark:text-green-400"
+              color="bg-secondary/50"
+              iconColor="text-secondary-foreground"
               description="Resources to acquire"
             />
           </div>
@@ -158,7 +158,7 @@ const Index = () => {
             <Card className="col-span-1 lg:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CalendarRange className="h-5 w-5 text-purple-500" />
+                  <CalendarRange className="h-5 w-5 text-primary" />
                   <span>Upcoming Schedule</span>
                 </CardTitle>
               </CardHeader>
@@ -167,20 +167,20 @@ const Index = () => {
                   <DashboardCard 
                     title="Tasks" 
                     value={todoTasks} 
-                    icon={<CheckSquare className="h-5 w-5 text-indigo-500" />}
+                    icon={<CheckSquare className="h-5 w-5 text-primary" />}
                     linkTo="/planning"
-                    color="bg-indigo-50 dark:bg-indigo-900/20"
-                    iconColor="text-indigo-500 dark:text-indigo-400"
+                    color="bg-primary/10"
+                    iconColor="text-primary"
                     description="Outstanding tasks"
                     compact
                   />
                   <DashboardCard 
                     title="Deadlines" 
                     value={upcomingDeadlines} 
-                    icon={<Clock className="h-5 w-5 text-red-500" />}
+                    icon={<Clock className="h-5 w-5 text-destructive" />}
                     linkTo="/planning"
-                    color="bg-red-50 dark:bg-red-900/20"
-                    iconColor="text-red-500 dark:text-red-400"
+                    color="bg-destructive/10"
+                    iconColor="text-destructive"
                     description="Upcoming deadlines"
                     compact
                   />
@@ -226,7 +226,7 @@ const Index = () => {
             <Card className="col-span-1">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-blue-500" />
+                  <BookOpen className="h-5 w-5 text-primary" />
                   <span>Quick Actions</span>
                 </CardTitle>
               </CardHeader>
