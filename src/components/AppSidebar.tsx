@@ -131,7 +131,7 @@ export function AppSidebar() {
           {navigationItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
-            <SidebarMenuItem key={item.id}>
+            <SidebarMenuItem key={item.id} className="bg-primary-foreground">
                 <SidebarMenuButton asChild className={cn(isActive && "bg-primary/10 text-primary")}>
                   <Link to={item.path} className="flex items-center gap-3">
                     <item.icon className="h-5 w-5" />
@@ -160,7 +160,7 @@ export function AppSidebar() {
               `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() ||
               "User"}
               </span>
-              <span className="text-xs text-primary-foreground">
+              <span className="text-xs text-muted-foreground">
                 {profile?.position || "Academic"}
               </span>
             </div>
