@@ -357,19 +357,19 @@ const SuppliesPage = () => {
           </div>
           
           <div className="relative z-10">
-            <div className="flex-col lg:flex-row gap-6 flex lg:items-end lg:justify-between">
+            <div className="flex-col gap-6 lg:flex-row flex lg:items-center lg:justify-between">
               <div className="space-y-3">
-                <div className="flex items-center gap-4">
+                <div className="gap-4 flex-row flex items-center justify-center">
                   <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
                     <ShoppingBag className="h-10 w-10" />
                   </div>
-                  <div>
-                    <h1 className="text-4xl font-bold tracking-tight text-center px-[10px] my-px">Supplies & Expenses</h1>
+                  <div className="mx-[10px]">
+                    <h1 className="text-4xl font-bold tracking-tight">Supplies & Expenses</h1>
                     <p className="text-primary-foreground/80 text-lg mt-1">Track your inventory and lab expenses</p>
                   </div>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-3 shadow-sm border-dotted">
+              <div className="flex flex-wrap gap-3">
                 <InventoryCsvManager supplies={supplies} onRefetch={refetchSupplies} />
                 <Button
                 onClick={() => setIsAddItemDialogOpen(true)}
@@ -400,9 +400,9 @@ const SuppliesPage = () => {
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Items</p>
                 <p className="text-3xl font-bold">{supplies.length}</p>
               </div>
-              <div className="backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20 bg-destructive">
+              <div className="bg-destructive/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Low Stock</p>
-                <p className="text-3xl font-bold text-primary-foreground bg-destructive">{warningItems.length}</p>
+                <p className="text-3xl font-bold text-primary-foreground">{warningItems.length}</p>
               </div>
               <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Expenses</p>

@@ -57,22 +57,22 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
 
     // CSV headers
     const headers = ["Date", "Description", "Amount", "Category", "Course", "Has Receipt"];
-    
+
     // Convert data to CSV rows
-    const rows = expenses.map(expense => [
-      new Date(expense.date).toLocaleDateString(),
-      `"${expense.description.replace(/"/g, '""')}"`,
-      expense.amount.toFixed(2),
-      `"${expense.category.replace(/"/g, '""')}"`,
-      `"${expense.course.replace(/"/g, '""')}"`,
-      expense.receipt ? "Yes" : "No"
-    ]);
+    const rows = expenses.map((expense) => [
+    new Date(expense.date).toLocaleDateString(),
+    `"${expense.description.replace(/"/g, '""')}"`,
+    expense.amount.toFixed(2),
+    `"${expense.category.replace(/"/g, '""')}"`,
+    `"${expense.course.replace(/"/g, '""')}"`,
+    expense.receipt ? "Yes" : "No"]
+    );
 
     // Combine headers and rows
     const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.join(","))
-    ].join("\n");
+    headers.join(","),
+    ...rows.map((row) => row.join(","))].
+    join("\n");
 
     // Create and download file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -95,9 +95,9 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
   const handleDownloadTemplate = () => {
     const headers = ["Date", "Description", "Amount", "Category", "Course", "Has Receipt"];
     const exampleRow = ["2025-01-15", "Lab Equipment Rental", "250.00", "Equipment", "Chemistry 101", "Yes"];
-    
+
     const csvContent = [headers.join(","), exampleRow.join(",")].join("\n");
-    
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -123,18 +123,18 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
 
   // Parse CSV file
   const parseCSV = (text: string): ImportPreviewItem[] => {
-    const lines = text.split("\n").filter(line => line.trim());
+    const lines = text.split("\n").filter((line) => line.trim());
     if (lines.length < 2) return [];
 
     // Skip header row
     const dataRows = lines.slice(1);
-    
-    return dataRows.map(line => {
+
+    return dataRows.map((line) => {
       // Handle quoted values with commas
       const values: string[] = [];
       let current = "";
       let inQuotes = false;
-      
+
       for (const char of line) {
         if (char === '"') {
           inQuotes = !inQuotes;
@@ -154,7 +154,7 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
       const category = values[3]?.replace(/^"|"$/g, '') || "";
       const course = values[4]?.replace(/^"|"$/g, '') || "";
       const receiptStr = values[5]?.replace(/^"|"$/g, '').toLowerCase() || "";
-      
+
       const parsedDate = parseDate(dateStr);
       const amount = parseFloat(amountStr);
       const receipt = receiptStr === 'yes' || receiptStr === 'true' || receiptStr === '1';
@@ -201,7 +201,7 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
       setIsImportDialogOpen(true);
     };
     reader.readAsText(file);
-    
+
     // Reset input so same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -219,7 +219,7 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
       return;
     }
 
-    const validItems = importPreview.filter(item => item.isValid);
+    const validItems = importPreview.filter((item) => item.isValid);
     if (validItems.length === 0) {
       toast({
         title: "No valid items",
@@ -231,7 +231,7 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
 
     setIsImporting(true);
     try {
-      const itemsToInsert = validItems.map(item => ({
+      const itemsToInsert = validItems.map((item) => ({
         user_id: user.id,
         date: item.date,
         description: item.description,
@@ -242,14 +242,14 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
       }));
 
       const { error } = await supabase.from('expenses').insert(itemsToInsert);
-      
+
       if (error) throw error;
 
       toast({
         title: "Import successful",
         description: `Imported ${validItems.length} expenses`
       });
-      
+
       setIsImportDialogOpen(false);
       setImportPreview([]);
       onRefetch();
@@ -265,18 +265,18 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
     }
   };
 
-  const validCount = importPreview.filter(item => item.isValid).length;
-  const invalidCount = importPreview.filter(item => !item.isValid).length;
-  const totalAmount = importPreview.filter(item => item.isValid).reduce((sum, item) => sum + item.amount, 0);
+  const validCount = importPreview.filter((item) => item.isValid).length;
+  const invalidCount = importPreview.filter((item) => !item.isValid).length;
+  const totalAmount = importPreview.filter((item) => item.isValid).reduce((sum, item) => sum + item.amount, 0);
 
   return (
     <>
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={handleExport} className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={handleExport} className="flex items-center gap-2 bg-accent">
           <Download className="h-4 w-4" />
           Export CSV
         </Button>
-        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 bg-accent">
           <Upload className="h-4 w-4" />
           Import CSV
         </Button>
@@ -285,8 +285,8 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
           type="file"
           accept=".csv"
           onChange={handleFileSelect}
-          className="hidden"
-        />
+          className="hidden" />
+
       </div>
 
       <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
@@ -306,21 +306,21 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
               <CheckCircle2 className="h-3 w-3" />
               {validCount} valid
             </Badge>
-            {invalidCount > 0 && (
-              <Badge variant="destructive" className="flex items-center gap-1">
+            {invalidCount > 0 &&
+            <Badge variant="destructive" className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
                 {invalidCount} invalid
               </Badge>
-            )}
-            {validCount > 0 && (
-              <Badge variant="secondary">
+            }
+            {validCount > 0 &&
+            <Badge variant="secondary">
                 Total: ${totalAmount.toFixed(2)}
               </Badge>
-            )}
+            }
           </div>
 
-          {importPreview.length > 0 ? (
-            <ScrollArea className="h-[400px] border rounded-md">
+          {importPreview.length > 0 ?
+          <ScrollArea className="h-[400px] border rounded-md">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -334,22 +334,22 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {importPreview.map((item, index) => (
-                    <TableRow key={index} className={!item.isValid ? "bg-destructive/10" : ""}>
+                  {importPreview.map((item, index) =>
+                <TableRow key={index} className={!item.isValid ? "bg-destructive/10" : ""}>
                       <TableCell>
-                        {item.isValid ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <AlertCircle className="h-4 w-4 text-destructive" />
-                        )}
+                        {item.isValid ?
+                    <CheckCircle2 className="h-4 w-4 text-green-500" /> :
+
+                    <AlertCircle className="h-4 w-4 text-destructive" />
+                    }
                       </TableCell>
                       <TableCell>
                         <div>{item.date ? new Date(item.date).toLocaleDateString() : <span className="text-muted-foreground italic">Invalid</span>}</div>
-                        {item.errors.length > 0 && (
-                          <div className="text-xs text-destructive mt-1">
+                        {item.errors.length > 0 &&
+                    <div className="text-xs text-destructive mt-1">
                             {item.errors.join(", ")}
                           </div>
-                        )}
+                    }
                       </TableCell>
                       <TableCell>{item.description || "-"}</TableCell>
                       <TableCell>${item.amount.toFixed(2)}</TableCell>
@@ -357,18 +357,18 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
                       <TableCell>{item.course || "-"}</TableCell>
                       <TableCell>{item.receipt ? "Yes" : "No"}</TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
-            </ScrollArea>
-          ) : (
-            <Alert>
+            </ScrollArea> :
+
+          <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 No valid data found in the CSV file. Make sure your file has the correct format.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <FileSpreadsheet className="h-4 w-4" />
@@ -382,15 +382,15 @@ export const ExpenseCsvManager = ({ expenses, onRefetch }: ExpenseCsvManagerProp
             <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleImport} 
-              disabled={validCount === 0 || isImporting}
-            >
+            <Button
+              onClick={handleImport}
+              disabled={validCount === 0 || isImporting}>
+
               {isImporting ? "Importing..." : `Import ${validCount} Expenses ($${totalAmount.toFixed(2)})`}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>);
+
 };
