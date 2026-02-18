@@ -246,7 +246,7 @@ const Sidebar = React.forwardRef<
 
           <div
             data-sidebar="sidebar"
-            className="flex h-full w-full flex-col group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow bg-primary text-primary-foreground">
+            className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow">
 
             {children}
           </div>
@@ -276,7 +276,7 @@ const SidebarTrigger = React.forwardRef<
         }}
         {...props}>
 
-      <PanelLeft />
+      <PanelLeft className="bg-primary text-primary" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>);
 

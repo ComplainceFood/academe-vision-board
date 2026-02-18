@@ -51,7 +51,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b px-6 flex items-center justify-between">
+          <header className="h-16 border-b px-6 flex items-center justify-between bg-primary">
              <div className="flex items-center gap-3">
                <SidebarTrigger />
                <img
@@ -65,11 +65,11 @@ export function MainLayout({ children }: MainLayoutProps) {
             <div className="flex items-center gap-4">
               <GlobalSearch />
               <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="bg-accent">
+                <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
                   {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
                 </Button>
                 {user &&
-                <Button variant="ghost" size="icon" onClick={handleLogout} className="bg-accent">
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
                     <LogOut className="h-5 w-5" />
                   </Button>
                 }
