@@ -298,16 +298,16 @@ const NotesPage = () => {
                 <p className="text-2xl font-bold">{stats.pendingTasks}</p>
                 <p className="text-xs text-primary-foreground/70">Pending</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold text-destructive">{stats.overdueTasks}</p>
+              <div className="bg-destructive/30 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold text-primary-foreground">{stats.overdueTasks}</p>
                 <p className="text-xs text-primary-foreground/70">Overdue</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold text-accent">{stats.dueTodayTasks}</p>
+              <div className="bg-accent/30 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold text-primary-foreground">{stats.dueTodayTasks}</p>
                 <p className="text-xs text-primary-foreground/70">Due Today</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold text-secondary">{stats.completedTasks}</p>
+              <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+                <p className="text-2xl font-bold text-primary-foreground">{stats.completedTasks}</p>
                 <p className="text-xs text-primary-foreground/70">Completed</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">

@@ -110,7 +110,7 @@ const Index = () => {
     <QueryClientProvider client={queryClient}>
       <MainLayout>
         <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold mb-2">Welcome to Smart-Prof</h1>
+          <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome to Smart-Prof</h1>
           <p className="text-muted-foreground mb-8">Teaching Smarter. Managing Better - Your comprehensive academic platform</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -306,9 +306,9 @@ const DashboardCard = ({
             </div>
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">{title}</p>
+            <p className="text-sm font-medium text-foreground">{title}</p>
             <div className="flex items-center gap-2">
-              <h3 className="text-2xl font-bold">{value}</h3>
+              <h3 className="text-2xl font-bold text-foreground">{value}</h3>
               {badge && (
                 <Badge variant={badgeVariant}>{badge}</Badge>
               )}

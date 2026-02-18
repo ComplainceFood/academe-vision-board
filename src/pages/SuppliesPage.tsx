@@ -400,13 +400,13 @@ const SuppliesPage = () => {
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Items</p>
                 <p className="text-3xl font-bold">{supplies.length}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-destructive/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Low Stock</p>
-                <p className="text-3xl font-bold text-destructive">{warningItems.length}</p>
+                <p className="text-3xl font-bold text-primary-foreground">{warningItems.length}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Expenses</p>
-                <p className="text-3xl font-bold text-secondary">${totalExpenses.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-primary-foreground">${totalExpenses.toLocaleString()}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Shopping List</p>
