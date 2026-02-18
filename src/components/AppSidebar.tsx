@@ -104,25 +104,25 @@ export function AppSidebar() {
         await supabase.auth.signOut({ scope: 'global' });
       } catch (err) {
 
+
+
+
+
+
+
+
         // Ignore errors
-      }
-      // Force page reload for clean state
-      window.location.href = '/auth';
-    } catch (error) {
-      console.error("Error signing out:", error);
-      // Even if signout fails, clean up and redirect
-      window.location.href = '/auth';
-    }
-  };
-  return <Sidebar>
+      } // Force page reload for clean state
+      window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
+      window.location.href = '/auth';}};return <Sidebar>
       <SidebarHeader className="p-4">
         <div className="flex items-center gap-2 px-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
             <span className="text-xl font-bold text-white">SP</span>
           </div>
-          <div className="flex flex-col text-left border-2">
-            <span className="text-lg font-bold">Smart-Prof</span>
-            <span className="text-xs text-muted-foreground">Teaching Smarter</span>
+          <div className="flex flex-col text-left gap-px border-2 border-none">
+            <span className="text-lg font-bold mx-[10px]">Smart-Prof</span>
+            <span className="text-xs mx-[10px] text-primary-foreground">Teaching Smarter</span>
           </div>
         </div>
       </SidebarHeader>
