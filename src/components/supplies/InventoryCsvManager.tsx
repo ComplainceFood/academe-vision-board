@@ -49,24 +49,24 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
 
     // CSV headers
     const headers = ["Name", "Category", "Course", "Current Count", "Total Count", "Threshold", "Cost", "Last Restocked"];
-    
+
     // Convert data to CSV rows
-    const rows = supplies.map(item => [
-      `"${item.name.replace(/"/g, '""')}"`,
-      `"${item.category.replace(/"/g, '""')}"`,
-      `"${item.course.replace(/"/g, '""')}"`,
-      item.current_count,
-      item.total_count,
-      item.threshold,
-      item.cost || "",
-      item.last_restocked ? new Date(item.last_restocked).toLocaleDateString() : ""
-    ]);
+    const rows = supplies.map((item) => [
+    `"${item.name.replace(/"/g, '""')}"`,
+    `"${item.category.replace(/"/g, '""')}"`,
+    `"${item.course.replace(/"/g, '""')}"`,
+    item.current_count,
+    item.total_count,
+    item.threshold,
+    item.cost || "",
+    item.last_restocked ? new Date(item.last_restocked).toLocaleDateString() : ""]
+    );
 
     // Combine headers and rows
     const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.join(","))
-    ].join("\n");
+    headers.join(","),
+    ...rows.map((row) => row.join(","))].
+    join("\n");
 
     // Create and download file
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -89,9 +89,9 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
   const handleDownloadTemplate = () => {
     const headers = ["Name", "Category", "Course", "Current Count", "Total Count", "Threshold", "Cost"];
     const exampleRow = ["Beakers 250ml", "Glassware", "Chemistry 101", "45", "100", "20", "5.99"];
-    
+
     const csvContent = [headers.join(","), exampleRow.join(",")].join("\n");
-    
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
@@ -110,18 +110,18 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
 
   // Parse CSV file
   const parseCSV = (text: string): ImportPreviewItem[] => {
-    const lines = text.split("\n").filter(line => line.trim());
+    const lines = text.split("\n").filter((line) => line.trim());
     if (lines.length < 2) return [];
 
     // Skip header row
     const dataRows = lines.slice(1);
-    
-    return dataRows.map(line => {
+
+    return dataRows.map((line) => {
       // Handle quoted values with commas
       const values: string[] = [];
       let current = "";
       let inQuotes = false;
-      
+
       for (const char of line) {
         if (char === '"') {
           inQuotes = !inQuotes;
@@ -189,7 +189,7 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
       setIsImportDialogOpen(true);
     };
     reader.readAsText(file);
-    
+
     // Reset input so same file can be selected again
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -207,7 +207,7 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
       return;
     }
 
-    const validItems = importPreview.filter(item => item.isValid);
+    const validItems = importPreview.filter((item) => item.isValid);
     if (validItems.length === 0) {
       toast({
         title: "No valid items",
@@ -219,7 +219,7 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
 
     setIsImporting(true);
     try {
-      const itemsToInsert = validItems.map(item => ({
+      const itemsToInsert = validItems.map((item) => ({
         user_id: user.id,
         name: item.name,
         category: item.category,
@@ -232,14 +232,14 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
       }));
 
       const { error } = await supabase.from('supplies').insert(itemsToInsert);
-      
+
       if (error) throw error;
 
       toast({
         title: "Import successful",
         description: `Imported ${validItems.length} items to inventory`
       });
-      
+
       setIsImportDialogOpen(false);
       setImportPreview([]);
       onRefetch();
@@ -255,17 +255,17 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
     }
   };
 
-  const validCount = importPreview.filter(item => item.isValid).length;
-  const invalidCount = importPreview.filter(item => !item.isValid).length;
+  const validCount = importPreview.filter((item) => item.isValid).length;
+  const invalidCount = importPreview.filter((item) => !item.isValid).length;
 
   return (
     <>
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" onClick={handleExport} className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={handleExport} className="flex items-center gap-2 bg-accent">
           <Download className="h-4 w-4" />
           Export CSV
         </Button>
-        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 bg-accent">
           <Upload className="h-4 w-4" />
           Import CSV
         </Button>
@@ -274,8 +274,8 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
           type="file"
           accept=".csv"
           onChange={handleFileSelect}
-          className="hidden"
-        />
+          className="hidden" />
+
       </div>
 
       <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
@@ -295,16 +295,16 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
               <CheckCircle2 className="h-3 w-3" />
               {validCount} valid
             </Badge>
-            {invalidCount > 0 && (
-              <Badge variant="destructive" className="flex items-center gap-1">
+            {invalidCount > 0 &&
+            <Badge variant="destructive" className="flex items-center gap-1">
                 <AlertCircle className="h-3 w-3" />
                 {invalidCount} invalid
               </Badge>
-            )}
+            }
           </div>
 
-          {importPreview.length > 0 ? (
-            <ScrollArea className="h-[400px] border rounded-md">
+          {importPreview.length > 0 ?
+          <ScrollArea className="h-[400px] border rounded-md">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -318,22 +318,22 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {importPreview.map((item, index) => (
-                    <TableRow key={index} className={!item.isValid ? "bg-destructive/10" : ""}>
+                  {importPreview.map((item, index) =>
+                <TableRow key={index} className={!item.isValid ? "bg-destructive/10" : ""}>
                       <TableCell>
-                        {item.isValid ? (
-                          <CheckCircle2 className="h-4 w-4 text-green-500" />
-                        ) : (
-                          <AlertCircle className="h-4 w-4 text-destructive" />
-                        )}
+                        {item.isValid ?
+                    <CheckCircle2 className="h-4 w-4 text-green-500" /> :
+
+                    <AlertCircle className="h-4 w-4 text-destructive" />
+                    }
                       </TableCell>
                       <TableCell>
                         <div>{item.name || <span className="text-muted-foreground italic">Missing</span>}</div>
-                        {item.errors.length > 0 && (
-                          <div className="text-xs text-destructive mt-1">
+                        {item.errors.length > 0 &&
+                    <div className="text-xs text-destructive mt-1">
                             {item.errors.join(", ")}
                           </div>
-                        )}
+                    }
                       </TableCell>
                       <TableCell>{item.category || "-"}</TableCell>
                       <TableCell>{item.course || "-"}</TableCell>
@@ -341,18 +341,18 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
                       <TableCell>{item.threshold}</TableCell>
                       <TableCell>{item.cost ? `$${item.cost.toFixed(2)}` : "-"}</TableCell>
                     </TableRow>
-                  ))}
+                )}
                 </TableBody>
               </Table>
-            </ScrollArea>
-          ) : (
-            <Alert>
+            </ScrollArea> :
+
+          <Alert>
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
                 No valid data found in the CSV file. Make sure your file has the correct format.
               </AlertDescription>
             </Alert>
-          )}
+          }
 
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <FileSpreadsheet className="h-4 w-4" />
@@ -366,15 +366,15 @@ export const InventoryCsvManager = ({ supplies, onRefetch }: InventoryCsvManager
             <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={handleImport} 
-              disabled={validCount === 0 || isImporting}
-            >
+            <Button
+              onClick={handleImport}
+              disabled={validCount === 0 || isImporting}>
+
               {isImporting ? "Importing..." : `Import ${validCount} Items`}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
-  );
+    </>);
+
 };

@@ -136,13 +136,13 @@ const SuppliesPage = () => {
     if (bulkDeleteItems.length === 0 || isProcessing) return;
     try {
       setIsProcessing(true);
-      const { error } = await supabase
-        .from('supplies')
-        .delete()
-        .in('id', bulkDeleteItems);
-      
+      const { error } = await supabase.
+      from('supplies').
+      delete().
+      in('id', bulkDeleteItems);
+
       if (error) throw error;
-      
+
       toast({
         title: "Success",
         description: `${bulkDeleteItems.length} items deleted successfully`
@@ -166,13 +166,13 @@ const SuppliesPage = () => {
     if (expenseIds.length === 0 || isProcessing) return;
     try {
       setIsProcessing(true);
-      const { error } = await supabase
-        .from('expenses')
-        .delete()
-        .in('id', expenseIds);
-      
+      const { error } = await supabase.
+      from('expenses').
+      delete().
+      in('id', expenseIds);
+
       if (error) throw error;
-      
+
       toast({
         title: "Success",
         description: `${expenseIds.length} expenses deleted successfully`
@@ -213,13 +213,13 @@ const SuppliesPage = () => {
 
       console.log('Updating stock for', editingItem.id, 'to', nextCount);
 
-      const { error } = await supabase
-        .from('supplies')
-        .update({
-          current_count: nextCount,
-          last_restocked: new Date().toISOString(),
-        })
-        .eq('id', editingItem.id);
+      const { error } = await supabase.
+      from('supplies').
+      update({
+        current_count: nextCount,
+        last_restocked: new Date().toISOString()
+      }).
+      eq('id', editingItem.id);
 
       if (error) throw error;
 
@@ -250,7 +250,7 @@ const SuppliesPage = () => {
       triggerRefresh('expenses');
 
       // Update local state optimistically
-      const newExpenses = expenses.filter(expense => expense.id !== expenseToDelete);
+      const newExpenses = expenses.filter((expense) => expense.id !== expenseToDelete);
       // We'd need to update the expenses state here if we had access to the setter
     } catch (error) {
       console.error("Error deleting expense:", error);
@@ -277,19 +277,19 @@ const SuppliesPage = () => {
   };
 
   // Filter supplies based on search query and low stock filter
-  const filteredSupplies = supplies.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.category.toLowerCase().includes(searchQuery.toLowerCase()) || 
-      item.course.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredSupplies = supplies.filter((item) => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.course.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesLowStock = showLowStockOnly ? item.current_count <= item.threshold : true;
     return matchesSearch && matchesLowStock;
   });
 
   // Filter expenses based on search query
-  const filteredExpenses = expenses.filter(expense => expense.description.toLowerCase().includes(searchQuery.toLowerCase()) || expense.category.toLowerCase().includes(searchQuery.toLowerCase()) || expense.course.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredExpenses = expenses.filter((expense) => expense.description.toLowerCase().includes(searchQuery.toLowerCase()) || expense.category.toLowerCase().includes(searchQuery.toLowerCase()) || expense.course.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Calculate warning items (low stock)
-  const warningItems = supplies.filter(item => item.current_count <= item.threshold);
+  const warningItems = supplies.filter((item) => item.current_count <= item.threshold);
 
   // Calculate total expenses
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
@@ -301,10 +301,10 @@ const SuppliesPage = () => {
 
   const confirmBulkAddToShoppingList = async () => {
     if (bulkShoppingListItems.length === 0 || !user || isProcessing) return;
-    
+
     try {
       setIsProcessing(true);
-      const itemsToInsert = bulkShoppingListItems.map(item => ({
+      const itemsToInsert = bulkShoppingListItems.map((item) => ({
         name: item.name,
         quantity: Math.max(1, item.threshold - item.current_count + 5),
         priority: item.current_count <= item.threshold ? "high" : "medium",
@@ -314,9 +314,9 @@ const SuppliesPage = () => {
         supply_id: item.id
       }));
 
-      const { error } = await supabase
-        .from('shopping_list')
-        .insert(itemsToInsert);
+      const { error } = await supabase.
+      from('shopping_list').
+      insert(itemsToInsert);
 
       if (error) throw error;
 
@@ -357,36 +357,36 @@ const SuppliesPage = () => {
           </div>
           
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex-col lg:items-center lg:justify-between gap-6 flex lg:flex-row bg-sidebar-primary">
               <div className="space-y-3">
                 <div className="flex items-center gap-4">
                   <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
                     <ShoppingBag className="h-10 w-10" />
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold tracking-tight">Supplies & Expenses</h1>
+                    <h1 className="text-4xl font-bold tracking-tight mx-[10px] px-[5px]">Supplies & Expenses</h1>
                     <p className="text-primary-foreground/80 text-lg mt-1">Track your inventory and lab expenses</p>
                   </div>
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">
                 <InventoryCsvManager supplies={supplies} onRefetch={refetchSupplies} />
-                <Button 
-                  onClick={() => setIsAddItemDialogOpen(true)} 
-                  disabled={isProcessing}
-                  size="lg"
-                  className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground border border-primary-foreground/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
-                >
+                <Button
+                onClick={() => setIsAddItemDialogOpen(true)}
+                disabled={isProcessing}
+                size="lg"
+                className="border border-primary-foreground/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105 bg-[sidebar-accent-foreground] bg-background text-[sidebar-primary-foreground] text-foreground">
+
                   <Plus className="h-5 w-5 mr-2" />
                   Add Item
                 </Button>
-                <Button 
-                  variant="outline" 
-                  onClick={() => setIsShoppingListOpen(true)} 
-                  disabled={isProcessing}
-                  size="lg"
-                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105"
-                >
+                <Button
+                variant="outline"
+                onClick={() => setIsShoppingListOpen(true)}
+                disabled={isProcessing}
+                size="lg"
+                className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105">
+
                   <ShoppingBag className="h-5 w-5 mr-2" />
                   Shopping List
                   {shoppingListCount > 0 && <Badge variant="secondary" className="ml-2">{shoppingListCount}</Badge>}
@@ -396,34 +396,34 @@ const SuppliesPage = () => {
             
             {/* Quick Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Items</p>
-                <p className="text-3xl font-bold">{supplies.length}</p>
+              <div className="backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20 bg-accent-foreground">
+                <p className="uppercase tracking-wider text-sm text-primary">Total Items</p>
+                <p className="text-3xl font-bold text-center text-primary">{supplies.length}</p>
               </div>
-              <div className="bg-destructive/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Low Stock</p>
-                <p className="text-3xl font-bold text-primary-foreground">{warningItems.length}</p>
+              <div className="backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20 bg-[#ef4343]/[0.92]">
+                <p className="uppercase tracking-wider text-sm text-primary-foreground">Low Stock</p>
+                <p className="text-3xl font-bold bg-primary-foreground text-white/[0.99] text-center">{warningItems.length}</p>
               </div>
-              <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Expenses</p>
-                <p className="text-3xl font-bold text-primary-foreground">${totalExpenses.toLocaleString()}</p>
+              <div className="backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20 bg-[sidebar-accent-foreground] bg-accent-foreground">
+                <p className="uppercase tracking-wider text-sm text-primary">Total Expenses</p>
+                <p className="text-3xl font-bold text-center text-primary">${totalExpenses.toLocaleString()}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Shopping List</p>
-                <p className="text-3xl font-bold">{shoppingListCount}</p>
+              <div className="backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20 bg-accent-foreground text-primary">
+                <p className="uppercase tracking-wider text-sm text-primary">Shopping List</p>
+                <p className="text-3xl font-bold text-primary text-center">{shoppingListCount}</p>
               </div>
             </div>
           </div>
         </div>
         
         {/* Search and Filter */}
-        <SearchAndFilter 
-          searchQuery={searchQuery} 
-          setSearchQuery={setSearchQuery} 
-          showLowStockOnly={showLowStockOnly}
-          setShowLowStockOnly={setShowLowStockOnly}
-          lowStockCount={warningItems.length}
-        />
+        <SearchAndFilter
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        showLowStockOnly={showLowStockOnly}
+        setShowLowStockOnly={setShowLowStockOnly}
+        lowStockCount={warningItems.length} />
+
         
         {/* Tab Navigation */}
         <Tabs defaultValue="inventory" onValueChange={handleTabChange}>
@@ -439,39 +439,39 @@ const SuppliesPage = () => {
           </TabsList>
           
           <TabsContent value="inventory" className="mt-4">
-            <InventoryList 
-              supplies={filteredSupplies} 
-              isLoading={isLoadingSupplies} 
-              onUpdateStock={item => {
-                setEditingItem(item);
-                setUpdatedCount(item.current_count);
-              }} 
-              onDeleteItem={id => setItemToDelete(id)} 
-              onBulkDelete={handleBulkDeleteSupplies}
-              onAddToShoppingList={item => setItemToAddToList(item)} 
-              onBulkAddToShoppingList={handleBulkAddToShoppingList}
-              onAddItemClick={() => setIsAddItemDialogOpen(true)} 
-              onEditItem={handleEditItem} 
-              onViewHistory={handleViewHistory} 
-              sortOrder={sortOrder} 
-              onSortChange={setSortOrder} 
-            />
+            <InventoryList
+            supplies={filteredSupplies}
+            isLoading={isLoadingSupplies}
+            onUpdateStock={(item) => {
+              setEditingItem(item);
+              setUpdatedCount(item.current_count);
+            }}
+            onDeleteItem={(id) => setItemToDelete(id)}
+            onBulkDelete={handleBulkDeleteSupplies}
+            onAddToShoppingList={(item) => setItemToAddToList(item)}
+            onBulkAddToShoppingList={handleBulkAddToShoppingList}
+            onAddItemClick={() => setIsAddItemDialogOpen(true)}
+            onEditItem={handleEditItem}
+            onViewHistory={handleViewHistory}
+            sortOrder={sortOrder}
+            onSortChange={setSortOrder} />
+
           </TabsContent>
           
           <TabsContent value="expenses" className="mt-4">
-            <ExpenseList 
-              expenses={filteredExpenses} 
-              isLoading={isLoadingExpenses} 
-              onDeleteExpense={id => setExpenseToDelete(id)} 
-              onBulkDelete={handleBulkDeleteExpenses}
-              onRefetch={refetchExpenses}
-            />
+            <ExpenseList
+            expenses={filteredExpenses}
+            isLoading={isLoadingExpenses}
+            onDeleteExpense={(id) => setExpenseToDelete(id)}
+            onBulkDelete={handleBulkDeleteExpenses}
+            onRefetch={refetchExpenses} />
+
           </TabsContent>
         </Tabs>
       </div>
       
       {/* Confirmation dialogs and popovers */}
-      <AlertDialog open={!!itemToDelete} onOpenChange={open => !open && setItemToDelete(null)}>
+      <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -488,7 +488,7 @@ const SuppliesPage = () => {
         </AlertDialogContent>
       </AlertDialog>
       
-      <AlertDialog open={!!expenseToDelete} onOpenChange={open => !open && setExpenseToDelete(null)}>
+      <AlertDialog open={!!expenseToDelete} onOpenChange={(open) => !open && setExpenseToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -506,7 +506,7 @@ const SuppliesPage = () => {
       </AlertDialog>
 
       {/* Bulk delete confirmation dialog */}
-      <AlertDialog open={bulkDeleteItems.length > 0} onOpenChange={open => !open && setBulkDeleteItems([])}>
+      <AlertDialog open={bulkDeleteItems.length > 0} onOpenChange={(open) => !open && setBulkDeleteItems([])}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Multiple Items</AlertDialogTitle>
@@ -524,7 +524,7 @@ const SuppliesPage = () => {
       </AlertDialog>
 
       {/* Bulk add to shopping list confirmation dialog */}
-      <AlertDialog open={bulkShoppingListItems.length > 0} onOpenChange={open => !open && setBulkShoppingListItems([])}>
+      <AlertDialog open={bulkShoppingListItems.length > 0} onOpenChange={(open) => !open && setBulkShoppingListItems([])}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Add Items to Shopping List</AlertDialogTitle>
@@ -541,7 +541,7 @@ const SuppliesPage = () => {
         </AlertDialogContent>
       </AlertDialog>
       
-      <Dialog open={!!editingItem} onOpenChange={open => !open && setEditingItem(null)}>
+      <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>Update Stock</DialogTitle>
@@ -553,16 +553,16 @@ const SuppliesPage = () => {
             <div className="grid grid-cols-3 items-center gap-4">
               <label htmlFor="current">Current Count:</label>
               <Input
-                id="current"
-                type="number"
-                inputMode="numeric"
-                className="col-span-2"
-                value={Number.isFinite(updatedCount) ? updatedCount : 0}
-                onChange={e => setUpdatedCount(Number(e.target.value))}
-                max={editingItem?.total_count ?? undefined}
-                min={0}
-                disabled={isProcessing}
-              />
+              id="current"
+              type="number"
+              inputMode="numeric"
+              className="col-span-2"
+              value={Number.isFinite(updatedCount) ? updatedCount : 0}
+              onChange={(e) => setUpdatedCount(Number(e.target.value))}
+              max={editingItem?.total_count ?? undefined}
+              min={0}
+              disabled={isProcessing} />
+
             </div>
           </div>
           <DialogFooter>
@@ -580,7 +580,7 @@ const SuppliesPage = () => {
       <ShoppingListDialog open={isShoppingListOpen} onOpenChange={setIsShoppingListOpen} />
       
       {/* Add to shopping list dialog */}
-      <AddToShoppingListDialog open={!!itemToAddToList} onOpenChange={open => {
+      <AddToShoppingListDialog open={!!itemToAddToList} onOpenChange={(open) => {
       if (!open) {
         setItemToAddToList(null);
         // Auto-refresh shopping list after adding an item
@@ -590,7 +590,7 @@ const SuppliesPage = () => {
     }} item={itemToAddToList} />
 
       {/* Add item dialog */}
-      <AddItemDialog open={isAddItemDialogOpen} onOpenChange={state => {
+      <AddItemDialog open={isAddItemDialogOpen} onOpenChange={(state) => {
       setIsAddItemDialogOpen(state);
       if (!state) {
         // Refresh data when dialog closes
@@ -599,7 +599,7 @@ const SuppliesPage = () => {
     }} />
 
       {/* Edit item dialog */}
-      <EditItemDialog open={isEditDialogOpen} onOpenChange={state => {
+      <EditItemDialog open={isEditDialogOpen} onOpenChange={(state) => {
       setIsEditDialogOpen(state);
       if (!state) {
         setItemToEdit(null);
