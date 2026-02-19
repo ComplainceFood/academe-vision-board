@@ -106,16 +106,16 @@ export function AppSidebar() {
 
 
 
+
+
+
+
+
         // Ignore errors
       } // Force page reload for clean state
-      window.location.href = '/auth';} catch (error) {
-      console.error("Error signing out:", error);
-      // Even if signout fails, clean up and redirect
-      window.location.href = '/auth';
-    }
-  };
-  return <Sidebar>
-      <SidebarHeader className="p-4">
+      window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
+      window.location.href = '/auth';}};return <Sidebar>
+      <SidebarHeader className="p-4 py-[10px] pb-[10px]">
         <div className="flex items-center gap-2 px-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
             <span className="text-xl font-bold text-white">SP</span>
@@ -126,14 +126,14 @@ export function AppSidebar() {
           </div>
         </div>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="my-[30px]">
         <SidebarMenu>
           {navigationItems.map((item) => {
           const isActive = location.pathname === item.path;
           return (
-            <SidebarMenuItem key={item.id} className="bg-primary-foreground">
+            <SidebarMenuItem key={item.id}>
                 <SidebarMenuButton asChild className={cn(isActive && "bg-primary/10 text-primary")}>
-                  <Link to={item.path} className="flex items-center gap-3">
+                  <Link to={item.path} className="flex items-center gap-3 bg-primary-foreground">
                     <item.icon className="h-5 w-5" />
                     <span>{item.title}</span>
                   </Link>
