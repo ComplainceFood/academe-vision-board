@@ -225,7 +225,7 @@ const PlanningPage = () => {
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Task Progress</p>
                 <p className="text-3xl font-bold">{stats.taskProgress}%</p>
               </div>
-              <div className="bg-destructive/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-destructive backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Urgent</p>
                 <p className="text-3xl font-bold text-primary-foreground">{stats.urgentDeadlines}</p>
               </div>

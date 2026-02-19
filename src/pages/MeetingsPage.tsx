@@ -397,11 +397,11 @@ const MeetingsPage = () => {
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Upcoming</p>
                 <p className="text-3xl font-bold">{stats.upcoming}</p>
               </div>
-              <div className="bg-accent/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">This Week</p>
                 <p className="text-3xl font-bold text-primary-foreground">{stats.thisWeek}</p>
               </div>
-              <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Completed</p>
                 <p className="text-3xl font-bold text-primary-foreground">{stats.past}</p>
               </div>
