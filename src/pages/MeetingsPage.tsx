@@ -3,10 +3,10 @@ import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Calendar, 
-  Clock, 
-  User, 
+import {
+  Calendar,
+  Clock,
+  User,
   Search,
   ArrowDown,
   ArrowUp,
@@ -20,8 +20,8 @@ import {
   Check,
   Edit,
   Trash2,
-  Copy
-} from "lucide-react";
+  Copy } from
+"lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -37,11 +37,11 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useMeetings } from "@/hooks/useMeetings";
 import { useAuth } from "@/hooks/useAuth";
 
-const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onViewDetails: (meeting: Meeting) => void; onEdit: (meeting: Meeting) => void }) => {
+const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onViewDetails: (meeting: Meeting) => void;onEdit: (meeting: Meeting) => void;}) => {
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
   const { updateStatus, deleteMeeting } = useMeetings();
-  
+
   const statusColors = {
     scheduled: "bg-primary/15 text-primary",
     in_progress: "bg-accent/15 text-accent-foreground dark:text-accent",
@@ -49,7 +49,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onV
     cancelled: "bg-destructive/15 text-destructive",
     postponed: "bg-muted text-muted-foreground"
   };
-  
+
   const formatDate = (dateString: string) => {
     try {
       if (!dateString) return "Invalid date";
@@ -60,7 +60,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onV
       return dateString;
     }
   };
-  
+
   const handleStatusChange = async (newStatus: Meeting['status']) => {
     try {
       await updateStatus({ id: meeting.id, status: newStatus });
@@ -82,20 +82,20 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onV
 
   const getParticipantStatuses = () => {
     if (!meeting.attendees || !Array.isArray(meeting.attendees)) return { confirmed: 0, declined: 0, pending: 0 };
-    
+
     return meeting.attendees.reduce(
       (acc, attendee) => {
-        if (attendee.status === 'accepted') acc.confirmed++;
-        else if (attendee.status === 'declined') acc.declined++;
-        else acc.pending++;
+        if (attendee.status === 'accepted') acc.confirmed++;else
+        if (attendee.status === 'declined') acc.declined++;else
+        acc.pending++;
         return acc;
-      }, 
+      },
       { confirmed: 0, declined: 0, pending: 0 }
     );
   };
 
   const statuses = getParticipantStatuses();
-  
+
   return (
     <Card className="mb-4 glassmorphism">
       <CardHeader className="pb-2">
@@ -107,19 +107,19 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onV
               </span>
               <Badge variant="outline">{meeting.type}</Badge>
               
-              {meeting.is_recurring && (
-                <Badge variant="outline" className="flex items-center gap-1">
+              {meeting.is_recurring &&
+              <Badge variant="outline" className="flex items-center gap-1">
                   <Repeat className="h-3 w-3" />
                   <span>{meeting.recurring_pattern}</span>
                 </Badge>
-              )}
+              }
               
-              {meeting.reminder_minutes && (
-                <Badge variant="outline" className="flex items-center gap-1">
+              {meeting.reminder_minutes &&
+              <Badge variant="outline" className="flex items-center gap-1">
                   <Bell className="h-3 w-3" />
                   <span>Reminder</span>
                 </Badge>
-              )}
+              }
             </div>
             <CardTitle className="text-lg">{meeting.title}</CardTitle>
           </div>
@@ -139,26 +139,26 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onV
               
               <DropdownMenuSeparator />
               
-              {meeting.status !== "completed" && (
-                <DropdownMenuItem onClick={() => handleStatusChange("completed")}>
+              {meeting.status !== "completed" &&
+              <DropdownMenuItem onClick={() => handleStatusChange("completed")}>
                   <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> Mark Complete
                 </DropdownMenuItem>
-              )}
-              {meeting.status === "completed" && (
-                <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
+              }
+              {meeting.status === "completed" &&
+              <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
                   <ArrowUp className="h-4 w-4 mr-2 text-blue-500" /> Mark Incomplete
                 </DropdownMenuItem>
-              )}
-              {meeting.status !== "cancelled" && (
-                <DropdownMenuItem onClick={() => handleStatusChange("cancelled")}>
+              }
+              {meeting.status !== "cancelled" &&
+              <DropdownMenuItem onClick={() => handleStatusChange("cancelled")}>
                   <XCircle className="h-4 w-4 mr-2 text-yellow-500" /> Cancel Meeting
                 </DropdownMenuItem>
-              )}
-              {meeting.status === "cancelled" && (
-                <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
+              }
+              {meeting.status === "cancelled" &&
+              <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
                   <Calendar className="h-4 w-4 mr-2 text-blue-500" /> Reschedule
                 </DropdownMenuItem>
-              )}
+              }
               
               <DropdownMenuSeparator />
               
@@ -209,56 +209,56 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: { meeting: Meeting; onV
           <User className="h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-1">
             <span className="text-sm">{meeting.attendees?.length || 0} attendees</span>
-            {(statuses.confirmed > 0 || statuses.declined > 0) && (
-              <span className="text-xs text-muted-foreground">
+            {(statuses.confirmed > 0 || statuses.declined > 0) &&
+            <span className="text-xs text-muted-foreground">
                 ({statuses.confirmed} confirmed, {statuses.declined} declined)
               </span>
-            )}
+            }
           </div>
         </div>
         
-        {meeting.agenda && (
-          <div className="mt-4 p-3 bg-muted/50 rounded-md">
+        {meeting.agenda &&
+        <div className="mt-4 p-3 bg-muted/50 rounded-md">
             <p className="text-sm mb-2 font-medium flex items-center gap-2">
               <FileText className="h-4 w-4" />
               Agenda:
             </p>
             <p className="text-sm text-muted-foreground line-clamp-2">{meeting.agenda}</p>
           </div>
-        )}
+        }
         
-        {meeting.action_items && Array.isArray(meeting.action_items) && meeting.action_items.length > 0 && (
-          <div className="mt-3">
+        {meeting.action_items && Array.isArray(meeting.action_items) && meeting.action_items.length > 0 &&
+        <div className="mt-3">
             <p className="text-sm font-medium mb-1">Action Items:</p>
             <ul className="text-sm">
-              {meeting.action_items.slice(0, 2).map((item, index) => (
-                <li key={index} className="flex items-start gap-2 mb-1">
+              {meeting.action_items.slice(0, 2).map((item, index) =>
+            <li key={index} className="flex items-start gap-2 mb-1">
                   <Check className="h-4 w-4 text-secondary mt-0.5" />
                   <span className="line-clamp-1">
                     {typeof item === 'string' ? item : item.description}
                   </span>
                 </li>
-              ))}
-              {meeting.action_items.length > 2 && (
-                <li className="text-xs text-muted-foreground">
+            )}
+              {meeting.action_items.length > 2 &&
+            <li className="text-xs text-muted-foreground">
                   +{meeting.action_items.length - 2} more items
                 </li>
-              )}
+            }
             </ul>
           </div>
-        )}
+        }
       </CardContent>
       
-      {meeting.status === "scheduled" && (
-        <CardFooter className="pt-0 flex gap-2">
+      {meeting.status === "scheduled" &&
+      <CardFooter className="pt-0 flex gap-2">
           <Button variant="outline" size="sm" className="flex-1">Reschedule</Button>
           <Button size="sm" className="flex-1" onClick={() => onViewDetails(meeting)}>
             View Details
           </Button>
         </CardFooter>
-      )}
-    </Card>
-  );
+      }
+    </Card>);
+
 };
 
 const MeetingsPage = () => {
@@ -268,23 +268,23 @@ const MeetingsPage = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  
+
   const { meetings, isLoading, createMeeting } = useMeetings();
   const { user } = useAuth();
-  
+
   // Calculate stats
   const stats = {
-    upcoming: (meetings || []).filter(m => m.status === "scheduled" && new Date(m.start_date) >= new Date()).length,
-    past: (meetings || []).filter(m => m.status === "completed").length,
+    upcoming: (meetings || []).filter((m) => m.status === "scheduled" && new Date(m.start_date) >= new Date()).length,
+    past: (meetings || []).filter((m) => m.status === "completed").length,
     total: (meetings || []).length,
-    thisWeek: (meetings || []).filter(m => {
+    thisWeek: (meetings || []).filter((m) => {
       const meetingDate = new Date(m.start_date);
       const today = new Date();
       const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
       return meetingDate >= today && meetingDate <= nextWeek && m.status === "scheduled";
     }).length
   };
-  
+
   // Auto-refresh every 30 seconds
   useEffect(() => {
     const interval = setInterval(() => {
@@ -303,20 +303,20 @@ const MeetingsPage = () => {
     setIsEditOpen(true);
   };
 
-  const filteredMeetings = (meetings || []).filter(meeting => {
-    const matchesSearch = 
-      meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (meeting.attendees && Array.isArray(meeting.attendees) && meeting.attendees.some(attendee => 
-        attendee.name.toLowerCase().includes(searchQuery.toLowerCase())
-      )) ||
-      (meeting.agenda && meeting.agenda.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      (meeting.location && meeting.location.toLowerCase().includes(searchQuery.toLowerCase()));
-      
-    const matchesTab = 
-      (activeTab === "upcoming" && meeting.status === "scheduled" && new Date(meeting.start_date) >= new Date()) ||
-      (activeTab === "past" && meeting.status === "completed") ||
-      (activeTab === "all");
-      
+  const filteredMeetings = (meetings || []).filter((meeting) => {
+    const matchesSearch =
+    meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    meeting.attendees && Array.isArray(meeting.attendees) && meeting.attendees.some((attendee) =>
+    attendee.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) ||
+    meeting.agenda && meeting.agenda.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    meeting.location && meeting.location.toLowerCase().includes(searchQuery.toLowerCase());
+
+    const matchesTab =
+    activeTab === "upcoming" && meeting.status === "scheduled" && new Date(meeting.start_date) >= new Date() ||
+    activeTab === "past" && meeting.status === "completed" ||
+    activeTab === "all";
+
     return matchesSearch && matchesTab;
   });
 
@@ -334,10 +334,10 @@ const MeetingsPage = () => {
 
   const handleQuickAddMeeting = async (data: QuickAddData) => {
     if (!user) throw new Error("Not authenticated");
-    
+
     const tomorrow = addDays(new Date(), 1);
     const formattedDate = format(tomorrow, 'yyyy-MM-dd');
-    
+
     await createMeeting({
       title: data.title,
       type: data.type === "group" ? "group" : "one_on_one",
@@ -347,7 +347,7 @@ const MeetingsPage = () => {
       location: data.location || "TBD",
       attendees: [],
       is_recurring: false,
-      reminder_minutes: 15,
+      reminder_minutes: 15
     });
   };
 
@@ -378,13 +378,13 @@ const MeetingsPage = () => {
                   type="meeting"
                   onQuickAdd={handleQuickAddMeeting}
                   onOpenFullForm={() => setIsCreateOpen(true)}
-                  placeholder="Quick add meeting..."
-                />
-                <Button 
+                  placeholder="Quick add meeting..." />
+
+                <Button
                   onClick={() => setIsCreateOpen(true)}
                   size="lg"
-                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105"
-                >
+                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105">
+
                   <Calendar className="h-5 w-5 mr-2" />
                   Schedule Meeting
                 </Button>
@@ -414,18 +414,18 @@ const MeetingsPage = () => {
         </div>
 
         {/* Search and Tabs */}
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-          <div className="relative w-full md:w-80">
+        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between px-[81px]">
+          <div className="relative w-full md:w-80 px-[3px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input 
-              placeholder="Search meetings..." 
+            <Input
+              placeholder="Search meetings..."
               className="pl-9 bg-muted/50 border-muted-foreground/20"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+              onChange={(e) => setSearchQuery(e.target.value)} />
+
           </div>
           
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="px-[140px]">
             <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl">
               <TabsTrigger value="upcoming" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
                 <ArrowUp className="h-4 w-4" />
@@ -445,14 +445,14 @@ const MeetingsPage = () => {
             </TabsList>
             
             <TabsContent value="upcoming" className="mt-4">
-              {isLoading ? (
-                <div className="text-center py-12">Loading meetings...</div>
-              ) : sortedMeetings.length > 0 ? (
-                sortedMeetings.map(meeting => (
-                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
-                ))
-              ) : (
-                <div className="text-center py-12">
+              {isLoading ?
+              <div className="text-center py-12">Loading meetings...</div> :
+              sortedMeetings.length > 0 ?
+              sortedMeetings.map((meeting) =>
+              <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
+              ) :
+
+              <div className="text-center py-12">
                   <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
                   <h3 className="text-lg font-medium mb-1">No upcoming meetings</h3>
                   <p className="text-muted-foreground">Schedule a new meeting to get started</p>
@@ -463,62 +463,62 @@ const MeetingsPage = () => {
                     </Button>
                   </div>
                 </div>
-              )}
+              }
             </TabsContent>
             
             <TabsContent value="past" className="mt-4">
-              {isLoading ? (
-                <div className="text-center py-12">Loading meetings...</div>
-              ) : sortedMeetings.length > 0 ? (
-                sortedMeetings.map(meeting => (
-                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
-                ))
-              ) : (
-                <div className="text-center py-12">
+              {isLoading ?
+              <div className="text-center py-12">Loading meetings...</div> :
+              sortedMeetings.length > 0 ?
+              sortedMeetings.map((meeting) =>
+              <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
+              ) :
+
+              <div className="text-center py-12">
                   <XCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
                   <h3 className="text-lg font-medium mb-1">No past meetings</h3>
                   <p className="text-muted-foreground">Past meetings will appear here</p>
                 </div>
-              )}
+              }
             </TabsContent>
             
             <TabsContent value="all" className="mt-4">
-              {isLoading ? (
-                <div className="text-center py-12">Loading meetings...</div>
-              ) : sortedMeetings.length > 0 ? (
-                sortedMeetings.map(meeting => (
-                  <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
-                ))
-              ) : (
-                <div className="text-center py-12">
+              {isLoading ?
+              <div className="text-center py-12">Loading meetings...</div> :
+              sortedMeetings.length > 0 ?
+              sortedMeetings.map((meeting) =>
+              <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
+              ) :
+
+              <div className="text-center py-12">
                   <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
                   <h3 className="text-lg font-medium mb-1">No meetings found</h3>
                   <p className="text-muted-foreground">Try adjusting your search</p>
                 </div>
-              )}
+              }
             </TabsContent>
           </Tabs>
         </div>
       </div>
       
-      <MeetingDetailDialog 
+      <MeetingDetailDialog
         meeting={selectedMeeting}
         isOpen={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
-      />
+        onOpenChange={setIsDetailOpen} />
+
       
-      <CreateMeetingDialog 
+      <CreateMeetingDialog
         isOpen={isCreateOpen}
-        onOpenChange={setIsCreateOpen}
-      />
+        onOpenChange={setIsCreateOpen} />
+
 
       <EditMeetingDialog
         meeting={selectedMeeting}
         open={isEditOpen}
-        onOpenChange={setIsEditOpen}
-      />
-    </MainLayout>
-  );
+        onOpenChange={setIsEditOpen} />
+
+    </MainLayout>);
+
 };
 
 export default MeetingsPage;
