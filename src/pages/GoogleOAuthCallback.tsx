@@ -9,10 +9,8 @@ const GoogleOAuthCallback = () => {
   useEffect(() => {
     const code = searchParams.get('code');
     const error = searchParams.get('error');
-    const state = searchParams.get('state'); // This contains the user ID
 
     if (error) {
-      // Send error to parent window
       if (window.opener) {
         window.opener.postMessage({
           type: 'GOOGLE_OAUTH_ERROR',
@@ -23,22 +21,27 @@ const GoogleOAuthCallback = () => {
       return;
     }
 
-    if (code && state) {
-      // Exchange code for tokens
-      exchangeCodeForTokens(code, state);
+    if (code) {
+      exchangeCodeForTokens(code);
     }
   }, [searchParams]);
 
-  const exchangeCodeForTokens = async (code: string, userId: string) => {
+  const exchangeCodeForTokens = async (code: string) => {
     try {
+      // Get current session to authenticate the edge function call
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
       const { data, error } = await supabase.functions.invoke('google-oauth-exchange', {
-        body: { code, userId },
+        body: { code },
       });
 
       if (error) throw error;
 
       if (data?.success) {
-        // Send success message to parent window
         if (window.opener) {
           window.opener.postMessage({
             type: 'GOOGLE_OAUTH_SUCCESS',
