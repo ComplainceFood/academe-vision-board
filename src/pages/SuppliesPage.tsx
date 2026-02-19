@@ -404,7 +404,7 @@ const SuppliesPage = () => {
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Low Stock</p>
                 <p className="text-3xl font-bold text-primary-foreground">{warningItems.length}</p>
               </div>
-              <div className="bg-secondary/30 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-xs uppercase tracking-wider text-primary-foreground">Total Expenses</p>
                 <p className="text-3xl font-bold text-primary-foreground">${totalExpenses.toLocaleString()}</p>
               </div>
