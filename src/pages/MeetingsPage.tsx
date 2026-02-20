@@ -414,18 +414,18 @@ const MeetingsPage = () => {
         </div>
 
         {/* Search and Tabs */}
-        <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between px-[81px]">
-          <div className="relative w-full md:w-80 px-[3px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search meetings..."
-              className="pl-9 bg-muted/50 border-muted-foreground/20"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)} />
-
-          </div>
-          
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="px-[140px]">
+        {/* Search and Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-4">
+          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+            <div className="relative w-full md:w-80">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search meetings..."
+                className="pl-9 bg-muted/50 border-muted-foreground/20"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)} />
+            </div>
+            
             <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl">
               <TabsTrigger value="upcoming" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
                 <ArrowUp className="h-4 w-4" />
@@ -443,62 +443,59 @@ const MeetingsPage = () => {
                 <Badge variant="secondary" className="ml-1">{stats.total}</Badge>
               </TabsTrigger>
             </TabsList>
-            
-            <TabsContent value="upcoming" className="mt-4">
-              {isLoading ?
-              <div className="text-center py-12">Loading meetings...</div> :
-              sortedMeetings.length > 0 ?
-              sortedMeetings.map((meeting) =>
-              <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
-              ) :
-
-              <div className="text-center py-12">
-                  <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="text-lg font-medium mb-1">No upcoming meetings</h3>
-                  <p className="text-muted-foreground">Schedule a new meeting to get started</p>
-                  <div className="mt-4">
-                    <Button onClick={() => setIsCreateOpen(true)}>
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Schedule Meeting
-                    </Button>
-                  </div>
+          </div>
+          
+          <TabsContent value="upcoming" className="mt-4">
+            {isLoading ?
+            <div className="text-center py-12">Loading meetings...</div> :
+            sortedMeetings.length > 0 ?
+            sortedMeetings.map((meeting) =>
+            <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
+            ) :
+            <div className="text-center py-12">
+                <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                <h3 className="text-lg font-medium mb-1">No upcoming meetings</h3>
+                <p className="text-muted-foreground">Schedule a new meeting to get started</p>
+                <div className="mt-4">
+                  <Button onClick={() => setIsCreateOpen(true)}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    Schedule Meeting
+                  </Button>
                 </div>
-              }
-            </TabsContent>
-            
-            <TabsContent value="past" className="mt-4">
-              {isLoading ?
-              <div className="text-center py-12">Loading meetings...</div> :
-              sortedMeetings.length > 0 ?
-              sortedMeetings.map((meeting) =>
-              <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
-              ) :
-
-              <div className="text-center py-12">
-                  <XCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="text-lg font-medium mb-1">No past meetings</h3>
-                  <p className="text-muted-foreground">Past meetings will appear here</p>
-                </div>
-              }
-            </TabsContent>
-            
-            <TabsContent value="all" className="mt-4">
-              {isLoading ?
-              <div className="text-center py-12">Loading meetings...</div> :
-              sortedMeetings.length > 0 ?
-              sortedMeetings.map((meeting) =>
-              <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
-              ) :
-
-              <div className="text-center py-12">
-                  <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                  <h3 className="text-lg font-medium mb-1">No meetings found</h3>
-                  <p className="text-muted-foreground">Try adjusting your search</p>
-                </div>
-              }
-            </TabsContent>
-          </Tabs>
-        </div>
+              </div>
+            }
+          </TabsContent>
+          
+          <TabsContent value="past" className="mt-4">
+            {isLoading ?
+            <div className="text-center py-12">Loading meetings...</div> :
+            sortedMeetings.length > 0 ?
+            sortedMeetings.map((meeting) =>
+            <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
+            ) :
+            <div className="text-center py-12">
+                <XCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                <h3 className="text-lg font-medium mb-1">No past meetings</h3>
+                <p className="text-muted-foreground">Past meetings will appear here</p>
+              </div>
+            }
+          </TabsContent>
+          
+          <TabsContent value="all" className="mt-4">
+            {isLoading ?
+            <div className="text-center py-12">Loading meetings...</div> :
+            sortedMeetings.length > 0 ?
+            sortedMeetings.map((meeting) =>
+            <MeetingCard key={meeting.id} meeting={meeting} onViewDetails={handleViewDetails} onEdit={handleEditMeeting} />
+            ) :
+            <div className="text-center py-12">
+                <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                <h3 className="text-lg font-medium mb-1">No meetings found</h3>
+                <p className="text-muted-foreground">Try adjusting your search</p>
+              </div>
+            }
+          </TabsContent>
+        </Tabs>
       </div>
       
       <MeetingDetailDialog
