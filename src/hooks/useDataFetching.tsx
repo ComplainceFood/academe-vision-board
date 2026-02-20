@@ -96,11 +96,15 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     } catch (err) {
       console.error(`Error fetching ${table}:`, err);
       setError(err instanceof Error ? err : new Error('An unknown error occurred'));
-      toast({
-        title: "Error",
-        description: `Failed to fetch ${table} data`,
-        variant: "destructive",
-      });
+      // Only show toast for genuine errors, not auth/RLS issues
+      const errMsg = err instanceof Error ? err.message : '';
+      if (!errMsg.includes('JWT') && !errMsg.includes('permission') && !errMsg.includes('row-level security')) {
+        toast({
+          title: "Error",
+          description: `Failed to fetch ${table} data`,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
