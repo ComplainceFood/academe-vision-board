@@ -112,78 +112,120 @@ const mockDataSets = {
   meetings: {
     name: "Academic Meetings",
     description: "Faculty meetings, student advising, and committee sessions",
-    count: 8,
+    count: 6,
     data: [
       {
         title: "PhD Student Advisory Meeting",
-        type: "1:1",
+        type: "one_on_one",
         status: "scheduled",
         start_date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         start_time: "10:00",
         end_time: "10:30",
-        attendees: ["Sarah Johnson"],
+        attendees: [{ name: "Sarah Johnson", email: "", status: "pending", required: true }],
         location: "Office 302",
-        notes: "Discuss thesis progress and timeline for defense."
+        description: "Discuss thesis progress and timeline for defense.",
+        agenda: "",
+        notes: "",
+        action_items: [],
+        attachments: [],
+        is_recurring: false,
+        reminder_minutes: 15
       },
       {
         title: "Curriculum Committee Meeting",
-        type: "committee",
+        type: "group",
         status: "scheduled",
         start_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         start_time: "14:00",
         end_time: "15:30",
-        attendees: ["Dr. Smith", "Dr. Brown", "Dr. Wilson"],
+        attendees: [
+          { name: "Dr. Smith", email: "", status: "pending", required: true },
+          { name: "Dr. Brown", email: "", status: "pending", required: true },
+          { name: "Dr. Wilson", email: "", status: "pending", required: false }
+        ],
         location: "Conference Room A",
-        notes: "Review proposed changes to undergraduate CS requirements."
+        description: "Review proposed changes to undergraduate CS requirements.",
+        agenda: "1. Review current curriculum\n2. Discuss proposed changes\n3. Vote on updates",
+        notes: "",
+        action_items: [],
+        attachments: [],
+        is_recurring: false,
+        reminder_minutes: 15
       },
       {
         title: "Teaching Assistant Weekly Sync",
-        type: "1:1",
+        type: "one_on_one",
         status: "scheduled",
         start_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         start_time: "15:00",
         end_time: "15:30",
-        attendees: ["Michael Chen (TA)"],
+        attendees: [{ name: "Michael Chen (TA)", email: "", status: "pending", required: true }],
         location: "Office 302",
-        notes: "Review grading rubric for upcoming assignment."
+        description: "Review grading rubric for upcoming assignment.",
+        agenda: "",
+        notes: "",
+        action_items: [],
+        attachments: [],
+        is_recurring: true,
+        recurring_pattern: "weekly",
+        reminder_minutes: 15
       },
       {
         title: "Department Faculty Meeting",
-        type: "department",
+        type: "group",
         status: "scheduled",
         start_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         start_time: "09:00",
         end_time: "11:00",
-        attendees: ["All Faculty"],
+        attendees: [{ name: "All Faculty", email: "", status: "pending", required: true }],
         location: "Main Conference Hall",
-        notes: "Monthly department meeting. Agenda: Budget review, hiring updates."
+        description: "Monthly department meeting. Agenda: Budget review, hiring updates.",
+        agenda: "Budget review, hiring updates, new course proposals",
+        notes: "",
+        action_items: [],
+        attachments: [],
+        is_recurring: true,
+        recurring_pattern: "monthly",
+        reminder_minutes: 30
       },
       {
         title: "Student Office Hours",
-        type: "office-hours",
+        type: "one_on_one",
         status: "scheduled",
         start_date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         start_time: "13:00",
         end_time: "15:00",
         attendees: [],
         location: "Office 302",
-        notes: "Open office hours for CS101 and CS202 students."
+        description: "Open office hours for CS101 and CS202 students.",
+        agenda: "",
+        notes: "",
+        action_items: [],
+        attachments: [],
+        is_recurring: true,
+        recurring_pattern: "weekly",
+        reminder_minutes: 15
       },
       {
         title: "Research Collaboration Discussion",
-        type: "1:1",
+        type: "one_on_one",
         status: "completed",
         start_date: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
         start_time: "11:00",
         end_time: "12:00",
-        attendees: ["Dr. Emily Clark (External)"],
+        attendees: [{ name: "Dr. Emily Clark (External)", email: "", status: "accepted", required: true }],
         location: "Zoom",
+        description: "Discussed potential NSF grant collaboration on AI education tools.",
+        agenda: "",
         notes: "Discussed potential NSF grant collaboration on AI education tools.",
         action_items: [
-          "Draft preliminary proposal outline",
-          "Share previous research papers",
-          "Schedule follow-up in 2 weeks"
-        ]
+          { id: "1", description: "Draft preliminary proposal outline", assignee: "Professor", due_date: "", completed: false, created_at: new Date().toISOString() },
+          { id: "2", description: "Share previous research papers", assignee: "Professor", due_date: "", completed: false, created_at: new Date().toISOString() },
+          { id: "3", description: "Schedule follow-up in 2 weeks", assignee: "Professor", due_date: "", completed: false, created_at: new Date().toISOString() }
+        ],
+        attachments: [],
+        is_recurring: false,
+        reminder_minutes: 15
       }
     ]
   },
@@ -504,19 +546,8 @@ export function AdminSeedDataManager() {
             // Remove any fields that don't exist in the target table
             const cleanedItem = { ...item };
             
-            // For notes and meetings, ensure no unexpected fields
-            if (setKey === 'notes' || setKey === 'meetings') {
-              // Remove any description field that might exist
-              delete cleanedItem.description;
-            }
-            
-            // For planning events, remove description field
-            if (setKey === 'planningEvents') {
-              delete cleanedItem.description;
-            }
-            
-            // For future planning, remove description field since it doesn't exist in schema
-            if (setKey === 'futureTasksAndPlanning') {
+            // For notes, ensure no unexpected fields
+            if (setKey === 'notes') {
               delete cleanedItem.description;
             }
             
