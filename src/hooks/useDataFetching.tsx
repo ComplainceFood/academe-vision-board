@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
-type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback' | 'admin_communications' | 'scholastic_achievements';
+type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback' | 'admin_communications' | 'scholastic_achievements' | 'test_projects' | 'test_suites' | 'test_cases' | 'test_executions' | 'test_defects' | 'test_requirements' | 'test_team_members' | 'test_automation_configs' | 'test_case_requirements';
 
 interface Filter {
   column: string;
@@ -45,12 +45,16 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         .from(table)
         .select('*');
 
-      // Add user_id filter for tables that have it (all except admin_communications)
-      if (table !== 'admin_communications') {
+      // Add user_id filter for tables that have direct user ownership
+      // Test tables use project-membership RLS, so we don't filter by user_id
+      const tablesWithoutUserIdFilter = [
+        'admin_communications', 
+        'test_cases', 'test_suites', 'test_executions', 'test_defects', 
+        'test_requirements', 'test_team_members', 'test_automation_configs', 'test_case_requirements'
+      ];
+      if (!tablesWithoutUserIdFilter.includes(table)) {
         query = query.eq('user_id', user.id);
       }
-      // Note: admin_communications filtering is handled by component-level filters
-      // to allow admins to see all and users to see only published ones
       
       // Apply any additional filters
       for (const filter of filters) {
@@ -130,7 +134,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
           event: '*', 
           schema: 'public', 
           table,
-          filter: table !== 'admin_communications' ? `user_id=eq.${user.id}` : undefined
+          filter: !['admin_communications', 'test_cases', 'test_suites', 'test_executions', 'test_defects', 'test_requirements', 'test_team_members', 'test_automation_configs', 'test_case_requirements'].includes(table) ? `user_id=eq.${user.id}` : undefined
         },
         (payload) => {
           console.log(`Received real-time update for ${table}:`, payload);
