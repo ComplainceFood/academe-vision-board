@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
-import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut, BarChart3, MessageCircle, Megaphone, Award, TestTube } from "lucide-react";
+import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut, BarChart3, MessageCircle, Megaphone, Award, TestTube, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -63,6 +63,11 @@ export function AppSidebar() {
     title: "Testing Platform",
     icon: TestTube,
     path: "/testing"
+  }, {
+    id: "admin-users",
+    title: "User Management",
+    icon: Users,
+    path: "/admin/users"
   }, {
     id: "communications",
     title: "Admin Communications",

@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
 
-type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback' | 'admin_communications' | 'scholastic_achievements' | 'test_projects' | 'test_suites' | 'test_cases' | 'test_executions' | 'test_defects' | 'test_requirements' | 'test_team_members' | 'test_automation_configs' | 'test_case_requirements';
+type TableName = 'notes' | 'meetings' | 'supplies' | 'expenses' | 'shopping_list' | 'planning_events' | 'future_planning' | 'funding_sources' | 'funding_expenditures' | 'notification_preferences' | 'feedback' | 'admin_communications' | 'scholastic_achievements' | 'test_projects' | 'test_suites' | 'test_cases' | 'test_executions' | 'test_defects' | 'test_requirements' | 'test_team_members' | 'test_automation_configs' | 'test_case_requirements' | 'user_subscriptions';
 
 interface Filter {
   column: string;
