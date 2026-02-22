@@ -463,42 +463,84 @@ const LandingPreview = () => {
             </p>
           </motion.div>
 
+          {/* Top row: 2 featured cards */}
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid md:grid-cols-2 gap-6 mb-6"
           >
-            {showcaseItems.map((item, index) => (
+            {showcaseItems.slice(0, 2).map((item, index) => (
               <motion.div
                 key={index}
-                variants={index % 2 === 0 ? fadeInLeft : fadeInRight}
-                whileHover={{ y: -8, scale: 1.02 }}
+                variants={index === 0 ? fadeInLeft : fadeInRight}
+                whileHover={{ y: -6 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className="group"
               >
-                <div className="rounded-2xl overflow-hidden border border-border/50 bg-card shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all duration-500">
-                  {/* Header */}
-                  <div className="p-4 border-b border-border/30 bg-gradient-to-r from-muted/80 to-muted/40">
+                <div className="rounded-2xl overflow-hidden border border-border/50 bg-card shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all duration-500 h-full">
+                  <div className="p-5 border-b border-border/30 bg-gradient-to-r from-muted/80 to-muted/40">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-primary shadow-md shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-500">
-                        <item.icon className="h-4 w-4 text-primary-foreground" />
+                      <div className="p-2.5 rounded-xl bg-primary shadow-md shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-500">
+                        <item.icon className="h-5 w-5 text-primary-foreground" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors duration-300">{item.title}</h3>
-                        <p className="text-xs text-muted-foreground">{item.subtitle}</p>
+                        <h3 className="text-lg font-semibold text-foreground group-hover:text-primary transition-colors duration-300">{item.title}</h3>
+                        <p className="text-sm text-muted-foreground">{item.subtitle}</p>
                       </div>
                       <ArrowRight className="h-4 w-4 ml-auto text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-1 transition-all duration-300" />
                     </div>
                   </div>
-                  {/* Image */}
                   <div className="overflow-hidden relative">
                     <div className="absolute inset-0 bg-gradient-to-t from-card/20 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     <img 
                       src={item.image} 
                       alt={item.title}
-                      className="w-full h-auto group-hover:scale-[1.06] transition-transform duration-700 ease-out"
+                      className="w-full h-auto group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                      loading="lazy"
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          {/* Bottom row: 4 compact cards */}
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-60px" }}
+            variants={staggerContainer}
+            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
+            {showcaseItems.slice(2).map((item, index) => (
+              <motion.div
+                key={index}
+                variants={scaleIn}
+                whileHover={{ y: -6 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="group"
+              >
+                <div className="rounded-2xl overflow-hidden border border-border/50 bg-card shadow-lg hover:shadow-2xl hover:border-primary/30 transition-all duration-500 h-full">
+                  <div className="p-3.5 border-b border-border/30 bg-gradient-to-r from-muted/80 to-muted/40">
+                    <div className="flex items-center gap-2.5">
+                      <div className="p-1.5 rounded-lg bg-primary shadow-md shadow-primary/20 group-hover:shadow-primary/40 transition-shadow duration-500">
+                        <item.icon className="h-3.5 w-3.5 text-primary-foreground" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-300 truncate">{item.title}</h3>
+                        <p className="text-xs text-muted-foreground truncate">{item.subtitle}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-t from-card/20 to-transparent z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                    <img 
+                      src={item.image} 
+                      alt={item.title}
+                      className="w-full h-auto group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                      loading="lazy"
                     />
                   </div>
                 </div>
