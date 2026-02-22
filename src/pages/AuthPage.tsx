@@ -25,8 +25,8 @@ const AuthPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  // Sign-ups are temporarily disabled
-  const SIGNUPS_ENABLED = false;
+  // Sign-ups re-enabled
+  const SIGNUPS_ENABLED = true;
 
   // Redirect if already authenticated
   useEffect(() => {
