@@ -11,7 +11,18 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useQueryClient } from "@tanstack/react-query";
-import { Database, TestTube, RotateCcw, Zap, Info, CheckCircle } from "lucide-react";
+import { Database, TestTube, RotateCcw, Zap, Info, CheckCircle, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 // Enhanced mock data sets for academic administration
 const mockDataSets = {
@@ -479,8 +490,20 @@ const mockDataSets = {
   }
 };
 
+// Map from mockDataSets keys to actual Supabase table names
+const tableMap: Record<string, string> = {
+  notes: 'notes',
+  meetings: 'meetings',
+  supplies: 'supplies',
+  expenses: 'expenses',
+  planningEvents: 'planning_events',
+  futureTasksAndPlanning: 'future_planning',
+  feedback: 'feedback',
+};
+
 export function AdminSeedDataManager() {
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedSets, setSelectedSets] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [currentSet, setCurrentSet] = useState("");
@@ -493,6 +516,100 @@ export function AdminSeedDataManager() {
   // Only show to system admin users
   if (roleLoading || !isSystemAdmin()) {
     return null;
+  }
+
+  async function deleteSelectedData() {
+    if (!user || selectedSets.length === 0) {
+      toast({
+        title: "No data selected",
+        description: "Please select at least one data set to delete",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      setProgress(0);
+      setSeedResults({});
+
+      const totalSets = selectedSets.length;
+      let completedSets = 0;
+      const results: { [key: string]: { success: boolean; count: number; error?: string } } = {};
+
+      for (const setKey of selectedSets) {
+        const mockSet = mockDataSets[setKey as keyof typeof mockDataSets];
+        const tableName = tableMap[setKey];
+        setCurrentSet(`Deleting ${mockSet.name}`);
+
+        try {
+          let deleteResult: { error: any; count: number | null };
+
+          switch (setKey) {
+            case 'notes':
+              deleteResult = await supabase.from('notes').delete({ count: 'exact' }).eq('user_id', user.id);
+              break;
+            case 'meetings':
+              deleteResult = await supabase.from('meetings').delete({ count: 'exact' }).eq('user_id', user.id);
+              break;
+            case 'supplies':
+              deleteResult = await supabase.from('supplies').delete({ count: 'exact' }).eq('user_id', user.id);
+              break;
+            case 'expenses':
+              deleteResult = await supabase.from('expenses').delete({ count: 'exact' }).eq('user_id', user.id);
+              break;
+            case 'planningEvents':
+              deleteResult = await supabase.from('planning_events').delete({ count: 'exact' }).eq('user_id', user.id);
+              break;
+            case 'futureTasksAndPlanning':
+              deleteResult = await supabase.from('future_planning').delete({ count: 'exact' }).eq('user_id', user.id);
+              break;
+            case 'feedback':
+              deleteResult = await supabase.from('feedback').delete({ count: 'exact' }).eq('user_id', user.id);
+              break;
+            default:
+              throw new Error(`Unknown data set: ${setKey}`);
+          }
+
+          if (deleteResult.error) throw deleteResult.error;
+
+          results[setKey] = { success: true, count: deleteResult.count ?? 0 };
+
+          // Invalidate queries
+          queryClient.invalidateQueries({ queryKey: [tableName] });
+          queryClient.invalidateQueries({ queryKey: [setKey] });
+        } catch (error: any) {
+          console.error(`Error deleting ${setKey}:`, error);
+          results[setKey] = { success: false, count: 0, error: error.message };
+        }
+
+        completedSets++;
+        setProgress((completedSets / totalSets) * 100);
+        setSeedResults(results);
+      }
+
+      setCurrentSet("");
+
+      // Notify other components
+      window.dispatchEvent(new CustomEvent('seedDataCompleted', { detail: { userId: user.id, results } }));
+
+      const successCount = Object.values(results).filter(r => r.success).length;
+      const totalDeleted = Object.values(results).filter(r => r.success).reduce((sum, r) => sum + r.count, 0);
+
+      toast({
+        title: "Delete operation completed",
+        description: `Deleted ${totalDeleted} records across ${successCount} tables`,
+      });
+    } catch (error: any) {
+      console.error("Error during deletion:", error);
+      toast({
+        title: "Deletion failed",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   const handleSetSelection = (setKey: string, checked: boolean) => {
@@ -743,11 +860,11 @@ export function AdminSeedDataManager() {
           </div>
         </div>
 
-        {isSeeding && (
+        {(isSeeding || isDeleting) && (
           <div className="space-y-4">
             <div className="space-y-2">
               <div className="flex justify-between text-sm">
-                <span>Progress: {currentSet}</span>
+                <span>{currentSet}</span>
                 <span>{Math.round(progress)}%</span>
               </div>
               <Progress value={progress} className="w-full" />
@@ -785,7 +902,7 @@ export function AdminSeedDataManager() {
 
           <Button 
             onClick={seedSelectedData} 
-            disabled={isSeeding || selectedSets.length === 0 || !user}
+            disabled={isSeeding || isDeleting || selectedSets.length === 0 || !user}
             className="flex-1"
           >
             {isSeeding ? (
@@ -800,6 +917,42 @@ export function AdminSeedDataManager() {
               </>
             )}
           </Button>
+
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="destructive" 
+                disabled={isSeeding || isDeleting || selectedSets.length === 0 || !user}
+                className="flex-1"
+              >
+                {isDeleting ? (
+                  <>
+                    <Zap className="h-4 w-4 mr-2" />
+                    Deleting Data...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Selected Data ({selectedSets.length})
+                  </>
+                )}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete Mock Data</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete <strong>all your data</strong> from the selected tables ({selectedSets.length} selected). This only affects your admin account and will not touch any other user's data. This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={deleteSelectedData} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Yes, Delete All Selected Data
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </CardContent>
     </Card>
