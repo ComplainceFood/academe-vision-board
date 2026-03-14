@@ -232,7 +232,7 @@ export function SecurityMonitor() {
       {/* Manual Configuration Required */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg text-amber-600">Manual Configuration Required</CardTitle>
+          <CardTitle className="text-lg text-warning">Manual Configuration Required</CardTitle>
           <CardDescription>
             These settings require manual configuration in your Supabase dashboard
           </CardDescription>

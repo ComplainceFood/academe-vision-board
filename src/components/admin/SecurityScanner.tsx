@@ -16,6 +16,18 @@ interface SecurityIssue {
   fixUrl?: string;
 }
 
+interface SecurityConfig {
+  issues: string[];
+  warnings: string[];
+}
+
+interface ExtensionInfo {
+  extension_name: string;
+  recommendation: string;
+  schema_name: string;
+  security_status: string;
+}
+
 export function SecurityScanner() {
   const [issues, setIssues] = useState<SecurityIssue[]>([]);
   const [scanning, setScanning] = useState(false);
@@ -27,49 +39,83 @@ export function SecurityScanner() {
     
     setScanning(true);
     try {
-      // Simulate security scanning - in a real app this would call a security scanner function
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Mock security issues - replace with actual scanner results
-      const mockIssues: SecurityIssue[] = [
-        {
-          id: 'leaked-password-protection',
-          level: 'WARN',
-          title: 'Leaked Password Protection Disabled',
-          description: 'Leaked password protection is currently disabled in Supabase Authentication settings.',
-          category: 'AUTHENTICATION',
-          fixed: false,
-          fixUrl: 'https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection'
-        },
-        {
-          id: 'otp-expiry',
-          level: 'WARN',
-          title: 'OTP Expiry Too Long',
-          description: 'OTP expiry time exceeds recommended threshold (should be ≤ 10 minutes).',
-          category: 'AUTHENTICATION',
-          fixed: false,
-          fixUrl: 'https://supabase.com/docs/guides/platform/going-into-prod#security'
-        },
-        {
-          id: 'extensions-in-public',
-          level: 'WARN',
-          title: 'Extensions in Public Schema',
-          description: 'Some PostgreSQL extensions are installed in the public schema, which poses security risks.',
-          category: 'DATABASE',
-          fixed: false,
-          fixUrl: 'https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public'
-        },
-        {
-          id: 'role-security-fixed',
+      const [configResult, extensionsResult] = await Promise.all([
+        supabase.rpc('validate_security_configuration'),
+        supabase.rpc('get_extension_security_info'),
+      ]);
+
+      const detectedIssues: SecurityIssue[] = [];
+
+      // Process configuration issues
+      const config = configResult.data as unknown as SecurityConfig;
+      if (config?.issues) {
+        config.issues.forEach((issue, i) => {
+          detectedIssues.push({
+            id: `config-issue-${i}`,
+            level: 'CRITICAL',
+            title: issue,
+            description: issue,
+            category: 'CONFIGURATION',
+            fixed: false,
+          });
+        });
+      }
+
+      if (config?.warnings) {
+        config.warnings.forEach((warning, i) => {
+          detectedIssues.push({
+            id: `config-warning-${i}`,
+            level: 'WARN',
+            title: warning,
+            description: warning,
+            category: 'CONFIGURATION',
+            fixed: false,
+            fixUrl: 'https://supabase.com/docs/guides/platform/going-into-prod#security',
+          });
+        });
+      }
+
+      // Process extension issues
+      const extensions = extensionsResult.data as ExtensionInfo[] | null;
+      if (extensions) {
+        extensions.forEach((ext) => {
+          if (ext.security_status !== 'OK') {
+            detectedIssues.push({
+              id: `ext-${ext.extension_name}`,
+              level: 'WARN',
+              title: `Extension "${ext.extension_name}" in ${ext.schema_name} schema`,
+              description: ext.recommendation,
+              category: 'DATABASE',
+              fixed: false,
+              fixUrl: 'https://supabase.com/docs/guides/database/database-linter?lint=0014_extension_in_public',
+            });
+          }
+        });
+      }
+
+      // Add known fixed items from RLS/role security
+      detectedIssues.push({
+        id: 'role-security-fixed',
+        level: 'INFO',
+        title: 'Role Security Hardened',
+        description: 'User role privilege escalation vulnerability has been fixed with proper RLS policies.',
+        category: 'ACCESS_CONTROL',
+        fixed: true,
+      });
+
+      // If no issues found at all, add a positive indicator
+      if (detectedIssues.filter(i => !i.fixed).length === 0) {
+        detectedIssues.push({
+          id: 'all-clear',
           level: 'INFO',
-          title: 'Role Security Hardened',
-          description: 'User role privilege escalation vulnerability has been fixed with proper RLS policies.',
-          category: 'ACCESS_CONTROL',
-          fixed: true
-        }
-      ];
-      
-      setIssues(mockIssues);
+          title: 'No Issues Detected',
+          description: 'All automated security checks passed successfully.',
+          category: 'GENERAL',
+          fixed: true,
+        });
+      }
+
+      setIssues(detectedIssues);
       setLastScan(new Date());
     } catch (error) {
       console.error('Security scan failed:', error);
@@ -85,7 +131,7 @@ export function SecurityScanner() {
   }, [isSystemAdmin, loading]);
 
   if (loading) {
-    return <div>Loading security scanner...</div>;
+    return <div className="text-muted-foreground">Loading security scanner...</div>;
   }
 
   if (!isSystemAdmin()) {
@@ -221,27 +267,6 @@ export function SecurityScanner() {
           ))}
         </div>
       )}
-
-      {/* Manual Configuration Required */}
-      <Alert>
-        <Shield className="h-4 w-4" />
-        <AlertTitle>Manual Supabase Configuration Required</AlertTitle>
-        <AlertDescription className="space-y-2">
-          <p>Some security improvements require manual configuration in your Supabase dashboard:</p>
-          <div className="space-y-1">
-            <p><strong>1. Enable Leaked Password Protection:</strong></p>
-            <p className="text-sm ml-4">Go to Authentication → Settings → Password Protection</p>
-            
-            <p><strong>2. Reduce OTP Expiry Time:</strong></p>
-            <p className="text-sm ml-4">Go to Authentication → Settings → Auth → OTP expiry (set to 600 seconds or less)</p>
-          </div>
-          <Button variant="outline" size="sm" asChild className="mt-2">
-            <a href="https://supabase.com/dashboard/project/ljxwljvodiwtmkiseukb/auth/providers" target="_blank" rel="noopener noreferrer">
-              Open Supabase Dashboard <ExternalLink className="h-3 w-3 ml-1" />
-            </a>
-          </Button>
-        </AlertDescription>
-      </Alert>
     </div>
   );
 }

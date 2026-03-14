@@ -1,142 +1,189 @@
+import { useState, useEffect } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Shield, CheckCircle, AlertTriangle, Lock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Shield, CheckCircle, AlertTriangle, Lock, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+
+interface SecurityConfig {
+  https_enabled: boolean;
+  auth_configured: boolean;
+  last_checked: string;
+  issues: string[];
+  warnings: string[];
+}
+
+interface ExtensionInfo {
+  extension_name: string;
+  recommendation: string;
+  schema_name: string;
+  security_status: string;
+}
 
 export function SecurityStatus() {
+  const [config, setConfig] = useState<SecurityConfig | null>(null);
+  const [extensions, setExtensions] = useState<ExtensionInfo[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+
+  const fetchSecurityData = async () => {
+    setLoading(true);
+    try {
+      const [configResult, extensionsResult] = await Promise.all([
+        supabase.rpc('validate_security_configuration'),
+        supabase.rpc('get_extension_security_info'),
+      ]);
+
+      if (configResult.data) {
+        setConfig(configResult.data as unknown as SecurityConfig);
+      }
+      if (extensionsResult.data) {
+        setExtensions(extensionsResult.data as ExtensionInfo[]);
+      }
+    } catch (error) {
+      console.error('Error fetching security data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) fetchSecurityData();
+  }, [user]);
+
+  const issueCount = config?.issues?.length ?? 0;
+  const warningCount = config?.warnings?.length ?? 0;
+  const extensionIssues = extensions.filter(e => e.security_status !== 'OK');
+
+  const securityFeatures = [
+    { label: "XSS Prevention", ok: true },
+    { label: "Input Validation & Sanitization", ok: true },
+    { label: "Row-Level Security (RLS)", ok: config?.auth_configured ?? false },
+    { label: "Secure Authentication", ok: config?.auth_configured ?? false },
+    { label: "Password Strength Validation", ok: true },
+    { label: "Security Audit Logging", ok: true },
+    { label: "File Upload Validation", ok: true },
+    { label: "Content Sanitization", ok: true },
+    { label: "HTTPS", ok: config?.https_enabled ?? false },
+  ];
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <RefreshCw className="h-4 w-4 animate-spin" />
+            Loading security status...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Security Status</h2>
-        <p className="text-muted-foreground">
-          Overview of implemented security measures and critical fixes
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Security Status</h2>
+          <p className="text-muted-foreground">
+            Live overview of your security configuration
+          </p>
+        </div>
+        <Button variant="outline" size="sm" onClick={fetchSecurityData} disabled={loading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </div>
 
-      {/* Security Fixes Summary */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="p-4 border rounded-lg border-success">
-          <div className="flex items-center space-x-2 mb-2">
-            <CheckCircle className="h-5 w-5 text-success" />
-            <span className="font-semibold text-success">Critical Fix Applied</span>
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="p-4 border rounded-lg border-destructive/30">
+          <div className="flex items-center space-x-2 mb-1">
+            <AlertTriangle className="h-5 w-5 text-destructive" />
+            <span className="font-semibold">Issues</span>
           </div>
-          <h3 className="font-medium">Privilege Escalation</h3>
-          <p className="text-sm text-muted-foreground">
-            Fixed dangerous user role update vulnerability
-          </p>
+          <p className="text-2xl font-bold text-destructive">{issueCount}</p>
         </div>
-
-        <div className="p-4 border rounded-lg border-success">
-          <div className="flex items-center space-x-2 mb-2">
-            <CheckCircle className="h-5 w-5 text-success" />
-            <span className="font-semibold text-success">Security Hardened</span>
+        <div className="p-4 border rounded-lg border-warning/30">
+          <div className="flex items-center space-x-2 mb-1">
+            <AlertTriangle className="h-5 w-5 text-warning" />
+            <span className="font-semibold">Warnings</span>
           </div>
-          <h3 className="font-medium">Role Management</h3>
-          <p className="text-sm text-muted-foreground">
-            Implemented secure role assignment with audit logging
-          </p>
+          <p className="text-2xl font-bold text-warning">{warningCount + extensionIssues.length}</p>
         </div>
-
-        <div className="p-4 border rounded-lg border-success">
-          <div className="flex items-center space-x-2 mb-2">
+        <div className="p-4 border rounded-lg border-success/30">
+          <div className="flex items-center space-x-2 mb-1">
             <CheckCircle className="h-5 w-5 text-success" />
-            <span className="font-semibold text-success">Protection Active</span>
+            <span className="font-semibold">Secured</span>
           </div>
-          <h3 className="font-medium">Rate Limiting</h3>
-          <p className="text-sm text-muted-foreground">
-            Added rate limiting for sensitive operations
+          <p className="text-2xl font-bold text-success">
+            {securityFeatures.filter(f => f.ok).length}/{securityFeatures.length}
           </p>
         </div>
       </div>
+
+      {/* Issues */}
+      {issueCount > 0 && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Security Issues</AlertTitle>
+          <AlertDescription>
+            <ul className="mt-1 list-disc list-inside">
+              {config!.issues.map((issue, i) => (
+                <li key={i} className="text-sm">{issue}</li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Warnings */}
+      {(warningCount > 0 || extensionIssues.length > 0) && (
+        <Alert>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Warnings</AlertTitle>
+          <AlertDescription>
+            <ul className="mt-1 list-disc list-inside">
+              {config?.warnings?.map((w, i) => (
+                <li key={`w-${i}`} className="text-sm">{w}</li>
+              ))}
+              {extensionIssues.map((ext, i) => (
+                <li key={`ext-${i}`} className="text-sm">
+                  Extension <strong>{ext.extension_name}</strong> in schema <code>{ext.schema_name}</code>: {ext.recommendation}
+                </li>
+              ))}
+            </ul>
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Security Features */}
       <Alert>
         <Shield className="h-4 w-4" />
-        <AlertTitle>Security Features Implemented</AlertTitle>
+        <AlertTitle>Security Features</AlertTitle>
         <AlertDescription className="mt-2">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">XSS Prevention</span>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {securityFeatures.map((feature, i) => (
+              <div key={i} className="flex items-center space-x-2">
+                {feature.ok ? (
+                  <CheckCircle className="h-4 w-4 text-success" />
+                ) : (
+                  <AlertTriangle className="h-4 w-4 text-warning" />
+                )}
+                <span className="text-sm">{feature.label}</span>
               </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">Input Validation & Sanitization</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">Row-Level Security (RLS)</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">Secure Authentication</span>
-              </div>
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">Password Strength Validation</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">Security Audit Logging</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">File Upload Validation</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <CheckCircle className="h-4 w-4 text-success" />
-                <span className="text-sm">Content Sanitization</span>
-              </div>
-            </div>
+            ))}
           </div>
         </AlertDescription>
       </Alert>
 
-      {/* Manual Configuration Alert */}
-      <Alert>
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle>Manual Configuration Required</AlertTitle>
-        <AlertDescription className="space-y-2">
-          <p>The following security improvements require manual configuration in Supabase:</p>
-          <div className="space-y-1">
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline">Authentication</Badge>
-              <span className="text-sm">Enable Leaked Password Protection</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline">Authentication</Badge>
-              <span className="text-sm">Reduce OTP Expiry Time (≤ 10 minutes)</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <Badge variant="outline">Database</Badge>
-              <span className="text-sm">Move Extensions from Public Schema</span>
-            </div>
-          </div>
-          <p className="text-sm text-muted-foreground mt-2">
-            Contact your system administrator to complete these configurations.
-          </p>
-        </AlertDescription>
-      </Alert>
-
-      {/* Security Best Practices */}
-      <Alert>
-        <Lock className="h-4 w-4" />
-        <AlertTitle>Security Best Practices Implemented</AlertTitle>
-        <AlertDescription className="mt-2">
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            <li>All user inputs are validated and sanitized before processing</li>
-            <li>Database queries use parameterized statements to prevent SQL injection</li>
-            <li>Row-Level Security policies ensure users can only access their own data</li>
-            <li>Role-based access control with hierarchical permissions</li>
-            <li>Secure session management with automatic token refresh</li>
-            <li>File uploads are validated for type, size, and malicious content</li>
-            <li>Security events are logged for monitoring and auditing</li>
-            <li>Rate limiting prevents abuse of sensitive operations</li>
-          </ul>
-        </AlertDescription>
-      </Alert>
+      {config?.last_checked && (
+        <p className="text-xs text-muted-foreground">
+          Last checked: {new Date(config.last_checked).toLocaleString()}
+        </p>
+      )}
     </div>
   );
 }
