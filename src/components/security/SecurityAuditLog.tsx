@@ -72,9 +72,9 @@ export function SecurityAuditLog() {
 
   const getSeverityIcon = (action: string) => {
     if (action.includes('SUSPICIOUS') || action.includes('SECURITY_BREACH')) {
-      return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      return <AlertTriangle className="h-4 w-4 text-destructive" />;
     }
-    return <Activity className="h-4 w-4 text-blue-500" />;
+    return <Activity className="h-4 w-4 text-primary" />;
   };
 
   return (

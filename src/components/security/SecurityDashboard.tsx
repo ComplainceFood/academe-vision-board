@@ -34,7 +34,6 @@ export const SecurityDashboard: React.FC<SecurityCheckProps> = ({ onConfiguratio
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Check security configuration on component mount
     const config = checkSecurityConfiguration();
     setSecurityConfig(config);
   }, []);
@@ -44,11 +43,9 @@ export const SecurityDashboard: React.FC<SecurityCheckProps> = ({ onConfiguratio
     setLoading(true);
     
     try {
-      // Try server-side validation first, fallback to client-side
       const result = await validatePasswordStrength(password);
       setPasswordStrength(result);
     } catch (error) {
-      // Fallback to client-side validation
       const result = clientPasswordValidation(password);
       setPasswordStrength(result);
     } finally {
@@ -58,15 +55,15 @@ export const SecurityDashboard: React.FC<SecurityCheckProps> = ({ onConfiguratio
 
   const getStrengthColor = (strength: string) => {
     switch (strength) {
-      case 'strong': return 'text-green-600';
-      case 'medium': return 'text-yellow-600';
-      case 'weak': return 'text-orange-600';
-      case 'very_weak': return 'text-red-600';
-      default: return 'text-gray-600';
+      case 'strong': return 'text-success';
+      case 'medium': return 'text-warning';
+      case 'weak': return 'text-accent';
+      case 'very_weak': return 'text-destructive';
+      default: return 'text-muted-foreground';
     }
   };
 
-  const getStrengthVariant = (strength: string) => {
+  const getStrengthVariant = (strength: string): "default" | "secondary" | "outline" | "destructive" => {
     switch (strength) {
       case 'strong': return 'default';
       case 'medium': return 'secondary';
@@ -114,18 +111,18 @@ export const SecurityDashboard: React.FC<SecurityCheckProps> = ({ onConfiguratio
                 
                 {securityConfig.issues?.length > 0 && (
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-red-600">Critical Issues:</p>
+                    <p className="text-sm font-medium text-destructive">Critical Issues:</p>
                     {securityConfig.issues.map((issue: string, index: number) => (
-                      <p key={index} className="text-sm text-red-600">• {issue}</p>
+                      <p key={index} className="text-sm text-destructive">• {issue}</p>
                     ))}
                   </div>
                 )}
                 
                 {securityConfig.warnings?.length > 0 && (
                   <div className="space-y-1">
-                    <p className="text-sm font-medium text-yellow-600">Recommendations:</p>
+                    <p className="text-sm font-medium text-warning">Recommendations:</p>
                     {securityConfig.warnings.map((warning: string, index: number) => (
-                      <p key={index} className="text-sm text-yellow-600">• {warning}</p>
+                      <p key={index} className="text-sm text-warning">• {warning}</p>
                     ))}
                   </div>
                 )}
@@ -228,7 +225,7 @@ export const SecurityDashboard: React.FC<SecurityCheckProps> = ({ onConfiguratio
               <AlertTriangle className="h-4 w-4" />
               <AlertDescription>
                 <div className="space-y-2">
-                  <p className="font-medium">Critical: The following must be configured in your Supabase dashboard:</p>
+                  <p className="font-medium">The following must be configured in your Supabase dashboard:</p>
                   <ul className="space-y-1 text-sm">
                     <li>• <strong>Enable Leaked Password Protection</strong> in Authentication → Settings</li>
                     <li>• <strong>Reduce OTP Expiry</strong> to 10 minutes or less in Authentication → Settings</li>
@@ -254,11 +251,11 @@ export const SecurityDashboard: React.FC<SecurityCheckProps> = ({ onConfiguratio
                     className="w-full"
                   >
                     <a 
-                      href="https://supabase.com/dashboard/project/ljxwljvodiwtmkiseukb/auth/providers" 
+                      href="https://supabase.com/docs/guides/auth/password-security" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
-                      Configure Password Settings
+                      View Documentation
                     </a>
                   </Button>
                 </CardContent>
@@ -279,11 +276,11 @@ export const SecurityDashboard: React.FC<SecurityCheckProps> = ({ onConfiguratio
                     className="w-full"
                   >
                     <a 
-                      href="https://supabase.com/dashboard/project/ljxwljvodiwtmkiseukb/auth/providers" 
+                      href="https://supabase.com/docs/guides/platform/going-into-prod#security" 
                       target="_blank" 
                       rel="noopener noreferrer"
                     >
-                      Configure OTP Settings
+                      View Documentation
                     </a>
                   </Button>
                 </CardContent>
