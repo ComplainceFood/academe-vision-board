@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 
@@ -48,16 +48,16 @@ export function useUserRole() {
     fetchUserRole();
   }, [user]);
 
-  const hasRole = (requiredRole: UserRole): boolean => {
+  const hasRole = useCallback((requiredRole: UserRole): boolean => {
     if (!role || !requiredRole) return false;
     
     const roleHierarchy = { system_admin: 3, primary_user: 2, secondary_user: 1 };
     return roleHierarchy[role] >= roleHierarchy[requiredRole];
-  };
+  }, [role]);
 
-  const isSystemAdmin = (): boolean => role === 'system_admin';
-  const isPrimaryUser = (): boolean => role === 'primary_user' || role === 'system_admin';
-  const isSecondaryUser = (): boolean => role === 'secondary_user' || role === 'primary_user' || role === 'system_admin';
+  const isSystemAdmin = useCallback((): boolean => role === 'system_admin', [role]);
+  const isPrimaryUser = useCallback((): boolean => role === 'primary_user' || role === 'system_admin', [role]);
+  const isSecondaryUser = useCallback((): boolean => role === 'secondary_user' || role === 'primary_user' || role === 'system_admin', [role]);
 
   return {
     role,
