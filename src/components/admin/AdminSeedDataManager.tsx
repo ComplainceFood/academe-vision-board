@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { useQueryClient } from "@tanstack/react-query";
-import { Database, TestTube, RotateCcw, Zap, Info, CheckCircle, Trash2 } from "lucide-react";
+import { Database, TestTube, RotateCcw, Zap, Info, CheckCircle, Trash2, AlertTriangle } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -620,6 +620,77 @@ const mockDataSets = {
       },
     ],
   },
+
+  adminCommunications: {
+    name: "Admin Communications",
+    description: "Platform announcements, updates, and communications to users",
+    count: 5,
+    data: [
+      {
+        title: "Platform Maintenance — March 28",
+        content: "SmartProf will undergo scheduled maintenance on March 28 from 2:00 AM to 4:00 AM EST. During this time, the platform will be temporarily unavailable. All data will be preserved. Please save your work before the maintenance window.",
+        description: "Scheduled downtime notification for platform maintenance.",
+        category: "maintenance",
+        priority: "high",
+        is_published: true,
+        published_at: new Date().toISOString(),
+        expires_at: daysFromNow(10) + "T04:00:00Z",
+      },
+      {
+        title: "New Feature: Grant Management Dashboard",
+        content: "We're excited to announce the launch of the Grant Management Dashboard! You can now track funding sources, expenditures, commitments, and generate reports all in one place. Navigate to the Funding tab to explore the new features.",
+        description: "Announcing the new grant management module.",
+        category: "features",
+        priority: "normal",
+        is_published: true,
+        published_at: daysAgo(5) + "T10:00:00Z",
+      },
+      {
+        title: "Security Update: Enhanced Data Protection",
+        content: "We have implemented additional security measures including enhanced Row-Level Security policies, audit logging for sensitive operations, and improved session management. Your data privacy remains our top priority.",
+        description: "Security improvements deployed to production.",
+        category: "security",
+        priority: "high",
+        is_published: true,
+        published_at: daysAgo(12) + "T09:00:00Z",
+      },
+      {
+        title: "Welcome to SmartProf!",
+        content: "Thank you for joining SmartProf — the comprehensive academic administration platform designed for professors and educators. Explore the dashboard to manage your notes, meetings, supplies, grants, and more. Visit Settings to customize your profile and notification preferences.",
+        description: "Welcome message for new platform users.",
+        category: "general",
+        priority: "normal",
+        is_published: true,
+        published_at: daysAgo(30) + "T08:00:00Z",
+      },
+      {
+        title: "Upcoming: Calendar Integration with Outlook & Google",
+        content: "We're working on bidirectional calendar sync with both Microsoft Outlook and Google Calendar. This will allow you to see your SmartProf events alongside your university calendar. Expected release: next month. Stay tuned!",
+        description: "Preview of upcoming calendar integration features.",
+        category: "updates",
+        priority: "low",
+        is_published: true,
+        published_at: daysAgo(3) + "T14:00:00Z",
+      },
+    ],
+  },
+
+  notificationPreferences: {
+    name: "Notification Preferences",
+    description: "Default notification settings for the admin account",
+    count: 1,
+    data: [
+      {
+        email_notifications: true,
+        task_reminders: true,
+        meeting_alerts: true,
+        low_supply_alerts: true,
+        funding_alerts: true,
+        email_frequency: "daily",
+        reminder_time: "09:00",
+      },
+    ],
+  },
 };
 
 // Map from mockDataSets keys to actual Supabase table names
@@ -634,11 +705,33 @@ const tableMap: Record<string, string> = {
   fundingSources: 'funding_sources',
   shoppingList: 'shopping_list',
   achievements: 'scholastic_achievements',
+  adminCommunications: 'admin_communications',
+  notificationPreferences: 'notification_preferences',
 };
+
+// All tables that might contain user data (for delete all)
+const ALL_USER_TABLES = [
+  'funding_expenditures',
+  'funding_commitments',
+  'funding_reports',
+  'funding_sources',
+  'notes',
+  'meetings',
+  'supplies',
+  'expenses',
+  'planning_events',
+  'future_planning',
+  'feedback',
+  'shopping_list',
+  'scholastic_achievements',
+  'admin_communications',
+  'notification_preferences',
+];
 
 export function AdminSeedDataManager() {
   const [isSeeding, setIsSeeding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeletingAll, setIsDeletingAll] = useState(false);
   const [selectedSets, setSelectedSets] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [currentSet, setCurrentSet] = useState("");
@@ -668,15 +761,14 @@ export function AdminSeedDataManager() {
       let completedSets = 0;
       const results: { [key: string]: { success: boolean; count: number; error?: string } } = {};
 
-      // If funding sources is selected, seed them first so we can reference IDs for expenditures
-      let fundingSourceIds: string[] = [];
-
-      // Sort so fundingSources comes before fundingExpenditures (if we ever add that)
+      // Sort so fundingSources comes first
       const orderedSets = [...selectedSets].sort((a, b) => {
         if (a === 'fundingSources') return -1;
         if (b === 'fundingSources') return 1;
         return 0;
       });
+
+      let fundingSourceIds: string[] = [];
 
       for (const setKey of orderedSets) {
         const mockSet = mockDataSets[setKey as keyof typeof mockDataSets];
@@ -689,6 +781,10 @@ export function AdminSeedDataManager() {
             // For notes, remove 'description' field (table uses 'content')
             if (setKey === 'notes') {
               delete cleanedItem.description;
+            }
+            // For admin communications, use admin_id instead of user_id
+            if (setKey === 'adminCommunications') {
+              return { ...cleanedItem, admin_id: user.id };
             }
             return { ...cleanedItem, user_id: user.id };
           });
@@ -716,6 +812,29 @@ export function AdminSeedDataManager() {
         setSeedResults({ ...results });
       }
 
+      // If we have funding source IDs, seed expenditures automatically
+      if (fundingSourceIds.length > 0 && selectedSets.includes('fundingSources')) {
+        try {
+          const expenditures = [
+            { funding_source_id: fundingSourceIds[0], amount: 15000, description: "Graduate RA — Fall Semester (Sarah Johnson)", category: "Personnel", expenditure_date: daysAgo(60), receipt_number: "RA-2025-001", user_id: user.id },
+            { funding_source_id: fundingSourceIds[0], amount: 8500, description: "Cloud computing credits — AWS & GCP", category: "Software & Services", expenditure_date: daysAgo(45), receipt_number: "CC-2025-012", user_id: user.id },
+            { funding_source_id: fundingSourceIds[0], amount: 3200, description: "Conference travel — SIGCSE 2025", category: "Travel", expenditure_date: daysAgo(90), receipt_number: "TRV-2025-003", user_id: user.id },
+            { funding_source_id: fundingSourceIds[1], amount: 4250, description: "Lab workstation upgrades (RAM + SSD)", category: "Equipment", expenditure_date: daysAgo(30), receipt_number: "PO-2025-088", user_id: user.id },
+            { funding_source_id: fundingSourceIds[1], amount: 1800, description: "Software licenses — JetBrains, MATLAB", category: "Software & Services", expenditure_date: daysAgo(15), receipt_number: "SW-2025-022", user_id: user.id },
+            { funding_source_id: fundingSourceIds[2], amount: 12000, description: "Graduate RA — LLM tutoring project", category: "Personnel", expenditure_date: daysAgo(50), user_id: user.id },
+            { funding_source_id: fundingSourceIds[2], amount: 5500, description: "GCP API credits for LLM inference", category: "Software & Services", expenditure_date: daysAgo(20), user_id: user.id },
+            { funding_source_id: fundingSourceIds[3], amount: 9800, description: "10× Dell Optiplex workstations", category: "Equipment", expenditure_date: daysAgo(40), receipt_number: "PO-2025-102", user_id: user.id },
+            { funding_source_id: fundingSourceIds[3], amount: 4200, description: "IoT sensor kits + Raspberry Pi bundles", category: "Equipment", expenditure_date: daysAgo(25), receipt_number: "PO-2025-115", user_id: user.id },
+            { funding_source_id: fundingSourceIds[4], amount: 1740, description: "SIGCSE 2026 registration + travel", category: "Travel", expenditure_date: daysAgo(10), receipt_number: "TRV-2025-009", user_id: user.id },
+          ];
+
+          await supabase.from('funding_expenditures').insert(expenditures as any);
+          queryClient.invalidateQueries({ queryKey: ['funding_expenditures'] });
+        } catch (e) {
+          console.error("Error seeding funding expenditures:", e);
+        }
+      }
+
       setCurrentSet("");
       window.dispatchEvent(new CustomEvent('seedDataCompleted', { detail: { userId: user.id, results } }));
 
@@ -735,7 +854,7 @@ export function AdminSeedDataManager() {
     }
   }
 
-  // ─── DELETE logic ──────────────────────────────────────────────────────────
+  // ─── DELETE selected logic ─────────────────────────────────────────────────
   async function deleteSelectedData() {
     if (!user || selectedSets.length === 0) {
       toast({ title: "No data selected", description: "Please select at least one data set to delete", variant: "destructive" });
@@ -774,7 +893,9 @@ export function AdminSeedDataManager() {
             queryClient.invalidateQueries({ queryKey: ['funding_reports'] });
           }
 
-          const deleteResult = await supabase.from(tableName as any).delete({ count: 'exact' }).eq('user_id', user.id);
+          // Admin communications use admin_id not user_id
+          const filterColumn = setKey === 'adminCommunications' ? 'admin_id' : 'user_id';
+          const deleteResult = await supabase.from(tableName as any).delete({ count: 'exact' }).eq(filterColumn, user.id);
           if (deleteResult.error) throw deleteResult.error;
 
           results[setKey] = { success: true, count: deleteResult.count ?? 0 };
@@ -805,6 +926,53 @@ export function AdminSeedDataManager() {
     }
   }
 
+  // ─── DELETE ALL mock data (one-click) ─────────────────────────────────────
+  async function deleteAllMockData() {
+    if (!user) return;
+
+    try {
+      setIsDeletingAll(true);
+      setProgress(0);
+      setCurrentSet("Deleting all mock data...");
+
+      let deletedCount = 0;
+      const totalTables = ALL_USER_TABLES.length;
+
+      for (let i = 0; i < ALL_USER_TABLES.length; i++) {
+        const table = ALL_USER_TABLES[i];
+        setCurrentSet(`Deleting ${table}...`);
+
+        try {
+          // admin_communications uses admin_id
+          const filterColumn = table === 'admin_communications' ? 'admin_id' : 'user_id';
+          const { count } = await supabase.from(table as any).delete({ count: 'exact' }).eq(filterColumn, user.id);
+          deletedCount += (count ?? 0);
+        } catch (e: any) {
+          console.error(`Error deleting ${table}:`, e);
+        }
+
+        setProgress(((i + 1) / totalTables) * 100);
+      }
+
+      // Invalidate all queries
+      queryClient.invalidateQueries();
+
+      setCurrentSet("");
+      window.dispatchEvent(new CustomEvent('seedDataCompleted', { detail: { userId: user.id } }));
+
+      toast({
+        title: "All mock data deleted",
+        description: `Successfully deleted ${deletedCount} records across ${totalTables} tables. Only your admin data was removed.`,
+      });
+    } catch (error: any) {
+      console.error("Error during delete all:", error);
+      toast({ title: "Delete all failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsDeletingAll(false);
+      setProgress(0);
+    }
+  }
+
   // ─── Selection helpers ─────────────────────────────────────────────────────
   const handleSetSelection = (setKey: string, checked: boolean) => {
     if (checked) {
@@ -817,6 +985,8 @@ export function AdminSeedDataManager() {
   const selectAllSets = () => setSelectedSets(Object.keys(mockDataSets));
   const clearSelection = () => setSelectedSets([]);
   const resetResults = () => { setSeedResults({}); setProgress(0); setCurrentSet(""); };
+
+  const isBusy = isSeeding || isDeleting || isDeletingAll;
 
   // ─── Render ────────────────────────────────────────────────────────────────
   return (
@@ -834,9 +1004,46 @@ export function AdminSeedDataManager() {
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            This tool creates realistic academic data (tasks, meetings, grants, supplies, achievements, etc.) to demonstrate platform capabilities. Only your account is affected.
+            This tool creates realistic academic data (tasks, meetings, grants, supplies, achievements, communications, etc.) to demonstrate platform capabilities. Only your account is affected.
           </AlertDescription>
         </Alert>
+
+        {/* ── Delete All Mock Data (prominent) ── */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              variant="destructive"
+              size="lg"
+              className="w-full"
+              disabled={isBusy}
+            >
+              {isDeletingAll ? (
+                <><Zap className="h-4 w-4 mr-2 animate-spin" />Deleting All Data...</>
+              ) : (
+                <><Trash2 className="h-4 w-4 mr-2" />Delete All Mock Data (One-Click Cleanup)</>
+              )}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-destructive" />
+                Delete All Mock Data
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete <strong>all your data</strong> across every table (notes, meetings, supplies, expenses, funding, achievements, communications, shopping list, planning events, and more). 
+                <br /><br />
+                <strong>Only your admin account data is affected</strong> — no other user accounts will be touched. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={deleteAllMockData} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Yes, Delete Everything
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -889,7 +1096,7 @@ export function AdminSeedDataManager() {
           </div>
         </div>
 
-        {(isSeeding || isDeleting) && (
+        {(isBusy) && (
           <div className="space-y-2">
             <div className="flex justify-between text-sm">
               <span>{currentSet}</span>
@@ -927,7 +1134,7 @@ export function AdminSeedDataManager() {
 
           <Button
             onClick={seedSelectedData}
-            disabled={isSeeding || isDeleting || selectedSets.length === 0 || !user}
+            disabled={isBusy || selectedSets.length === 0 || !user}
             className="flex-1"
           >
             {isSeeding ? (
@@ -941,7 +1148,7 @@ export function AdminSeedDataManager() {
             <AlertDialogTrigger asChild>
               <Button
                 variant="destructive"
-                disabled={isSeeding || isDeleting || selectedSets.length === 0 || !user}
+                disabled={isBusy || selectedSets.length === 0 || !user}
                 className="flex-1"
               >
                 {isDeleting ? (
@@ -953,7 +1160,7 @@ export function AdminSeedDataManager() {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete Mock Data</AlertDialogTitle>
+                <AlertDialogTitle>Delete Selected Mock Data</AlertDialogTitle>
                 <AlertDialogDescription>
                   This will permanently delete <strong>all your data</strong> from the {selectedSets.length} selected table(s). Only your admin account is affected — no other user data will be touched. This cannot be undone.
                 </AlertDialogDescription>
