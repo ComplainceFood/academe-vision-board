@@ -5,11 +5,16 @@ import { TestProjectView } from '@/components/testing/TestProjectView';
 import { TestExecutionDashboard } from '@/components/testing/TestExecutionDashboard';
 import { TestAnalyticsDashboard } from '@/components/testing/TestAnalyticsDashboard';
 import { TestManagementDashboard } from '@/components/testing/TestManagementDashboard';
+import { AdminSeedDataManager } from '@/components/admin/AdminSeedDataManager';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { TestTube, BarChart3, Play, Settings } from 'lucide-react';
+import { TestTube, BarChart3, Play, Settings, ShieldCheck } from 'lucide-react';
+import { useUserRole } from '@/hooks/useUserRole';
 
 export default function TestingPage() {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const { isSystemAdmin, loading: roleLoading } = useUserRole();
+
+  const showAdminPanel = !roleLoading && isSystemAdmin();
 
   return (
     <MainLayout>
@@ -35,7 +40,7 @@ export default function TestingPage() {
         </div>
 
         <Tabs defaultValue="projects" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className={`grid w-full ${showAdminPanel ? 'grid-cols-5' : 'grid-cols-4'}`}>
             <TabsTrigger value="projects" className="flex items-center gap-2">
               <TestTube className="h-4 w-4" />
               Projects & Tests
@@ -52,6 +57,12 @@ export default function TestingPage() {
               <Settings className="h-4 w-4" />
               Test Management
             </TabsTrigger>
+            {showAdminPanel && (
+              <TabsTrigger value="admin-panel" className="flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4" />
+                Admin Panel
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="projects" className="space-y-6">
@@ -76,6 +87,12 @@ export default function TestingPage() {
           <TabsContent value="management" className="space-y-6">
             <TestManagementDashboard />
           </TabsContent>
+
+          {showAdminPanel && (
+            <TabsContent value="admin-panel" className="space-y-6">
+              <AdminSeedDataManager />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </MainLayout>

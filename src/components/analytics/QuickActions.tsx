@@ -13,7 +13,6 @@ import { useState } from "react";
 import { CreateNoteDialog } from "@/components/notes/CreateNoteDialog";
 import { AddItemDialog } from "@/components/supplies/AddItemDialog";
 import { AddToShoppingListDialog } from "@/components/supplies/AddToShoppingListDialog";
-import { AdminSeedDataManager } from "@/components/admin/AdminSeedDataManager";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { CreateMeetingDialog } from "@/components/meetings/CreateMeetingDialog";
@@ -108,12 +107,6 @@ export const QuickActions = () => {
               </DialogContent>
             </Dialog>
             
-            {/* Admin-only seed data manager */}
-            {isSystemAdmin() && (
-              <div className="md:col-span-2">
-                <AdminSeedDataManager />
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
