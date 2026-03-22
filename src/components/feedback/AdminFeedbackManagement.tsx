@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserRole } from '@/hooks/useUserRole';
-import { useDataFetching } from '@/hooks/useDataFetching';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -15,10 +14,22 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { toast } from '@/hooks/use-toast';
 import { type Feedback, FEEDBACK_CATEGORIES, FEEDBACK_PRIORITIES, FEEDBACK_STATUSES } from '@/types/feedback';
 import { format } from 'date-fns';
-import { MessageSquare, Reply, Filter, BarChart3, ShieldAlert } from 'lucide-react';
+import { MessageSquare, Reply, BarChart3, ShieldAlert, Trash2, User } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const responseFormSchema = z.object({
   status: z.enum(['open', 'in_progress', 'resolved', 'closed']),
@@ -27,17 +38,21 @@ const responseFormSchema = z.object({
 
 type ResponseFormData = z.infer<typeof responseFormSchema>;
 
+interface FeedbackWithSender extends Feedback {
+  sender_name?: string;
+  sender_email?: string;
+}
+
 export function AdminFeedbackManagement() {
   const { user } = useAuth();
   const { isSystemAdmin, loading: roleLoading } = useUserRole();
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [respondingTo, setRespondingTo] = useState<string | null>(null);
-
-  const { data: allFeedback, isLoading, refetch } = useDataFetching<Feedback>({
-    table: 'feedback',
-    transform: (data) => data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-  });
+  const [allFeedback, setAllFeedback] = useState<FeedbackWithSender[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const queryClient = useQueryClient();
 
   const form = useForm<ResponseFormData>({
     resolver: zodResolver(responseFormSchema),
@@ -47,7 +62,62 @@ export function AdminFeedbackManagement() {
     }
   });
 
-  // Security check - only system admins can access this component
+  const fetchFeedback = async () => {
+    setIsLoading(true);
+    try {
+      // Fetch all feedback (admin RLS policy allows this)
+      const { data: feedbackData, error: feedbackError } = await supabase
+        .from('feedback')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (feedbackError) throw feedbackError;
+
+      if (!feedbackData || feedbackData.length === 0) {
+        setAllFeedback([]);
+        setIsLoading(false);
+        return;
+      }
+
+      // Get unique user IDs from feedback
+      const userIds = [...new Set(feedbackData.map(f => f.user_id))];
+
+      // Fetch profiles for those users
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, email, first_name, last_name')
+        .in('user_id', userIds);
+
+      const profileMap = new Map(
+        (profiles || []).map(p => [p.user_id, p])
+      );
+
+      // Merge sender info into feedback
+      const enriched: FeedbackWithSender[] = feedbackData.map(f => {
+        const profile = profileMap.get(f.user_id);
+        return {
+          ...f,
+          sender_name: profile?.display_name || profile?.first_name
+            ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
+            : undefined,
+          sender_email: profile?.email || undefined,
+        };
+      });
+
+      setAllFeedback(enriched);
+    } catch (error) {
+      console.error('Error fetching feedback:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!roleLoading && isSystemAdmin()) {
+      fetchFeedback();
+    }
+  }, [roleLoading]);
+
   if (roleLoading) {
     return <div className="p-8 text-center">Loading...</div>;
   }
@@ -64,32 +134,30 @@ export function AdminFeedbackManagement() {
     );
   }
 
-  // Filter feedback based on selected filters
-  const filteredFeedback = allFeedback?.filter(item => {
+  const filteredFeedback = allFeedback.filter(item => {
     const statusMatch = selectedStatus === 'all' || item.status === selectedStatus;
     const categoryMatch = selectedCategory === 'all' || item.category === selectedCategory;
     return statusMatch && categoryMatch;
-  }) || [];
+  });
 
-  // Statistics
-  const stats = allFeedback ? {
+  const stats = {
     total: allFeedback.length,
     open: allFeedback.filter(f => f.status === 'open').length,
     inProgress: allFeedback.filter(f => f.status === 'in_progress').length,
     resolved: allFeedback.filter(f => f.status === 'resolved').length,
     highPriority: allFeedback.filter(f => f.priority === 'high' || f.priority === 'urgent').length
-  } : { total: 0, open: 0, inProgress: 0, resolved: 0, highPriority: 0 };
+  };
 
   const getCategoryLabel = (value: string) => {
     return FEEDBACK_CATEGORIES.find(cat => cat.value === value)?.label || value;
   };
 
   const getPriorityInfo = (value: string) => {
-    return FEEDBACK_PRIORITIES.find(p => p.value === value) || { label: value, color: 'text-gray-600' };
+    return FEEDBACK_PRIORITIES.find(p => p.value === value) || { label: value, color: 'text-muted-foreground' };
   };
 
   const getStatusInfo = (value: string) => {
-    return FEEDBACK_STATUSES.find(s => s.value === value) || { label: value, color: 'text-gray-600' };
+    return FEEDBACK_STATUSES.find(s => s.value === value) || { label: value, color: 'text-muted-foreground' };
   };
 
   const onSubmitResponse = async (data: ResponseFormData) => {
@@ -121,7 +189,7 @@ export function AdminFeedbackManagement() {
 
       setRespondingTo(null);
       form.reset();
-      refetch();
+      fetchFeedback();
     } catch (error) {
       console.error('Error submitting response:', error);
       toast({
@@ -129,6 +197,37 @@ export function AdminFeedbackManagement() {
         description: 'Please try again later.',
         variant: 'destructive'
       });
+    }
+  };
+
+  const deleteAllAdminFeedback = async () => {
+    if (!user) return;
+    try {
+      setIsDeleting(true);
+      // Only delete feedback created by the admin (mock data)
+      const { error } = await supabase
+        .from('feedback')
+        .delete()
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Mock feedback deleted',
+        description: 'All feedback from your admin account has been removed.',
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['feedback'] });
+      fetchFeedback();
+    } catch (error: any) {
+      console.error('Error deleting feedback:', error);
+      toast({
+        title: 'Error deleting feedback',
+        description: error.message || 'Please try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -143,6 +242,32 @@ export function AdminFeedbackManagement() {
           <h2 className="text-2xl font-bold">Feedback Management</h2>
           <p className="text-muted-foreground">Manage and respond to user feedback</p>
         </div>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" size="sm" disabled={isDeleting}>
+              <Trash2 className="h-4 w-4 mr-2" />
+              {isDeleting ? 'Deleting...' : 'Delete My Mock Feedback'}
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Mock Feedback</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will delete all feedback submitted from <strong>your admin account only</strong>. 
+                Feedback from other users will not be affected. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={deleteAllAdminFeedback}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                Yes, Delete My Feedback
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <Tabs defaultValue="overview" className="space-y-6">
@@ -245,10 +370,22 @@ export function AdminFeedbackManagement() {
                       <div className="flex items-start justify-between">
                         <div className="space-y-1">
                           <CardTitle className="text-lg">{item.subject}</CardTitle>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
                             <span>{getCategoryLabel(item.category)}</span>
                             <span>•</span>
                             <span>{format(new Date(item.created_at), 'MMM d, yyyy')}</span>
+                          </div>
+                          {/* Sender info */}
+                          <div className="flex items-center gap-1.5 text-sm mt-1">
+                            <User className="h-3.5 w-3.5 text-muted-foreground" />
+                            <span className="font-medium">
+                              {item.sender_name || 'Unknown User'}
+                            </span>
+                            {item.sender_email && (
+                              <span className="text-muted-foreground">
+                                ({item.sender_email})
+                              </span>
+                            )}
                           </div>
                         </div>
                         <div className="flex flex-col items-end gap-2">
@@ -354,6 +491,20 @@ export function AdminFeedbackManagement() {
                   </Card>
                 );
               })}
+
+              {filteredFeedback.length === 0 && (
+                <Card>
+                  <CardContent className="flex flex-col items-center justify-center py-12">
+                    <MessageSquare className="h-12 w-12 text-muted-foreground mb-4" />
+                    <CardTitle className="mb-2">No feedback found</CardTitle>
+                    <CardDescription>
+                      {allFeedback.length === 0
+                        ? 'No feedback has been submitted yet.'
+                        : 'No feedback matches the selected filters.'}
+                    </CardDescription>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </ScrollArea>
         </TabsContent>
