@@ -14,7 +14,6 @@ import { CreateNoteDialog } from "@/components/notes/CreateNoteDialog";
 import { AddItemDialog } from "@/components/supplies/AddItemDialog";
 import { AddToShoppingListDialog } from "@/components/supplies/AddToShoppingListDialog";
 import { useUserRole } from "@/hooks/useUserRole";
-import { useUserRole } from "@/hooks/useUserRole";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { CreateMeetingDialog } from "@/components/meetings/CreateMeetingDialog";
 
