@@ -108,12 +108,6 @@ export const QuickActions = () => {
               </DialogContent>
             </Dialog>
             
-            {/* Admin-only seed data manager */}
-            {isSystemAdmin() && (
-              <div className="md:col-span-2">
-                <AdminSeedDataManager />
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>

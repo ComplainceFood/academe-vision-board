@@ -256,7 +256,7 @@ const Index = () => {
                     <DollarSign className="mr-2 h-4 w-4" /> Manage Grants
                   </Link>
                 </Button>
-                <AdminSeedDataManager />
+                
               </CardContent>
             </Card>
           </div>
