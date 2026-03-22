@@ -97,9 +97,12 @@ export function AdminFeedbackManagement() {
         const profile = profileMap.get(f.user_id);
         return {
           ...f,
-          sender_name: profile?.display_name || profile?.first_name
+          priority: f.priority as Feedback['priority'],
+          status: f.status as Feedback['status'],
+          category: f.category as Feedback['category'],
+          sender_name: profile?.display_name || (profile?.first_name
             ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim()
-            : undefined,
+            : undefined),
           sender_email: profile?.email || undefined,
         };
       });
