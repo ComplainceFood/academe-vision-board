@@ -1,7 +1,7 @@
 
 import React from "react";
 import { MainLayout } from "@/components/MainLayout";
-import { AdminSeedDataManager } from "@/components/admin/AdminSeedDataManager";
+import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
