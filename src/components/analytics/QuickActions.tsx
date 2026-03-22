@@ -108,19 +108,10 @@ export const QuickActions = () => {
               </DialogContent>
             </Dialog>
             
-            {/* Admin-only seed data button */}
+            {/* Admin-only seed data manager */}
             {isSystemAdmin() && (
               <div className="md:col-span-2">
-                <div className="p-4 border rounded-lg bg-muted/50">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Database className="h-4 w-4" />
-                    <span className="font-medium text-sm">Admin Tools</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Populate the database with sample data for testing purposes
-                  </p>
-                  <SeedDataButton />
-                </div>
+                <AdminSeedDataManager />
               </div>
             )}
           </div>
