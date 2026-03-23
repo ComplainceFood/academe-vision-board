@@ -133,6 +133,16 @@ const FundingPage = () => {
                 <DollarSign className="h-4 w-4" />
                 <span>Expenses</span>
               </TabsTrigger>
+              <TabsTrigger 
+                value="grant-meetings" 
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
+              >
+                <CalendarCheck className="h-4 w-4" />
+                <span>Grant Meetings</span>
+              </TabsTrigger>
+                <DollarSign className="h-4 w-4" />
+                <span>Expenses</span>
+              </TabsTrigger>
             </TabsList>
 
             {activeTab !== "overview" && (
