@@ -183,6 +183,13 @@ const FundingPage = () => {
               onRefetch={handleSuccess}
             />
           </TabsContent>
+
+          <TabsContent value="grant-meetings" className="space-y-6 mt-6">
+            <GrantMeetingsList 
+              sources={fundingSources}
+              isLoading={sourcesLoading}
+            />
+          </TabsContent>
         </Tabs>
 
         {/* Dialogs */}
