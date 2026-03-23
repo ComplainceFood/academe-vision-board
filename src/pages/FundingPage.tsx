@@ -140,9 +140,6 @@ const FundingPage = () => {
                 <CalendarCheck className="h-4 w-4" />
                 <span>Grant Meetings</span>
               </TabsTrigger>
-                <DollarSign className="h-4 w-4" />
-                <span>Expenses</span>
-              </TabsTrigger>
             </TabsList>
 
             {activeTab !== "overview" && (
