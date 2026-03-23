@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useProfile } from "@/hooks/useProfile";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -17,73 +18,89 @@ export function AppSidebar() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isSystemAdmin } = useUserRole();
+
+  const isAdmin = isSystemAdmin();
 
   const navigationItems = [{
     id: "dashboard",
     title: "Dashboard",
     icon: LayoutDashboard,
-    path: "/"
+    path: "/",
+    adminOnly: false,
   }, {
     id: "notes",
     title: "Notes & Commitments",
     icon: BookText,
-    path: "/notes"
+    path: "/notes",
+    adminOnly: false,
   }, {
     id: "meetings",
     title: "Meetings",
     icon: MessageSquare,
-    path: "/meetings"
+    path: "/meetings",
+    adminOnly: false,
   }, {
     id: "supplies",
     title: "Supplies & Expenses",
     icon: ClipboardList,
-    path: "/supplies"
+    path: "/supplies",
+    adminOnly: false,
   }, {
     id: "planning",
     title: "Semester & Planning",
     icon: Calendar,
-    path: "/planning"
+    path: "/planning",
+    adminOnly: false,
   }, {
     id: "funding",
     title: "Grant Management",
     icon: DollarSign,
-    path: "/funding"
+    path: "/funding",
+    adminOnly: false,
   }, {
     id: "achievements",
     title: "Scholastic Achievements",
     icon: Award,
-    path: "/achievements"
+    path: "/achievements",
+    adminOnly: false,
   }, {
     id: "analytics",
     title: "Analytics",
     icon: BarChart3,
-    path: "/analytics"
+    path: "/analytics",
+    adminOnly: false,
   }, {
     id: "testing",
     title: "Testing Platform",
     icon: TestTube,
-    path: "/testing"
+    path: "/testing",
+    adminOnly: true,
   }, {
     id: "admin-users",
     title: "User Management",
     icon: Users,
-    path: "/admin/users"
+    path: "/admin/users",
+    adminOnly: true,
   }, {
     id: "communications",
     title: "Admin Communications",
     icon: Megaphone,
-    path: "/communications"
+    path: "/communications",
+    adminOnly: false,
   }, {
     id: "feedback",
     title: "Platform Feedback",
     icon: MessageCircle,
-    path: "/feedback"
+    path: "/feedback",
+    adminOnly: false,
   }, {
     id: "settings",
     title: "Settings",
     icon: Settings,
-    path: "/settings"
-  }];
+    path: "/settings",
+    adminOnly: false,
+  }].filter(item => !item.adminOnly || isAdmin);
 
   const handleLogout = async () => {
     try {

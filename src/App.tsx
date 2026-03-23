@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { createContext, useContext } from "react";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -66,6 +67,25 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
   if (!user) {
     return <Navigate to="/auth" replace />;
+  }
+
+  return children;
+};
+
+const AdminRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, loading } = useAuth();
+  const { isSystemAdmin, loading: roleLoading } = useUserRole();
+
+  if (loading || roleLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!isSystemAdmin()) {
+    return <Navigate to="/" replace />;
   }
 
   return children;
@@ -156,9 +176,9 @@ const AppContent = () => {
         <Route
           path="/testing"
           element={
-            <ProtectedRoute>
+            <AdminRoute>
               <TestingPage />
-            </ProtectedRoute>
+            </AdminRoute>
           }
         />
         <Route
@@ -188,9 +208,9 @@ const AppContent = () => {
         <Route
           path="/admin/users"
           element={
-            <ProtectedRoute>
+            <AdminRoute>
               <AdminUsersPage />
-            </ProtectedRoute>
+            </AdminRoute>
           }
         />
         <Route path="*" element={<NotFound />} />
