@@ -541,6 +541,7 @@ export type Database = {
           created_at: string
           description: string | null
           end_time: string
+          funding_source_id: string | null
           id: string
           is_recurring: boolean
           location: string
@@ -564,6 +565,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time: string
+          funding_source_id?: string | null
           id?: string
           is_recurring?: boolean
           location: string
@@ -587,6 +589,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_time?: string
+          funding_source_id?: string | null
           id?: string
           is_recurring?: boolean
           location?: string
@@ -602,7 +605,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "meetings_funding_source_id_fkey"
+            columns: ["funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notes: {
         Row: {
