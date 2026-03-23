@@ -6,12 +6,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useRefreshContext } from "@/App";
+import { useDataFetching } from "@/hooks/useDataFetching";
+import { FundingSource } from "@/types/funding";
 
 interface CreateMeetingDialogProps {
   isOpen: boolean;
@@ -27,10 +30,17 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
   const [attendees, setAttendees] = useState("");
   const [agenda, setAgenda] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGrantMeeting, setIsGrantMeeting] = useState(false);
+  const [selectedFundingSourceId, setSelectedFundingSourceId] = useState<string>("");
   
   const { user } = useAuth();
   const { toast } = useToast();
   const { triggerRefresh } = useRefreshContext();
+
+  const { data: fundingSources } = useDataFetching<FundingSource>({
+    table: 'funding_sources',
+    enabled: !!user && isGrantMeeting,
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,7 +84,8 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
           action_items: [],
           attachments: [],
           is_recurring: false,
-          reminder_minutes: 15
+          reminder_minutes: 15,
+          funding_source_id: isGrantMeeting && selectedFundingSourceId ? selectedFundingSourceId : null,
         }
       ]);
 
@@ -93,6 +104,8 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
       setLocation("");
       setAttendees("");
       setAgenda("");
+      setIsGrantMeeting(false);
+      setSelectedFundingSourceId("");
       
       triggerRefresh('meetings');
       onOpenChange(false);
@@ -110,7 +123,7 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Schedule New Meeting</DialogTitle>
         </DialogHeader>
@@ -201,6 +214,40 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
               placeholder="Meeting agenda"
               rows={3}
             />
+          </div>
+
+          {/* Grant Meeting Toggle */}
+          <div className="space-y-3 rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Grant Meeting</label>
+              <Switch
+                checked={isGrantMeeting}
+                onCheckedChange={(checked) => {
+                  setIsGrantMeeting(checked);
+                  if (!checked) setSelectedFundingSourceId("");
+                }}
+              />
+            </div>
+            {isGrantMeeting && (
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Link to Grant *</label>
+                <Select value={selectedFundingSourceId} onValueChange={setSelectedFundingSourceId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a grant..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(fundingSources || []).map((source) => (
+                      <SelectItem key={source.id} value={source.id}>
+                        {source.name} ({source.type})
+                      </SelectItem>
+                    ))}
+                    {(!fundingSources || fundingSources.length === 0) && (
+                      <SelectItem value="none" disabled>No grants available</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

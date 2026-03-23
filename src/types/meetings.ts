@@ -62,6 +62,7 @@ export interface CreateMeetingData {
   recurring_pattern?: 'daily' | 'weekly' | 'biweekly' | 'monthly';
   recurring_end_date?: string;
   reminder_minutes?: number;
+  funding_source_id?: string | null;
 }
 
 export interface UpdateMeetingData extends Partial<CreateMeetingData> {
