@@ -18,6 +18,7 @@ export function AppSidebar() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { isSystemAdmin } = useUserRole();
 
   const navigationItems = [{
     id: "dashboard",
