@@ -6,11 +6,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { useMeetings } from "@/hooks/useMeetings";
+import { useAuth } from "@/hooks/useAuth";
+import { useDataFetching } from "@/hooks/useDataFetching";
+import { FundingSource } from "@/types/funding";
 import type { Meeting } from "@/types/meetings";
 
 interface EditMeetingDialogProps {
@@ -29,9 +33,17 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
   const [attendees, setAttendees] = useState("");
   const [agenda, setAgenda] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isGrantMeeting, setIsGrantMeeting] = useState(false);
+  const [selectedFundingSourceId, setSelectedFundingSourceId] = useState<string>("");
   
   const { toast } = useToast();
   const { updateMeeting } = useMeetings();
+  const { user } = useAuth();
+
+  const { data: fundingSources } = useDataFetching<FundingSource>({
+    table: 'funding_sources',
+    enabled: !!user && isGrantMeeting,
+  });
 
   useEffect(() => {
     if (meeting) {
@@ -43,6 +55,8 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
       setLocation(meeting.location);
       setAttendees(meeting.attendees?.map(a => a.name).join(', ') || '');
       setAgenda(meeting.agenda || '');
+      setIsGrantMeeting(!!meeting.funding_source_id);
+      setSelectedFundingSourceId(meeting.funding_source_id || "");
     }
   }, [meeting]);
 
@@ -80,6 +94,7 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
           location,
           agenda,
           attendees: attendeesList,
+          funding_source_id: isGrantMeeting && selectedFundingSourceId ? selectedFundingSourceId : null,
         },
       });
 
@@ -100,7 +115,7 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Meeting</DialogTitle>
         </DialogHeader>
@@ -205,6 +220,40 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
               placeholder="Meeting agenda"
               rows={3}
             />
+          </div>
+
+          {/* Grant Meeting Toggle */}
+          <div className="space-y-3 rounded-lg border p-4">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-medium">Grant Meeting</label>
+              <Switch
+                checked={isGrantMeeting}
+                onCheckedChange={(checked) => {
+                  setIsGrantMeeting(checked);
+                  if (!checked) setSelectedFundingSourceId("");
+                }}
+              />
+            </div>
+            {isGrantMeeting && (
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Link to Grant *</label>
+                <Select value={selectedFundingSourceId} onValueChange={setSelectedFundingSourceId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a grant..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(fundingSources || []).map((source) => (
+                      <SelectItem key={source.id} value={source.id}>
+                        {source.name} ({source.type})
+                      </SelectItem>
+                    ))}
+                    {(!fundingSources || fundingSources.length === 0) && (
+                      <SelectItem value="none" disabled>No grants available</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end gap-2 pt-4">

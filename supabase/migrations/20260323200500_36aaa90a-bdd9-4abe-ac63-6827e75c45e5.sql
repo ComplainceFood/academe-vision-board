@@ -1,0 +1,1 @@
+ALTER TABLE public.meetings ADD COLUMN funding_source_id uuid REFERENCES public.funding_sources(id) ON DELETE SET NULL DEFAULT NULL;
