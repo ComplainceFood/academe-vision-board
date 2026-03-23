@@ -20,6 +20,7 @@ export interface Meeting {
   reminder_minutes?: number;
   created_at: string;
   updated_at: string;
+  funding_source_id?: string | null;
 }
 
 export interface AttendeeInfo {
