@@ -11,7 +11,8 @@ import {
   Wallet,
   PiggyBank,
   Search,
-  Sparkles
+  Sparkles,
+  CalendarCheck
 } from "lucide-react";
 import { FundingSourcesList } from "@/components/funding/FundingSourcesList";
 import { ExpendituresList } from "@/components/funding/ExpendituresList";
