@@ -22,6 +22,7 @@ import { ExpenditureDialog } from "@/components/funding/ExpenditureDialog";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { useAuth } from "@/hooks/useAuth";
 import { FundingSource, FundingExpenditure } from "@/types/funding";
+import { GrantMeetingsList } from "@/components/funding/GrantMeetingsList";
 
 const FundingPage = () => {
   const { user } = useAuth();
