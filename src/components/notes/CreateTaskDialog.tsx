@@ -44,6 +44,8 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>("weekly");
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>();
+  const [isGrantNote, setIsGrantNote] = useState(false);
+  const [fundingSourceId, setFundingSourceId] = useState<string | null>(null);
   
   const { user } = useAuth();
   const { toast } = useToast();
