@@ -142,6 +142,13 @@ const FundingPage = () => {
                 <CalendarCheck className="h-4 w-4" />
                 <span>Grant Meetings</span>
               </TabsTrigger>
+              <TabsTrigger 
+                value="grant-notes" 
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
+              >
+                <StickyNote className="h-4 w-4" />
+                <span>Grant Notes</span>
+              </TabsTrigger>
             </TabsList>
 
             {activeTab !== "overview" && activeTab !== "grant-meetings" && (
