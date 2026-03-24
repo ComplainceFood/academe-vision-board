@@ -108,6 +108,7 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
         subtasks: subtasks.length > 0 ? subtasks : undefined,
         recurrence_pattern: isRecurring ? recurrencePattern : null,
         recurrence_end_date: isRecurring && recurrenceEndDate ? recurrenceEndDate.toISOString().split('T')[0] : null,
+        funding_source_id: isGrantNote ? fundingSourceId : null,
       });
 
       onOpenChange?.(false);
