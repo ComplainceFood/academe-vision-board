@@ -12,6 +12,7 @@ import { useNotes } from "@/hooks/useNotes";
 import { useProfile } from "@/hooks/useProfile";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TemplateSelector } from "@/components/common/TemplateSelector";
+import { GrantNoteToggle } from "@/components/notes/GrantNoteToggle";
 
 interface CreateNoteDialogProps {
   open?: boolean;
