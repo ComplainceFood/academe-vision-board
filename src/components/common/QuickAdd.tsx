@@ -122,7 +122,7 @@ export function QuickAdd({
       <Button
         variant="outline"
         onClick={() => setIsExpanded(true)}
-        className={`gap-2 border-dashed ${className}`}
+        className={`gap-2 border-dashed text-foreground ${className}`}
       >
         <Zap className="h-4 w-4 text-primary" />
         Quick Add
