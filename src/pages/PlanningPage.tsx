@@ -368,7 +368,7 @@ const PlanningPage = () => {
               <CardContent>
                 <Tabs value={activeFutureTab} onValueChange={setActiveFutureTab}>
                   <TabsList className="mb-6 flex-wrap h-auto gap-2 bg-transparent p-0">
-                    {SEMESTERS.map((semester) => {
+                    {CURRENT_SEMESTERS.map((semester) => {
                       const Icon = semester.icon;
                       const count = futureTasks.filter(t => t.semester === semester.value).length;
                       return (
@@ -387,7 +387,43 @@ const PlanningPage = () => {
                         </TabsTrigger>
                       );
                     })}
+                    {PAST_SEMESTERS.length > 0 && (
+                      <TabsTrigger
+                        value="__past__"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowPastSemesters(!showPastSemesters);
+                        }}
+                        className="gap-2 px-4 text-muted-foreground"
+                      >
+                        <Clock className="h-4 w-4" />
+                        Past Semesters
+                      </TabsTrigger>
+                    )}
                   </TabsList>
+                  {showPastSemesters && (
+                    <TabsList className="mb-6 flex-wrap h-auto gap-2 bg-transparent p-0">
+                      {PAST_SEMESTERS.map((semester) => {
+                        const Icon = semester.icon;
+                        const count = futureTasks.filter(t => t.semester === semester.value).length;
+                        return (
+                          <TabsTrigger
+                            key={semester.value}
+                            value={semester.value}
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2 px-4 opacity-70"
+                          >
+                            <Icon className="h-4 w-4" />
+                            {semester.label}
+                            {count > 0 && (
+                              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                                {count}
+                              </Badge>
+                            )}
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
+                  )}
                   
                   <TabsContent value={activeFutureTab} className="mt-0">
                     {tasksLoading ? (
