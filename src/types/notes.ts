@@ -19,7 +19,7 @@ export interface Note {
   starred: boolean;
   created_at: string;
   updated_at: string;
-  // New fields for advanced features
+  funding_source_id?: string | null;
   subtasks?: Subtask[];
   recurrence_pattern?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
   recurrence_end_date?: string | null;
