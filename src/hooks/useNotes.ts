@@ -87,6 +87,7 @@ export const useNotes = () => {
           priority: noteData.priority || 'medium',
           starred: noteData.starred || false,
           due_date: noteData.due_date,
+          funding_source_id: noteData.funding_source_id || null,
           subtasks: noteData.subtasks ? subtasksToJson(noteData.subtasks) : [],
           recurrence_pattern: noteData.recurrence_pattern || null,
           recurrence_end_date: noteData.recurrence_end_date || null,
