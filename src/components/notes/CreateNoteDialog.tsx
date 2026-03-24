@@ -105,6 +105,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
         tags: parsedTags,
         student_name: type === "commitment" ? (student || null) : null,
         starred: false,
+        funding_source_id: isGrantNote ? fundingSourceId : null,
       };
 
       await createNote(noteData);
