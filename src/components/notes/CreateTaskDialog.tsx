@@ -232,6 +232,13 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
                   />
                 </div>
               </div>
+
+              <GrantNoteToggle
+                isGrantNote={isGrantNote}
+                onGrantNoteChange={setIsGrantNote}
+                fundingSourceId={fundingSourceId}
+                onFundingSourceChange={setFundingSourceId}
+              />
             </TabsContent>
 
             <TabsContent value="subtasks" className="space-y-4 mt-4">
