@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotes } from "@/hooks/useNotes";
 import { Subtask, RECURRENCE_LABELS, RecurrencePattern } from "@/types/notes";
 import { Switch } from "@/components/ui/switch";
+import { GrantNoteToggle } from "@/components/notes/GrantNoteToggle";
 
 interface Category {
   id: string;
