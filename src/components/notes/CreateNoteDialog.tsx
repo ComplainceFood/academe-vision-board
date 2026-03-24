@@ -224,6 +224,12 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
               placeholder="e.g., important, follow-up, urgent"
             />
           </div>
+          <GrantNoteToggle
+            isGrantNote={isGrantNote}
+            onGrantNoteChange={setIsGrantNote}
+            fundingSourceId={fundingSourceId}
+            onFundingSourceChange={setFundingSourceId}
+          />
           <Button 
             type="submit" 
             className="w-full"

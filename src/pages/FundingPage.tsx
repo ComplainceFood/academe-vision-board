@@ -196,6 +196,13 @@ const FundingPage = () => {
               isLoading={sourcesLoading}
             />
           </TabsContent>
+
+          <TabsContent value="grant-notes" className="space-y-6 mt-6">
+            <GrantNotesList 
+              sources={fundingSources}
+              isLoading={sourcesLoading}
+            />
+          </TabsContent>
         </Tabs>
 
         {/* Dialogs */}
