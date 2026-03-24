@@ -63,6 +63,8 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
     setIsRecurring(false);
     setRecurrencePattern("weekly");
     setRecurrenceEndDate(undefined);
+    setIsGrantNote(false);
+    setFundingSourceId(null);
   };
 
   const addSubtask = () => {
