@@ -24,6 +24,7 @@ import { useDataFetching } from "@/hooks/useDataFetching";
 import { useAuth } from "@/hooks/useAuth";
 import { FundingSource, FundingExpenditure } from "@/types/funding";
 import { GrantMeetingsList } from "@/components/funding/GrantMeetingsList";
+import { GrantNotesList } from "@/components/funding/GrantNotesList";
 
 const FundingPage = () => {
   const { user } = useAuth();
