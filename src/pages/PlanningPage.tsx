@@ -40,12 +40,36 @@ import {
 } from "@/services/planningService";
 import { format, isAfter, isBefore, startOfDay, addDays } from "date-fns";
 
-const SEMESTERS = [
-  { value: "Spring 2025", label: "Spring 2025", icon: Sparkles },
-  { value: "Fall 2025", label: "Fall 2025", icon: GraduationCap },
-  { value: "Spring 2026", label: "Spring 2026", icon: BookOpen },
-  { value: "Fall 2026", label: "Fall 2026", icon: Layers },
-];
+// Dynamically generate semesters based on current date
+const getSemesters = () => {
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth(); // 0-indexed
+
+  const allSemesters = [];
+  // Generate semesters from 2 years ago to 2 years ahead
+  for (let y = currentYear - 2; y <= currentYear + 2; y++) {
+    allSemesters.push({ value: `Spring ${y}`, label: `Spring ${y}`, endMonth: 5, year: y }); // Spring ends June
+    allSemesters.push({ value: `Fall ${y}`, label: `Fall ${y}`, endMonth: 11, year: y }); // Fall ends Dec
+  }
+
+  const isPast = (sem: { endMonth: number; year: number }) => {
+    if (sem.year < currentYear) return true;
+    if (sem.year === currentYear && currentMonth > sem.endMonth) return true;
+    return false;
+  };
+
+  const icons = [Sparkles, GraduationCap, BookOpen, Layers];
+  const pastSemesters = allSemesters.filter(s => isPast(s));
+  const currentAndFuture = allSemesters.filter(s => !isPast(s)).slice(0, 4);
+
+  return {
+    current: currentAndFuture.map((s, i) => ({ ...s, icon: icons[i % icons.length] })),
+    past: pastSemesters.slice(-4).reverse().map((s, i) => ({ ...s, icon: icons[i % icons.length] })),
+  };
+};
+
+const { current: CURRENT_SEMESTERS, past: PAST_SEMESTERS } = getSemesters();
 
 const PlanningPage = () => {
   const { toast } = useToast();
@@ -64,7 +88,8 @@ const PlanningPage = () => {
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<PlanningEvent | undefined>(undefined);
   const [currentTask, setCurrentTask] = useState<FutureTask | undefined>(undefined);
-  const [activeFutureTab, setActiveFutureTab] = useState("Fall 2025");
+  const [activeFutureTab, setActiveFutureTab] = useState(CURRENT_SEMESTERS[0]?.value || "Spring 2026");
+  const [showPastSemesters, setShowPastSemesters] = useState(false);
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -343,7 +368,7 @@ const PlanningPage = () => {
               <CardContent>
                 <Tabs value={activeFutureTab} onValueChange={setActiveFutureTab}>
                   <TabsList className="mb-6 flex-wrap h-auto gap-2 bg-transparent p-0">
-                    {SEMESTERS.map((semester) => {
+                    {CURRENT_SEMESTERS.map((semester) => {
                       const Icon = semester.icon;
                       const count = futureTasks.filter(t => t.semester === semester.value).length;
                       return (
@@ -362,7 +387,43 @@ const PlanningPage = () => {
                         </TabsTrigger>
                       );
                     })}
+                    {PAST_SEMESTERS.length > 0 && (
+                      <TabsTrigger
+                        value="__past__"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setShowPastSemesters(!showPastSemesters);
+                        }}
+                        className="gap-2 px-4 text-muted-foreground"
+                      >
+                        <Clock className="h-4 w-4" />
+                        Past Semesters
+                      </TabsTrigger>
+                    )}
                   </TabsList>
+                  {showPastSemesters && (
+                    <TabsList className="mb-6 flex-wrap h-auto gap-2 bg-transparent p-0">
+                      {PAST_SEMESTERS.map((semester) => {
+                        const Icon = semester.icon;
+                        const count = futureTasks.filter(t => t.semester === semester.value).length;
+                        return (
+                          <TabsTrigger
+                            key={semester.value}
+                            value={semester.value}
+                            className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground gap-2 px-4 opacity-70"
+                          >
+                            <Icon className="h-4 w-4" />
+                            {semester.label}
+                            {count > 0 && (
+                              <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                                {count}
+                              </Badge>
+                            )}
+                          </TabsTrigger>
+                        );
+                      })}
+                    </TabsList>
+                  )}
                   
                   <TabsContent value={activeFutureTab} className="mt-0">
                     {tasksLoading ? (

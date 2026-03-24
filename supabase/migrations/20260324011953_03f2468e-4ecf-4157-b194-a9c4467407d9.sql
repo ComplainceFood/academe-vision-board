@@ -1,0 +1,1 @@
+ALTER TABLE public.notes ADD COLUMN IF NOT EXISTS funding_source_id UUID REFERENCES public.funding_sources(id) ON DELETE SET NULL;

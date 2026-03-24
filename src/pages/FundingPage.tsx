@@ -12,7 +12,8 @@ import {
   PiggyBank,
   Search,
   Sparkles,
-  CalendarCheck
+  CalendarCheck,
+  StickyNote
 } from "lucide-react";
 import { FundingSourcesList } from "@/components/funding/FundingSourcesList";
 import { ExpendituresList } from "@/components/funding/ExpendituresList";
@@ -23,6 +24,7 @@ import { useDataFetching } from "@/hooks/useDataFetching";
 import { useAuth } from "@/hooks/useAuth";
 import { FundingSource, FundingExpenditure } from "@/types/funding";
 import { GrantMeetingsList } from "@/components/funding/GrantMeetingsList";
+import { GrantNotesList } from "@/components/funding/GrantNotesList";
 
 const FundingPage = () => {
   const { user } = useAuth();
@@ -140,9 +142,16 @@ const FundingPage = () => {
                 <CalendarCheck className="h-4 w-4" />
                 <span>Grant Meetings</span>
               </TabsTrigger>
+              <TabsTrigger 
+                value="grant-notes" 
+                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
+              >
+                <StickyNote className="h-4 w-4" />
+                <span>Grant Notes</span>
+              </TabsTrigger>
             </TabsList>
 
-            {activeTab !== "overview" && activeTab !== "grant-meetings" && (
+            {activeTab !== "overview" && activeTab !== "grant-meetings" && activeTab !== "grant-notes" && (
               <div className="relative w-full sm:w-72">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -183,6 +192,13 @@ const FundingPage = () => {
 
           <TabsContent value="grant-meetings" className="space-y-6 mt-6">
             <GrantMeetingsList 
+              sources={fundingSources}
+              isLoading={sourcesLoading}
+            />
+          </TabsContent>
+
+          <TabsContent value="grant-notes" className="space-y-6 mt-6">
+            <GrantNotesList 
               sources={fundingSources}
               isLoading={sourcesLoading}
             />

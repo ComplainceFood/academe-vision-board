@@ -12,6 +12,7 @@ import { useNotes } from "@/hooks/useNotes";
 import { useProfile } from "@/hooks/useProfile";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TemplateSelector } from "@/components/common/TemplateSelector";
+import { GrantNoteToggle } from "@/components/notes/GrantNoteToggle";
 
 interface CreateNoteDialogProps {
   open?: boolean;
@@ -28,6 +29,8 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
   const [student, setStudent] = useState("");
   const [tags, setTags] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGrantNote, setIsGrantNote] = useState(false);
+  const [fundingSourceId, setFundingSourceId] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const { createNote } = useNotes();
@@ -70,6 +73,8 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
     setType("note");
     setStudent("");
     setTags("");
+    setIsGrantNote(false);
+    setFundingSourceId(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,6 +105,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
         tags: parsedTags,
         student_name: type === "commitment" ? (student || null) : null,
         starred: false,
+        funding_source_id: isGrantNote ? fundingSourceId : null,
       };
 
       await createNote(noteData);
@@ -218,6 +224,12 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
               placeholder="e.g., important, follow-up, urgent"
             />
           </div>
+          <GrantNoteToggle
+            isGrantNote={isGrantNote}
+            onGrantNoteChange={setIsGrantNote}
+            fundingSourceId={fundingSourceId}
+            onFundingSourceChange={setFundingSourceId}
+          />
           <Button 
             type="submit" 
             className="w-full"

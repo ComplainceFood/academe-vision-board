@@ -622,6 +622,7 @@ export type Database = {
           created_at: string
           due_date: string | null
           folder_color: string | null
+          funding_source_id: string | null
           id: string
           is_folder: boolean | null
           next_occurrence: string | null
@@ -645,6 +646,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           folder_color?: string | null
+          funding_source_id?: string | null
           id?: string
           is_folder?: boolean | null
           next_occurrence?: string | null
@@ -668,6 +670,7 @@ export type Database = {
           created_at?: string
           due_date?: string | null
           folder_color?: string | null
+          funding_source_id?: string | null
           id?: string
           is_folder?: boolean | null
           next_occurrence?: string | null
@@ -685,7 +688,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notes_funding_source_id_fkey"
+            columns: ["funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notification_preferences: {
         Row: {
