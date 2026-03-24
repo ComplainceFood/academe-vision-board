@@ -73,6 +73,8 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
     setType("note");
     setStudent("");
     setTags("");
+    setIsGrantNote(false);
+    setFundingSourceId(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
