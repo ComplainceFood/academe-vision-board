@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useNotes } from "@/hooks/useNotes";
 import { Subtask, RECURRENCE_LABELS, RecurrencePattern } from "@/types/notes";
 import { Switch } from "@/components/ui/switch";
+import { GrantNoteToggle } from "@/components/notes/GrantNoteToggle";
 
 interface Category {
   id: string;
@@ -43,6 +44,8 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurrencePattern, setRecurrencePattern] = useState<RecurrencePattern>("weekly");
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>();
+  const [isGrantNote, setIsGrantNote] = useState(false);
+  const [fundingSourceId, setFundingSourceId] = useState<string | null>(null);
   
   const { user } = useAuth();
   const { toast } = useToast();
@@ -60,6 +63,8 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
     setIsRecurring(false);
     setRecurrencePattern("weekly");
     setRecurrenceEndDate(undefined);
+    setIsGrantNote(false);
+    setFundingSourceId(null);
   };
 
   const addSubtask = () => {
@@ -103,6 +108,7 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
         subtasks: subtasks.length > 0 ? subtasks : undefined,
         recurrence_pattern: isRecurring ? recurrencePattern : null,
         recurrence_end_date: isRecurring && recurrenceEndDate ? recurrenceEndDate.toISOString().split('T')[0] : null,
+        funding_source_id: isGrantNote ? fundingSourceId : null,
       });
 
       onOpenChange?.(false);
@@ -226,6 +232,13 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
                   />
                 </div>
               </div>
+
+              <GrantNoteToggle
+                isGrantNote={isGrantNote}
+                onGrantNoteChange={setIsGrantNote}
+                fundingSourceId={fundingSourceId}
+                onFundingSourceChange={setFundingSourceId}
+              />
             </TabsContent>
 
             <TabsContent value="subtasks" className="space-y-4 mt-4">
