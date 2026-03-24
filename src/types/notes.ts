@@ -48,6 +48,7 @@ export interface CreateNoteData {
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   due_date?: string;
   starred?: boolean;
+  funding_source_id?: string | null;
   subtasks?: Subtask[];
   recurrence_pattern?: 'daily' | 'weekly' | 'biweekly' | 'monthly' | null;
   recurrence_end_date?: string | null;

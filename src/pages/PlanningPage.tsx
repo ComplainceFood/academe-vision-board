@@ -88,7 +88,8 @@ const PlanningPage = () => {
   const [isTaskDialogOpen, setIsTaskDialogOpen] = useState(false);
   const [currentEvent, setCurrentEvent] = useState<PlanningEvent | undefined>(undefined);
   const [currentTask, setCurrentTask] = useState<FutureTask | undefined>(undefined);
-  const [activeFutureTab, setActiveFutureTab] = useState("Fall 2025");
+  const [activeFutureTab, setActiveFutureTab] = useState(CURRENT_SEMESTERS[0]?.value || "Spring 2026");
+  const [showPastSemesters, setShowPastSemesters] = useState(false);
 
   // Calculate stats
   const stats = useMemo(() => {
