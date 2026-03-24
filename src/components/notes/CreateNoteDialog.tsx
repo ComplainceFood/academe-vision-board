@@ -29,6 +29,8 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
   const [student, setStudent] = useState("");
   const [tags, setTags] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGrantNote, setIsGrantNote] = useState(false);
+  const [fundingSourceId, setFundingSourceId] = useState<string | null>(null);
   const { user } = useAuth();
   const { toast } = useToast();
   const { createNote } = useNotes();
