@@ -6,7 +6,7 @@ export const PrivacyPolicy = () => {
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Privacy Policy</CardTitle>
-        <p className="text-sm text-muted-foreground">Last updated: {new Date().toLocaleDateString()}</p>
+        <p className="text-sm text-muted-foreground">Last updated: March 29, 2026</p>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-96 w-full">

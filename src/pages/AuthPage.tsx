@@ -5,11 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { validatePasswordStrength, clientPasswordValidation } from "@/utils/securityUtils";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { LegalAgreement } from "@/components/legal/LegalAgreement";
+import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
+import { TermsOfService } from "@/components/legal/TermsOfService";
 import { useAuth } from "@/hooks/useAuth";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -23,6 +26,8 @@ const AuthPage = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [showLegalAgreement, setShowLegalAgreement] = useState(false);
+  const [showTermsDialog, setShowTermsDialog] = useState(false);
+  const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -374,14 +379,14 @@ const AuthPage = () => {
                     I agree to the{" "}
                     <button
                       type="button"
-                      onClick={() => setShowLegalAgreement(true)}
+                      onClick={() => setShowTermsDialog(true)}
                       className="text-primary underline hover:no-underline font-medium"
                     >
                       Terms of Service
                     </button>
                   </label>
                 </div>
-                
+
                 <div className="flex items-start space-x-2">
                   <Checkbox
                     id="privacy-signup"
@@ -393,7 +398,7 @@ const AuthPage = () => {
                     I agree to the{" "}
                     <button
                       type="button"
-                      onClick={() => setShowLegalAgreement(true)}
+                      onClick={() => setShowPrivacyDialog(true)}
                       className="text-primary underline hover:no-underline font-medium"
                     >
                       Privacy Policy
@@ -402,6 +407,34 @@ const AuthPage = () => {
                 </div>
               </div>
             )}
+
+            {/* Read-only Terms of Service Dialog */}
+            <Dialog open={showTermsDialog} onOpenChange={setShowTermsDialog}>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+                <DialogHeader>
+                  <DialogTitle>Terms of Service</DialogTitle>
+                  <DialogDescription>Please review our Terms of Service.</DialogDescription>
+                </DialogHeader>
+                <TermsOfService />
+                <div className="flex justify-end mt-4">
+                  <Button type="button" onClick={() => setShowTermsDialog(false)} variant="outline">Close</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            {/* Read-only Privacy Policy Dialog */}
+            <Dialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
+              <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+                <DialogHeader>
+                  <DialogTitle>Privacy Policy</DialogTitle>
+                  <DialogDescription>Please review our Privacy Policy.</DialogDescription>
+                </DialogHeader>
+                <PrivacyPolicy />
+                <div className="flex justify-end mt-4">
+                  <Button type="button" onClick={() => setShowPrivacyDialog(false)} variant="outline">Close</Button>
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <Button className="w-full" type="submit" disabled={isLoading || (isSignUp && (!agreedToTerms || !agreedToPrivacy))}>
               {isLoading

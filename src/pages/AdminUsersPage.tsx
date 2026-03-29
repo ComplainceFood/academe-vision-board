@@ -17,9 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
-import { 
-  Users, ShieldAlert, Search, Crown, UserCheck, UserX, 
-  Edit, BarChart3, Filter, RefreshCw 
+import {
+  Users, ShieldAlert, Search, Crown, UserCheck, UserX,
+  Edit, BarChart3, Filter, RefreshCw, FileCheck
 } from 'lucide-react';
 
 interface UserProfile {
@@ -50,6 +50,19 @@ interface UserRole {
   role: string;
 }
 
+interface UserAgreementWithEmail {
+  id: string;
+  user_id: string;
+  agreement_type: string;
+  version: string;
+  agreed_at: string;
+  user_agent: string | null;
+  email: string | null;
+  display_name: string | null;
+  first_name: string | null;
+  last_name: string | null;
+}
+
 const SUBSCRIPTION_TIERS = [
   { value: 'free', label: 'Free', color: 'text-muted-foreground' },
   { value: 'basic', label: 'Basic', color: 'text-blue-600' },
@@ -72,6 +85,7 @@ export default function AdminUsersPage() {
   const [profiles, setProfiles] = useState<UserProfile[]>([]);
   const [subscriptions, setSubscriptions] = useState<UserSubscription[]>([]);
   const [roles, setRoles] = useState<UserRole[]>([]);
+  const [agreements, setAgreements] = useState<UserAgreementWithEmail[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [filterTier, setFilterTier] = useState('all');
@@ -87,15 +101,17 @@ export default function AdminUsersPage() {
     if (!user) return;
     setLoading(true);
     try {
-      const [profilesRes, subsRes, rolesRes] = await Promise.all([
+      const [profilesRes, subsRes, rolesRes, agreementsRes] = await Promise.all([
         supabase.from('profiles').select('user_id, display_name, first_name, last_name, email, department, position, avatar_url, created_at, last_login_at'),
         supabase.from('user_subscriptions').select('*'),
         supabase.from('user_roles').select('user_id, role'),
+        supabase.from('user_agreements_with_email' as any).select('id, user_id, agreement_type, version, agreed_at, user_agent, email, display_name, first_name, last_name').order('agreed_at', { ascending: false }),
       ]);
 
       if (profilesRes.data) setProfiles(profilesRes.data);
       if (subsRes.data) setSubscriptions(subsRes.data as UserSubscription[]);
       if (rolesRes.data) setRoles(rolesRes.data);
+      if (agreementsRes.data) setAgreements(agreementsRes.data as UserAgreementWithEmail[]);
     } catch (err) {
       console.error('Error fetching admin data:', err);
     } finally {
@@ -233,7 +249,7 @@ export default function AdminUsersPage() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Users
@@ -241,6 +257,10 @@ export default function AdminUsersPage() {
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Overview
+            </TabsTrigger>
+            <TabsTrigger value="agreements" className="flex items-center gap-2">
+              <FileCheck className="h-4 w-4" />
+              Agreements
             </TabsTrigger>
           </TabsList>
 
@@ -441,6 +461,61 @@ export default function AdminUsersPage() {
                           </TableRow>
                         );
                       })
+                    )}
+                  </TableBody>
+                </Table>
+              </ScrollArea>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="agreements" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">User Legal Agreements</CardTitle>
+                <CardDescription>All recorded Terms of Service and Privacy Policy acceptances</CardDescription>
+              </CardHeader>
+              <ScrollArea className="h-[600px]">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Email</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Agreement Type</TableHead>
+                      <TableHead>Version</TableHead>
+                      <TableHead>Agreed At</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">
+                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto" />
+                        </TableCell>
+                      </TableRow>
+                    ) : agreements.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                          No agreements recorded
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      agreements.map((a: UserAgreementWithEmail) => (
+                        <TableRow key={a.id}>
+                          <TableCell className="text-sm font-medium">{a.email || a.user_id}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {a.display_name || `${a.first_name || ''} ${a.last_name || ''}`.trim() || '—'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs capitalize">
+                              {a.agreement_type.replace('_', ' ')}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">v{a.version}</TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {format(new Date(a.agreed_at), 'MMM d, yyyy h:mm a')}
+                          </TableCell>
+                        </TableRow>
+                      ))
                     )}
                   </TableBody>
                 </Table>
