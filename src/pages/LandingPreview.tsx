@@ -7,12 +7,12 @@ import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
 import { TermsOfService } from "@/components/legal/TermsOfService";
-import { 
-  GraduationCap, 
-  Calendar, 
-  Users, 
-  TrendingUp, 
-  Shield, 
+import {
+  GraduationCap,
+  Calendar,
+  Users,
+  TrendingUp,
+  Shield,
   Zap,
   ArrowRight,
   Sparkles,
@@ -23,18 +23,15 @@ import {
   ListTodo,
   Package,
   Wallet,
-  Bell,
   LineChart,
   Clock,
   BarChart,
   Award,
   Target,
   Layers,
-  Rocket,
-  TestTube,
-  Megaphone,
-  MessageCircle,
-  FolderOpen
+  FolderOpen,
+  Menu,
+  X
 } from "lucide-react";
 
 // Import preview images
@@ -80,6 +77,7 @@ const LandingPreview = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showContact, setShowContact] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const features = [
     {
@@ -127,8 +125,8 @@ const LandingPreview = () => {
   ];
 
   const stats = [
-    { icon: GraduationCap, value: "10K+", label: "Academics" },
-    { icon: TrendingUp, value: "40%", label: "More Productive" },
+    { icon: GraduationCap, value: "500+", label: "Academics" },
+    { icon: TrendingUp, value: "4hrs+", label: "Saved Weekly" },
     { icon: Shield, value: "100%", label: "Secure" },
     { icon: Zap, value: "24/7", label: "Available" },
   ];
@@ -137,23 +135,20 @@ const LandingPreview = () => {
     {
       name: "Dr. Sarah Johnson",
       role: "Professor of Biology",
-      institution: "Stanford University",
       content: "The smart deadline indicators have transformed how I manage my research commitments. I never miss a deadline now.",
       avatar: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=150&h=150&fit=crop&crop=face",
       rating: 5
     },
     {
       name: "Prof. Michael Chen",
-      role: "Computer Science",
-      institution: "MIT",
+      role: "Associate Professor, Computer Science",
       content: "The folder organization system is phenomenal. I can easily categorize all my notes and student commitments.",
       avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
       rating: 5
     },
     {
       name: "Dr. Emily Rodriguez",
-      role: "Psychology Department",
-      institution: "Harvard University",
+      role: "Psychology Department Chair",
       content: "Managing lab supplies with threshold alerts has eliminated emergency supply runs completely.",
       avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&h=150&fit=crop&crop=face",
       rating: 5
@@ -169,12 +164,6 @@ const LandingPreview = () => {
     { title: "Funding", subtitle: "Grant tracking", image: fundingPreview, icon: Wallet },
   ];
 
-  const comingSoonFeatures = [
-    { icon: TestTube, title: "Testing Platform", description: "Full test management with suites, cases, and execution tracking" },
-    { icon: Megaphone, title: "Admin Communications", description: "Centralized announcements and organizational updates" },
-    { icon: MessageCircle, title: "Enhanced Feedback", description: "Advanced feedback analytics and response workflows" },
-    { icon: Rocket, title: "AI-Powered Insights", description: "Smart recommendations and automated productivity analysis" },
-  ];
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background">
@@ -202,7 +191,7 @@ const LandingPreview = () => {
             <a href="#features" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">Features</a>
             <a href="#showcase" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">Showcase</a>
             <a href="#testimonials" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">Reviews</a>
-            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+            <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="hidden md:block">
               <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300">
                 <Link to="/auth">
                   Get Started
@@ -210,8 +199,36 @@ const LandingPreview = () => {
                 </Link>
               </Button>
             </motion.div>
+            <button
+              type="button"
+              className="md:hidden p-2 rounded-lg text-muted-foreground hover:text-primary hover:bg-muted/60 transition-colors duration-200"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
           </div>
         </div>
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-t border-border/50 bg-background/95 backdrop-blur-xl px-6 py-4 flex flex-col gap-4"
+          >
+            <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200">Features</a>
+            <a href="#showcase" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200">Showcase</a>
+            <a href="#testimonials" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-200">Reviews</a>
+            <Button asChild size="default" className="w-full mt-1" onClick={() => setMobileMenuOpen(false)}>
+              <Link to="/auth">
+                Get Started
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+          </motion.div>
+        )}
       </motion.nav>
 
       {/* Hero Section */}
@@ -245,19 +262,19 @@ const LandingPreview = () => {
             <motion.div variants={fadeInUp}>
               <Badge className="mb-8 px-5 py-2 text-sm font-medium border border-primary/20 bg-primary/8 text-primary backdrop-blur-sm">
                 <Sparkles className="h-4 w-4 mr-2 text-secondary" />
-                Trusted by 10,000+ Academics Worldwide
+                Built for professors, researchers, and educators
               </Badge>
             </motion.div>
             
-            <motion.h1 
+            <motion.h1
               variants={fadeInUp}
               className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.15] tracking-tight"
             >
-              <span className="text-foreground">Academic</span>
+              <span className="text-foreground">Your Academic</span>
               <br />
               <span className="relative inline-block pb-3">
                 <span className="bg-gradient-to-r from-primary via-secondary to-primary bg-clip-text text-transparent">
-                  Excellence
+                  Life
                 </span>
                 <motion.span
                   initial={{ scaleX: 0 }}
@@ -267,15 +284,15 @@ const LandingPreview = () => {
                 />
               </span>
               <br />
-              <span className="text-foreground">Simplified.</span>
+              <span className="text-foreground">Organized.</span>
             </motion.h1>
-            
-            <motion.p 
+
+            <motion.p
               variants={fadeInUp}
               className="text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed text-muted-foreground"
             >
-              The all-in-one workspace for professors, researchers, and educators. 
-              Organize tasks, track grants, manage supplies, and boost productivity.
+              Manage grants, track deadlines, schedule meetings, and monitor supplies —
+              everything a professor needs, in one place.
             </motion.p>
             
             <motion.div 
@@ -290,13 +307,12 @@ const LandingPreview = () => {
                   </Link>
                 </Button>
               </motion.div>
-              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
-                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-2 border-primary/30 text-primary hover:bg-primary/8 hover:border-primary/50 transition-all duration-300">
-                  <a href="#showcase">
-                    <Play className="mr-2 h-5 w-5" />
-                    Watch Demo
-                  </a>
-                </Button>
+              <motion.div whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 400 }}>
+                <a href="#showcase" className="inline-flex items-center gap-2 text-base font-medium text-muted-foreground hover:text-primary transition-colors duration-200">
+                  <Play className="h-4 w-4" />
+                  See it in action
+                  <ChevronRight className="h-4 w-4" />
+                </a>
               </motion.div>
             </motion.div>
 
@@ -557,99 +573,6 @@ const LandingPreview = () => {
         </div>
       </section>
 
-      {/* Coming Soon Banner */}
-      <section className="py-24 bg-background relative overflow-hidden">
-        {/* Animated background particles */}
-        <div className="absolute inset-0 pointer-events-none">
-          <motion.div
-            animate={{ x: [0, 100, 0], y: [0, -50, 0] }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute top-10 left-[10%] w-2 h-2 rounded-full bg-primary/20"
-          />
-          <motion.div
-            animate={{ x: [0, -80, 0], y: [0, 60, 0] }}
-            transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-            className="absolute bottom-20 right-[15%] w-3 h-3 rounded-full bg-secondary/15"
-          />
-          <motion.div
-            animate={{ scale: [1, 1.5, 1], opacity: [0.05, 0.1, 0.05] }}
-            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[80px] bg-primary/8"
-          />
-        </div>
-
-        <div className="container mx-auto px-6 relative z-10">
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-80px" }}
-            variants={fadeInUp}
-            className="text-center mb-16"
-          >
-            <motion.div
-              animate={{ rotate: [0, 5, -5, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="inline-block mb-6"
-            >
-              <Badge className="px-5 py-2 text-sm font-semibold border border-accent/30 bg-accent/10 text-accent">
-                <Rocket className="h-4 w-4 mr-2" />
-                Coming Soon
-              </Badge>
-            </motion.div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-              What's Next
-            </h2>
-            <p className="text-xl max-w-2xl mx-auto text-muted-foreground">
-              Exciting new features currently in development
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={staggerContainer}
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            {comingSoonFeatures.map((feature, index) => (
-              <motion.div
-                key={index}
-                variants={scaleIn}
-                whileHover={{ y: -6, scale: 1.03 }}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              >
-                <Card className="group relative overflow-hidden h-full border border-dashed border-border bg-card/50 backdrop-blur-sm hover:border-primary/40 hover:bg-card transition-all duration-500">
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
-                    <motion.div
-                      animate={{ x: ["-100%", "200%"] }}
-                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 2 }}
-                      className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent skew-x-12"
-                    />
-                  </div>
-
-                  <CardContent className="relative p-6 text-center">
-                    <motion.div
-                      whileHover={{ rotate: [0, -10, 10, 0] }}
-                      transition={{ duration: 0.5 }}
-                      className="inline-flex p-3 rounded-xl mb-4 border border-primary/20 bg-primary/8 group-hover:bg-primary/15 transition-colors duration-300"
-                    >
-                      <feature.icon className="h-6 w-6 text-primary" />
-                    </motion.div>
-                    <h3 className="text-lg font-bold mb-2 text-foreground group-hover:text-primary transition-colors duration-300">
-                      {feature.title}
-                    </h3>
-                    <p className="text-sm leading-relaxed text-muted-foreground">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
       {/* Testimonials Section */}
       <section id="testimonials" className="py-32 bg-muted/30 relative">
         <div className="container mx-auto px-6">
@@ -710,7 +633,6 @@ const LandingPreview = () => {
                       <div>
                         <p className="font-semibold text-foreground">{testimonial.name}</p>
                         <p className="text-sm font-medium text-primary">{testimonial.role}</p>
-                        <p className="text-sm text-muted-foreground">{testimonial.institution}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -756,13 +678,13 @@ const LandingPreview = () => {
             </Badge>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-foreground">
-              Ready to Transform Your Workflow?
+              Still have questions?
             </h2>
-            
+
             <p className="text-xl mb-14 text-primary-foreground/80 max-w-xl mx-auto">
-              Join thousands of academics already using SmartProf to boost their productivity.
+              Sign up free and explore the platform — or reach out and we'll answer anything before you commit.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
                 <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl bg-background text-primary hover:bg-background/90 hover:shadow-2xl transition-all duration-300">
@@ -773,11 +695,9 @@ const LandingPreview = () => {
                 </Button>
               </motion.div>
               <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
-                <Button asChild size="lg" variant="outline" className="h-14 px-10 text-lg font-semibold border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 hover:border-primary-foreground/50 transition-all duration-300">
-                  <a href="#features">
-                    Learn More
-                    <ChevronRight className="ml-1 h-5 w-5" />
-                  </a>
+                <Button size="lg" variant="outline" onClick={() => setShowContact(true)} className="h-14 px-10 text-lg font-semibold border-primary-foreground/30 text-primary-foreground bg-transparent hover:bg-primary-foreground/10 hover:border-primary-foreground/50 transition-all duration-300">
+                  Talk to the Team
+                  <ChevronRight className="ml-1 h-5 w-5" />
                 </Button>
               </motion.div>
             </div>
