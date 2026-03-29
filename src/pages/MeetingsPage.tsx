@@ -19,8 +19,7 @@ import {
   Repeat,
   Check,
   Edit,
-  Trash2,
-  Copy } from
+  Trash2 } from
 "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -251,7 +250,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
       
       {meeting.status === "scheduled" &&
       <CardFooter className="pt-0 flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1">Reschedule</Button>
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(meeting)}>Reschedule</Button>
           <Button size="sm" className="flex-1" onClick={() => onViewDetails(meeting)}>
             View Details
           </Button>
@@ -313,8 +312,8 @@ const MeetingsPage = () => {
     meeting.location && meeting.location.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesTab =
-    activeTab === "upcoming" && meeting.status === "scheduled" && new Date(meeting.start_date) >= new Date() ||
-    activeTab === "past" && meeting.status === "completed" ||
+    activeTab === "upcoming" && (meeting.status === "scheduled" || meeting.status === "in_progress") && new Date(meeting.start_date) >= new Date() ||
+    activeTab === "past" && (meeting.status === "completed" || meeting.status === "postponed" || meeting.status === "cancelled") ||
     activeTab === "all";
 
     return matchesSearch && matchesTab;
@@ -413,7 +412,6 @@ const MeetingsPage = () => {
           </div>
         </div>
 
-        {/* Search and Tabs */}
         {/* Search and Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-4">
           <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">

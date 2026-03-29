@@ -48,8 +48,10 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
   useEffect(() => {
     if (meeting) {
       setTitle(meeting.title);
-      setType(meeting.type as "one_on_one" | "group");
-      setDate(new Date(meeting.start_date));
+      // Normalize type: only "one_on_one" and "group" are editable; others default to "one_on_one"
+      setType(meeting.type === "group" ? "group" : "one_on_one");
+      // Parse date as local time to avoid off-by-one in negative-offset timezones
+      setDate(new Date(meeting.start_date + 'T00:00:00'));
       setStartTime(meeting.start_time);
       setEndTime(meeting.end_time);
       setLocation(meeting.location);
@@ -72,14 +74,30 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
       return;
     }
 
+    if (isGrantMeeting && !selectedFundingSourceId) {
+      toast({
+        title: "Error",
+        description: "Please select a grant to link this meeting to",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
 
+      // Preserve existing attendee statuses; only new names default to "pending"
+      const existingByName = Object.fromEntries(
+        (meeting.attendees || []).map(a => [a.name, a])
+      );
       const attendeesList = attendees
         .split(',')
         .map(attendee => attendee.trim())
         .filter(attendee => attendee !== "")
-        .map(name => ({ name, email: "", status: "pending" as const, required: true }));
+        .map(name => existingByName[name]
+          ? { ...existingByName[name] }
+          : { name, email: "", status: "pending" as const, required: true }
+        );
 
       const formattedDate = format(date, 'yyyy-MM-dd');
       

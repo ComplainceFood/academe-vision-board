@@ -42,13 +42,34 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
     enabled: !!user && isGrantMeeting,
   });
 
+  const resetForm = () => {
+    setTitle("");
+    setType("1:1");
+    setDate(undefined);
+    setTime("10:00");
+    setLocation("");
+    setAttendees("");
+    setAgenda("");
+    setIsGrantMeeting(false);
+    setSelectedFundingSourceId("");
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!title || !date || !location || !user) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isGrantMeeting && !selectedFundingSourceId) {
+      toast({
+        title: "Error",
+        description: "Please select a grant to link this meeting to",
         variant: "destructive",
       });
       return;
@@ -65,7 +86,10 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
       const formattedDate = format(date, 'yyyy-MM-dd');
       const [hours, minutes] = time.split(':').map(Number);
       const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      const endTime = `${(hours + 1).toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+      // Cap end time at 23:59 to avoid invalid 24:xx values
+      const endHours = hours >= 23 ? 23 : hours + 1;
+      const endMinutes = hours >= 23 ? 59 : minutes;
+      const endTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
       
       const { error } = await supabase.from("meetings").insert([
         {
@@ -96,17 +120,7 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
         description: "Meeting scheduled successfully",
       });
 
-      // Reset form
-      setTitle("");
-      setType("1:1");
-      setDate(undefined);
-      setTime("10:00");
-      setLocation("");
-      setAttendees("");
-      setAgenda("");
-      setIsGrantMeeting(false);
-      setSelectedFundingSourceId("");
-      
+      resetForm();
       triggerRefresh('meetings');
       onOpenChange(false);
     } catch (error) {
@@ -251,7 +265,7 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => { resetForm(); onOpenChange(false); }}>
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
