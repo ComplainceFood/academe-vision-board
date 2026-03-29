@@ -9,18 +9,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, User, Bell, Shield, Camera, Key, LogOut, Trash2, Download, Link, Save } from "lucide-react";
+import { Settings, User, Bell, Shield, Camera, Key, Trash2, Link, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
 import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExportImport";
-import SecurityDashboard from "@/components/security/SecurityDashboard";
-import { SecurityScanner } from "@/components/admin/SecurityScanner";
-import { SecurityStatus } from "@/components/security/SecurityStatus";
-import { SecurityMonitor } from "@/components/security/SecurityMonitor";
-import { SecurityAuditLog } from "@/components/security/SecurityAuditLog";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 
 const SettingsPage = () => {
@@ -485,21 +480,6 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
-            {/* Security Status Overview */}
-            <SecurityStatus />
-            
-            {/* Security Scanner (Admin Only) */}
-            <SecurityScanner />
-            
-            {/* Security Dashboard */}
-            <SecurityDashboard />
-            
-            {/* Security Monitor */}
-            <SecurityMonitor />
-            
-            {/* Security Audit Log */}
-            <SecurityAuditLog />
-            
             {/* Data Export/Import Section */}
             <EnhancedDataExportImport />
             
