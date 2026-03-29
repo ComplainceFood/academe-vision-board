@@ -16,6 +16,7 @@ import { OrcidIntegration } from "@/components/achievements/OrcidIntegration";
 import { ResumeExportButton } from "@/components/achievements/ResumeExportButton";
 import { CitationMetrics } from "@/components/achievements/CitationMetrics";
 import { BiosketechGenerator } from "@/components/achievements/BiosketechGenerator";
+import { CVImportButton } from "@/components/achievements/CVImportButton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -128,6 +129,7 @@ const AchievementsPage = () => {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3 mt-2">
+                  <CVImportButton onImportComplete={handleRefresh} />
                   <ResumeExportButton achievements={achievements ?? []} userName={userName} />
                   <BiosketechGenerator achievements={achievements ?? []} />
                 </div>
