@@ -13,6 +13,9 @@ import { TeachingPerformanceList } from "@/components/achievements/TeachingPerfo
 import { ProfessionalDevelopmentList } from "@/components/achievements/ProfessionalDevelopmentList";
 import { ExternalImpactList } from "@/components/achievements/ExternalImpactList";
 import { OrcidIntegration } from "@/components/achievements/OrcidIntegration";
+import { ResumeExportButton } from "@/components/achievements/ResumeExportButton";
+import { CitationMetrics } from "@/components/achievements/CitationMetrics";
+import { BiosketechGenerator } from "@/components/achievements/BiosketechGenerator";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -30,20 +33,12 @@ import {
   Globe,
   Search,
   Sparkles,
-  Trophy,
-  Star
+  Trophy
 } from "lucide-react";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-
-interface Achievement {
-  id: string;
-  category: string;
-  title: string;
-  status: string;
-  date?: string;
-}
+import type { Achievement } from "@/types/achievements";
 
 const AchievementsPage = () => {
   const { user } = useAuth();
@@ -101,6 +96,11 @@ const AchievementsPage = () => {
     refetchProfile();
   };
 
+  const userName =
+    profile?.display_name ||
+    [profile?.first_name, profile?.last_name].filter(Boolean).join(" ") ||
+    undefined;
+
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-8">
@@ -127,6 +127,10 @@ const AchievementsPage = () => {
                     </p>
                   </div>
                 </div>
+                <div className="flex flex-wrap gap-3 mt-2">
+                  <ResumeExportButton achievements={achievements ?? []} userName={userName} />
+                  <BiosketechGenerator achievements={achievements ?? []} />
+                </div>
               </div>
 
               {/* Stats Summary */}
@@ -148,11 +152,12 @@ const AchievementsPage = () => {
           </div>
         </div>
 
-        {/* ORCID Integration */}
-        <OrcidIntegration 
-          currentOrcidId={profile?.orcid_id} 
+        {/* ORCID Integration + Citation Metrics */}
+        <OrcidIntegration
+          currentOrcidId={profile?.orcid_id}
           onRefresh={handleRefresh}
         />
+        <CitationMetrics orcidId={profile?.orcid_id} />
 
         {/* Main Content with Tabs */}
         <Card className="border-0 shadow-lg overflow-hidden">
