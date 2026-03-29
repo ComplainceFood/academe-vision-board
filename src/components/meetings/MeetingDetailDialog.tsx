@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, MapPin, FileText, Bell, Check, X, Repeat, Trash2, Edit } from "lucide-react";
+import { MeetingAISummarizer } from "./MeetingAISummarizer";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -313,6 +314,14 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
             </Table>
           </div>
           
+          <MeetingAISummarizer
+            meetingId={meeting.id}
+            title={meeting.title}
+            agenda={meeting.agenda}
+            notes={meetingNotes}
+            onActionItemsAdded={() => triggerRefresh('meetings')}
+          />
+
           <div>
             <h3 className="text-md font-semibold mb-2">Action Items</h3>
             {meeting.action_items && meeting.action_items.length > 0 ? (
