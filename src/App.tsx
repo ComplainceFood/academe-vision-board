@@ -22,6 +22,7 @@ import FeedbackPage from "./pages/FeedbackPage";
 import CommunicationsPage from "./pages/CommunicationsPage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import AuthPage from "./pages/AuthPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
 import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
 import LandingPreview from "./pages/LandingPreview";
@@ -106,6 +107,7 @@ const AppContent = () => {
       <Routes>
         {/* Public routes - no authentication required */}
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/landing" element={<LandingPreview />} />
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="/auth/outlook/callback" element={<OutlookOAuthCallbackPage />} />

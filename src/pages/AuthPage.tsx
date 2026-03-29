@@ -18,6 +18,7 @@ const AuthPage = () => {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<any>(null);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
@@ -191,8 +192,27 @@ const AuthPage = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Password reset email sent! Check your inbox.");
+      setIsForgotPassword(false);
+    } catch (error: any) {
+      // Generic message to avoid revealing whether an email exists
+      toast.success("If that email is registered, you'll receive a reset link shortly.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleModeSwitch = () => {
     setIsSignUp(!isSignUp);
+    setIsForgotPassword(false);
     // Reset agreement states when switching modes
     setAgreedToTerms(false);
     setAgreedToPrivacy(false);
@@ -207,10 +227,47 @@ const AuthPage = () => {
   if (showLegalAgreement) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <LegalAgreement 
+        <LegalAgreement
           onAgreementComplete={handleLegalDialogComplete}
           showDialog={true}
         />
+      </div>
+    );
+  }
+
+  if (isForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Reset your password</CardTitle>
+            <CardDescription className="text-center">
+              Enter your email address and we'll send you a link to reset your password.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <Input
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <Button className="w-full" type="submit" disabled={isLoading}>
+                {isLoading ? "Sending..." : "Send reset link"}
+              </Button>
+            </form>
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setIsForgotPassword(false)}
+                className="text-sm text-muted-foreground hover:text-primary"
+              >
+                Back to sign in
+              </button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -224,7 +281,7 @@ const AuthPage = () => {
           </CardTitle>
           <CardDescription className="text-center">
             {isSignUp
-              ? SIGNUPS_ENABLED 
+              ? SIGNUPS_ENABLED
                 ? "Enter your email and password to create your account"
                 : "New registrations are temporarily closed"
               : "Enter your email and password to sign in"}
@@ -289,6 +346,19 @@ const AuthPage = () => {
                 </div>
               )}
             </div>
+
+            {/* Forgot password link - sign in mode only */}
+            {!isSignUp && (
+              <div className="text-right">
+                <button
+                  type="button"
+                  onClick={() => setIsForgotPassword(true)}
+                  className="text-sm text-muted-foreground hover:text-primary"
+                >
+                  Forgot password?
+                </button>
+              </div>
+            )}
 
             {/* Legal Agreements for Signup */}
             {isSignUp && (
