@@ -118,7 +118,7 @@ Deno.serve(async (req) => {
     if (insertError) {
       console.error('Error inserting login history:', insertError);
       return new Response(
-        JSON.stringify({ error: 'Failed to track login', details: insertError.message }),
+        JSON.stringify({ error: 'Failed to track login' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error('Error in track-login function:', error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

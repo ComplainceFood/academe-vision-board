@@ -119,7 +119,7 @@ serve(async (req) => {
         error: errorText 
       });
       return new Response(
-        JSON.stringify({ error: 'Failed to exchange authorization code', details: errorText }),
+        JSON.stringify({ error: 'Failed to exchange authorization code' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -274,7 +274,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in outlook-oauth-exchange:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
