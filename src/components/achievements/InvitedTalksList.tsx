@@ -20,7 +20,7 @@ interface InvitedTalk {
   tags?: string[];
 }
 
-export function InvitedTalksList() {
+export function InvitedTalksList({ searchQuery = '' }: { searchQuery?: string } = {}) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<InvitedTalk | null>(null);
   const { toast } = useToast();
@@ -30,6 +30,12 @@ export function InvitedTalksList() {
     filters: [{ column: "category", value: "invited_talk", operator: "eq" }],
     transform: (data) => data || []
   });
+
+  const filteredTalks = talks.filter(item =>
+    !searchQuery ||
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const handleDelete = async (id: string) => {
     try {
@@ -82,7 +88,7 @@ export function InvitedTalksList() {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Mic className="h-5 w-5" />
-          <span className="font-medium">{talks?.length || 0} Invited Talks</span>
+          <span className="font-medium">{filteredTalks.length} Invited Talks</span>
         </div>
         <Button onClick={() => setShowCreateDialog(true)} size="sm">
           <Plus className="h-4 w-4 mr-2" />
@@ -90,7 +96,7 @@ export function InvitedTalksList() {
         </Button>
       </div>
 
-      {!talks?.length ? (
+      {!filteredTalks.length ? (
         <Card>
           <CardContent className="p-6 text-center">
             <Mic className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -106,7 +112,7 @@ export function InvitedTalksList() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {talks.map((talk) => (
+          {filteredTalks.map((talk) => (
             <Card key={talk.id}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">

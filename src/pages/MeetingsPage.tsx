@@ -304,17 +304,17 @@ const MeetingsPage = () => {
 
   const filteredMeetings = (meetings || []).filter((meeting) => {
     const matchesSearch =
-    meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    meeting.attendees && Array.isArray(meeting.attendees) && meeting.attendees.some((attendee) =>
-    attendee.name.toLowerCase().includes(searchQuery.toLowerCase())
-    ) ||
-    meeting.agenda && meeting.agenda.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    meeting.location && meeting.location.toLowerCase().includes(searchQuery.toLowerCase());
+      meeting.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (Array.isArray(meeting.attendees) && meeting.attendees.some((attendee) =>
+        attendee.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )) ||
+      (meeting.agenda && meeting.agenda.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (meeting.location && meeting.location.toLowerCase().includes(searchQuery.toLowerCase()));
 
     const matchesTab =
-    activeTab === "upcoming" && (meeting.status === "scheduled" || meeting.status === "in_progress") && new Date(meeting.start_date) >= new Date() ||
-    activeTab === "past" && (meeting.status === "completed" || meeting.status === "postponed" || meeting.status === "cancelled") ||
-    activeTab === "all";
+      (activeTab === "upcoming" && (meeting.status === "scheduled" || meeting.status === "in_progress") && new Date(meeting.start_date) >= new Date()) ||
+      (activeTab === "past" && (meeting.status === "completed" || meeting.status === "postponed" || meeting.status === "cancelled")) ||
+      activeTab === "all";
 
     return matchesSearch && matchesTab;
   });

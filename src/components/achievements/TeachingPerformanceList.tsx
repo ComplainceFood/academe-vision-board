@@ -8,7 +8,7 @@ import { CreateAchievementDialog } from "./CreateAchievementDialog";
 import { EditAchievementDialog } from "./EditAchievementDialog";
 import { Achievement } from "@/types/achievements";
 
-export const TeachingPerformanceList = () => {
+export const TeachingPerformanceList = ({ searchQuery = '' }: { searchQuery?: string } = {}) => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingAchievement, setEditingAchievement] = useState<Achievement | null>(null);
 
@@ -16,6 +16,12 @@ export const TeachingPerformanceList = () => {
     table: 'scholastic_achievements',
     filters: [{ column: 'category', value: 'teaching_performance' }]
   });
+
+  const filteredAchievements = achievements.filter(item =>
+    !searchQuery ||
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -49,7 +55,7 @@ export const TeachingPerformanceList = () => {
         </Button>
       </div>
 
-      {achievements.length === 0 ? (
+      {filteredAchievements.length === 0 ? (
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-8">
@@ -67,7 +73,7 @@ export const TeachingPerformanceList = () => {
         </Card>
       ) : (
         <div className="grid gap-4">
-          {achievements.map((achievement) => (
+          {filteredAchievements.map((achievement) => (
             <Card key={achievement.id} className="hover:shadow-md transition-shadow">
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">

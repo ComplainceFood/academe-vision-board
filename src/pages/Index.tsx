@@ -4,7 +4,6 @@ import { MainLayout } from "@/components/MainLayout";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
 import { useAuth } from "@/hooks/useAuth";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { 
@@ -54,61 +53,58 @@ import suppliesPreview from "@/assets/landing/supplies-preview.png";
 import analyticsPreview from "@/assets/landing/analytics-preview.png";
 import fundingPreview from "@/assets/landing/funding-preview.png";
 
-// Create a client
-const queryClient = new QueryClient();
-
 const Index = () => {
   const { user } = useAuth();
+
+  // All hooks must be called unconditionally (React Rules of Hooks)
+  const { data: notes } = useDataFetching<any>({
+    table: 'notes',
+    enabled: !!user
+  });
+
+  const { data: meetings } = useDataFetching<any>({
+    table: 'meetings',
+    enabled: !!user
+  });
+
+  const { data: supplies } = useDataFetching<any>({
+    table: 'supplies',
+    enabled: !!user
+  });
+
+  const { data: events } = useDataFetching<any>({
+    table: 'planning_events',
+    enabled: !!user
+  });
+
+  const { data: shoppingItems } = useDataFetching<any>({
+    table: 'shopping_list',
+    enabled: !!user
+  });
 
   // If user is not authenticated, show landing page
   if (!user) {
     return <LandingPage />;
   }
-  
-  const { data: notes } = useDataFetching<any>({ 
-    table: 'notes', 
-    enabled: !!user 
-  });
-  
-  const { data: meetings } = useDataFetching<any>({ 
-    table: 'meetings', 
-    enabled: !!user 
-  });
-  
-  const { data: supplies } = useDataFetching<any>({ 
-    table: 'supplies', 
-    enabled: !!user 
-  });
-  
-  const { data: events } = useDataFetching<any>({ 
-    table: 'planning_events', 
-    enabled: !!user 
-  });
-  
-  const { data: shoppingItems } = useDataFetching<any>({ 
-    table: 'shopping_list',
-    enabled: !!user
-  });
 
   // Calculate stats
   const promiseCount = notes.filter((note: any) => note.type === 'commitment').length;
-  const upcomingMeetings = meetings.filter((meeting: any) => 
+  const upcomingMeetings = meetings.filter((meeting: any) =>
     meeting.status === 'scheduled' && new Date(meeting.start_date) > new Date()
   ).length;
-  const lowSuppliesCount = supplies.filter((supply: any) => 
+  const lowSuppliesCount = supplies.filter((supply: any) =>
     supply.current_count <= supply.threshold
   ).length;
   const shoppingItemsCount = shoppingItems.filter((item: any) => !item.purchased).length;
-  const todoTasks = events.filter((event: any) => 
+  const todoTasks = events.filter((event: any) =>
     event.type === 'task' && !event.completed
   ).length;
-  const upcomingDeadlines = events.filter((event: any) => 
+  const upcomingDeadlines = events.filter((event: any) =>
     event.type === 'deadline' && new Date(event.date) > new Date()
   ).length;
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <MainLayout>
+    <MainLayout>
         <div className="animate-fade-in">
           <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome to Smart-Prof</h1>
           <p className="text-muted-foreground mb-8">Teaching Smarter. Managing Better - Your comprehensive academic platform</p>
@@ -267,7 +263,6 @@ const Index = () => {
           </div>
         </div>
       </MainLayout>
-    </QueryClientProvider>
   );
 };
 

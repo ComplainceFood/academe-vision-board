@@ -248,10 +248,6 @@ const SuppliesPage = () => {
         description: "Expense deleted successfully"
       });
       triggerRefresh('expenses');
-
-      // Update local state optimistically
-      const newExpenses = expenses.filter((expense) => expense.id !== expenseToDelete);
-      // We'd need to update the expenses state here if we had access to the setter
     } catch (error) {
       console.error("Error deleting expense:", error);
       toast({
@@ -262,9 +258,7 @@ const SuppliesPage = () => {
     } finally {
       setExpenseToDelete(null);
       setIsProcessing(false);
-      setTimeout(() => {
-        refetchExpenses(); // Refetch after a short delay to allow the UI to update first
-      }, 300);
+      refetchExpenses();
     }
   };
   const handleEditItem = (item: SupplyItem) => {

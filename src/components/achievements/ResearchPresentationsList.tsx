@@ -21,7 +21,7 @@ interface ResearchPresentation {
   tags?: string[];
 }
 
-export function ResearchPresentationsList() {
+export function ResearchPresentationsList({ searchQuery = '' }: { searchQuery?: string } = {}) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<ResearchPresentation | null>(null);
   const { toast } = useToast();
@@ -31,6 +31,12 @@ export function ResearchPresentationsList() {
     filters: [{ column: "category", value: "research_presentation", operator: "eq" }],
     transform: (data) => data || []
   });
+
+  const filteredPresentations = presentations.filter(item =>
+    !searchQuery ||
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const handleDelete = async (id: string) => {
     try {
@@ -83,7 +89,7 @@ export function ResearchPresentationsList() {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Presentation className="h-5 w-5" />
-          <span className="font-medium">{presentations?.length || 0} Research Presentations</span>
+          <span className="font-medium">{filteredPresentations.length} Research Presentations</span>
         </div>
         <Button onClick={() => setShowCreateDialog(true)} size="sm">
           <Plus className="h-4 w-4 mr-2" />
@@ -91,7 +97,7 @@ export function ResearchPresentationsList() {
         </Button>
       </div>
 
-      {!presentations?.length ? (
+      {!filteredPresentations.length ? (
         <Card>
           <CardContent className="p-6 text-center">
             <Presentation className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -107,7 +113,7 @@ export function ResearchPresentationsList() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {presentations.map((presentation) => (
+          {filteredPresentations.map((presentation) => (
             <Card key={presentation.id}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">

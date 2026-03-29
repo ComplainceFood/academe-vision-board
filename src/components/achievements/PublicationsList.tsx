@@ -22,7 +22,7 @@ interface Publication {
   tags?: string[];
 }
 
-export function PublicationsList() {
+export function PublicationsList({ searchQuery = '' }: { searchQuery?: string } = {}) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<Publication | null>(null);
   const { toast } = useToast();
@@ -32,6 +32,12 @@ export function PublicationsList() {
     filters: [{ column: "category", value: "publication", operator: "eq" }],
     transform: (data) => data || []
   });
+
+  const filteredPublications = publications.filter(item =>
+    !searchQuery ||
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const handleDelete = async (id: string) => {
     try {
@@ -85,7 +91,7 @@ export function PublicationsList() {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <BookOpen className="h-5 w-5" />
-          <span className="font-medium">{publications?.length || 0} Publications</span>
+          <span className="font-medium">{filteredPublications.length} Publications</span>
         </div>
         <Button onClick={() => setShowCreateDialog(true)} size="sm">
           <Plus className="h-4 w-4 mr-2" />
@@ -93,7 +99,7 @@ export function PublicationsList() {
         </Button>
       </div>
 
-      {!publications?.length ? (
+      {!filteredPublications.length ? (
         <Card>
           <CardContent className="p-6 text-center">
             <BookOpen className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -109,7 +115,7 @@ export function PublicationsList() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {publications.map((publication) => (
+          {filteredPublications.map((publication) => (
             <Card key={publication.id}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">

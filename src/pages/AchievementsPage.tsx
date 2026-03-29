@@ -202,47 +202,47 @@ const AchievementsPage = () => {
               {/* Tab Content */}
               <div className="p-6">
                 <TabsContent value="publications" className="mt-0 space-y-4">
-                  <PublicationsList />
+                  <PublicationsList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="presentations" className="mt-0 space-y-4">
-                  <ResearchPresentationsList />
+                  <ResearchPresentationsList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="talks" className="mt-0 space-y-4">
-                  <InvitedTalksList />
+                  <InvitedTalksList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="leadership" className="mt-0 space-y-4">
-                  <LeadershipRolesList />
+                  <LeadershipRolesList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="courses" className="mt-0 space-y-4">
-                  <CoursesTaughtList />
+                  <CoursesTaughtList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="awards" className="mt-0 space-y-4">
-                  <AwardsHonorsList />
+                  <AwardsHonorsList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="service" className="mt-0 space-y-4">
-                  <ServiceReviewsList />
+                  <ServiceReviewsList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="supervision" className="mt-0 space-y-4">
-                  <StudentSupervisionList />
+                  <StudentSupervisionList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="teaching" className="mt-0 space-y-4">
-                  <TeachingPerformanceList />
+                  <TeachingPerformanceList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="development" className="mt-0 space-y-4">
-                  <ProfessionalDevelopmentList />
+                  <ProfessionalDevelopmentList searchQuery={searchQuery} />
                 </TabsContent>
 
                 <TabsContent value="impact" className="mt-0 space-y-4">
-                  <ExternalImpactList />
+                  <ExternalImpactList searchQuery={searchQuery} />
                 </TabsContent>
               </div>
             </Tabs>

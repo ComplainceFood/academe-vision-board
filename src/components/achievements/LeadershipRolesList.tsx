@@ -20,7 +20,7 @@ interface LeadershipRole {
   tags?: string[];
 }
 
-export function LeadershipRolesList() {
+export function LeadershipRolesList({ searchQuery = '' }: { searchQuery?: string } = {}) {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingItem, setEditingItem] = useState<LeadershipRole | null>(null);
   const { toast } = useToast();
@@ -30,6 +30,12 @@ export function LeadershipRolesList() {
     filters: [{ column: "category", value: "leadership_role", operator: "eq" }],
     transform: (data) => data || []
   });
+
+  const filteredRoles = roles.filter(item =>
+    !searchQuery ||
+    item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   const handleDelete = async (id: string) => {
     try {
@@ -82,7 +88,7 @@ export function LeadershipRolesList() {
       <div className="flex justify-between items-center">
         <div className="flex items-center gap-2">
           <Users className="h-5 w-5" />
-          <span className="font-medium">{roles?.length || 0} Leadership Roles</span>
+          <span className="font-medium">{filteredRoles.length} Leadership Roles</span>
         </div>
         <Button onClick={() => setShowCreateDialog(true)} size="sm">
           <Plus className="h-4 w-4 mr-2" />
@@ -90,7 +96,7 @@ export function LeadershipRolesList() {
         </Button>
       </div>
 
-      {!roles?.length ? (
+      {!filteredRoles.length ? (
         <Card>
           <CardContent className="p-6 text-center">
             <Users className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
@@ -106,7 +112,7 @@ export function LeadershipRolesList() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {roles.map((role) => (
+          {filteredRoles.map((role) => (
             <Card key={role.id}>
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">

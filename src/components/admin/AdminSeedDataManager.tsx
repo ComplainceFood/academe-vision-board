@@ -533,7 +533,7 @@ const mockDataSets = {
         co_authors: ["Sarah Johnson"],
       },
       {
-        category: "award",
+        category: "award_honor",
         title: "Outstanding Teaching Award — College of Engineering",
         description: "Recognized for exceptional teaching effectiveness, innovative pedagogy, and dedication to student mentorship in 2024–2025.",
         organization: "University College of Engineering",
@@ -599,7 +599,7 @@ const mockDataSets = {
         tags: ["service", "review", "SIGCSE"],
       },
       {
-        category: "leadership",
+        category: "leadership_role",
         title: "Undergraduate Program Director — CS Department",
         description: "Overseeing the undergraduate CS program including curriculum development, student advising coordination, and ABET accreditation preparation.",
         organization: "CS Department, University",
