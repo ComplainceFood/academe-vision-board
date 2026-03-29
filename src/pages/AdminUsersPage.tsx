@@ -19,8 +19,9 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import {
   Users, ShieldAlert, Search, Crown, UserCheck, UserX,
-  Edit, BarChart3, Filter, RefreshCw, FileCheck
+  Edit, BarChart3, Filter, RefreshCw, FileCheck, Database
 } from 'lucide-react';
+import { AdminSeedDataManager } from '@/components/admin/AdminSeedDataManager';
 
 interface UserProfile {
   user_id: string;
@@ -249,7 +250,7 @@ export default function AdminUsersPage() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Users
@@ -261,6 +262,10 @@ export default function AdminUsersPage() {
             <TabsTrigger value="agreements" className="flex items-center gap-2">
               <FileCheck className="h-4 w-4" />
               Agreements
+            </TabsTrigger>
+            <TabsTrigger value="admin-panel" className="flex items-center gap-2">
+              <Database className="h-4 w-4" />
+              Admin Panel
             </TabsTrigger>
           </TabsList>
 
@@ -521,6 +526,9 @@ export default function AdminUsersPage() {
                 </Table>
               </ScrollArea>
             </Card>
+          </TabsContent>
+          <TabsContent value="admin-panel" className="space-y-6">
+            <AdminSeedDataManager />
           </TabsContent>
         </Tabs>
       </div>
