@@ -2,17 +2,20 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Edit, 
-  Plus, 
-  Trash2, 
-  Calendar, 
-  User, 
+import {
+  Edit,
+  Plus,
+  Trash2,
+  Calendar,
+  User,
   MoreVertical,
   Wallet,
-  TrendingUp,
   AlertTriangle,
-  ExternalLink
+  BookOpen,
+  Gift,
+  BarChart3,
+  Handshake,
+  DollarSign,
 } from "lucide-react";
 import { FundingSource } from "@/types/funding";
 import { FundingSourceDialog } from "./FundingSourceDialog";
@@ -35,6 +38,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 
 interface FundingSourcesListProps {
   sources: FundingSource[];
@@ -90,11 +94,11 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
 
   const getTypeConfig = (type: string) => {
     switch (type) {
-      case 'grant': return { icon: '🎓', label: 'Grant', color: 'from-violet-500/20 to-violet-500/5' };
-      case 'donation': return { icon: '🎁', label: 'Donation', color: 'from-pink-500/20 to-pink-500/5' };
-      case 'budget_allocation': return { icon: '📊', label: 'Budget', color: 'from-blue-500/20 to-blue-500/5' };
-      case 'fundraising': return { icon: '🤝', label: 'Fundraising', color: 'from-amber-500/20 to-amber-500/5' };
-      default: return { icon: '💰', label: 'Other', color: 'from-gray-500/20 to-gray-500/5' };
+      case 'grant': return { Icon: BookOpen, label: 'Grant' };
+      case 'donation': return { Icon: Gift, label: 'Donation' };
+      case 'budget_allocation': return { Icon: BarChart3, label: 'Budget Allocation' };
+      case 'fundraising': return { Icon: Handshake, label: 'Fundraising' };
+      default: return { Icon: DollarSign, label: 'Other' };
     }
   };
 
@@ -180,7 +184,7 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
         </Button>
       </div>
       
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {sources.map((source) => {
           const usagePercentage = calculateUsagePercentage(source.total_amount, source.remaining_amount);
           const statusConfig = getStatusConfig(source.status);
@@ -188,35 +192,34 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
           const daysUntilExpiry = getDaysUntilExpiry(source.end_date);
           const isExpiringSoon = daysUntilExpiry !== null && daysUntilExpiry <= 30 && daysUntilExpiry > 0;
           const isHighUsage = usagePercentage > 80;
-          
-          return (
-            <Card 
-              key={source.id} 
-              className="group hover:shadow-xl transition-all duration-500 overflow-hidden border-0 shadow-md"
-            >
-              <CardContent className="p-0">
-                {/* Progress bar at top */}
-                <div className="h-1.5 bg-muted">
-                  <div 
-                    className={`h-full transition-all duration-700 ${isHighUsage ? 'bg-gradient-to-r from-orange-500 to-red-500' : 'bg-gradient-to-r from-emerald-500 to-teal-500'}`}
-                    style={{ width: `${Math.min(usagePercentage, 100)}%` }}
-                  />
-                </div>
+          const { Icon: TypeIcon } = typeConfig;
 
-                {/* Header */}
-                <div className={`p-5 pb-4 bg-gradient-to-br ${typeConfig.color}`}>
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-3 flex-1 min-w-0">
-                      <span className="text-3xl">{typeConfig.icon}</span>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-lg leading-tight line-clamp-2 group-hover:text-primary transition-colors">{source.name}</h3>
-                        <p className="text-xs text-muted-foreground mt-1 capitalize">{typeConfig.label}</p>
-                      </div>
+          return (
+            <Card
+              key={source.id}
+              className="group hover:shadow-md transition-shadow duration-200 overflow-hidden"
+            >
+              <CardContent className="p-5 space-y-4">
+                {/* Header row */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
+                    <div className="mt-0.5 rounded-md bg-muted p-2 shrink-0">
+                      <TypeIcon className="h-4 w-4 text-muted-foreground" />
                     </div>
+                    <div className="min-w-0">
+                      <h3 className="font-semibold text-base leading-snug line-clamp-2">{source.name}</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">{typeConfig.label}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Badge variant="outline" className={`text-xs ${statusConfig.className}`}>
+                      {statusConfig.label}
+                    </Badge>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreVertical className="h-4 w-4" />
+                        <Button variant="ghost" size="sm" className="h-7 w-7 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MoreVertical className="h-3.5 w-3.5" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -227,7 +230,7 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
                           <Edit className="h-4 w-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => setSourceToDelete(source)}
                           className="text-destructive focus:text-destructive"
                         >
@@ -237,57 +240,53 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
+                </div>
 
-                  <div className="flex gap-2 mt-3 flex-wrap">
-                    <Badge variant="outline" className={statusConfig.className}>
-                      {statusConfig.label}
-                    </Badge>
+                {/* Budget amounts */}
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-0.5">Remaining</p>
+                    <p className={`text-xl font-semibold tabular-nums ${isHighUsage ? 'text-destructive' : ''}`}>
+                      {formatCurrency(source.remaining_amount)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground mb-0.5">of {formatCurrency(source.total_amount)}</p>
+                    <p className="text-sm text-muted-foreground tabular-nums">{usagePercentage}% used</p>
+                  </div>
+                </div>
+
+                {/* Progress bar */}
+                <Progress
+                  value={Math.min(usagePercentage, 100)}
+                  className={`h-1.5 ${isHighUsage ? '[&>div]:bg-destructive' : ''}`}
+                />
+
+                {/* Footer */}
+                <div className="flex flex-wrap items-center justify-between gap-y-1 pt-1 border-t text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="h-3 w-3" />
+                    <span>
+                      {new Date(source.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      {source.end_date && (
+                        <> &ndash; {new Date(source.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {source.contact_person && (
+                      <span className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        {source.contact_person}
+                      </span>
+                    )}
                     {isExpiringSoon && (
-                      <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/30 gap-1">
+                      <span className="flex items-center gap-1 text-amber-600 font-medium">
                         <AlertTriangle className="h-3 w-3" />
                         {daysUntilExpiry}d left
-                      </Badge>
+                      </span>
                     )}
                   </div>
-                </div>
-
-                {/* Budget Progress */}
-                <div className="px-5 py-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-sm text-muted-foreground">Budget utilized</span>
-                    <span className={`text-sm font-bold ${isHighUsage ? 'text-orange-600' : 'text-emerald-600'}`}>{usagePercentage}%</span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="p-3 rounded-xl bg-muted/50 text-center">
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Total</p>
-                      <p className="font-bold text-base">{formatCurrency(source.total_amount)}</p>
-                    </div>
-                    <div className={`p-3 rounded-xl text-center ${isHighUsage ? 'bg-orange-500/10' : 'bg-emerald-500/10'}`}>
-                      <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Remaining</p>
-                      <p className={`font-bold text-base ${isHighUsage ? 'text-orange-600' : 'text-emerald-600'}`}>{formatCurrency(source.remaining_amount)}</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer Info */}
-                <div className="px-5 py-3 bg-muted/30 border-t space-y-2">
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <Calendar className="h-3.5 w-3.5" />
-                    <span>{new Date(source.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    {source.end_date && (
-                      <>
-                        <span className="text-muted-foreground/50">→</span>
-                        <span>{new Date(source.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                      </>
-                    )}
-                  </div>
-                  {source.contact_person && (
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <User className="h-3.5 w-3.5" />
-                      <span>{source.contact_person}</span>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
@@ -315,7 +314,7 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
         }}
       />
 
-      <AlertDialog open={!!sourceToDelete} onOpenChange={(open) => !open && setSourceToDelete(null)}>
+      <AlertDialog open={!!sourceToDelete} onOpenChange={(open: boolean) => !open && setSourceToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Funding Source</AlertDialogTitle>
