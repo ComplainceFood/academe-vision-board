@@ -161,8 +161,8 @@ const AchievementsPage = () => {
               {/* Tab Navigation */}
               <div className="border-b bg-muted/30 p-4">
                 <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="overflow-x-auto pb-2 lg:pb-0">
-                    <TabsList className="inline-flex h-auto p-1 bg-muted/70 rounded-xl min-w-max">
+                  <div className="w-full">
+                    <TabsList className="flex flex-wrap h-auto p-1 bg-muted/70 rounded-xl w-full">
                       {tabConfig.map((tab) => {
                         const Icon = tab.icon;
                         return (
@@ -172,7 +172,7 @@ const AchievementsPage = () => {
                             className="flex items-center gap-1.5 px-3 py-2 text-xs rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all whitespace-nowrap"
                           >
                             <Icon className="h-4 w-4" />
-                            <span className="hidden sm:inline">{tab.label}</span>
+                            <span>{tab.label}</span>
                             {tab.count > 0 && (
                               <Badge 
                                 variant="secondary" 
