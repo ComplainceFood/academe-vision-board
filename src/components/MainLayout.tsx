@@ -6,7 +6,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Sun, Moon, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth, cleanupAuthState } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { GlobalSearch } from "@/components/common/GlobalSearch";
 
@@ -34,15 +34,13 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   const handleLogout = async () => {
     try {
-      await supabase.auth.signOut();
+      cleanupAuthState();
+      await supabase.auth.signOut({ scope: 'global' });
       navigate("/auth");
     } catch (error) {
       console.error("Error signing out:", error);
-      toast({
-        title: "Error signing out",
-        description: "Please try again",
-        variant: "destructive"
-      });
+      // Even on error, clean up and redirect so user is not stuck
+      navigate("/auth");
     }
   };
 

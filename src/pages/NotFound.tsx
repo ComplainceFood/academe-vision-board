@@ -1,5 +1,5 @@
 
-import { useLocation } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ const NotFound = () => {
             Sorry, we couldn't find the page you're looking for. Please check the URL or navigate back to the dashboard.
           </p>
           <Button asChild>
-            <a href="/">Return to Dashboard</a>
+            <Link to="/">Return to Dashboard</Link>
           </Button>
         </div>
       </div>
