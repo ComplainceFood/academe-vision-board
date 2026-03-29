@@ -1,9 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion, type Easing } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
+import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
+import { TermsOfService } from "@/components/legal/TermsOfService";
 import { 
   GraduationCap, 
   Calendar, 
@@ -74,6 +77,10 @@ const scaleIn = {
 };
 
 const LandingPreview = () => {
+  const [showPrivacy, setShowPrivacy] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
+  const [showContact, setShowContact] = useState(false);
+
   const features = [
     {
       icon: ListTodo,
@@ -794,13 +801,64 @@ const LandingPreview = () => {
             </p>
             
             <div className="flex gap-6">
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Privacy</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Terms</a>
-              <a href="#" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Contact</a>
+              <button type="button" onClick={() => setShowPrivacy(true)} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Privacy</button>
+              <button type="button" onClick={() => setShowTerms(true)} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Terms</button>
+              <button type="button" onClick={() => setShowContact(true)} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-300">Contact</button>
             </div>
           </div>
         </div>
       </footer>
+
+      {/* Privacy Policy Dialog */}
+      <Dialog open={showPrivacy} onOpenChange={setShowPrivacy}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Privacy Policy</DialogTitle>
+            <DialogDescription>How we collect, use, and protect your information.</DialogDescription>
+          </DialogHeader>
+          <PrivacyPolicy />
+          <div className="flex justify-end mt-4">
+            <Button type="button" variant="outline" onClick={() => setShowPrivacy(false)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Terms of Service Dialog */}
+      <Dialog open={showTerms} onOpenChange={setShowTerms}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle>Terms of Service</DialogTitle>
+            <DialogDescription>Please review our terms before using SmartProf.</DialogDescription>
+          </DialogHeader>
+          <TermsOfService />
+          <div className="flex justify-end mt-4">
+            <Button type="button" variant="outline" onClick={() => setShowTerms(false)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Contact Dialog */}
+      <Dialog open={showContact} onOpenChange={setShowContact}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contact & Support</DialogTitle>
+            <DialogDescription>We'd love to hear from you.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2 text-sm text-muted-foreground leading-6">
+            <p>
+              For support, bug reports, or general feedback, please use the{" "}
+              <span className="font-medium text-foreground">in-app Feedback Portal</span> after signing in.
+            </p>
+            <p>
+              You can find it in the main navigation menu once you're logged into your SmartProf account.
+              Our team reviews every submission and will respond as soon as possible.
+            </p>
+          </div>
+          <div className="flex justify-end mt-2">
+            <Button type="button" variant="outline" onClick={() => setShowContact(false)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
