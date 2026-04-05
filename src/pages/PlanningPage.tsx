@@ -19,7 +19,12 @@ import {
   BookOpen,
   Layers,
   ArrowRight,
+  Wand2,
+  Loader2,
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { EventDialog } from "@/components/planning/EventDialog";
@@ -193,6 +198,51 @@ const PlanningPage = () => {
     };
   }, [filteredTasks]);
 
+  // AI Smart Planner state
+  const [aiInput, setAIInput] = useState("");
+  const [isAIPlanning, setIsAIPlanning] = useState(false);
+  const [aiConflictWarning, setAIConflictWarning] = useState<string | null>(null);
+
+  const handleAISmartAdd = async () => {
+    if (!aiInput.trim()) return;
+    setIsAIPlanning(true);
+    setAIConflictWarning(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-plan-event", {
+        body: {
+          description: aiInput,
+          today: new Date().toISOString().split('T')[0],
+          existing_events: events.slice(0, 30).map(e => ({ date: e.date, title: e.title })),
+        },
+      });
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      if (data.conflict_warning) setAIConflictWarning(data.conflict_warning);
+
+      // Pre-fill the EventDialog with AI-parsed data
+      const prefilledEvent: Partial<PlanningEvent> = {
+        title: data.title || "",
+        date: data.date || new Date().toISOString().split('T')[0],
+        time: data.time || "",
+        type: data.type || "task",
+        priority: data.priority || "medium",
+        course: data.course || "",
+        description: data.description || "",
+      } as any;
+
+      setCurrentEvent(prefilledEvent as PlanningEvent);
+      setIsEventDialogOpen(true);
+      setAIInput("");
+      toast({ title: "Event parsed", description: "Review the pre-filled form and save." });
+    } catch (err) {
+      console.error("AI planning error:", err);
+      toast({ title: "AI planning failed", description: "Use the 'New Event' button to add manually.", variant: "destructive" });
+    } finally {
+      setIsAIPlanning(false);
+    }
+  };
+
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-6">
@@ -276,6 +326,41 @@ const PlanningPage = () => {
           </TabsList>
           
           <TabsContent value="calendar" className="space-y-6 mt-0">
+            {/* AI Smart Planner */}
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">AI Smart Planner</span>
+                <Badge variant="secondary" className="text-xs">Beta</Badge>
+                <span className="text-xs text-muted-foreground ml-1">Type in plain language — AI will parse the event for you</span>
+              </div>
+              <div className="flex gap-2">
+                <Input
+                  placeholder='e.g. "Midterm grading due this Friday" or "Research seminar next Tuesday at 2pm in Science Hall"'
+                  value={aiInput}
+                  onChange={(e) => setAIInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') handleAISmartAdd(); }}
+                  className="text-sm"
+                />
+                <Button
+                  type="button"
+                  onClick={handleAISmartAdd}
+                  disabled={isAIPlanning || !aiInput.trim()}
+                  className="shrink-0"
+                >
+                  {isAIPlanning
+                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                    : <><Wand2 className="h-4 w-4 mr-1" />Add</>}
+                </Button>
+              </div>
+              {aiConflictWarning && (
+                <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3 shrink-0" />
+                  {aiConflictWarning}
+                </p>
+              )}
+            </div>
+
             {/* Integrations */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <OutlookIntegrationConsolidated onSyncComplete={() => {

@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { CalendarIcon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { CalendarIcon, Sparkles, Loader2, Wand2, Clock, CheckCircle2 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -32,7 +33,13 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
   const [isLoading, setIsLoading] = useState(false);
   const [isGrantMeeting, setIsGrantMeeting] = useState(false);
   const [selectedFundingSourceId, setSelectedFundingSourceId] = useState<string>("");
-  
+
+  // AI agenda state
+  const [isGeneratingAgenda, setIsGeneratingAgenda] = useState(false);
+  const [agendaTopics, setAgendaTopics] = useState<{ item: string; duration_minutes: number; description: string }[]>([]);
+  const [prepTips, setPrepTips] = useState<string[]>([]);
+  const [estimatedMinutes, setEstimatedMinutes] = useState<number | null>(null);
+
   const { user } = useAuth();
   const { toast } = useToast();
   const { triggerRefresh } = useRefreshContext();
@@ -52,26 +59,54 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
     setAgenda("");
     setIsGrantMeeting(false);
     setSelectedFundingSourceId("");
+    setAgendaTopics([]);
+    setPrepTips([]);
+    setEstimatedMinutes(null);
+  };
+
+  const handleGenerateAgenda = async () => {
+    if (!title.trim()) {
+      toast({ title: "Enter a meeting title first", variant: "destructive" });
+      return;
+    }
+    setIsGeneratingAgenda(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-meeting-agenda", {
+        body: {
+          title,
+          type: type === "1:1" ? "one_on_one" : "group",
+          attendees,
+          purpose: "",
+          date: date ? format(date, "yyyy-MM-dd") : undefined,
+        },
+      });
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      if (data.agenda) setAgenda(data.agenda);
+      if (data.topics?.length) setAgendaTopics(data.topics);
+      if (data.preparation_tips?.length) setPrepTips(data.preparation_tips);
+      if (data.estimated_total_minutes) setEstimatedMinutes(data.estimated_total_minutes);
+
+      toast({ title: "Agenda generated", description: "Review and edit the agenda below." });
+    } catch (err) {
+      console.error("Agenda generation error:", err);
+      toast({ title: "Failed to generate agenda", description: "Please write the agenda manually.", variant: "destructive" });
+    } finally {
+      setIsGeneratingAgenda(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title || !date || !location || !user) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please fill in all required fields", variant: "destructive" });
       return;
     }
 
     if (isGrantMeeting && !selectedFundingSourceId) {
-      toast({
-        title: "Error",
-        description: "Please select a grant to link this meeting to",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please select a grant to link this meeting to", variant: "destructive" });
       return;
     }
 
@@ -86,11 +121,10 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
       const formattedDate = format(date, 'yyyy-MM-dd');
       const [hours, minutes] = time.split(':').map(Number);
       const startTime = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
-      // Cap end time at 23:59 to avoid invalid 24:xx values
       const endHours = hours >= 23 ? 23 : hours + 1;
       const endMinutes = hours >= 23 ? 59 : minutes;
       const endTime = `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
-      
+
       const { error } = await supabase.from("meetings").insert([
         {
           title,
@@ -115,21 +149,13 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Meeting scheduled successfully",
-      });
-
+      toast({ title: "Success", description: "Meeting scheduled successfully" });
       resetForm();
       triggerRefresh('meetings');
       onOpenChange(false);
     } catch (error) {
       console.error("Error creating meeting:", error);
-      toast({
-        title: "Error",
-        description: "Failed to schedule meeting",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to schedule meeting", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -137,11 +163,11 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Schedule New Meeting</DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-sm font-medium">Title *</label>
@@ -171,21 +197,13 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
               <label className="text-sm font-medium">Date *</label>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
+                  <Button variant="outline" className="w-full justify-start text-left font-normal">
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date ? format(date, "PPP") : "Pick a date"}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0">
-                  <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    initialFocus
-                  />
+                  <Calendar mode="single" selected={date} onSelect={setDate} initialFocus />
                 </PopoverContent>
               </Popover>
             </div>
@@ -220,13 +238,55 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
             />
           </div>
 
+          {/* AI Agenda Generator */}
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-semibold text-primary">AI Agenda Generator</span>
+                <Badge variant="secondary" className="text-xs">Beta</Badge>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={handleGenerateAgenda}
+                disabled={isGeneratingAgenda || !title.trim()}
+                className="h-7 text-xs border-primary/30 text-primary hover:bg-primary/10"
+              >
+                {isGeneratingAgenda
+                  ? <><Loader2 className="h-3 w-3 animate-spin mr-1" />Generating…</>
+                  : <><Wand2 className="h-3 w-3 mr-1" />Generate Agenda</>}
+              </Button>
+            </div>
+
+            {estimatedMinutes && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span>Estimated duration: ~{estimatedMinutes} minutes</span>
+              </div>
+            )}
+
+            {prepTips.length > 0 && (
+              <div className="space-y-1">
+                <p className="text-xs font-medium text-muted-foreground">Preparation tips:</p>
+                {prepTips.map((tip, i) => (
+                  <div key={i} className="flex items-start gap-1.5 text-xs text-muted-foreground">
+                    <CheckCircle2 className="h-3 w-3 mt-0.5 shrink-0 text-primary/60" />
+                    <span>{tip}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div>
             <label className="text-sm font-medium">Agenda</label>
             <Textarea
               value={agenda}
               onChange={(e) => setAgenda(e.target.value)}
-              placeholder="Meeting agenda"
-              rows={3}
+              placeholder="Meeting agenda (or use AI to generate one above)"
+              rows={4}
             />
           </div>
 

@@ -8,7 +8,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarIcon, Plus, X, Repeat } from "lucide-react";
+import { CalendarIcon, Plus, X, Repeat, Sparkles, Loader2, Wand2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,6 +17,8 @@ import { useNotes } from "@/hooks/useNotes";
 import { Subtask, RECURRENCE_LABELS, RecurrencePattern } from "@/types/notes";
 import { Switch } from "@/components/ui/switch";
 import { GrantNoteToggle } from "@/components/notes/GrantNoteToggle";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
 
 interface Category {
   id: string;
@@ -37,7 +39,13 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
   const [dueDate, setDueDate] = useState<Date | undefined>();
   const [studentName, setStudentName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
+  // AI draft state
+  const [roughDescription, setRoughDescription] = useState("");
+  const [isAIDrafting, setIsAIDrafting] = useState(false);
+  const [aiReasoning, setAIReasoning] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("basic");
+
   // New fields
   const [subtasks, setSubtasks] = useState<Subtask[]>([]);
   const [newSubtask, setNewSubtask] = useState("");
@@ -46,7 +54,7 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
   const [recurrenceEndDate, setRecurrenceEndDate] = useState<Date | undefined>();
   const [isGrantNote, setIsGrantNote] = useState(false);
   const [fundingSourceId, setFundingSourceId] = useState<string | null>(null);
-  
+
   const { user } = useAuth();
   const { toast } = useToast();
   const { createNote } = useNotes();
@@ -65,6 +73,8 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
     setRecurrenceEndDate(undefined);
     setIsGrantNote(false);
     setFundingSourceId(null);
+    setRoughDescription("");
+    setAIReasoning(null);
   };
 
   const addSubtask = () => {
@@ -81,20 +91,63 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
     setSubtasks(subtasks.filter(s => s.id !== id));
   };
 
+  const handleAIDraft = async () => {
+    if (!roughDescription.trim()) {
+      toast({ title: "Enter a description", description: "Type a brief description of your task first.", variant: "destructive" });
+      return;
+    }
+    setIsAIDrafting(true);
+    setAIReasoning(null);
+    try {
+      const { data, error } = await supabase.functions.invoke("ai-draft-note", {
+        body: {
+          rough_description: roughDescription,
+          today: new Date().toISOString().split('T')[0],
+        },
+      });
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
+
+      setTitle(data.title || "");
+      setDescription(data.description || "");
+      if (data.priority) setPriority(data.priority);
+      if (data.category && categories.some(c => c.id === data.category)) {
+        setCategory(data.category);
+      }
+      if (data.suggested_due_date) {
+        const parsed = new Date(data.suggested_due_date);
+        if (!isNaN(parsed.getTime())) setDueDate(parsed);
+      }
+      if (data.subtasks?.length) {
+        setSubtasks(data.subtasks.map((t: string) => ({
+          id: crypto.randomUUID(),
+          title: t,
+          completed: false,
+        })));
+        setActiveTab("subtasks");
+      } else {
+        setActiveTab("basic");
+      }
+      if (data.reasoning) setAIReasoning(data.reasoning);
+
+      toast({ title: "AI draft ready", description: "Review and adjust the generated task before saving." });
+    } catch (err) {
+      console.error("AI draft error:", err);
+      toast({ title: "AI draft failed", description: "Couldn't generate draft. Fill in the form manually.", variant: "destructive" });
+    } finally {
+      setIsAIDrafting(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to create tasks",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "You must be logged in to create tasks", variant: "destructive" });
       return;
     }
 
     try {
       setIsSubmitting(true);
-
       await createNote({
         title,
         content: description,
@@ -115,11 +168,7 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
       resetForm();
     } catch (error) {
       console.error("Error creating task:", error);
-      toast({
-        title: "Error",
-        description: "Failed to create task",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to create task", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -132,10 +181,44 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
           <DialogTitle>Create New Task</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Tabs defaultValue="basic" className="w-full">
+
+          {/* AI Draft Panel */}
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-semibold text-primary">AI Task Assistant</span>
+              <Badge variant="secondary" className="text-xs">Beta</Badge>
+            </div>
+            <div className="flex gap-2">
+              <Textarea
+                placeholder="Describe your task in plain language… e.g. 'Finish grading midterm papers for CS 301 by end of week'"
+                value={roughDescription}
+                onChange={(e) => setRoughDescription(e.target.value)}
+                rows={2}
+                className="text-sm resize-none"
+              />
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleAIDraft}
+                disabled={isAIDrafting || !roughDescription.trim()}
+                className="self-end shrink-0"
+              >
+                {isAIDrafting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Wand2 className="h-4 w-4" />}
+                {isAIDrafting ? "" : "Draft"}
+              </Button>
+            </div>
+            {aiReasoning && (
+              <p className="text-xs text-muted-foreground italic">{aiReasoning}</p>
+            )}
+          </div>
+
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="basic">Basic</TabsTrigger>
-              <TabsTrigger value="subtasks">Subtasks</TabsTrigger>
+              <TabsTrigger value="subtasks">
+                Subtasks {subtasks.length > 0 && <Badge variant="secondary" className="ml-1 h-4 text-xs">{subtasks.length}</Badge>}
+              </TabsTrigger>
               <TabsTrigger value="recurring">Recurring</TabsTrigger>
             </TabsList>
 
