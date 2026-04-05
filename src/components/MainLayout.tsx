@@ -49,32 +49,32 @@ export function MainLayout({ children }: MainLayoutProps) {
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-16 border-b px-6 flex items-center justify-between bg-sidebar-accent">
-             <div className="flex items-center gap-3">
+          <header className="h-14 md:h-16 border-b px-3 sm:px-6 flex items-center justify-between bg-sidebar-accent shrink-0">
+             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                <SidebarTrigger />
                <img
                 src="/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
                 alt="Smart-Prof logo — Organize, Optimize, Excel"
-                className="h-8 w-auto"
+                className="h-7 md:h-8 w-auto"
                 loading="lazy" />
 
                <h1 className="sr-only">Smart-Prof — Organize, Optimize, Excel</h1>
              </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <GlobalSearch />
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-                  {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                  {isDarkMode ? <Sun className="h-4 w-4 md:h-5 md:w-5" /> : <Moon className="h-4 w-4 md:h-5 md:w-5" />}
                 </Button>
                 {user &&
                 <Button variant="ghost" size="icon" onClick={handleLogout}>
-                    <LogOut className="h-5 w-5" />
+                    <LogOut className="h-4 w-4 md:h-5 md:w-5" />
                   </Button>
                 }
               </div>
             </div>
           </header>
-          <main className="flex-1 p-6 overflow-auto">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
             {children}
           </main>
         </div>

@@ -232,7 +232,7 @@ const LandingPreview = () => {
       </motion.nav>
 
       {/* Hero Section */}
-      <section className="relative py-28 md:py-40 overflow-hidden">
+      <section className="relative py-16 md:py-28 lg:py-40 overflow-hidden">
         {/* Ambient background */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div 
@@ -268,7 +268,7 @@ const LandingPreview = () => {
             
             <motion.h1
               variants={fadeInUp}
-              className="text-5xl md:text-7xl lg:text-8xl font-bold mb-8 leading-[1.15] tracking-tight"
+              className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold mb-6 md:mb-8 leading-[1.15] tracking-tight"
             >
               <span className="text-foreground">Your Academic</span>
               <br />
@@ -289,7 +289,7 @@ const LandingPreview = () => {
 
             <motion.p
               variants={fadeInUp}
-              className="text-lg md:text-xl mb-14 max-w-2xl mx-auto leading-relaxed text-muted-foreground"
+              className="text-lg md:text-xl mb-8 md:mb-14 max-w-2xl mx-auto leading-relaxed text-muted-foreground"
             >
               Manage grants, track deadlines, schedule meetings, and monitor supplies —
               everything a professor needs, in one place.
@@ -297,7 +297,7 @@ const LandingPreview = () => {
             
             <motion.div 
               variants={fadeInUp}
-              className="flex flex-col sm:flex-row gap-4 justify-center mb-20"
+              className="flex flex-col sm:flex-row gap-4 justify-center mb-10 md:mb-20"
             >
               <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
                 <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-shadow duration-300">
@@ -346,7 +346,7 @@ const LandingPreview = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-20 bg-primary relative overflow-hidden">
+      <section className="py-12 md:py-20 bg-primary relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary-foreground)/0.08),transparent_60%)]" />
         </div>
@@ -382,14 +382,14 @@ const LandingPreview = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-32 bg-background relative">
+      <section id="features" className="py-16 md:py-32 bg-background relative">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
-            className="text-center mb-20"
+            className="text-center mb-10 md:mb-20"
           >
             <Badge className="mb-6 px-4 py-1.5 border border-primary/20 bg-primary/8 text-primary">
               <Layers className="h-3.5 w-3.5 mr-1.5 text-secondary" />
@@ -462,7 +462,7 @@ const LandingPreview = () => {
       </section>
 
       {/* Showcase Section */}
-      <section id="showcase" className="py-32 bg-muted/50 relative overflow-hidden">
+      <section id="showcase" className="py-16 md:py-32 bg-muted/50 relative overflow-hidden">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.06),transparent_60%)]" />
         </div>
@@ -472,7 +472,7 @@ const LandingPreview = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
-            className="text-center mb-20"
+            className="text-center mb-10 md:mb-20"
           >
             <Badge className="mb-6 px-4 py-1.5 border border-primary/20 bg-primary/8 text-primary">
               <Target className="h-3.5 w-3.5 mr-1.5 text-secondary" />
@@ -574,14 +574,14 @@ const LandingPreview = () => {
       </section>
 
       {/* Testimonials Section */}
-      <section id="testimonials" className="py-32 bg-muted/30 relative">
+      <section id="testimonials" className="py-16 md:py-32 bg-muted/30 relative">
         <div className="container mx-auto px-6">
           <motion.div 
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeInUp}
-            className="text-center mb-20"
+            className="text-center mb-10 md:mb-20"
           >
             <Badge className="mb-6 px-4 py-1.5 border border-primary/20 bg-primary/8 text-primary">
               <Award className="h-3.5 w-3.5 mr-1.5 text-secondary" />
@@ -644,7 +644,7 @@ const LandingPreview = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-32 relative overflow-hidden bg-primary">
+      <section className="py-16 md:py-32 relative overflow-hidden bg-primary">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary-foreground)/0.06),transparent_60%)]" />
           <motion.div 
@@ -681,7 +681,7 @@ const LandingPreview = () => {
               Still have questions?
             </h2>
 
-            <p className="text-xl mb-14 text-primary-foreground/80 max-w-xl mx-auto">
+            <p className="text-xl mb-8 md:mb-14 text-primary-foreground/80 max-w-xl mx-auto">
               Sign up free and explore the platform — or reach out and we'll answer anything before you commit.
             </p>
 

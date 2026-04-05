@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    font-size: 19px;
+    font-size: 15px;
     --background: 180 44% 96%;
     --foreground: 270 5% 20%;
 
@@ -116,6 +116,19 @@
   body {
     @apply bg-background text-foreground font-sans;
     font-feature-settings: "rlig" 1, "calt" 1;
+    overflow-x: hidden;
+  }
+}
+
+@media (min-width: 768px) {
+  :root {
+    font-size: 17px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    font-size: 19px;
   }
 }
 

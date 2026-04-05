@@ -276,7 +276,7 @@ export const AnalyticsDashboard = () => {
 
       {/* Charts */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="flex flex-wrap h-auto gap-1 sm:grid sm:w-full sm:grid-cols-5">
           <TabsTrigger value="overview">Overview</TabsTrigger>
           <TabsTrigger value="trends">Trends</TabsTrigger>
           <TabsTrigger value="distribution">Distribution</TabsTrigger>

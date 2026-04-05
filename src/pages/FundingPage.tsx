@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { 
+import { cn } from "@/lib/utils";
+import {
   DollarSign,
   TrendingUp,
   Receipt,
@@ -14,7 +14,8 @@ import {
   Sparkles,
   CalendarCheck,
   StickyNote,
-  FileText
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { FundingSourcesList } from "@/components/funding/FundingSourcesList";
 import { ExpendituresList } from "@/components/funding/ExpendituresList";
@@ -28,21 +29,33 @@ import { GrantMeetingsList } from "@/components/funding/GrantMeetingsList";
 import { GrantNotesList } from "@/components/funding/GrantNotesList";
 import { GrantAINarrative } from "@/components/funding/GrantAINarrative";
 
+type TabId = "overview" | "sources" | "expenditures" | "grant-meetings" | "grant-notes" | "ai-narrative";
+
+const NAV_ITEMS: { id: TabId; label: string; icon: React.ElementType; description: string }[] = [
+  { id: "overview",       label: "Overview",       icon: TrendingUp,    description: "Budget summary & charts" },
+  { id: "sources",        label: "Grants",         icon: Wallet,        description: "Funding sources" },
+  { id: "expenditures",   label: "Expenses",       icon: DollarSign,    description: "Track spending" },
+  { id: "grant-meetings", label: "Meetings",       icon: CalendarCheck, description: "Grant-linked meetings" },
+  { id: "grant-notes",    label: "Notes",          icon: StickyNote,    description: "Grant notes & logs" },
+  { id: "ai-narrative",   label: "AI Narrative",   icon: Sparkles,      description: "Generate reports with AI" },
+];
+
 const FundingPage = () => {
   const { user } = useAuth();
   const [showSourceDialog, setShowSourceDialog] = useState(false);
   const [showExpenditureDialog, setShowExpenditureDialog] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [searchQuery, setSearchQuery] = useState("");
+  const [navCollapsed, setNavCollapsed] = useState(false);
 
   const { data: fundingSources, isLoading: sourcesLoading, refetch: refetchSources } = useDataFetching<FundingSource>({
     table: 'funding_sources',
-    enabled: !!user
+    enabled: !!user,
   });
 
   const { data: expenditures, isLoading: expendituresLoading, refetch: refetchExpenditures } = useDataFetching<FundingExpenditure>({
     table: 'funding_expenditures',
-    enabled: !!user
+    enabled: !!user,
   });
 
   const handleSuccess = () => {
@@ -50,173 +63,211 @@ const FundingPage = () => {
     refetchExpenditures();
   };
 
-  // Filter sources and expenditures based on search
-  const filteredSources = fundingSources.filter(source => 
+  const filteredSources = fundingSources.filter(source =>
     source.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     source.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    source.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    (source.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
   );
 
-  const filteredExpenditures = expenditures.filter(exp => 
+  const filteredExpenditures = expenditures.filter(exp =>
     exp.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
     exp.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const showSearch = activeTab === "sources" || activeTab === "expenditures";
+  const activeNav = NAV_ITEMS.find(n => n.id === activeTab)!;
+
   return (
     <MainLayout>
-      <div className="animate-fade-in space-y-8">
-        {/* Hero Header */}
+      <div className="animate-fade-in space-y-6">
+
+        {/* ── Hero Header ── */}
         <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
-          {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-white/10 rounded-full blur-3xl animate-pulse" />
           </div>
-          
-          <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
-                    <PiggyBank className="h-10 w-10" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-4xl font-bold tracking-tight">Grant Management</h1>
-                      <Sparkles className="h-6 w-6 text-accent animate-pulse" />
-                    </div>
-                    <p className="text-primary-foreground/80 text-lg mt-1">
-                      Track research grants, funding sources & expenditures
-                    </p>
-                  </div>
+
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div className="flex items-center gap-4">
+              <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
+                <PiggyBank className="h-10 w-10" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-4xl font-bold tracking-tight">Grant Management</h1>
+                  <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
                 </div>
+                <p className="text-primary-foreground/80 text-lg mt-1">
+                  Track research grants, funding sources &amp; expenditures
+                </p>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Button 
-                  onClick={() => setShowSourceDialog(true)}
-                  size="lg"
-                  className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground border border-primary-foreground/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
-                >
-                  <Plus className="h-5 w-5 mr-2" />
-                  New Grant
-                </Button>
-                <Button 
-                  onClick={() => setShowExpenditureDialog(true)}
-                  size="lg"
-                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105"
-                >
-                  <Receipt className="h-5 w-5 mr-2" />
-                  Record Expense
-                </Button>
-              </div>
+            </div>
+
+            {/* Header action buttons — clearly visible */}
+            <div className="flex flex-wrap gap-3">
+              <Button
+                onClick={() => setShowSourceDialog(true)}
+                size="lg"
+                className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg transition-all hover:scale-105"
+              >
+                <Plus className="h-5 w-5 mr-2" />
+                New Grant
+              </Button>
+              <Button
+                onClick={() => setShowExpenditureDialog(true)}
+                size="lg"
+                variant="outline"
+                className="border-white/60 text-white hover:bg-white/15 font-semibold shadow-lg transition-all hover:scale-105 bg-white/10 backdrop-blur-sm"
+              >
+                <Receipt className="h-5 w-5 mr-2" />
+                Record Expense
+              </Button>
             </div>
           </div>
         </div>
 
-        {/* Main Content with Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl">
-              <TabsTrigger 
-                value="overview" 
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
-              >
-                <TrendingUp className="h-4 w-4" />
-                <span>Overview</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="sources" 
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
-              >
-                <Wallet className="h-4 w-4" />
-                <span>Grants</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="expenditures" 
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
-              >
-                <DollarSign className="h-4 w-4" />
-                <span>Expenses</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="grant-meetings" 
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
-              >
-                <CalendarCheck className="h-4 w-4" />
-                <span>Grant Meetings</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="grant-notes"
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
-              >
-                <StickyNote className="h-4 w-4" />
-                <span>Grant Notes</span>
-              </TabsTrigger>
-              <TabsTrigger
-                value="ai-narrative"
-                className="flex items-center gap-2 px-6 py-2.5 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all"
-              >
-                <Sparkles className="h-4 w-4" />
-                <span>AI Narrative</span>
-              </TabsTrigger>
-            </TabsList>
+        {/* ── Page body: collapsible side-nav + content ── */}
+        <div className="flex gap-4 items-start">
 
-            {activeTab !== "overview" && activeTab !== "grant-meetings" && activeTab !== "grant-notes" && activeTab !== "ai-narrative" && (
-              <div className="relative w-full sm:w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder={`Search ${activeTab === 'sources' ? 'grants' : 'expenses'}...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 bg-muted/50 border-muted-foreground/20"
-                />
+          {/* Collapsible vertical nav */}
+          <aside
+            className={cn(
+              "shrink-0 transition-all duration-300 ease-in-out",
+              navCollapsed ? "w-14" : "w-52"
+            )}
+          >
+            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+              {/* Toggle button */}
+              <div className="flex items-center justify-between px-3 py-3 border-b bg-muted/40">
+                {!navCollapsed && (
+                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">
+                    Navigation
+                  </span>
+                )}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={cn("h-7 w-7 rounded-lg hover:bg-primary/10", navCollapsed && "mx-auto")}
+                  onClick={() => setNavCollapsed(prev => !prev)}
+                  title={navCollapsed ? "Expand navigation" : "Collapse navigation"}
+                >
+                  {navCollapsed
+                    ? <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    : <ChevronLeft className="h-4 w-4 text-muted-foreground" />}
+                </Button>
               </div>
+
+              {/* Nav items */}
+              <nav className="p-2 space-y-0.5">
+                {NAV_ITEMS.map(item => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      type="button"
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      title={navCollapsed ? item.label : undefined}
+                      className={cn(
+                        "w-full flex items-center gap-3 rounded-xl px-2.5 py-2.5 text-sm font-medium transition-all duration-150 text-left group",
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <Icon className={cn(
+                        "h-4 w-4 shrink-0",
+                        isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
+                      )} />
+                      {!navCollapsed && (
+                        <div className="min-w-0">
+                          <div className={cn("truncate leading-tight", isActive ? "text-primary-foreground" : "")}>
+                            {item.label}
+                          </div>
+                          <div className={cn(
+                            "text-[10px] truncate leading-tight mt-0.5",
+                            isActive ? "text-primary-foreground/70" : "text-muted-foreground/60"
+                          )}>
+                            {item.description}
+                          </div>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+          </aside>
+
+          {/* Content area */}
+          <div className="flex-1 min-w-0 space-y-4">
+
+            {/* Content header: breadcrumb + search */}
+            <div className="flex items-center justify-between gap-4 flex-wrap">
+              <div className="flex items-center gap-2">
+                <activeNav.icon className="h-5 w-5 text-primary" />
+                <h2 className="text-lg font-semibold">{activeNav.label}</h2>
+                <span className="text-sm text-muted-foreground hidden sm:inline">— {activeNav.description}</span>
+              </div>
+              {showSearch && (
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder={`Search ${activeTab === 'sources' ? 'grants' : 'expenses'}...`}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 bg-muted/50 border-muted-foreground/20"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Tab content panels */}
+            {activeTab === "overview" && (
+              <FundingOverview
+                sources={fundingSources}
+                expenditures={expenditures}
+                isLoading={sourcesLoading || expendituresLoading}
+                onAddSource={() => setShowSourceDialog(true)}
+                onAddExpenditure={() => setShowExpenditureDialog(true)}
+              />
+            )}
+
+            {activeTab === "sources" && (
+              <FundingSourcesList
+                sources={filteredSources}
+                isLoading={sourcesLoading}
+                onRefetch={handleSuccess}
+              />
+            )}
+
+            {activeTab === "expenditures" && (
+              <ExpendituresList
+                expenditures={filteredExpenditures}
+                isLoading={expendituresLoading}
+                onRefetch={handleSuccess}
+              />
+            )}
+
+            {activeTab === "grant-meetings" && (
+              <GrantMeetingsList
+                sources={fundingSources}
+                isLoading={sourcesLoading}
+              />
+            )}
+
+            {activeTab === "grant-notes" && (
+              <GrantNotesList
+                sources={fundingSources}
+                isLoading={sourcesLoading}
+              />
+            )}
+
+            {activeTab === "ai-narrative" && (
+              <GrantAINarrative sources={fundingSources} />
             )}
           </div>
-
-          <TabsContent value="overview" className="space-y-6 mt-6">
-            <FundingOverview 
-              sources={fundingSources}
-              expenditures={expenditures}
-              isLoading={sourcesLoading || expendituresLoading}
-              onAddSource={() => setShowSourceDialog(true)}
-              onAddExpenditure={() => setShowExpenditureDialog(true)}
-            />
-          </TabsContent>
-
-          <TabsContent value="sources" className="space-y-6 mt-6">
-            <FundingSourcesList 
-              sources={filteredSources}
-              isLoading={sourcesLoading}
-              onRefetch={handleSuccess}
-            />
-          </TabsContent>
-
-          <TabsContent value="expenditures" className="space-y-6 mt-6">
-            <ExpendituresList 
-              expenditures={filteredExpenditures}
-              isLoading={expendituresLoading}
-              onRefetch={handleSuccess}
-            />
-          </TabsContent>
-
-          <TabsContent value="grant-meetings" className="space-y-6 mt-6">
-            <GrantMeetingsList 
-              sources={fundingSources}
-              isLoading={sourcesLoading}
-            />
-          </TabsContent>
-
-          <TabsContent value="grant-notes" className="space-y-6 mt-6">
-            <GrantNotesList
-              sources={fundingSources}
-              isLoading={sourcesLoading}
-            />
-          </TabsContent>
-
-          <TabsContent value="ai-narrative" className="space-y-6 mt-6">
-            <GrantAINarrative sources={fundingSources} />
-          </TabsContent>
-        </Tabs>
+        </div>
 
         {/* Dialogs */}
         <FundingSourceDialog
