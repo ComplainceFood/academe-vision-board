@@ -497,6 +497,128 @@ const mockFeedback = [
   }
 ];
 
+const mockAchievements = [
+  {
+    category: "publication",
+    title: "AI-Augmented Formative Assessment in Introductory CS Courses",
+    description: "Peer-reviewed study on the effectiveness of AI-driven feedback tools in CS1/CS2 courses across three semesters.",
+    journal_name: "ACM Transactions on Computing Education",
+    date: "2025-01-10",
+    status: "published",
+    visibility: "public",
+    tags: ["AI", "CS Education", "peer-reviewed"],
+    co_authors: ["Emily Clark", "Michael Chen"],
+    impact_factor: 3.2,
+    url: "https://doi.org/10.1145/example"
+  },
+  {
+    category: "research_presentation",
+    title: "Federated Learning for Privacy-Preserving Student Analytics",
+    description: "Conference presentation on a federated learning framework for cross-institutional student performance analysis.",
+    venue: "SIGCSE 2025 Technical Symposium, Pittsburgh, PA",
+    date: "2025-03-05",
+    status: "completed",
+    visibility: "public",
+    tags: ["federated learning", "privacy", "conference"],
+    co_authors: ["Sarah Johnson"]
+  },
+  {
+    category: "invited_talk",
+    title: "Keynote: The Future of AI-Assisted Learning in Higher Education",
+    description: "Invited keynote address discussing emerging trends, ethical challenges, and practical applications of AI in university teaching.",
+    venue: "National Conference on Educational Technology 2025, Chicago, IL",
+    date: "2025-02-18",
+    status: "completed",
+    visibility: "public",
+    tags: ["keynote", "AI", "invited"]
+  },
+  {
+    category: "award_honor",
+    title: "Outstanding Teaching Award — College of Engineering",
+    description: "Recognized for exceptional teaching effectiveness, innovative pedagogy, and dedication to student mentorship in 2024–2025.",
+    organization: "University College of Engineering",
+    award_type: "teaching",
+    date: "2025-04-01",
+    status: "completed",
+    visibility: "public",
+    tags: ["teaching", "recognition"]
+  },
+  {
+    category: "course_taught",
+    title: "CS101 — Introduction to Computer Science (Spring 2025)",
+    description: "Redesigned the introductory CS curriculum to incorporate Python-first instruction and active-learning exercises.",
+    course_code: "CS101",
+    term: "Spring 2025",
+    student_count: 52,
+    status: "completed",
+    visibility: "public",
+    tags: ["CS101", "curriculum", "Python"]
+  },
+  {
+    category: "teaching_performance",
+    title: "CS404 — Advanced Artificial Intelligence (Fall 2024)",
+    description: "Teaching evaluation: 4.6/5.0. Students highlighted real-world project assignments and research-oriented instruction.",
+    course_code: "CS404",
+    term: "Fall 2024",
+    evaluation_score: 4.6,
+    student_count: 30,
+    status: "completed",
+    visibility: "private",
+    tags: ["evaluation", "CS404"]
+  },
+  {
+    category: "student_supervision",
+    title: "PhD Supervision — Sarah Johnson",
+    description: "Primary advisor for Sarah Johnson's PhD dissertation on 'Federated Learning for Healthcare Data Privacy'. Expected defense: May 2026.",
+    student_name: "Sarah Johnson",
+    student_level: "phd",
+    status: "in_progress",
+    visibility: "public",
+    tags: ["PhD", "supervision", "research"]
+  },
+  {
+    category: "service_review",
+    title: "Program Committee Member — SIGCSE 2026",
+    description: "Serving as a program committee reviewer for SIGCSE 2026 Technical Symposium. Reviewing 12 paper submissions across CS education tracks.",
+    organization: "ACM SIGCSE",
+    review_count: 12,
+    date: "2025-03-20",
+    status: "in_progress",
+    visibility: "public",
+    tags: ["service", "review", "SIGCSE"]
+  },
+  {
+    category: "leadership_role",
+    title: "Undergraduate Program Director — CS Department",
+    description: "Overseeing undergraduate CS program: curriculum governance, advising coordination, and ABET accreditation self-study.",
+    organization: "CS Department, University",
+    date: "2024-08-15",
+    status: "in_progress",
+    visibility: "public",
+    tags: ["leadership", "administration", "ABET"]
+  },
+  {
+    category: "professional_development",
+    title: "Workshop: Inclusive Pedagogy in STEM",
+    description: "Completed 2-day faculty workshop on Universal Design for Learning (UDL), inclusive teaching practices, and supporting neurodivergent students.",
+    organization: "Faculty Center for Teaching Excellence",
+    date: "2025-03-15",
+    status: "completed",
+    visibility: "public",
+    tags: ["workshop", "inclusion", "pedagogy"]
+  },
+  {
+    category: "external_impact",
+    title: "K-12 CS Education Outreach — Hour of Code 2024",
+    description: "Led 3 coding sessions for local high school students as part of the national Hour of Code initiative. Reached 85 students across two schools.",
+    organization: "Local School District / Code.org",
+    date: "2024-12-12",
+    status: "completed",
+    visibility: "public",
+    tags: ["outreach", "K-12", "Hour of Code"]
+  }
+];
+
 const mockAdminCommunications = [
   {
     title: "System Maintenance Scheduled",
@@ -610,20 +732,28 @@ export function SeedDataButton() {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       }));
-      
+
+      const achievementsWithUserId = mockAchievements.map(achievement => ({
+        ...achievement,
+        user_id: user.id,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      }));
+
       console.log("Seeding comprehensive mock data with user ID:", user.id);
       
       // Insert data into all tables in parallel
       const [
-        notesResult, 
-        meetingsResult, 
-        suppliesResult, 
+        notesResult,
+        meetingsResult,
+        suppliesResult,
         expensesResult,
         planningResult,
         fundingResult,
         shoppingResult,
         feedbackResult,
-        communicationsResult
+        communicationsResult,
+        achievementsResult
       ] = await Promise.all([
         supabase.from('notes').insert(notesWithUserId),
         supabase.from('meetings').insert(meetingsWithUserId),
@@ -633,7 +763,8 @@ export function SeedDataButton() {
         supabase.from('funding_sources').insert(fundingSourcesWithUserId),
         supabase.from('shopping_list').insert(shoppingListWithUserId),
         supabase.from('feedback').insert(feedbackWithUserId),
-        supabase.from('admin_communications').insert(adminCommunicationsWithUserId)
+        supabase.from('admin_communications').insert(adminCommunicationsWithUserId),
+        supabase.from('scholastic_achievements').insert(achievementsWithUserId)
       ]);
       
       // Check if any errors occurred
@@ -647,6 +778,7 @@ export function SeedDataButton() {
       if (shoppingResult.error) errors.push(`Shopping List: ${shoppingResult.error.message}`);
       if (feedbackResult.error) errors.push(`Feedback: ${feedbackResult.error.message}`);
       if (communicationsResult.error) errors.push(`Communications: ${communicationsResult.error.message}`);
+      if (achievementsResult.error) errors.push(`Achievements: ${achievementsResult.error.message}`);
       
       if (errors.length > 0) {
         console.warn("Some seeding operations had errors:", errors);
@@ -673,7 +805,8 @@ export function SeedDataButton() {
         queryClient.invalidateQueries({ queryKey: ['funding_expenditures'] }),
         queryClient.invalidateQueries({ queryKey: ['shopping_list'] }),
         queryClient.invalidateQueries({ queryKey: ['feedback'] }),
-        queryClient.invalidateQueries({ queryKey: ['admin_communications'] })
+        queryClient.invalidateQueries({ queryKey: ['admin_communications'] }),
+        queryClient.invalidateQueries({ queryKey: ['scholastic_achievements'] })
       ]);
       
       // Create a custom event that other components can listen for

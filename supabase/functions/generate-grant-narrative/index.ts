@@ -53,7 +53,7 @@ serve(async (req) => {
 GRANT INFORMATION:
 - Name: ${grant.name}
 - Type: ${grant.type || 'Research Grant'}
-- Funding Agency: ${grant.agency || 'Not specified'}
+- Funding Agency/Contact: ${grant.contact_person || grant.contact_email || 'Not specified'}
 - Total Budget: $${totalBudget.toLocaleString()}
 - Amount Spent: $${totalSpent.toLocaleString()} (${spentPercent}%)
 - Remaining: $${remaining.toLocaleString()}
