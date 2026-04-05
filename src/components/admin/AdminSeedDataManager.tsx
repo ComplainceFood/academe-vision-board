@@ -69,6 +69,7 @@ const mockDataSets = {
         priority: "high",
         tags: ["thesis", "review", "graduate"],
         student_name: "Sarah Johnson",
+        starred: false,
         due_date: daysFromNow(5) + "T17:00:00",
       },
       {
@@ -78,6 +79,7 @@ const mockDataSets = {
         course: "Teaching",
         priority: "medium",
         tags: ["lecture", "preparation", "CS202"],
+        starred: false,
         due_date: daysFromNow(6) + "T09:00:00",
       },
       {
@@ -87,6 +89,7 @@ const mockDataSets = {
         course: "Admin",
         priority: "medium",
         tags: ["office-hours", "finals", "scheduling"],
+        starred: false,
         due_date: daysFromNow(14) + "T10:00:00",
       },
       {
@@ -106,6 +109,7 @@ const mockDataSets = {
         course: "Admin",
         priority: "low",
         tags: ["supplies", "lab", "purchase-order"],
+        starred: false,
       },
       {
         title: "Student Accommodation — John Davis",
@@ -115,6 +119,7 @@ const mockDataSets = {
         priority: "medium",
         tags: ["accommodation", "accessibility"],
         student_name: "John Davis",
+        starred: false,
       },
       {
         title: "Research Paper Ideas for Summer",
@@ -123,6 +128,7 @@ const mockDataSets = {
         course: "Quick Notes",
         priority: "low",
         tags: ["research", "ideas", "summer"],
+        starred: false,
       },
       {
         title: "SIGCSE 2026 Paper Submission",
@@ -142,6 +148,7 @@ const mockDataSets = {
         priority: "high",
         tags: ["recommendation", "graduate-school"],
         student_name: "Emily Park",
+        starred: false,
         due_date: daysFromNow(10) + "T17:00:00",
       },
       {
@@ -151,6 +158,7 @@ const mockDataSets = {
         course: "Teaching",
         priority: "medium",
         tags: ["syllabus", "curriculum", "CS404"],
+        starred: false,
         due_date: daysFromNow(25) + "T17:00:00",
       },
       {
@@ -160,6 +168,7 @@ const mockDataSets = {
         course: "Admin",
         priority: "low",
         tags: ["safety", "compliance", "lab"],
+        starred: false,
       },
       {
         title: "Guest Lecture Confirmation — Dr. Martinez",
@@ -168,6 +177,7 @@ const mockDataSets = {
         course: "Quick Notes",
         priority: "medium",
         tags: ["guest-speaker", "coordination"],
+        starred: false,
       },
     ],
   },
@@ -377,11 +387,11 @@ const mockDataSets = {
       { title: "CS101 Midterm Exam", type: "exam", date: daysFromNow(14), time: "14:00", end_time: "16:00", course: "CS101", priority: "high", location: "Lecture Hall A" },
       { title: "CS301 Project Proposal Deadline", type: "deadline", date: daysFromNow(7), time: "23:59", course: "CS301", priority: "high" },
       { title: "Guest Lecture: Dr. Martinez (Google DeepMind)", type: "lecture", date: daysFromNow(12), time: "10:00", end_time: "11:30", course: "CS404", priority: "medium", location: "Room 205" },
-      { title: "Final Exam Period Begins", type: "academic", date: daysFromNow(35), time: "08:00", priority: "high" },
+      { title: "Final Exam Period Begins", type: "deadline", date: daysFromNow(35), time: "08:00", priority: "high" },
       { title: "CS202 Lab Practical Assessment", type: "exam", date: daysFromNow(10), time: "09:00", end_time: "11:00", course: "CS202", priority: "high", location: "Lab 204" },
       { title: "ABET Self-Study Report Due", type: "deadline", date: daysFromNow(28), time: "17:00", priority: "urgent" },
-      { title: "Spring Semester Course Registration Opens", type: "academic", date: daysFromNow(20), time: "08:00", priority: "medium" },
-      { title: "Faculty Development Day (No Classes)", type: "academic", date: daysFromNow(18), time: "09:00", end_time: "16:00", priority: "low", location: "Faculty Center" },
+      { title: "Spring Semester Course Registration Opens", type: "deadline", date: daysFromNow(20), time: "08:00", priority: "medium" },
+      { title: "Faculty Development Day (No Classes)", type: "meeting", date: daysFromNow(18), time: "09:00", end_time: "16:00", priority: "low", location: "Faculty Center" },
     ],
   },
 
@@ -582,7 +592,7 @@ const mockDataSets = {
         title: "PhD Supervision — Sarah Johnson",
         description: "Primary advisor for Sarah Johnson's PhD research on 'Federated Learning for Healthcare Data Privacy'. Expected defense: May 2026.",
         student_name: "Sarah Johnson",
-        student_level: "PhD",
+        student_level: "phd",
         status: "in_progress",
         visibility: "public",
         tags: ["PhD", "supervision"],
@@ -789,7 +799,11 @@ export function AdminSeedDataManager() {
             return { ...cleanedItem, user_id: user.id };
           });
 
-          const { data, error } = await supabase.from(tableName as any).insert(dataWithUserId).select('id');
+          // Notification preferences have a unique constraint on user_id — upsert to avoid duplicate errors
+          const query = setKey === 'notificationPreferences'
+            ? supabase.from(tableName as any).upsert(dataWithUserId, { onConflict: 'user_id' }).select('id')
+            : supabase.from(tableName as any).insert(dataWithUserId).select('id');
+          const { data, error } = await query;
           if (error) throw error;
 
           // Capture funding source IDs for potential future use
