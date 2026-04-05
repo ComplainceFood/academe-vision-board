@@ -270,7 +270,11 @@ export function BiosketechGenerator({ achievements }: BiosketechGeneratorProps) 
           : {},
       });
 
-      if (error) throw error;
+      if (error) {
+        // Try to extract the actual error message from the function response
+        const body = await (error as any).context?.json?.().catch(() => null);
+        throw new Error(body?.error || error.message);
+      }
       if (data?.error) throw new Error(data.error);
 
       setResult(data);
