@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Academe Vision Board</string>
+    <string name="title_activity_main">Academe Vision Board</string>
+    <string name="package_name">com.academe.visionboard</string>
+    <string name="custom_url_scheme">com.academe.visionboard</string>
+</resources>
