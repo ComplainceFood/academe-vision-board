@@ -19,7 +19,7 @@ max_client_conn = 100
 
 [realtime]
 enabled = true
-ip_version = "ipv4"
+ip_version = "IPv4"
 
 [studio]
 enabled = true
@@ -47,15 +47,12 @@ additional_redirect_urls = [
 ]
 jwt_expiry = 3600
 enable_signup = true
-enable_anonymous_users = false
 
 [auth.email]
 enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
 
-[edge_functions]
-enabled = true
 
 [functions.generate-insights]
 verify_jwt = true
