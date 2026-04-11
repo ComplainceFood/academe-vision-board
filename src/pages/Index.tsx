@@ -44,14 +44,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { AnalyticsInsights } from "@/components/analytics/AnalyticsInsights";
-
-// Import preview images
-import notesPreview from "@/assets/landing/notes-preview.png";
-import meetingsPreview from "@/assets/landing/meetings-preview.png";
-import planningPreview from "@/assets/landing/planning-preview.png";
-import suppliesPreview from "@/assets/landing/supplies-preview.png";
-import analyticsPreview from "@/assets/landing/analytics-preview.png";
-import fundingPreview from "@/assets/landing/funding-preview.png";
+import LandingPreview from "@/pages/LandingPreview";
 
 const Index = () => {
   const { user } = useAuth();
@@ -84,7 +77,7 @@ const Index = () => {
 
   // If user is not authenticated, show landing page
   if (!user) {
-    return <LandingPage />;
+    return <LandingPreview />;
   }
 
   // Calculate stats
@@ -109,21 +102,21 @@ const Index = () => {
   );
 
   const statCards = [
-    { title: 'Commitments', value: promiseCount, icon: CheckSquare, to: '/notes', gradient: 'from-violet-500 to-purple-600', desc: 'Student commitments' },
-    { title: 'Meetings', value: upcomingMeetings, icon: Users, to: '/meetings', gradient: 'from-sky-500 to-blue-600', desc: 'Upcoming scheduled' },
-    { title: 'Pending Tasks', value: todoTasks, icon: Clock, to: '/planning', gradient: 'from-amber-500 to-orange-600', desc: 'Outstanding tasks' },
-    { title: 'Deadlines', value: upcomingDeadlines, icon: Target, to: '/planning', gradient: 'from-rose-500 to-red-600', desc: 'Upcoming deadlines' },
-    { title: 'Low Resources', value: lowSuppliesCount, icon: ShoppingBag, to: '/supplies', gradient: lowSuppliesCount > 0 ? 'from-red-500 to-rose-600' : 'from-emerald-500 to-teal-600', desc: 'Below threshold', alert: lowSuppliesCount > 0 },
-    { title: 'Shopping List', value: shoppingItemsCount, icon: Package, to: '/supplies', gradient: 'from-teal-500 to-cyan-600', desc: 'Items to acquire' },
+    { title: 'Commitments', value: promiseCount, icon: CheckSquare, to: '/notes', desc: 'Student commitments' },
+    { title: 'Meetings', value: upcomingMeetings, icon: Users, to: '/meetings', desc: 'Upcoming scheduled' },
+    { title: 'Pending Tasks', value: todoTasks, icon: Clock, to: '/planning', desc: 'Outstanding tasks' },
+    { title: 'Deadlines', value: upcomingDeadlines, icon: Target, to: '/planning', desc: 'Upcoming deadlines' },
+    { title: 'Low Resources', value: lowSuppliesCount, icon: ShoppingBag, to: '/supplies', desc: 'Below threshold', alert: lowSuppliesCount > 0 },
+    { title: 'Shopping List', value: shoppingItemsCount, icon: Package, to: '/supplies', desc: 'Items to acquire' },
   ];
 
   const quickLinks = [
-    { label: 'Record Commitment', icon: BookOpen, to: '/notes', color: 'text-violet-600', bg: 'bg-violet-500/10 hover:bg-violet-500/20' },
-    { label: 'Schedule Meeting', icon: Users, to: '/meetings', color: 'text-sky-600', bg: 'bg-sky-500/10 hover:bg-sky-500/20' },
-    { label: 'Add Planning Event', icon: CalendarRange, to: '/planning', color: 'text-amber-600', bg: 'bg-amber-500/10 hover:bg-amber-500/20' },
-    { label: 'Manage Grants', icon: DollarSign, to: '/funding', color: 'text-emerald-600', bg: 'bg-emerald-500/10 hover:bg-emerald-500/20' },
-    { label: 'Update Resources', icon: ShoppingBag, to: '/supplies', color: 'text-rose-600', bg: 'bg-rose-500/10 hover:bg-rose-500/20' },
-    { label: 'View Analytics', icon: BarChart, to: '/analytics', color: 'text-indigo-600', bg: 'bg-indigo-500/10 hover:bg-indigo-500/20' },
+    { label: 'Record Commitment', icon: BookOpen, to: '/notes' },
+    { label: 'Schedule Meeting', icon: Users, to: '/meetings' },
+    { label: 'Add Planning Event', icon: CalendarRange, to: '/planning' },
+    { label: 'Manage Grants', icon: DollarSign, to: '/funding' },
+    { label: 'Update Resources', icon: ShoppingBag, to: '/supplies' },
+    { label: 'View Analytics', icon: BarChart, to: '/analytics' },
   ];
 
   return (
@@ -158,20 +151,20 @@ const Index = () => {
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-          {statCards.map(({ title, value, icon: Icon, to, gradient, desc, alert }) => (
+          {statCards.map(({ title, value, icon: Icon, to, desc, alert }) => (
             <Link key={title} to={to} className="group">
-              <Card className={`relative overflow-hidden border-0 shadow-md bg-gradient-to-br ${gradient} transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-0.5`}>
+              <Card className={`border bg-card shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-0.5 ${alert ? 'border-red-200 dark:border-red-900/30' : ''}`}>
                 <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="p-1.5 rounded-lg bg-white/20">
-                      <Icon className="h-4 w-4 text-white" />
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`p-1.5 rounded-lg ${alert ? 'bg-red-100 dark:bg-red-900/30' : 'bg-primary/10'}`}>
+                      <Icon className={`h-4 w-4 ${alert ? 'text-red-500' : 'text-primary'}`} />
                     </div>
                     {alert && (
-                      <span className="text-xs bg-white/25 text-white px-1.5 py-0.5 rounded-full font-medium">!</span>
+                      <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-1.5 py-0.5 rounded-full font-medium">!</span>
                     )}
                   </div>
-                  <p className="text-2xl font-bold text-white">{value}</p>
-                  <p className="text-xs text-white/80 mt-0.5 truncate">{title}</p>
+                  <p className="text-2xl font-bold text-foreground">{value}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{title}</p>
                 </CardContent>
               </Card>
             </Link>
@@ -236,9 +229,9 @@ const Index = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {quickLinks.map(({ label, icon: Icon, to, color, bg }) => (
-                <Link key={label} to={to} className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-colors ${bg}`}>
-                  <Icon className={`h-4 w-4 shrink-0 ${color}`} />
+              {quickLinks.map(({ label, icon: Icon, to }) => (
+                <Link key={label} to={to} className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-colors bg-muted/40 hover:bg-muted/80">
+                  <Icon className="h-4 w-4 shrink-0 text-primary" />
                   <span className="text-sm font-medium">{label}</span>
                   <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground/50" />
                 </Link>
@@ -255,19 +248,19 @@ const Index = () => {
           </h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {[
-              { label: 'Notes & Commitments', icon: BookOpen, to: '/notes', color: 'text-violet-600', bg: 'bg-violet-500/8 hover:bg-violet-500/15 border-violet-500/20' },
-              { label: 'Meetings', icon: Users, to: '/meetings', color: 'text-sky-600', bg: 'bg-sky-500/8 hover:bg-sky-500/15 border-sky-500/20' },
-              { label: 'Semester Planning', icon: CalendarRange, to: '/planning', color: 'text-amber-600', bg: 'bg-amber-500/8 hover:bg-amber-500/15 border-amber-500/20' },
-              { label: 'Grant Management', icon: DollarSign, to: '/funding', color: 'text-emerald-600', bg: 'bg-emerald-500/8 hover:bg-emerald-500/15 border-emerald-500/20' },
-              { label: 'Supplies & Expenses', icon: ShoppingBag, to: '/supplies', color: 'text-rose-600', bg: 'bg-rose-500/8 hover:bg-rose-500/15 border-rose-500/20' },
-              { label: 'Achievements', icon: Award, to: '/achievements', color: 'text-yellow-600', bg: 'bg-yellow-500/8 hover:bg-yellow-500/15 border-yellow-500/20' },
-              { label: 'Analytics', icon: BarChart, to: '/analytics', color: 'text-indigo-600', bg: 'bg-indigo-500/8 hover:bg-indigo-500/15 border-indigo-500/20' },
-              { label: 'Communications', icon: BellRing, to: '/communications', color: 'text-teal-600', bg: 'bg-teal-500/8 hover:bg-teal-500/15 border-teal-500/20' },
-            ].map(({ label, icon: Icon, to, color, bg }) => (
+              { label: 'Notes & Commitments', icon: BookOpen, to: '/notes' },
+              { label: 'Meetings', icon: Users, to: '/meetings' },
+              { label: 'Semester Planning', icon: CalendarRange, to: '/planning' },
+              { label: 'Grant Management', icon: DollarSign, to: '/funding' },
+              { label: 'Supplies & Expenses', icon: ShoppingBag, to: '/supplies' },
+              { label: 'Achievements', icon: Award, to: '/achievements' },
+              { label: 'Analytics', icon: BarChart, to: '/analytics' },
+              { label: 'Communications', icon: BellRing, to: '/communications' },
+            ].map(({ label, icon: Icon, to }) => (
               <Link key={label} to={to}>
-                <Card className={`border transition-all duration-200 hover:shadow-md cursor-pointer ${bg}`}>
+                <Card className="border bg-card hover:bg-muted/50 transition-all duration-200 hover:shadow-sm cursor-pointer">
                   <CardContent className="p-3.5 flex items-center gap-3">
-                    <Icon className={`h-5 w-5 shrink-0 ${color}`} />
+                    <Icon className="h-5 w-5 shrink-0 text-primary" />
                     <span className="text-xs font-medium leading-tight">{label}</span>
                   </CardContent>
                 </Card>
