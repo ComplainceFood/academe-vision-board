@@ -28,6 +28,7 @@ export interface FundingExpenditure {
   category: string;
   expenditure_date: string;
   receipt_number?: string;
+  receipt_url?: string;
   approved_by?: string;
   approval_date?: string;
   notes?: string;

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { FundingSource, FundingExpenditure } from "@/types/funding";
+import { Upload, X, FileText, ExternalLink } from "lucide-react";
 
 interface ExpenditureDialogProps {
   open: boolean;
@@ -17,11 +18,14 @@ interface ExpenditureDialogProps {
   onSuccess?: () => void;
 }
 
-export const ExpenditureDialog = ({ 
-  open, 
-  onOpenChange, 
-  editingExpenditure, 
-  onSuccess 
+const ACCEPTED_TYPES = ".pdf,.png,.jpg,.jpeg,.gif,.webp";
+const MAX_SIZE_MB = 10;
+
+export const ExpenditureDialog = ({
+  open,
+  onOpenChange,
+  editingExpenditure,
+  onSuccess,
 }: ExpenditureDialogProps) => {
   const [fundingSources, setFundingSources] = useState<FundingSource[]>([]);
   const [formData, setFormData] = useState({
@@ -29,14 +33,20 @@ export const ExpenditureDialog = ({
     amount: "",
     description: "",
     category: "",
-    expenditure_date: new Date().toISOString().split('T')[0],
+    expenditure_date: new Date().toISOString().split("T")[0],
     receipt_number: "",
     approved_by: "",
     approval_date: "",
     notes: "",
   });
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [existingReceiptPath, setExistingReceiptPath] = useState<string | null>(null);
+  const [removeReceipt, setRemoveReceipt] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+  const { user } = useAuth();
 
-  // Update form data when editingExpenditure changes
   useEffect(() => {
     if (editingExpenditure) {
       setFormData({
@@ -44,102 +54,135 @@ export const ExpenditureDialog = ({
         amount: editingExpenditure.amount?.toString() || "",
         description: editingExpenditure.description || "",
         category: editingExpenditure.category || "",
-        expenditure_date: editingExpenditure.expenditure_date || new Date().toISOString().split('T')[0],
+        expenditure_date:
+          editingExpenditure.expenditure_date || new Date().toISOString().split("T")[0],
         receipt_number: editingExpenditure.receipt_number || "",
         approved_by: editingExpenditure.approved_by || "",
         approval_date: editingExpenditure.approval_date || "",
         notes: editingExpenditure.notes || "",
       });
+      setExistingReceiptPath(editingExpenditure.receipt_url || null);
     } else {
-      // Reset form for new expenditure
       setFormData({
         funding_source_id: "",
         amount: "",
         description: "",
         category: "",
-        expenditure_date: new Date().toISOString().split('T')[0],
+        expenditure_date: new Date().toISOString().split("T")[0],
         receipt_number: "",
         approved_by: "",
         approval_date: "",
         notes: "",
       });
+      setExistingReceiptPath(null);
     }
-  }, [editingExpenditure]);
-  
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
-  const { user } = useAuth();
+    setReceiptFile(null);
+    setRemoveReceipt(false);
+  }, [editingExpenditure, open]);
 
   useEffect(() => {
     const fetchFundingSources = async () => {
       if (!user) return;
-      
       const { data, error } = await supabase
-        .from('funding_sources')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .order('name');
-      
-      if (error) {
-        console.error("Error fetching funding sources:", error);
-        return;
-      }
-      
+        .from("funding_sources")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("name");
+      if (error) { console.error("Error fetching funding sources:", error); return; }
       setFundingSources((data || []) as FundingSource[]);
     };
-
-    if (open) {
-      fetchFundingSources();
-    }
+    if (open) fetchFundingSources();
   }, [open, user]);
+
+  const handleFileChange = (file: File | null) => {
+    if (!file) return;
+    if (file.size > MAX_SIZE_MB * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: `Maximum file size is ${MAX_SIZE_MB} MB`,
+        variant: "destructive",
+      });
+      return;
+    }
+    setReceiptFile(file);
+    setRemoveReceipt(false);
+  };
+
+  const handleViewExistingReceipt = async () => {
+    if (!existingReceiptPath) return;
+    const { data, error } = await supabase.storage
+      .from("receipts")
+      .createSignedUrl(existingReceiptPath, 3600);
+    if (error) {
+      toast({ title: "Error", description: "Could not load receipt", variant: "destructive" });
+      return;
+    }
+    window.open(data.signedUrl, "_blank");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
-
     setIsSubmitting(true);
-    
+
     try {
+      let receipt_url: string | null = editingExpenditure?.receipt_url ?? null;
+
+      // Remove old receipt if user clicked remove
+      if (removeReceipt && existingReceiptPath) {
+        await supabase.storage.from("receipts").remove([existingReceiptPath]);
+        receipt_url = null;
+      }
+
+      // Upload new receipt file
+      if (receiptFile) {
+        const ext = receiptFile.name.split(".").pop()?.toLowerCase() || "bin";
+        const filePath = `${user.id}/exp_${Date.now()}.${ext}`;
+
+        // Delete the old file if replacing
+        if (existingReceiptPath && !removeReceipt) {
+          await supabase.storage.from("receipts").remove([existingReceiptPath]);
+        }
+
+        const { error: uploadError } = await supabase.storage
+          .from("receipts")
+          .upload(filePath, receiptFile, { upsert: false });
+
+        if (uploadError) throw new Error(`Receipt upload failed: ${uploadError.message}`);
+        receipt_url = filePath;
+      }
+
       const submitData = {
         ...formData,
         amount: parseFloat(formData.amount),
         user_id: user.id,
         approval_date: formData.approval_date || null,
+        receipt_url,
       };
 
       if (editingExpenditure) {
         const { error } = await supabase
-          .from('funding_expenditures')
+          .from("funding_expenditures")
           .update(submitData)
-          .eq('id', editingExpenditure.id);
-        
+          .eq("id", editingExpenditure.id);
         if (error) throw error;
-        
-        toast({
-          title: "Success",
-          description: "Expenditure updated successfully",
-        });
+        toast({ title: "Success", description: "Expenditure updated successfully" });
       } else {
         const { error } = await supabase
-          .from('funding_expenditures')
+          .from("funding_expenditures")
           .insert([submitData]);
-        
         if (error) throw error;
-        
-        toast({
-          title: "Success",
-          description: "Expenditure recorded successfully",
-        });
+        toast({ title: "Success", description: "Expenditure recorded successfully" });
       }
-      
+
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
       console.error("Error saving expenditure:", error);
       toast({
         title: "Error",
-        description: "Failed to save expenditure",
+        description: String(error) || "Failed to save expenditure",
         variant: "destructive",
       });
     } finally {
@@ -159,8 +202,8 @@ export const ExpenditureDialog = ({
           <form onSubmit={handleSubmit} className="space-y-4 pb-4">
             <div className="space-y-2">
               <Label htmlFor="funding_source_id">Funding Source *</Label>
-              <Select 
-                value={formData.funding_source_id} 
+              <Select
+                value={formData.funding_source_id}
                 onValueChange={(value) => setFormData({ ...formData, funding_source_id: value })}
                 required
               >
@@ -190,7 +233,6 @@ export const ExpenditureDialog = ({
                   required
                 />
               </div>
-              
               <div className="space-y-2">
                 <Label htmlFor="category">Category *</Label>
                 <Input
@@ -225,7 +267,6 @@ export const ExpenditureDialog = ({
                   required
                 />
               </div>
-              
               <div className="space-y-2">
                 <Label htmlFor="receipt_number">Receipt Number</Label>
                 <Input
@@ -234,6 +275,75 @@ export const ExpenditureDialog = ({
                   onChange={(e) => setFormData({ ...formData, receipt_number: e.target.value })}
                 />
               </div>
+            </div>
+
+            {/* Receipt Upload */}
+            <div className="space-y-2">
+              <Label>Receipt / Invoice File</Label>
+              {existingReceiptPath && !removeReceipt && !receiptFile ? (
+                <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/40">
+                  <FileText className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-sm flex-1 text-muted-foreground">Receipt attached</span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-muted-foreground hover:text-foreground"
+                    onClick={handleViewExistingReceipt}
+                    title="View receipt"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-destructive hover:text-destructive"
+                    onClick={() => setRemoveReceipt(true)}
+                    title="Remove receipt"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ) : receiptFile ? (
+                <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/40">
+                  <FileText className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-sm flex-1 truncate">{receiptFile.name}</span>
+                  <span className="text-xs text-muted-foreground shrink-0">
+                    {(receiptFile.size / 1024).toFixed(0)} KB
+                  </span>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 px-2 text-destructive hover:text-destructive"
+                    onClick={() => {
+                      setReceiptFile(null);
+                      if (fileInputRef.current) fileInputRef.current.value = "";
+                    }}
+                    title="Remove file"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center gap-2 p-5 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer">
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                  <div className="text-center">
+                    <p className="text-sm font-medium">Click to upload receipt</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      PDF, PNG, JPG, WEBP · up to {MAX_SIZE_MB} MB
+                    </p>
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept={ACCEPTED_TYPES}
+                    onChange={(e) => handleFileChange(e.target.files?.[0] || null)}
+                  />
+                </label>
+              )}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -245,7 +355,6 @@ export const ExpenditureDialog = ({
                   onChange={(e) => setFormData({ ...formData, approved_by: e.target.value })}
                 />
               </div>
-              
               <div className="space-y-2">
                 <Label htmlFor="approval_date">Approval Date</Label>
                 <Input

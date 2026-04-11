@@ -2,16 +2,17 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Edit, 
-  Plus, 
-  Trash2, 
-  Calendar, 
+import {
+  Edit,
+  Plus,
+  Trash2,
+  Calendar,
   Receipt,
   MoreVertical,
   FileText,
   DollarSign,
-  ArrowDownRight
+  ArrowDownRight,
+  Paperclip,
 } from "lucide-react";
 import { FundingExpenditure } from "@/types/funding";
 import { ExpenditureDialog } from "./ExpenditureDialog";
@@ -58,31 +59,40 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
 
   const handleDelete = async () => {
     if (!expenditureToDelete) return;
-    
+
     try {
+      // Delete receipt file from storage if one exists
+      if (expenditureToDelete.receipt_url) {
+        await supabase.storage.from('receipts').remove([expenditureToDelete.receipt_url]);
+      }
+
       const { error } = await supabase
         .from('funding_expenditures')
         .delete()
         .eq('id', expenditureToDelete.id);
-      
+
       if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Expenditure deleted successfully",
-      });
-      
+
+      toast({ title: "Success", description: "Expenditure deleted successfully" });
       onRefetch();
     } catch (error) {
       console.error("Error deleting expenditure:", error);
-      toast({
-        title: "Error",
-        description: "Failed to delete expenditure",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Failed to delete expenditure", variant: "destructive" });
     } finally {
       setExpenditureToDelete(null);
     }
+  };
+
+  const handleViewReceipt = async (expenditure: FundingExpenditure) => {
+    if (!expenditure.receipt_url) return;
+    const { data, error } = await supabase.storage
+      .from('receipts')
+      .createSignedUrl(expenditure.receipt_url, 3600);
+    if (error) {
+      toast({ title: "Error", description: "Could not load receipt", variant: "destructive" });
+      return;
+    }
+    window.open(data.signedUrl, '_blank');
   };
 
   const formatCurrency = (amount: number) => {
@@ -189,6 +199,7 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
                   <TableHead className="font-semibold">Grant</TableHead>
                   <TableHead className="font-semibold">Category</TableHead>
                   <TableHead className="font-semibold">Date</TableHead>
+                  <TableHead className="font-semibold">Receipt</TableHead>
                   <TableHead className="text-right font-semibold">Amount</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
@@ -227,6 +238,21 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
                           <Calendar className="h-3.5 w-3.5" />
                           {formatDate(expenditure.expenditure_date)}
                         </div>
+                      </TableCell>
+                      <TableCell>
+                        {expenditure.receipt_url ? (
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-xs text-primary hover:text-primary gap-1"
+                            onClick={() => handleViewReceipt(expenditure)}
+                          >
+                            <Paperclip className="h-3 w-3" />
+                            View
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground/50">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <span className="font-bold text-orange-600">{formatCurrency(expenditure.amount)}</span>
