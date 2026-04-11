@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { AdminCommunication, COMMUNICATION_CATEGORIES, COMMUNICATION_PRIORITIES } from "@/types/communications";
 import { format } from "date-fns";
-import { Plus, Edit, Trash2, ShieldAlert, Send, Eye, Copy, CheckSquare, Square, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, ShieldAlert, Send, Eye, Copy, CheckSquare, Square, Filter, Sparkles, RefreshCw } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
@@ -43,6 +43,10 @@ export function AdminCommunicationsManagement() {
   const [selectedCommunications, setSelectedCommunications] = useState<string[]>([]);
   const [filterStatus, setFilterStatus] = useState<'all' | 'published' | 'draft'>('all');
   const [filterCategory, setFilterCategory] = useState<string>('all');
+  const [aiDraftTopic, setAiDraftTopic] = useState('');
+  const [aiDraftKeyPoints, setAiDraftKeyPoints] = useState('');
+  const [aiDrafting, setAiDrafting] = useState(false);
+  const [showAiDraft, setShowAiDraft] = useState(false);
 
   // Always call hooks first - before any early returns
   const { data: communications, isLoading, refetch } = useDataFetching<AdminCommunication>({
@@ -293,6 +297,40 @@ export function AdminCommunicationsManagement() {
     }
   };
 
+  const handleAIDraft = async () => {
+    if (!aiDraftTopic.trim()) {
+      toast({ title: "Topic required", description: "Enter a topic before generating a draft.", variant: "destructive" });
+      return;
+    }
+    setAiDrafting(true);
+    try {
+      const session = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke('ai-draft-communication', {
+        headers: { Authorization: `Bearer ${session.data.session?.access_token}` },
+        body: {
+          topic: aiDraftTopic,
+          category: form.getValues('category'),
+          priority: form.getValues('priority'),
+          key_points: aiDraftKeyPoints,
+          tone: form.getValues('priority') === 'urgent' ? 'urgent' : 'formal',
+        },
+      });
+      if (error) throw error;
+      form.setValue('title', data.title || '');
+      form.setValue('description', data.description || '');
+      form.setValue('content', data.content || '');
+      setShowAiDraft(false);
+      setAiDraftTopic('');
+      setAiDraftKeyPoints('');
+      toast({ title: "Draft ready", description: "AI has drafted your communication. Review and edit before publishing." });
+    } catch (err) {
+      console.error('AI draft error:', err);
+      toast({ title: "Error", description: "Failed to generate draft. Please try again.", variant: "destructive" });
+    } finally {
+      setAiDrafting(false);
+    }
+  };
+
   const getPriorityVariant = (priority: string) => {
     switch (priority) {
       case 'urgent':
@@ -386,6 +424,58 @@ export function AdminCommunicationsManagement() {
                 {editingCommunication ? 'Edit Communication' : 'Create New Communication'}
               </DialogTitle>
             </DialogHeader>
+            {/* AI Draft Panel */}
+            <div className="mb-4">
+              {!showAiDraft ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="w-full border-violet-200 text-violet-700 hover:bg-violet-50 dark:border-violet-800 dark:text-violet-400 dark:hover:bg-violet-950/30"
+                  onClick={() => setShowAiDraft(true)}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Draft with AI
+                </Button>
+              ) : (
+                <div className="rounded-xl border border-violet-200 bg-violet-50/50 dark:border-violet-800 dark:bg-violet-950/20 p-4 space-y-3">
+                  <div className="flex items-center gap-2 text-violet-700 dark:text-violet-400">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="font-semibold text-sm">AI Communication Drafter</span>
+                  </div>
+                  <div className="space-y-2">
+                    <Input
+                      placeholder="What is this communication about? (e.g. 'System maintenance on Friday')"
+                      value={aiDraftTopic}
+                      onChange={e => setAiDraftTopic(e.target.value)}
+                      className="text-sm"
+                    />
+                    <Textarea
+                      placeholder="Key points to include (optional)"
+                      value={aiDraftKeyPoints}
+                      onChange={e => setAiDraftKeyPoints(e.target.value)}
+                      className="text-sm min-h-[60px]"
+                    />
+                  </div>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleAIDraft}
+                      disabled={aiDrafting || !aiDraftTopic.trim()}
+                      className="bg-violet-600 hover:bg-violet-700 text-white"
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${aiDrafting ? 'animate-spin' : ''}`} />
+                      {aiDrafting ? 'Drafting…' : 'Generate Draft'}
+                    </Button>
+                    <Button type="button" size="sm" variant="ghost" onClick={() => setShowAiDraft(false)}>
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleCreateOrUpdate)} className="space-y-4">
                 <FormField

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Plus, ShoppingBag } from "lucide-react";
+import { Plus, ShoppingBag, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
@@ -23,6 +23,7 @@ import { EditItemDialog } from "@/components/supplies/EditItemDialog";
 import { ItemHistoryDialog } from "@/components/supplies/ItemHistoryDialog";
 import { SupplyItem } from "@/types/shoppingList";
 import { InventoryCsvManager } from "@/components/supplies/InventoryCsvManager";
+import { SuppliesAIAnalysis } from "@/components/supplies/SuppliesAIAnalysis";
 interface Expense {
   id: string;
   date: string;
@@ -421,7 +422,7 @@ const SuppliesPage = () => {
         
         {/* Tab Navigation */}
         <Tabs defaultValue="inventory" onValueChange={handleTabChange}>
-          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full max-w-md grid-cols-2">
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full max-w-lg grid-cols-3">
             <TabsTrigger value="inventory" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <ShoppingBag className="h-4 w-4" />
               <span>Inventory</span>
@@ -429,6 +430,10 @@ const SuppliesPage = () => {
             <TabsTrigger value="expenses" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <ShoppingBag className="h-4 w-4" />
               <span>Expenses</span>
+            </TabsTrigger>
+            <TabsTrigger value="ai" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+              <Sparkles className="h-4 w-4" />
+              <span>AI Analysis</span>
             </TabsTrigger>
           </TabsList>
           
@@ -459,7 +464,10 @@ const SuppliesPage = () => {
             onDeleteExpense={(id) => setExpenseToDelete(id)}
             onBulkDelete={handleBulkDeleteExpenses}
             onRefetch={refetchExpenses} />
+          </TabsContent>
 
+          <TabsContent value="ai" className="mt-4">
+            <SuppliesAIAnalysis />
           </TabsContent>
         </Tabs>
       </div>

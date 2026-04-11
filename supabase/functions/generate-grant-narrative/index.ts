@@ -130,11 +130,29 @@ Guidelines:
 });
 
 function buildFallback(grant: any) {
+  const totalBudget = parseFloat(grant.total_amount || 0);
+  const remaining = parseFloat(grant.remaining_amount || 0);
+  const spent = totalBudget - remaining;
+  const spentPct = totalBudget > 0 ? Math.round((spent / totalBudget) * 100) : 0;
+  const riskFlags: string[] = [];
+  if (spentPct > 80 && grant.end_date) {
+    const daysLeft = Math.round((new Date(grant.end_date).getTime() - Date.now()) / (24 * 3600 * 1000));
+    if (daysLeft > 30) riskFlags.push(`${spentPct}% of budget expended with ${daysLeft} days remaining — review remaining expenditures.`);
+  }
+  if (grant.reporting_requirements) riskFlags.push(`Reporting requirement on file: ${grant.reporting_requirements}`);
   return {
-    narrative: `This report covers the progress of ${grant.name}. Activities have been conducted in accordance with the grant objectives. Expenditures have been managed responsibly within the approved budget framework.`,
-    key_accomplishments: ['Grant activities initiated', 'Budget tracking established', 'Team coordination underway'],
-    next_steps: ['Continue project activities', 'Monitor budget utilization', 'Document outcomes'],
-    budget_note: 'Budget utilization is being monitored regularly.',
-    risk_flags: [],
+    narrative: `${grant.name} (${grant.type || 'grant'}) is currently ${grant.status}. The total awarded budget is $${totalBudget.toLocaleString()}, of which $${spent.toLocaleString()} (${spentPct}%) has been expended, leaving $${remaining.toLocaleString()} in available funds${grant.end_date ? ' through ' + grant.end_date : ''}.\n\nActivities have been conducted in alignment with the stated grant objectives. All expenditures have been tracked and managed within approved categories in accordance with compliance requirements.\n\nContinued monitoring of budget utilisation and progress milestones is underway. Required reporting will be submitted per the grant agreement terms.`,
+    key_accomplishments: [
+      `${grant.name} is active with ${spentPct}% of budget utilised`,
+      `$${spent.toLocaleString()} expended across tracked expense categories`,
+      `$${remaining.toLocaleString()} remaining for continued project activities`,
+    ],
+    next_steps: [
+      `Monitor remaining $${remaining.toLocaleString()} in grant funds`,
+      grant.end_date ? `Prepare for grant end date: ${grant.end_date}` : 'Review grant timeline and milestones',
+      grant.reporting_requirements ? `Submit required report: ${grant.reporting_requirements}` : 'Document outcomes for final reporting',
+    ],
+    budget_note: `$${spent.toLocaleString()} of $${totalBudget.toLocaleString()} expended (${spentPct}%). $${remaining.toLocaleString()} remaining.`,
+    risk_flags: riskFlags,
   };
 }
