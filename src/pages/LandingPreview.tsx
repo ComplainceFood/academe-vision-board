@@ -729,11 +729,9 @@ const LandingPreview = () => {
       <footer className="py-12 border-t border-border/50 bg-background">
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <div className="flex items-center space-x-3">
-              <div className="p-2 rounded-xl shadow-sm bg-primary">
-                <GraduationCap className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold text-foreground">SmartProf</span>
+            <div className="flex items-center space-x-2.5">
+              <SmartProfLogo size={32} />
+              <span className="text-lg font-bold text-foreground">Smart<span className="text-primary">-Prof</span></span>
             </div>
             
             <p className="text-sm text-muted-foreground">
