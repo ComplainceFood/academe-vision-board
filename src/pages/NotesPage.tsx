@@ -293,7 +293,7 @@ const NotesPage = () => {
             </div>
             
             {/* Quick Stats */}
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mt-6">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
                 <p className="text-2xl font-bold">{stats.pendingTasks}</p>
                 <p className="text-xs text-primary-foreground/70">Pending</p>

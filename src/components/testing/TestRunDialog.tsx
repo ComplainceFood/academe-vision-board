@@ -236,7 +236,7 @@ export function TestRunDialog({ open, onOpenChange, projectId, suiteId }: TestRu
                 </p>
               </div>
 
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 <div className="text-center p-3 border rounded-lg">
                   <div className="text-2xl font-bold">{resultsStats.total}</div>
                   <p className="text-sm text-muted-foreground">Executed</p>
@@ -283,7 +283,7 @@ export function TestRunDialog({ open, onOpenChange, projectId, suiteId }: TestRu
               <div className="text-center">
                 <h4 className="text-lg font-medium mb-4">Test Run Complete</h4>
                 
-                <div className="grid grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                   <div className="text-center p-4 border rounded-lg">
                     <div className="text-3xl font-bold">{resultsStats.total}</div>
                     <p className="text-sm text-muted-foreground">Total Tests</p>

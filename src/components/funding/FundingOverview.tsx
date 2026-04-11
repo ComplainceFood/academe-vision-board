@@ -298,7 +298,7 @@ export const FundingOverview = ({
           <CardContent>
             {spendingByCategory.length > 0 ? (
               <div className="flex items-center gap-6">
-                <div className="h-[180px] w-[180px]">
+                <div className="h-[140px] w-[140px] sm:h-[180px] sm:w-[180px] shrink-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <RechartPieChart>
                       <Pie
@@ -382,7 +382,7 @@ export const FundingOverview = ({
                 return (
                   <div key={source.id} className="space-y-2 group">
                     <div className="flex justify-between items-center text-sm">
-                      <span className="font-medium truncate max-w-[180px] group-hover:text-primary transition-colors">{source.name}</span>
+                      <span className="font-medium truncate max-w-[120px] sm:max-w-[180px] group-hover:text-primary transition-colors">{source.name}</span>
                       <span className={`text-xs ${isHighUsage ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
                         {formatCurrency(source.remaining_amount)} left
                       </span>

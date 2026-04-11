@@ -8,7 +8,6 @@ import { Badge } from "@/components/ui/badge";
 import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
 import { TermsOfService } from "@/components/legal/TermsOfService";
 import {
-  GraduationCap,
   Calendar,
   Users,
   TrendingUp,
@@ -31,8 +30,11 @@ import {
   Layers,
   FolderOpen,
   Menu,
-  X
+  X,
+  MessageSquare,
+  Brain
 } from "lucide-react";
+import { SmartProfLogo } from "@/components/Logo";
 
 // Import preview images
 import notesPreview from "@/assets/landing/notes-preview.png";
@@ -90,45 +92,59 @@ const LandingPreview = () => {
     {
       icon: Users,
       title: "Meeting Hub",
-      description: "Schedule meetings, track action items, and sync with your calendar seamlessly.",
+      description: "Schedule meetings, track action items, generate summaries, and sync with your calendar seamlessly.",
       highlights: ["Calendar Sync", "Action Items", "Recurring Meetings"],
       badge: null
     },
     {
       icon: Calendar,
       title: "Semester Planning",
-      description: "Plan your academic calendar with event scheduling, future task planning, and calendar integrations.",
+      description: "Plan your academic calendar with event scheduling, deadline tracking, and Outlook/Google Calendar integrations.",
       highlights: ["Event Scheduling", "Outlook Sync", "Google Calendar"],
       badge: null
     },
     {
       icon: Wallet,
       title: "Grant Management",
-      description: "Monitor research grants, track expenditures, manage commitments, and generate financial reports.",
+      description: "Monitor research grants, track expenditures, manage commitments, and generate detailed financial reports.",
       highlights: ["Budget Tracking", "Expenditure Reports", "Multi-source"],
       badge: null
     },
     {
       icon: Package,
       title: "Supplies & Expenses",
-      description: "Threshold alerts, shopping lists, expense tracking, and cost analytics for lab supplies.",
-      highlights: ["Stock Alerts", "Shopping Lists", "Expense Tracking"],
+      description: "Threshold alerts, shopping lists, CSV import/export, expense tracking, and cost analytics for lab supplies.",
+      highlights: ["Stock Alerts", "Shopping Lists", "CSV Export"],
       badge: null
     },
     {
       icon: Award,
       title: "Scholastic Achievements",
-      description: "Track publications, awards, teaching performance, research presentations, and student supervision.",
-      highlights: ["Publications", "Awards", "ORCID Integration"],
+      description: "Track publications, awards, teaching performance, research presentations, and student supervision in one place.",
+      highlights: ["Publications", "Awards & Honors", "ORCID Integration"],
       badge: "New"
+    },
+    {
+      icon: MessageSquare,
+      title: "Communications",
+      description: "Send announcements to your team, submit feedback, and manage inter-department communications with ease.",
+      highlights: ["Announcements", "Team Feedback", "Admin Broadcasts"],
+      badge: null
+    },
+    {
+      icon: Brain,
+      title: "AI-Powered Analytics",
+      description: "Get AI-generated biosketches, productivity insights, workload analysis, and smart recommendations tailored to your academic role.",
+      highlights: ["AI Biosketch", "Productivity Insights", "Workload Analysis"],
+      badge: "AI"
     },
   ];
 
   const stats = [
-    { icon: GraduationCap, value: "500+", label: "Academics" },
+    { icon: Layers, value: "8", label: "Modules" },
     { icon: TrendingUp, value: "4hrs+", label: "Saved Weekly" },
     { icon: Shield, value: "100%", label: "Secure" },
-    { icon: Zap, value: "24/7", label: "Available" },
+    { icon: Zap, value: "AI", label: "Powered" },
   ];
 
   const testimonials = [
@@ -175,17 +191,14 @@ const LandingPreview = () => {
         className="sticky top-0 z-50 backdrop-blur-xl border-b border-border/50 bg-background/80"
       >
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <motion.div 
-              whileHover={{ scale: 1.05, rotate: 5 }}
+          <div className="flex items-center space-x-2.5">
+            <motion.div
+              whileHover={{ scale: 1.05, rotate: 4 }}
               transition={{ type: "spring", stiffness: 300 }}
-              className="relative"
             >
-              <div className="p-2.5 rounded-xl shadow-lg bg-primary">
-                <GraduationCap className="h-6 w-6 text-primary-foreground" />
-              </div>
+              <SmartProfLogo size={38} />
             </motion.div>
-            <span className="text-2xl font-bold text-primary">SmartProf</span>
+            <span className="text-xl font-bold text-foreground tracking-tight">Smart<span className="text-primary">-Prof</span></span>
           </div>
           <div className="flex items-center gap-2 md:gap-8">
             <a href="#features" className="hidden md:block text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300">Features</a>
@@ -238,17 +251,17 @@ const LandingPreview = () => {
           <motion.div 
             animate={{ y: [0, -30, 0], opacity: [0.15, 0.3, 0.15] }}
             transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-32 -right-32 w-[500px] h-[500px] rounded-full blur-[100px] bg-primary/25"
+            className="absolute -top-32 -right-32 w-[200px] h-[200px] sm:w-[350px] sm:h-[350px] md:w-[500px] md:h-[500px] rounded-full blur-[100px] bg-primary/25"
           />
           <motion.div 
             animate={{ y: [0, 30, 0], opacity: [0.1, 0.25, 0.1] }}
             transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-32 -left-32 w-[400px] h-[400px] rounded-full blur-[100px] bg-secondary/20"
+            className="absolute -bottom-32 -left-32 w-[150px] h-[150px] sm:w-[280px] sm:h-[280px] md:w-[400px] md:h-[400px] rounded-full blur-[100px] bg-secondary/20"
           />
           <motion.div
             animate={{ scale: [1, 1.15, 1], opacity: [0.05, 0.12, 0.05] }}
             transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full blur-[120px] bg-primary/10"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[250px] h-[250px] sm:w-[450px] sm:h-[450px] md:w-[700px] md:h-[700px] rounded-full blur-[120px] bg-primary/10"
           />
         </div>
         
@@ -262,7 +275,7 @@ const LandingPreview = () => {
             <motion.div variants={fadeInUp}>
               <Badge className="mb-8 px-5 py-2 text-sm font-medium border border-primary/20 bg-primary/8 text-primary backdrop-blur-sm">
                 <Sparkles className="h-4 w-4 mr-2 text-secondary" />
-                Built for professors, researchers, and educators
+                The all-in-one platform for professors, researchers & educators
               </Badge>
             </motion.div>
             
@@ -291,8 +304,8 @@ const LandingPreview = () => {
               variants={fadeInUp}
               className="text-lg md:text-xl mb-8 md:mb-14 max-w-2xl mx-auto leading-relaxed text-muted-foreground"
             >
-              Manage grants, track deadlines, schedule meetings, and monitor supplies —
-              everything a professor needs, in one place.
+              Manage grants, track publications, schedule meetings, monitor supplies, and get AI-powered insights —
+              everything a professor needs, beautifully organized in one place.
             </motion.p>
             
             <motion.div 
@@ -324,10 +337,12 @@ const LandingPreview = () => {
               {[
                 { icon: CheckCircle2, label: "Subtasks" },
                 { icon: Clock, label: "Smart Deadlines" },
-                { icon: Calendar, label: "Planning" },
+                { icon: Calendar, label: "Semester Planning" },
                 { icon: FolderOpen, label: "Folders" },
                 { icon: Award, label: "Achievements" },
                 { icon: LineChart, label: "Analytics" },
+                { icon: MessageSquare, label: "Communications" },
+                { icon: Brain, label: "AI Insights" },
               ].map((item, index) => (
                 <motion.div 
                   key={index}
@@ -396,10 +411,10 @@ const LandingPreview = () => {
               Powerful Features
             </Badge>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
-              Everything You Need
+              8 Powerful Modules
             </h2>
             <p className="text-xl max-w-2xl mx-auto text-muted-foreground">
-              Comprehensive tools designed specifically for academic professionals
+              Comprehensive tools designed specifically for academic professionals — all connected in one seamless workspace
             </p>
           </motion.div>
 
@@ -408,7 +423,7 @@ const LandingPreview = () => {
             whileInView="visible"
             viewport={{ once: true, margin: "-60px" }}
             variants={staggerContainer}
-            className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+            className="grid md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
             {features.map((feature, index) => (
               <motion.div
@@ -434,7 +449,12 @@ const LandingPreview = () => {
                         <feature.icon className="h-6 w-6 text-primary-foreground" />
                       </motion.div>
                       {feature.badge && (
-                        <Badge className={`text-xs font-semibold border ${feature.badge === 'New' ? 'border-secondary/30 bg-secondary/10 text-secondary' : 'border-primary/30 bg-primary/10 text-primary'}`}>
+                        <Badge className={`text-xs font-semibold border ${
+                          feature.badge === 'New' ? 'border-secondary/30 bg-secondary/10 text-secondary' :
+                          feature.badge === 'AI' ? 'border-violet-400/30 bg-violet-500/10 text-violet-600 dark:text-violet-400' :
+                          'border-primary/30 bg-primary/10 text-primary'
+                        }`}>
+                          {feature.badge === 'AI' && <Brain className="h-3 w-3 mr-1" />}
                           {feature.badge}
                         </Badge>
                       )}
@@ -678,11 +698,11 @@ const LandingPreview = () => {
             </Badge>
             
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-8 text-primary-foreground">
-              Still have questions?
+              Your Academic Command Center Awaits
             </h2>
 
             <p className="text-xl mb-8 md:mb-14 text-primary-foreground/80 max-w-xl mx-auto">
-              Sign up free and explore the platform — or reach out and we'll answer anything before you commit.
+              Join hundreds of academics who have transformed how they manage their professional life. Start free, no credit card needed.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

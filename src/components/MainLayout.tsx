@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth, cleanupAuthState } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { GlobalSearch } from "@/components/common/GlobalSearch";
+import { SmartProfLogo } from "@/components/Logo";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -52,12 +53,10 @@ export function MainLayout({ children }: MainLayoutProps) {
           <header className="h-14 md:h-16 border-b px-3 sm:px-6 flex items-center justify-between bg-sidebar-accent shrink-0">
              <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                <SidebarTrigger />
-               <img
-                src="/lovable-uploads/fb745a42-3221-43ad-a62f-665ee055b654.png"
-                alt="Smart-Prof logo — Organize, Optimize, Excel"
-                className="h-7 md:h-8 w-auto"
-                loading="lazy" />
-
+               <SmartProfLogo size={32} />
+               <span className="text-base font-bold text-foreground tracking-tight hidden sm:inline">
+                 Smart<span className="text-primary">-Prof</span>
+               </span>
                <h1 className="sr-only">Smart-Prof — Organize, Optimize, Excel</h1>
              </div>
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">

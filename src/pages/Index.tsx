@@ -488,7 +488,7 @@ const LandingPage = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button asChild size="lg" className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-xl hover:shadow-2xl transition-all duration-300 text-white h-14 px-8 text-lg font-semibold">
+              <Button asChild size="lg" className="bg-gradient-to-r from-violet-500 to-purple-600 hover:from-violet-600 hover:to-purple-700 shadow-xl hover:shadow-2xl transition-all duration-300 text-white h-12 sm:h-14 px-5 sm:px-8 text-base sm:text-lg font-semibold">
                 <Link to="/auth">
                   Start Free Today
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -521,7 +521,7 @@ const LandingPage = () => {
       {/* Stats Section */}
       <section className="py-16 border-y bg-muted/30">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center group">
                 <div className={`inline-flex p-4 rounded-2xl bg-gradient-to-br ${stat.gradient} mb-4 shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-105`}>

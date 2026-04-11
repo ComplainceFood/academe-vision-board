@@ -44,7 +44,7 @@ export default function CommunicationsPage() {
         </div>
 
         <Tabs defaultValue="announcements" className="space-y-6">
-          <TabsList className={`p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl ${isSystemAdmin() ? 'grid grid-cols-3 w-full max-w-2xl' : 'inline-flex'}`}>
+          <TabsList className={`p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl ${isSystemAdmin() ? 'grid grid-cols-2 sm:grid-cols-3 w-full max-w-2xl' : 'inline-flex'}`}>
             <TabsTrigger value="announcements" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <MessageSquare className="h-4 w-4" />
               Announcements

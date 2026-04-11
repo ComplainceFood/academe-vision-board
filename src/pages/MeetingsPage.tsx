@@ -128,7 +128,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
                 <MoreVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px]">
+            <DropdownMenuContent align="end" className="w-[180px] sm:w-[200px]">
               <DropdownMenuItem onClick={() => onViewDetails(meeting)}>
                 <FileText className="h-4 w-4 mr-2" /> View Details
               </DropdownMenuItem>
@@ -391,7 +391,7 @@ const MeetingsPage = () => {
             </div>
             
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Upcoming</p>
                 <p className="text-3xl font-bold">{stats.upcoming}</p>

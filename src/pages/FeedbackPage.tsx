@@ -45,7 +45,7 @@ export default function FeedbackPage() {
         </div>
 
       <Tabs defaultValue="submit" className="space-y-6">
-        <TabsList className={`grid w-full ${isSystemAdmin() ? 'grid-cols-3' : 'grid-cols-2'}`}>
+        <TabsList className={`grid w-full ${isSystemAdmin() ? 'grid-cols-2 sm:grid-cols-3' : 'grid-cols-2'}`}>
           <TabsTrigger value="submit" className="flex items-center gap-2">
             <Send className="h-4 w-4" />
             Submit Feedback

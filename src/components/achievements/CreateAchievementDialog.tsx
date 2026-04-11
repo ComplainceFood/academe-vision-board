@@ -194,7 +194,7 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
               <Input
@@ -241,7 +241,7 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
           )}
 
           {category === "course_taught" && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="term">Term</Label>
                 <Input
@@ -266,7 +266,7 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
           )}
 
           {category === "award_honor" && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="award_type">Award Type</Label>
                 <Input
@@ -289,7 +289,7 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
           )}
 
           {category === "service_review" && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="journal_name">Journal/Organization</Label>
                 <Input
@@ -314,7 +314,7 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
           )}
 
           {category === "student_supervision" && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="student_name">Student Name</Label>
                 <Input
@@ -342,7 +342,7 @@ export function CreateAchievementDialog({ open, onOpenChange, category, onSucces
           )}
 
           {category === "teaching_performance" && (
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="course_code">Course Code</Label>
                 <Input

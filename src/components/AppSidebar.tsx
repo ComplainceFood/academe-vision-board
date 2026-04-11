@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut, BarChart3, MessageCircle, Megaphone, Award, TestTube, Users } from "lucide-react";
+import { SmartProfLogo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -137,13 +138,11 @@ export function AppSidebar() {
       } // Force page reload for clean state
       window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
       window.location.href = '/auth';}};return <Sidebar>
-      <SidebarHeader className="p-4 py-[10px] pb-[10px]">
-        <div className="flex items-center gap-2 px-2">
-          <div className="flex h-10 w-10 items-center justify-center rounded-md bg-primary">
-            <span className="text-xl font-bold text-white">SP</span>
-          </div>
+      <SidebarHeader className="p-4 py-2.5 pb-2.5">
+        <div className="flex items-center gap-2.5 px-2">
+          <SmartProfLogo size={36} />
           <div className="flex flex-col text-left">
-            <span className="text-lg font-bold">Smart-Prof</span>
+            <span className="text-base font-bold tracking-tight">Smart<span className="text-primary">-Prof</span></span>
             <span className="text-xs text-muted-foreground">Teaching Smarter</span>
           </div>
         </div>
