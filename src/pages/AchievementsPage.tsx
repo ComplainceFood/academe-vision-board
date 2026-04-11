@@ -120,10 +120,10 @@ const AchievementsPage = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h1 className="text-4xl font-bold tracking-tight">Scholastic Achievements</h1>
+                      <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Scholastic Achievements</h1>
                       <Sparkles className="h-6 w-6 text-accent animate-pulse" />
                     </div>
-                    <p className="text-primary-foreground/80 text-lg mt-1">
+                    <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">
                       Track and showcase your academic portfolio
                     </p>
                   </div>

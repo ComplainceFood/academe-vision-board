@@ -272,6 +272,17 @@ const LandingPreview = () => {
             variants={staggerContainer}
             className="text-center max-w-4xl mx-auto"
           >
+            {/* Logo showcase */}
+            <motion.div variants={fadeInUp} className="flex justify-center mb-6">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300 }}
+                className="rounded-3xl shadow-2xl overflow-hidden ring-4 ring-primary/20"
+              >
+                <SmartProfLogo size={96} className="rounded-3xl" />
+              </motion.div>
+            </motion.div>
+
             <motion.div variants={fadeInUp}>
               <Badge className="mb-8 px-5 py-2 text-sm font-medium border border-primary/20 bg-primary/8 text-primary backdrop-blur-sm">
                 <Sparkles className="h-4 w-4 mr-2 text-secondary" />

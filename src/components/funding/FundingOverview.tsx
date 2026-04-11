@@ -297,8 +297,8 @@ export const FundingOverview = ({
           </CardHeader>
           <CardContent>
             {spendingByCategory.length > 0 ? (
-              <div className="flex items-center gap-6">
-                <div className="h-[140px] w-[140px] sm:h-[180px] sm:w-[180px] shrink-0">
+              <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+                <div className="h-[160px] w-[160px] sm:h-[180px] sm:w-[180px] shrink-0">
                   <ResponsiveContainer width="100%" height="100%">
                     <RechartPieChart>
                       <Pie

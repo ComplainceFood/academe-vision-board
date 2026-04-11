@@ -107,12 +107,12 @@ export function CommunicationsList() {
       {communications.map((communication) => (
         <Card key={communication.id} className="overflow-hidden">
           <CardHeader className="pb-3">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                {getPriorityIcon(communication.priority)}
-                <h3 className="text-lg font-semibold">{communication.title}</h3>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+              <div className="flex items-start gap-2 min-w-0">
+                <span className="shrink-0 mt-0.5">{getPriorityIcon(communication.priority)}</span>
+                <h3 className="text-lg font-semibold leading-snug">{communication.title}</h3>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap shrink-0">
                 <Badge variant={getPriorityVariant(communication.priority)}>
                   {communication.priority}
                 </Badge>

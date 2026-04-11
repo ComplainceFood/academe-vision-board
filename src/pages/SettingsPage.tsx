@@ -294,8 +294,8 @@ const SettingsPage = () => {
                 <Settings className="h-10 w-10" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold tracking-tight">Settings</h1>
-                <p className="text-primary-foreground/80 text-lg mt-1">Manage your account settings and preferences</p>
+                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Settings</h1>
+                <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">Manage your account settings and preferences</p>
               </div>
             </div>
           </div>

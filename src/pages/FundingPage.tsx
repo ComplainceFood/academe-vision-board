@@ -46,7 +46,7 @@ const FundingPage = () => {
   const [showExpenditureDialog, setShowExpenditureDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
   const [searchQuery, setSearchQuery] = useState("");
-  const [navCollapsed, setNavCollapsed] = useState(false);
+  const [navCollapsed, setNavCollapsed] = useState(typeof window !== 'undefined' && window.innerWidth < 640);
 
   const { data: fundingSources, isLoading: sourcesLoading, refetch: refetchSources } = useDataFetching<FundingSource>({
     table: 'funding_sources',
@@ -94,7 +94,7 @@ const FundingPage = () => {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h1 className="text-4xl font-bold tracking-tight">Grant Management</h1>
+                  <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Grant Management</h1>
                   <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
                 </div>
                 <p className="text-primary-foreground/80 text-lg mt-1">

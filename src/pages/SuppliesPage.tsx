@@ -359,8 +359,8 @@ const SuppliesPage = () => {
                     <ShoppingBag className="h-10 w-10" />
                   </div>
                   <div>
-                    <h1 className="text-4xl font-bold tracking-tight">Supplies & Expenses</h1>
-                    <p className="text-primary-foreground/80 text-lg mt-1">Track your inventory and lab expenses</p>
+                    <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Supplies & Expenses</h1>
+                    <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">Track your inventory and lab expenses</p>
                   </div>
                 </div>
               </div>

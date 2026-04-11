@@ -261,7 +261,7 @@ const PlanningPage = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h1 className="text-4xl font-bold tracking-tight">Semester Planning</h1>
+                      <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Semester Planning</h1>
                       <Sparkles className="h-6 w-6 text-accent animate-pulse" />
                     </div>
                     <p className="text-primary-foreground/80 text-lg mt-1">

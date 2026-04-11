@@ -240,8 +240,8 @@ export default function AdminUsersPage() {
                 <Users className="h-10 w-10" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold tracking-tight">User Management</h1>
-                <p className="text-primary-foreground/80 text-lg mt-1">
+                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">User Management</h1>
+                <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">
                   View registered users, manage roles, and control subscription access
                 </p>
               </div>

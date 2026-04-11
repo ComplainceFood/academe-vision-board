@@ -100,7 +100,7 @@ export function SecurityAuditLog() {
         ) : auditLogs.length === 0 ? (
           <p className="text-muted-foreground text-center p-8">No audit logs found.</p>
         ) : (
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>

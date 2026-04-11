@@ -188,6 +188,7 @@ export const InventoryList = ({
             <p>No items found. Add your first inventory item!</p>
           </div>
         ) : (
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -198,11 +199,11 @@ export const InventoryList = ({
                   />
                 </TableHead>
                 <TableHead>Item</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Course</TableHead>
-                <TableHead>Stock Level</TableHead>
-                <TableHead>Cost</TableHead>
-                <TableHead>Last Restocked</TableHead>
+                <TableHead className="hidden sm:table-cell">Category</TableHead>
+                <TableHead className="hidden md:table-cell">Course</TableHead>
+                <TableHead>Stock</TableHead>
+                <TableHead className="hidden sm:table-cell">Cost</TableHead>
+                <TableHead className="hidden lg:table-cell">Last Restocked</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -222,32 +223,33 @@ export const InventoryList = ({
                     </TableCell>
                     <TableCell>
                       <div className="font-medium">{item.name}</div>
+                      <div className="text-xs text-muted-foreground sm:hidden">{item.category}</div>
                     </TableCell>
-                    <TableCell>{item.category}</TableCell>
-                    <TableCell>{item.course}</TableCell>
+                    <TableCell className="hidden sm:table-cell">{item.category}</TableCell>
+                    <TableCell className="hidden md:table-cell">{item.course}</TableCell>
                     <TableCell>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
+                      <div className="space-y-1.5">
+                        <div className="flex items-center gap-1.5">
                           <div className="text-sm">
                             {item.current_count}/{item.total_count}
                           </div>
                           {isLowStock && (
-                            <Badge variant="destructive" className="text-xs">
-                              Low Stock
+                            <Badge variant="destructive" className="text-[10px] px-1 py-0">
+                              Low
                             </Badge>
                           )}
                         </div>
-                        <Progress 
-                          value={stockPercentage} 
-                          className="h-2"
+                        <Progress
+                          value={stockPercentage}
+                          className="h-1.5 w-16 sm:w-24"
                         />
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {item.cost ? `$${item.cost.toFixed(2)}` : "-"}
                     </TableCell>
-                    <TableCell>
-                      {item.last_restocked 
+                    <TableCell className="hidden lg:table-cell">
+                      {item.last_restocked
                         ? new Date(item.last_restocked).toLocaleDateString()
                         : "Never"
                       }
@@ -286,6 +288,7 @@ export const InventoryList = ({
               })}
             </TableBody>
           </Table>
+          </div>
         )}
       </CardContent>
       <CardFooter>

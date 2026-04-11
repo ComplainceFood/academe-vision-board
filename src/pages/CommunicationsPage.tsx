@@ -34,8 +34,8 @@ export default function CommunicationsPage() {
                 <Megaphone className="h-10 w-10" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold tracking-tight">Admin Communications</h1>
-                <p className="text-primary-foreground/80 text-lg mt-1">
+                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Admin Communications</h1>
+                <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">
                   Stay updated with administrative announcements and platform updates
                 </p>
               </div>

@@ -277,6 +277,7 @@ export const ExpenseList = ({
         {isLoading ? (
           <div className="text-center py-12"><p>Loading expense data...</p></div>
         ) : sortedExpenses.length > 0 ? (
+          <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -288,12 +289,12 @@ export const ExpenseList = ({
                     />
                   </TableHead>
                 )}
-                <TableHead>Date</TableHead>
+                <TableHead className="hidden sm:table-cell">Date</TableHead>
                 <TableHead>Description</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Course</TableHead>
+                <TableHead className="hidden sm:table-cell">Category</TableHead>
+                <TableHead className="hidden md:table-cell">Course</TableHead>
                 <TableHead>Amount</TableHead>
-                <TableHead>Receipt</TableHead>
+                <TableHead className="hidden sm:table-cell">Receipt</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -310,12 +311,15 @@ export const ExpenseList = ({
                         />
                       </TableCell>
                     )}
-                    <TableCell>{new Date(expense.date).toLocaleDateString()}</TableCell>
-                    <TableCell><div className="font-medium">{expense.description}</div></TableCell>
-                    <TableCell>{expense.category}</TableCell>
-                    <TableCell>{expense.course}</TableCell>
-                    <TableCell>${expense.amount.toFixed(2)}</TableCell>
+                    <TableCell className="hidden sm:table-cell text-sm">{new Date(expense.date).toLocaleDateString()}</TableCell>
                     <TableCell>
+                      <div className="font-medium">{expense.description}</div>
+                      <div className="text-xs text-muted-foreground sm:hidden">{new Date(expense.date).toLocaleDateString()} · {expense.category}</div>
+                    </TableCell>
+                    <TableCell className="hidden sm:table-cell">{expense.category}</TableCell>
+                    <TableCell className="hidden md:table-cell">{expense.course}</TableCell>
+                    <TableCell>${expense.amount.toFixed(2)}</TableCell>
+                    <TableCell className="hidden sm:table-cell">
                       {expense.receipt_url ? (
                         <Button
                           size="sm"
@@ -387,6 +391,7 @@ export const ExpenseList = ({
               })}
             </TableBody>
           </Table>
+          </div>
         ) : (
           <div className="text-center py-12">
             <FileText className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
