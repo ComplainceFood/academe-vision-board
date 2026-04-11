@@ -107,6 +107,7 @@ export type Database = {
           description: string
           id: string
           receipt: boolean | null
+          receipt_url: string | null
           user_id: string
         }
         Insert: {
@@ -117,6 +118,7 @@ export type Database = {
           description: string
           id?: string
           receipt?: boolean | null
+          receipt_url?: string | null
           user_id: string
         }
         Update: {
@@ -127,6 +129,7 @@ export type Database = {
           description?: string
           id?: string
           receipt?: boolean | null
+          receipt_url?: string | null
           user_id?: string
         }
         Relationships: []
