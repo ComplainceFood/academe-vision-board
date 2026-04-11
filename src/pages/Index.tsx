@@ -103,166 +103,181 @@ const Index = () => {
     event.type === 'deadline' && new Date(event.date) > new Date()
   ).length;
 
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+  const todayEvents = events.filter((event: any) =>
+    new Date(event.date).toDateString() === new Date().toDateString()
+  );
+
+  const statCards = [
+    { title: 'Commitments', value: promiseCount, icon: CheckSquare, to: '/notes', gradient: 'from-violet-500 to-purple-600', desc: 'Student commitments' },
+    { title: 'Meetings', value: upcomingMeetings, icon: Users, to: '/meetings', gradient: 'from-sky-500 to-blue-600', desc: 'Upcoming scheduled' },
+    { title: 'Pending Tasks', value: todoTasks, icon: Clock, to: '/planning', gradient: 'from-amber-500 to-orange-600', desc: 'Outstanding tasks' },
+    { title: 'Deadlines', value: upcomingDeadlines, icon: Target, to: '/planning', gradient: 'from-rose-500 to-red-600', desc: 'Upcoming deadlines' },
+    { title: 'Low Resources', value: lowSuppliesCount, icon: ShoppingBag, to: '/supplies', gradient: lowSuppliesCount > 0 ? 'from-red-500 to-rose-600' : 'from-emerald-500 to-teal-600', desc: 'Below threshold', alert: lowSuppliesCount > 0 },
+    { title: 'Shopping List', value: shoppingItemsCount, icon: Package, to: '/supplies', gradient: 'from-teal-500 to-cyan-600', desc: 'Items to acquire' },
+  ];
+
+  const quickLinks = [
+    { label: 'Record Commitment', icon: BookOpen, to: '/notes', color: 'text-violet-600', bg: 'bg-violet-500/10 hover:bg-violet-500/20' },
+    { label: 'Schedule Meeting', icon: Users, to: '/meetings', color: 'text-sky-600', bg: 'bg-sky-500/10 hover:bg-sky-500/20' },
+    { label: 'Add Planning Event', icon: CalendarRange, to: '/planning', color: 'text-amber-600', bg: 'bg-amber-500/10 hover:bg-amber-500/20' },
+    { label: 'Manage Grants', icon: DollarSign, to: '/funding', color: 'text-emerald-600', bg: 'bg-emerald-500/10 hover:bg-emerald-500/20' },
+    { label: 'Update Resources', icon: ShoppingBag, to: '/supplies', color: 'text-rose-600', bg: 'bg-rose-500/10 hover:bg-rose-500/20' },
+    { label: 'View Analytics', icon: BarChart, to: '/analytics', color: 'text-indigo-600', bg: 'bg-indigo-500/10 hover:bg-indigo-500/20' },
+  ];
+
   return (
     <MainLayout>
-        <div className="animate-fade-in">
-          <h1 className="text-3xl font-bold mb-2 text-foreground">Welcome to Smart-Prof</h1>
-          <p className="text-muted-foreground mb-8">Teaching Smarter. Managing Better - Your comprehensive academic platform</p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <DashboardCard 
-              title="Student Commitments" 
-              value={promiseCount} 
-              icon={<CheckSquare className="h-5 w-5 text-primary" />}
-              linkTo="/notes"
-              color="bg-primary/10"
-              iconColor="text-primary"
-              description="Academic commitments to students"
-            />
-            <DashboardCard 
-              title="Upcoming Meetings" 
-              value={upcomingMeetings} 
-              icon={<Users className="h-5 w-5 text-primary" />}
-              linkTo="/meetings"
-              color="bg-primary/10"
-              iconColor="text-primary"
-              description="Scheduled meetings"
-            />
-            <DashboardCard 
-              title="Low Resources" 
-              value={lowSuppliesCount} 
-              icon={<ShoppingBag className="h-5 w-5 text-destructive" />}
-              linkTo="/supplies"
-              color="bg-destructive/10"
-              iconColor="text-destructive"
-              description="Resources below threshold"
-              badge={lowSuppliesCount > 0 ? "Action Needed" : undefined}
-              badgeVariant={lowSuppliesCount > 0 ? "destructive" : undefined}
-            />
-            <DashboardCard 
-              title="Resource Requests" 
-              value={shoppingItemsCount} 
-              icon={<ShoppingBag className="h-5 w-5 text-secondary-foreground" />}
-              linkTo="/supplies"
-              color="bg-secondary/50"
-              iconColor="text-secondary-foreground"
-              description="Resources to acquire"
-            />
+      <div className="animate-fade-in space-y-6">
+
+        {/* Welcome Banner */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-secondary p-6 text-primary-foreground shadow-lg">
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
+            <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-secondary/30 blur-2xl" />
           </div>
-          
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <Card className="col-span-1 lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CalendarRange className="h-5 w-5 text-primary" />
-                  <span>Upcoming Schedule</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <DashboardCard 
-                    title="Tasks" 
-                    value={todoTasks} 
-                    icon={<CheckSquare className="h-5 w-5 text-primary" />}
-                    linkTo="/planning"
-                    color="bg-primary/10"
-                    iconColor="text-primary"
-                    description="Outstanding tasks"
-                    compact
-                  />
-                  <DashboardCard 
-                    title="Deadlines" 
-                    value={upcomingDeadlines} 
-                    icon={<Clock className="h-5 w-5 text-destructive" />}
-                    linkTo="/planning"
-                    color="bg-destructive/10"
-                    iconColor="text-destructive"
-                    description="Upcoming deadlines"
-                    compact
-                  />
-                </div>
-                <div className="border rounded-lg p-4 space-y-3">
-                  <h3 className="font-medium flex items-center gap-2">
-                    <BellRing className="h-4 w-4" />
-                    <span>Today's Schedule</span>
-                  </h3>
-                  <div className="space-y-2">
-                    {events.filter((event: any) => 
-                      new Date(event.date).toDateString() === new Date().toDateString()
-                    ).slice(0, 3).map((event: any) => (
-                      <div key={event.id} className="flex justify-between items-center p-2 border-b last:border-b-0">
-                        <div>
-                          <p className="font-medium">{event.title}</p>
-                          <p className="text-xs text-muted-foreground">{event.time || 'All day'} • {event.type}</p>
-                        </div>
-                        <Badge variant={
-                          event.priority === 'high' 
-                            ? 'destructive' 
-                            : event.priority === 'medium' 
-                              ? 'outline' 
-                              : 'secondary'
-                        }>{event.priority || 'medium'}</Badge>
-                      </div>
-                    ))}
-                    {events.filter((event: any) => 
-                      new Date(event.date).toDateString() === new Date().toDateString()
-                    ).length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-3">No events scheduled for today</p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button variant="outline" asChild className="w-full">
-                  <Link to="/planning">View Full Schedule</Link>
-                </Button>
-              </CardFooter>
-            </Card>
-            
-            <Card className="col-span-1">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-primary" />
-                  <span>Quick Actions</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/notes">
-                    <BookOpen className="mr-2 h-4 w-4" /> Record New Commitment
-                  </Link>
-                </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/meetings">
-                    <Users className="mr-2 h-4 w-4" /> Schedule Meeting
-                  </Link>
-                </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/supplies">
-                    <ShoppingBag className="mr-2 h-4 w-4" /> Update Resources
-                  </Link>
-                </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/planning">
-                    <CalendarRange className="mr-2 h-4 w-4" /> Add Event
-                  </Link>
-                </Button>
-                <Button variant="outline" className="w-full justify-start" asChild>
-                  <Link to="/funding">
-                    <DollarSign className="mr-2 h-4 w-4" /> Manage Grants
-                  </Link>
-                </Button>
-                
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* AI Insights Section */}
-          <div className="mb-8">
-            <AnalyticsInsights />
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <Sparkles className="h-4 w-4 text-yellow-300" />
+                <span className="text-sm text-primary-foreground/80">{today}</span>
+              </div>
+              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Welcome back!</h1>
+              <p className="text-primary-foreground/75 text-sm mt-1">Here's your academic overview for today</p>
+            </div>
+            <div className="flex gap-2">
+              <Button asChild size="sm" className="bg-white/15 hover:bg-white/25 border border-white/20 text-white backdrop-blur-sm">
+                <Link to="/analytics"><BarChart className="h-4 w-4 mr-1.5" />Analytics</Link>
+              </Button>
+              <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold shadow-md">
+                <Link to="/planning"><CalendarRange className="h-4 w-4 mr-1.5" />Planning</Link>
+              </Button>
+            </div>
           </div>
         </div>
-      </MainLayout>
+
+        {/* Stat Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+          {statCards.map(({ title, value, icon: Icon, to, gradient, desc, alert }) => (
+            <Link key={title} to={to} className="group">
+              <Card className={`relative overflow-hidden border-0 shadow-md bg-gradient-to-br ${gradient} transition-all duration-300 group-hover:shadow-xl group-hover:-translate-y-0.5`}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="p-1.5 rounded-lg bg-white/20">
+                      <Icon className="h-4 w-4 text-white" />
+                    </div>
+                    {alert && (
+                      <span className="text-xs bg-white/25 text-white px-1.5 py-0.5 rounded-full font-medium">!</span>
+                    )}
+                  </div>
+                  <p className="text-2xl font-bold text-white">{value}</p>
+                  <p className="text-xs text-white/80 mt-0.5 truncate">{title}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+
+        {/* Schedule + Quick Actions */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          {/* Today's Schedule */}
+          <Card className="lg:col-span-2">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <BellRing className="h-4 w-4 text-primary" />
+                  Today's Schedule
+                </CardTitle>
+                <Badge variant="outline" className="text-xs">{todayEvents.length} events</Badge>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {todayEvents.length > 0 ? (
+                <div className="space-y-2">
+                  {todayEvents.slice(0, 5).map((event: any) => (
+                    <div key={event.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-2 h-2 rounded-full shrink-0 ${
+                          event.priority === 'high' ? 'bg-red-500' :
+                          event.priority === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                        }`} />
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{event.title}</p>
+                          <p className="text-xs text-muted-foreground">{event.time || 'All day'} · {event.type}</p>
+                        </div>
+                      </div>
+                      <Badge variant={event.priority === 'high' ? 'destructive' : event.priority === 'medium' ? 'default' : 'secondary'} className="text-xs ml-2 shrink-0">
+                        {event.priority || 'normal'}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-10 text-center">
+                  <CheckCircle2 className="h-10 w-10 text-emerald-500 mb-3" />
+                  <p className="font-medium text-sm">No events today</p>
+                  <p className="text-xs text-muted-foreground mt-1">Your schedule is clear</p>
+                </div>
+              )}
+            </CardContent>
+            <CardFooter className="pt-0">
+              <Button variant="outline" asChild className="w-full h-9 text-sm">
+                <Link to="/planning">View Full Schedule <ArrowRight className="h-3.5 w-3.5 ml-1.5" /></Link>
+              </Button>
+            </CardFooter>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center gap-2">
+                <Zap className="h-4 w-4 text-amber-500" />
+                Quick Actions
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {quickLinks.map(({ label, icon: Icon, to, color, bg }) => (
+                <Link key={label} to={to} className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl transition-colors ${bg}`}>
+                  <Icon className={`h-4 w-4 shrink-0 ${color}`} />
+                  <span className="text-sm font-medium">{label}</span>
+                  <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground/50" />
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Module Navigation */}
+        <div>
+          <h2 className="text-base font-semibold mb-3 flex items-center gap-2">
+            <Layers className="h-4 w-4 text-primary" />
+            All Modules
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {[
+              { label: 'Notes & Commitments', icon: BookOpen, to: '/notes', color: 'text-violet-600', bg: 'bg-violet-500/8 hover:bg-violet-500/15 border-violet-500/20' },
+              { label: 'Meetings', icon: Users, to: '/meetings', color: 'text-sky-600', bg: 'bg-sky-500/8 hover:bg-sky-500/15 border-sky-500/20' },
+              { label: 'Semester Planning', icon: CalendarRange, to: '/planning', color: 'text-amber-600', bg: 'bg-amber-500/8 hover:bg-amber-500/15 border-amber-500/20' },
+              { label: 'Grant Management', icon: DollarSign, to: '/funding', color: 'text-emerald-600', bg: 'bg-emerald-500/8 hover:bg-emerald-500/15 border-emerald-500/20' },
+              { label: 'Supplies & Expenses', icon: ShoppingBag, to: '/supplies', color: 'text-rose-600', bg: 'bg-rose-500/8 hover:bg-rose-500/15 border-rose-500/20' },
+              { label: 'Achievements', icon: Award, to: '/achievements', color: 'text-yellow-600', bg: 'bg-yellow-500/8 hover:bg-yellow-500/15 border-yellow-500/20' },
+              { label: 'Analytics', icon: BarChart, to: '/analytics', color: 'text-indigo-600', bg: 'bg-indigo-500/8 hover:bg-indigo-500/15 border-indigo-500/20' },
+              { label: 'Communications', icon: BellRing, to: '/communications', color: 'text-teal-600', bg: 'bg-teal-500/8 hover:bg-teal-500/15 border-teal-500/20' },
+            ].map(({ label, icon: Icon, to, color, bg }) => (
+              <Link key={label} to={to}>
+                <Card className={`border transition-all duration-200 hover:shadow-md cursor-pointer ${bg}`}>
+                  <CardContent className="p-3.5 flex items-center gap-3">
+                    <Icon className={`h-5 w-5 shrink-0 ${color}`} />
+                    <span className="text-xs font-medium leading-tight">{label}</span>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </MainLayout>
   );
 };
 
