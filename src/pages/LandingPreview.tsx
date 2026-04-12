@@ -34,7 +34,7 @@ import {
   MessageSquare,
   Brain
 } from "lucide-react";
-import { SmartProfLogo } from "@/components/Logo";
+import { SmartProfLogo, SmartProfLogoWide } from "@/components/Logo";
 
 // Import preview images
 import notesPreview from "@/assets/landing/notes-preview.png";
@@ -204,12 +204,9 @@ const LandingPreview = () => {
       >
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2.5">
-            <motion.div whileHover={{ scale: 1.05, rotate: 4 }} transition={{ type: "spring", stiffness: 300 }}>
-              <SmartProfLogo size={58} />
+            <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
+              <SmartProfLogoWide height={40} />
             </motion.div>
-            <span className="text-xl font-bold tracking-tight" style={{ color: "#0D1E41" }}>
-              Smart<span style={{ color: "#1B7A5A" }}>-Prof</span>
-            </span>
           </div>
 
           <div className="flex items-center gap-2 md:gap-8">
@@ -841,10 +838,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-2.5">
-              <SmartProfLogo size={45} />
-              <span className="text-lg font-bold" style={{ color: "#0D1E41" }}>
-                Smart<span style={{ color: "#1B7A5A" }}>-Prof</span>
-              </span>
+              <SmartProfLogoWide height={36} />
             </div>
 
             <p className="text-sm" style={{ color: "#4A6B5A" }}>

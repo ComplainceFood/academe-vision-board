@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth, cleanupAuthState } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { GlobalSearch } from "@/components/common/GlobalSearch";
-import { SmartProfLogo } from "@/components/Logo";
+import { SmartProfLogoWide } from "@/components/Logo";
 import { OnboardingModal } from "@/components/common/OnboardingModal";
 
 interface MainLayoutProps {
@@ -55,10 +55,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <header className="h-14 px-3 sm:px-5 flex items-center justify-between shrink-0 gap-2" style={{ background: "linear-gradient(90deg, #0D1E41 0%, #0A3028 100%)", borderBottom: "1px solid rgba(61,170,110,0.25)" }}>
              <div className="flex items-center gap-2 min-w-0 flex-1">
                <SidebarTrigger className="shrink-0 text-white/70 hover:text-white" />
-               <SmartProfLogo size={48} className="shrink-0" />
-               <span className="text-sm font-bold tracking-tight hidden xs:inline sm:text-base truncate text-white">
-                 Smart<span style={{ color: "#3DAA6E" }}>-Prof</span>
-               </span>
+               <SmartProfLogoWide height={32} className="shrink-0 hidden xs:block" />
                <h1 className="sr-only">Smart-Prof - Organize, Optimize, Excel</h1>
              </div>
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
