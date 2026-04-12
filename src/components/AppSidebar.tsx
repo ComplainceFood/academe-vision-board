@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut, BarChart3, MessageCircle, Megaphone, Award, TestTube, Users } from "lucide-react";
-import { SmartProfLogo } from "@/components/Logo";
+import { SmartProfLogoWide } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -147,16 +147,8 @@ export function AppSidebar() {
     <Sidebar style={{ background: "linear-gradient(180deg, #0D1E41 0%, #0A3028 60%, #1B7A5A 100%)" }}>
       {/* Header */}
       <SidebarHeader className="p-4 py-3 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-        <div className="flex items-center gap-3 px-2">
-          <div className="rounded-xl p-0.5" style={{ background: "linear-gradient(135deg, #3DAA6E, #1B7A5A)" }}>
-            <SmartProfLogo size={36} className="rounded-[10px]" />
-          </div>
-          <div className="flex flex-col text-left">
-            <span className="text-base font-bold tracking-tight text-white">
-              Smart<span style={{ color: "#3DAA6E" }}>-Prof</span>
-            </span>
-            <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>Teaching Smarter</span>
-          </div>
+        <div className="flex items-center px-2 py-1">
+          <SmartProfLogoWide height={38} />
         </div>
       </SidebarHeader>
 

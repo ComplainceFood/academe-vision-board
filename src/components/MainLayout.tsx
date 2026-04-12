@@ -47,7 +47,7 @@ export function MainLayout({ children }: MainLayoutProps) {
   };
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={true}>
       <OnboardingModal />
       <div className="min-h-screen w-full flex">
         <AppSidebar />
