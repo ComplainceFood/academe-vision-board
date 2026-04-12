@@ -21,11 +21,21 @@ import {
   ArrowRight,
   Wand2,
   Loader2,
+  FlaskConical,
+  Users,
+  FileText,
+  Award,
+  Microscope,
+  BookMarked,
+  Presentation,
+  Lightbulb,
+  CheckSquare,
+  Circle,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo } from "react";
+import { useProfile } from "@/hooks/useProfile";
 import { useToast } from "@/hooks/use-toast";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
@@ -76,8 +86,53 @@ const getSemesters = () => {
 
 const { current: CURRENT_SEMESTERS, past: PAST_SEMESTERS } = getSemesters();
 
+// ── Semester Focus Plan data ──────────────────────────────────────────────────
+
+type FocusMode = 'teaching' | 'research' | 'both';
+
+interface FocusItem {
+  id: string;
+  title: string;
+  desc: string;
+  icon: React.ElementType;
+  category: 'teaching' | 'research';
+  priority: 'high' | 'medium' | 'low';
+}
+
+const TEACHING_ITEMS: FocusItem[] = [
+  { id: 't1', title: 'Finalise Course Syllabi', desc: 'Review and update syllabi for each course this semester', icon: BookOpen, category: 'teaching', priority: 'high' },
+  { id: 't2', title: 'Prepare Lecture Materials', desc: 'Build or refresh slides, readings, and in-class activities', icon: Presentation, category: 'teaching', priority: 'high' },
+  { id: 't3', title: 'Set Assessment Schedule', desc: 'Plan assignments, quizzes, and exam dates on the calendar', icon: CalendarDays, category: 'teaching', priority: 'high' },
+  { id: 't4', title: 'Student Office Hours', desc: 'Establish and communicate regular office hour slots', icon: Users, category: 'teaching', priority: 'medium' },
+  { id: 't5', title: 'Midterm Grade Review', desc: 'Analyse midterm results and identify students needing support', icon: Target, category: 'teaching', priority: 'medium' },
+  { id: 't6', title: 'End-of-Semester Reflection', desc: 'Document what worked, what to improve for next semester', icon: Lightbulb, category: 'teaching', priority: 'low' },
+];
+
+const RESEARCH_ITEMS: FocusItem[] = [
+  { id: 'r1', title: 'Grant Application Deadlines', desc: 'Track and submit grant proposals before cutoff dates', icon: Award, category: 'research', priority: 'high' },
+  { id: 'r2', title: 'Active Experiments / Studies', desc: 'Monitor ongoing experiments, data collection, or fieldwork', icon: FlaskConical, category: 'research', priority: 'high' },
+  { id: 'r3', title: 'Manuscript / Paper Drafting', desc: 'Set milestones for writing and revising research papers', icon: FileText, category: 'research', priority: 'high' },
+  { id: 'r4', title: 'Conference Submissions', desc: 'Submit abstracts or papers to target conferences', icon: Presentation, category: 'research', priority: 'medium' },
+  { id: 'r5', title: 'Literature Review Update', desc: 'Stay current with new publications in your research area', icon: BookMarked, category: 'research', priority: 'medium' },
+  { id: 'r6', title: 'Collaborate with Research Team', desc: 'Schedule check-ins with co-investigators, students, or collaborators', icon: Users, category: 'research', priority: 'medium' },
+  { id: 'r7', title: 'IRB / Ethics Submissions', desc: 'Prepare or renew protocol approvals for human-subjects research', icon: Microscope, category: 'research', priority: 'low' },
+];
+
+function detectFocusMode(position: string | null): FocusMode {
+  if (!position) return 'both';
+  const p = position.toLowerCase();
+  const isResearch = p.includes('research') || p.includes('scientist') || p.includes('investigator') || p.includes('postdoc');
+  const isTeaching = p.includes('teach') || p.includes('instructor') || p.includes('lecturer') || p.includes('adjunct');
+  if (isResearch && !isTeaching) return 'research';
+  if (isTeaching && !isResearch) return 'teaching';
+  return 'both';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
 const PlanningPage = () => {
   const { toast } = useToast();
+  const { profile } = useProfile();
   
   const eventsQuery = usePlanningEvents();
   const { data: eventsData = [], isLoading: eventsLoading } = eventsQuery;
@@ -95,6 +150,30 @@ const PlanningPage = () => {
   const [currentTask, setCurrentTask] = useState<FutureTask | undefined>(undefined);
   const [activeFutureTab, setActiveFutureTab] = useState(CURRENT_SEMESTERS[0]?.value || "Spring 2026");
   const [showPastSemesters, setShowPastSemesters] = useState(false);
+
+  // Semester Focus Plan state
+  const autoFocus = useMemo(() => detectFocusMode(profile?.position ?? null), [profile?.position]);
+  const [focusMode, setFocusMode] = useState<FocusMode | null>(null);
+  const activeFocus: FocusMode = focusMode ?? autoFocus;
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+
+  const focusItems = useMemo(() => {
+    if (activeFocus === 'teaching') return TEACHING_ITEMS;
+    if (activeFocus === 'research') return RESEARCH_ITEMS;
+    return [...TEACHING_ITEMS, ...RESEARCH_ITEMS];
+  }, [activeFocus]);
+
+  const focusProgress = focusItems.length > 0
+    ? Math.round((checkedItems.size / focusItems.length) * 100)
+    : 0;
+
+  const toggleFocusItem = (id: string) => {
+    setCheckedItems(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
 
   // Calculate stats
   const stats = useMemo(() => {
@@ -594,45 +673,118 @@ const PlanningPage = () => {
               </CardContent>
             </Card>
             
-            {/* Roadmap */}
+            {/* Semester Focus Plan */}
             <Card className="border-border/50">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <TrendingUp className="h-5 w-5 text-primary" />
-                  Academic Roadmap
-                </CardTitle>
-                <CardDescription>Your long-term academic development plan</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="relative">
-                  <div className="absolute h-full w-0.5 bg-gradient-to-b from-primary via-secondary to-accent left-4 top-0 rounded-full" />
-                  
-                  {[
-                    { title: "Curriculum Review", desc: "Update course materials to reflect latest industry practices", status: "in-progress" },
-                    { title: "New Course Development", desc: "Create new electives for data science and machine learning", status: "planned" },
-                    { title: "Lab Modernization", desc: "Upgrade lab environments and equipment for new curriculum", status: "planned" },
-                    { title: "Teaching Innovation", desc: "Implement innovative teaching methods for better engagement", status: "planned" },
-                  ].map((item, idx) => (
-                    <div key={idx} className="mb-6 relative pl-12 last:mb-0">
-                      <span className={`absolute left-0 top-1 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                        item.status === 'in-progress' 
-                          ? 'bg-primary text-primary-foreground' 
-                          : 'bg-muted text-muted-foreground'
-                      }`}>
-                        {idx + 1}
-                      </span>
-                      <div className="flex items-start justify-between gap-4">
-                        <div>
-                          <h3 className="font-semibold mb-1">{item.title}</h3>
-                          <p className="text-sm text-muted-foreground">{item.desc}</p>
-                        </div>
-                        <Badge variant={item.status === 'in-progress' ? 'default' : 'outline'} className="shrink-0">
-                          {item.status === 'in-progress' ? 'In Progress' : 'Planned'}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
+              <CardHeader className="pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div>
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <Target className="h-5 w-5 text-primary" />
+                      Semester Focus Plan
+                    </CardTitle>
+                    <CardDescription className="mt-0.5">
+                      {activeFocus === 'teaching' && 'Teaching-focused priorities for this semester'}
+                      {activeFocus === 'research' && 'Research-focused priorities for this semester'}
+                      {activeFocus === 'both' && 'Teaching & research priorities for this semester'}
+                    </CardDescription>
+                  </div>
+                  {/* Role toggle */}
+                  <div className="flex items-center gap-1 bg-muted/70 rounded-lg p-1 shrink-0 self-start">
+                    {(['teaching', 'research', 'both'] as FocusMode[]).map(mode => (
+                      <button
+                        type="button"
+                        key={mode}
+                        onClick={() => setFocusMode(mode === autoFocus && focusMode !== null ? null : mode)}
+                        className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all capitalize ${
+                          activeFocus === mode
+                            ? 'bg-primary text-primary-foreground shadow-sm'
+                            : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {mode === 'both' ? 'Both' : mode === 'teaching' ? 'Teaching' : 'Research'}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
+                {/* Progress bar */}
+                <div className="mt-3 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span>{checkedItems.size} of {focusItems.length} completed</span>
+                    <span className="font-medium text-foreground">{focusProgress}%</span>
+                  </div>
+                  <Progress value={focusProgress} className="h-1.5" />
+                </div>
+              </CardHeader>
+
+              <CardContent className="pt-0">
+                <div className="space-y-1">
+                  {focusItems.map((item) => {
+                    const Icon = item.icon;
+                    const done = checkedItems.has(item.id);
+                    const priorityColor = item.priority === 'high'
+                      ? 'text-red-500'
+                      : item.priority === 'medium'
+                        ? 'text-amber-500'
+                        : 'text-emerald-500';
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => toggleFocusItem(item.id)}
+                        className={`w-full flex items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-all duration-150 group ${
+                          done
+                            ? 'bg-muted/40 opacity-60'
+                            : 'hover:bg-muted/50'
+                        }`}
+                      >
+                        {/* Check icon */}
+                        <span className="mt-0.5 shrink-0">
+                          {done
+                            ? <CheckSquare className="h-4 w-4 text-primary" />
+                            : <Circle className="h-4 w-4 text-muted-foreground/50 group-hover:text-muted-foreground transition-colors" />
+                          }
+                        </span>
+                        {/* Icon */}
+                        <span className={`mt-0.5 shrink-0 ${done ? 'text-muted-foreground' : 'text-primary/70'}`}>
+                          <Icon className="h-4 w-4" />
+                        </span>
+                        {/* Text */}
+                        <div className="flex-1 min-w-0">
+                          <p className={`text-sm font-medium leading-tight ${done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
+                            {item.title}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{item.desc}</p>
+                        </div>
+                        {/* Priority dot + category */}
+                        <div className="flex flex-col items-end gap-1 shrink-0">
+                          <Badge
+                            variant="outline"
+                            className={`text-[9px] px-1.5 py-0 capitalize ${
+                              item.category === 'teaching'
+                                ? 'border-blue-200 text-blue-600 dark:border-blue-800 dark:text-blue-400'
+                                : 'border-violet-200 text-violet-600 dark:border-violet-800 dark:text-violet-400'
+                            }`}
+                          >
+                            {item.category}
+                          </Badge>
+                          <span className={`text-[9px] font-semibold uppercase tracking-wide ${priorityColor}`}>
+                            {item.priority}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {focusProgress === 100 && (
+                  <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 p-3">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+                    <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
+                      All focus items complete — great semester!
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
