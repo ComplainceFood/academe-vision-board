@@ -22,6 +22,8 @@ allprojects {
         google()
         mavenCentral()
     }
+    // Redirect build output outside OneDrive to avoid Files On-Demand conflicts
+    buildDir = "C:/temp/academe-android-build/${project.name}"
 }
 
 task clean(type: Delete) {
