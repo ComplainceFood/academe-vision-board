@@ -10,18 +10,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, User, Bell, Shield, Camera, Key, Trash2, Link, Save, Database, Mail } from "lucide-react";
+import { Settings, User, Bell, Shield, Camera, Key, Trash2, Link, Save, Database, Mail, CreditCard, Star, CheckCircle2, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useSubscription } from "@/hooks/useSubscription";
 import { supabase } from "@/integrations/supabase/client";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
 import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExportImport";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 import { ProGate } from "@/components/common/ProGate";
 
+const PRO_FEATURES = [
+  "AI CV Import & Biosketch Generator",
+  "Resume / CV Export (DOCX & PDF)",
+  "ORCID Integration & Citation Metrics",
+  "AI Analytics Insights",
+  "Google & Outlook Calendar Sync",
+  "AI Grant Narrative Writer",
+  "AI Meeting Agenda & Summarizer",
+  "AI Task Draft",
+  "AI Supply Analysis",
+  "Advanced Data Export / Import",
+];
+
 const SettingsPage = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [loadingCheckout, setLoadingCheckout] = useState(false);
+  const [loadingPortal, setLoadingPortal] = useState(false);
+  const { subscription, isPro, isTrial } = useSubscription();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -61,6 +79,44 @@ const SettingsPage = () => {
       setDisplayName(user.email?.split('@')[0] || "");
     }
   }, [profile, user, isLoading]);
+
+  // Handle upgrading to Pro via Stripe Checkout
+  const handleUpgradeToPro = async () => {
+    setLoadingCheckout(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout-session", {
+        body: { successUrl: `${window.location.origin}/settings?tab=subscription&upgraded=1` },
+      });
+      if (error || !data?.url) throw error ?? new Error("No checkout URL returned");
+      window.location.href = data.url;
+    } catch (err) {
+      toast({ title: "Could not start checkout", description: String(err), variant: "destructive" });
+      setLoadingCheckout(false);
+    }
+  };
+
+  // Handle opening Stripe Customer Portal
+  const handleManageBilling = async () => {
+    setLoadingPortal(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session");
+      if (error || !data?.url) throw error ?? new Error("No portal URL returned");
+      window.location.href = data.url;
+    } catch (err) {
+      toast({ title: "Could not open billing portal", description: String(err), variant: "destructive" });
+      setLoadingPortal(false);
+    }
+  };
+
+  // Show success toast when returning from Stripe Checkout
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("upgraded") === "1") {
+      toast({ title: "Welcome to Pro!", description: "Your subscription is now active. Enjoy all Pro features." });
+      // Remove query param without a reload
+      window.history.replaceState({}, "", window.location.pathname + "?tab=subscription");
+    }
+  }, [toast]);
 
   // Mark form as having unsaved changes
   const markAsChanged = () => {
@@ -346,7 +402,7 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-3 sm:grid-cols-5">
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-3 sm:grid-cols-6">
             <TabsTrigger value="profile" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Profile</span>
@@ -362,6 +418,10 @@ const SettingsPage = () => {
             <TabsTrigger value="data" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Database className="h-4 w-4" />
               <span className="hidden sm:inline">Data</span>
+            </TabsTrigger>
+            <TabsTrigger value="subscription" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+              <CreditCard className="h-4 w-4" />
+              <span className="hidden sm:inline">Plan</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Shield className="h-4 w-4" />
@@ -659,6 +719,117 @@ const SettingsPage = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+          {/* ── Subscription Tab ─────────────────────────────────────── */}
+          <TabsContent value="subscription" className="space-y-6">
+            {/* Current plan card */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Current Plan
+                </CardTitle>
+                <CardDescription>Your active subscription and billing details</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between p-4 rounded-xl border bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    {isPro ? (
+                      <div className="p-2 rounded-lg bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                        <Star className="h-5 w-5" />
+                      </div>
+                    ) : (
+                      <div className="p-2 rounded-lg bg-muted">
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-lg capitalize">{subscription.tier} Plan</span>
+                        {isTrial && <Badge variant="outline" className="text-xs border-amber-400 text-amber-600">Trial</Badge>}
+                        {subscription.status === "suspended" && <Badge variant="destructive" className="text-xs">Suspended</Badge>}
+                        {isPro && !isTrial && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Pro</Badge>}
+                      </div>
+                      {subscription.expires_at && (
+                        <p className="text-sm text-muted-foreground mt-0.5">
+                          {isTrial ? "Trial ends" : isPro ? "Renews" : "Expired"}:{" "}
+                          {new Date(subscription.expires_at).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}
+                        </p>
+                      )}
+                      {!subscription.expires_at && !isPro && (
+                        <p className="text-sm text-muted-foreground mt-0.5">No active subscription</p>
+                      )}
+                    </div>
+                  </div>
+                  {isPro ? (
+                    <Button variant="outline" onClick={handleManageBilling} disabled={loadingPortal}>
+                      {loadingPortal ? "Opening..." : "Manage Billing"}
+                    </Button>
+                  ) : (
+                    <Button onClick={handleUpgradeToPro} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
+                      {loadingCheckout ? "Loading..." : "Upgrade to Pro"}
+                    </Button>
+                  )}
+                </div>
+
+                {subscription.stripe_subscription_id && (
+                  <p className="text-xs text-muted-foreground">
+                    Subscription ID: {subscription.stripe_subscription_id}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Plan comparison */}
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* Free */}
+              <Card className={!isPro ? "border-primary ring-1 ring-primary" : ""}>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-base">Free</CardTitle>
+                    {!isPro && <Badge variant="outline" className="text-xs">Current</Badge>}
+                  </div>
+                  <CardDescription className="text-2xl font-bold text-foreground">$0 <span className="text-sm font-normal text-muted-foreground">/ month</span></CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  {["Goals & semester planning", "Funding tracker", "Meeting notes", "Supply inventory", "Basic analytics"].map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-sm">
+                      <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                      {f}
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
+
+              {/* Pro */}
+              <Card className={`relative overflow-hidden ${isPro ? "border-amber-400 ring-1 ring-amber-400" : ""}`}>
+                <div className="absolute top-0 right-0 bg-amber-500 text-white text-xs font-medium px-3 py-1 rounded-bl-lg">
+                  {isPro ? "Active" : "Recommended"}
+                </div>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-500" />
+                    <CardTitle className="text-base">Pro</CardTitle>
+                    {isPro && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Current</Badge>}
+                  </div>
+                  <CardDescription className="text-2xl font-bold text-foreground">$12 <span className="text-sm font-normal text-muted-foreground">/ month</span></CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">Everything in Free, plus:</p>
+                  {PRO_FEATURES.map((f) => (
+                    <div key={f} className="flex items-center gap-2 text-sm">
+                      <Zap className="h-4 w-4 text-amber-500 shrink-0" />
+                      {f}
+                    </div>
+                  ))}
+                  {!isPro && (
+                    <Button className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white" onClick={handleUpgradeToPro} disabled={loadingCheckout}>
+                      {loadingCheckout ? "Loading..." : "Start 14-day Free Trial"}
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
