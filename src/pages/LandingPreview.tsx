@@ -205,7 +205,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2.5">
             <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
-              <SmartProfLogoWide height={40} />
+              <SmartProfLogoWide height={100} />
             </motion.div>
           </div>
 
