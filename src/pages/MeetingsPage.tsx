@@ -35,6 +35,7 @@ import { format, parseISO, isValid, addDays } from "date-fns";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useMeetings } from "@/hooks/useMeetings";
 import { useAuth } from "@/hooks/useAuth";
+import { PageGuide } from "@/components/common/PageGuide";
 
 const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onViewDetails: (meeting: Meeting) => void;onEdit: (meeting: Meeting) => void;}) => {
   const { toast } = useToast();
@@ -353,6 +354,7 @@ const MeetingsPage = () => {
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-6">
+        <PageGuide page="meetings" />
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">

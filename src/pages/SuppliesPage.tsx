@@ -24,6 +24,7 @@ import { ItemHistoryDialog } from "@/components/supplies/ItemHistoryDialog";
 import { SupplyItem } from "@/types/shoppingList";
 import { InventoryCsvManager } from "@/components/supplies/InventoryCsvManager";
 import { SuppliesAIAnalysis } from "@/components/supplies/SuppliesAIAnalysis";
+import { PageGuide } from "@/components/common/PageGuide";
 interface Expense {
   id: string;
   date: string;
@@ -345,6 +346,7 @@ const SuppliesPage = () => {
   };
   return <MainLayout>
       <div className="animate-fade-in space-y-6">
+        <PageGuide page="supplies" />
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">

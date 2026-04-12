@@ -36,6 +36,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useMemo } from "react";
 import { useProfile } from "@/hooks/useProfile";
+import { PageGuide } from "@/components/common/PageGuide";
 import { useToast } from "@/hooks/use-toast";
 import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
@@ -325,6 +326,7 @@ const PlanningPage = () => {
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-6">
+        <PageGuide page="planning" />
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">

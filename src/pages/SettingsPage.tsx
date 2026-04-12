@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { MainLayout } from "@/components/MainLayout";
+import { PageGuide } from "@/components/common/PageGuide";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -282,6 +283,7 @@ const SettingsPage = () => {
   return (
     <MainLayout>
       <div className="animate-fade-in max-w-4xl mx-auto space-y-6">
+        <PageGuide page="settings" />
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">

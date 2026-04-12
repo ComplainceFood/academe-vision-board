@@ -1,5 +1,6 @@
 import { MainLayout } from "@/components/MainLayout";
 import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
+import { PageGuide } from "@/components/common/PageGuide";
 import { BarChart3, Sparkles, Brain, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -7,6 +8,7 @@ const AnalyticsPage = () => {
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-6">
+        <PageGuide page="analytics" />
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-violet-600 via-purple-600 to-indigo-700 p-6 md:p-8 text-white shadow-xl">
           {/* Background decoration */}

@@ -45,9 +45,12 @@ import { Badge } from "@/components/ui/badge";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { AnalyticsInsights } from "@/components/analytics/AnalyticsInsights";
 import LandingPreview from "@/pages/LandingPreview";
+import { useProfile } from "@/hooks/useProfile";
+import { resetOnboarding } from "@/components/common/OnboardingModal";
 
 const Index = () => {
   const { user } = useAuth();
+  const { profile } = useProfile();
 
   // All hooks must be called unconditionally (React Rules of Hooks)
   const { data: notes } = useDataFetching<any>({
@@ -148,6 +151,36 @@ const Index = () => {
             </div>
           </div>
         </div>
+
+        {/* Profile completion nudge — shown until position + department are filled */}
+        {profile && (!profile.position || !profile.department) && (
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-4 py-3">
+            <div className="flex items-center gap-2.5 flex-1 min-w-0">
+              <span className="text-xl shrink-0">👋</span>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-amber-800 dark:text-amber-300 leading-tight">
+                  Complete your profile to personalise Smart‑Prof
+                </p>
+                <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
+                  Adding your <strong>Position</strong> and <strong>Department</strong> unlocks role-tailored guidance across the platform.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs text-amber-700 hover:text-amber-900 dark:text-amber-400 h-7 px-2"
+                onClick={() => { resetOnboarding(); window.location.reload(); }}
+              >
+                Replay tour
+              </Button>
+              <Button asChild size="sm" className="bg-amber-500 hover:bg-amber-600 text-white h-7 text-xs">
+                <Link to="/settings">Go to Settings →</Link>
+              </Button>
+            </div>
+          </div>
+        )}
 
         {/* Stat Cards */}
         <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">

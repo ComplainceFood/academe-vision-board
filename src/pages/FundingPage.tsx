@@ -28,6 +28,7 @@ import { FundingSource, FundingExpenditure } from "@/types/funding";
 import { GrantMeetingsList } from "@/components/funding/GrantMeetingsList";
 import { GrantNotesList } from "@/components/funding/GrantNotesList";
 import { GrantAINarrative } from "@/components/funding/GrantAINarrative";
+import { PageGuide } from "@/components/common/PageGuide";
 
 type TabId = "overview" | "sources" | "expenditures" | "grant-meetings" | "grant-notes" | "ai-narrative";
 
@@ -80,6 +81,7 @@ const FundingPage = () => {
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-6">
+        <PageGuide page="funding" />
 
         {/* ── Hero Header ── */}
         <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">

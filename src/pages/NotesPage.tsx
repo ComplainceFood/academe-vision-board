@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { MainLayout } from '@/components/MainLayout';
+import { PageGuide } from '@/components/common/PageGuide';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -266,6 +267,7 @@ const NotesPage = () => {
   return (
     <MainLayout>
       <div className="space-y-6">
+        <PageGuide page="notes" />
         {/* Hero Header */}
         <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">

@@ -10,6 +10,7 @@ import { useAuth, cleanupAuthState } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { GlobalSearch } from "@/components/common/GlobalSearch";
 import { SmartProfLogo } from "@/components/Logo";
+import { OnboardingModal } from "@/components/common/OnboardingModal";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -47,6 +48,7 @@ export function MainLayout({ children }: MainLayoutProps) {
 
   return (
     <SidebarProvider>
+      <OnboardingModal />
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
