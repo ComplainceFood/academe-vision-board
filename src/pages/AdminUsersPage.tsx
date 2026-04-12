@@ -189,66 +189,26 @@ export default function AdminUsersPage() {
     setSaving(true);
     try {
       const now = new Date().toISOString();
-      const existingSub = getUserSub(editingUser);
 
-      // Upsert subscription — include started_at so NOT NULL constraint is satisfied on insert
-      const subPayload: Record<string, any> = {
-        user_id: editingUser,
-        tier: editTier,
-        status: editStatus,
-        notes: editNotes,
-        updated_at: now,
-        started_at: existingSub?.started_at ?? now,
-        expires_at: editExpiresAt ? new Date(editExpiresAt).toISOString() : null,
-      };
+      // Call the SECURITY DEFINER RPC which bypasses RLS safely.
+      // This single function handles role + subscription atomically.
+      const { data, error } = await supabase.rpc('admin_update_user_access', {
+        p_target_user_id: editingUser,
+        p_role: editRole as any,
+        p_tier: editTier,
+        p_status: editStatus,
+        p_expires_at: editExpiresAt ? new Date(editExpiresAt).toISOString() : null,
+        p_notes: editNotes || null,
+      });
 
-      // Try update first; if no rows affected, insert
-      const { data: existing } = await supabase
-        .from('user_subscriptions')
-        .select('id')
-        .eq('user_id', editingUser)
-        .maybeSingle();
+      if (error) throw error;
 
-      let subError;
-      if (existing) {
-        const { error } = await supabase
-          .from('user_subscriptions')
-          .update(subPayload)
-          .eq('user_id', editingUser);
-        subError = error;
-      } else {
-        const { error } = await supabase
-          .from('user_subscriptions')
-          .insert(subPayload);
-        subError = error;
+      const result = data as { success: boolean; error?: string };
+      if (!result.success) {
+        throw new Error(result.error || 'Update failed');
       }
 
-      if (subError) throw subError;
-
-      // Update role:
-      // The unique constraint is on (user_id, role) — not just user_id — so a user
-      // can have multiple rows. Strategy: insert the desired role first (ignore if
-      // already exists), then delete all OTHER role rows for this user. This way
-      // the user is never left role-less even if the delete step fails.
-      const { error: roleInsertError } = await supabase
-        .from('user_roles')
-        .upsert(
-          { user_id: editingUser, role: editRole as any },
-          { onConflict: 'user_id,role', ignoreDuplicates: true }
-        );
-
-      if (roleInsertError) throw roleInsertError;
-
-      // Remove any other role rows for this user (roles that differ from editRole)
-      const { error: roleDeleteError } = await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', editingUser)
-        .neq('role', editRole);
-
-      if (roleDeleteError) throw roleDeleteError;
-
-      // Optimistically update local state so table reflects changes immediately
+      // Optimistically update local state so the table reflects changes immediately
       setSubscriptions(prev => {
         const idx = prev.findIndex(s => s.user_id === editingUser);
         const updated = {
