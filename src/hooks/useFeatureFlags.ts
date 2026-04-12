@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "./useUserRole";
-import { useAuth } from "./useAuth";
+import { useSubscription } from "./useSubscription";
 
 export type SubscriptionTier = "free" | "pro" | "enterprise";
 
@@ -167,43 +166,23 @@ interface UseFeatureFlagsReturn {
 }
 
 export function useFeatureFlags(): UseFeatureFlagsReturn {
-  const { user } = useAuth();
   const { isSystemAdmin } = useUserRole();
+  // Delegate all tier/subscription logic to useSubscription (single source of truth).
+  // When Stripe is integrated the same hook reflects updates in real-time via postgres_changes.
+  const { subscription, loading: subLoading } = useSubscription();
   const [flags, setFlags] = useState<Record<string, boolean>>(loadFromLocalStorage);
-  const [userTier, setUserTier] = useState<SubscriptionTier>("free");
-  const [loading, setLoading] = useState(true);
 
-  const fetchAll = useCallback(async () => {
-    if (!user) { setLoading(false); return; }
-    setLoading(true);
-    try {
-      // Fetch the user's subscription tier
-      const { data: sub } = await supabase
-        .from("user_subscriptions")
-        .select("tier, status")
-        .eq("user_id", user.id)
-        .maybeSingle();
+  const userTier = subscription.tier;
+  const loading = subLoading;
 
-      if (sub && sub.status === "active") {
-        setUserTier(sub.tier as SubscriptionTier);
-      } else {
-        setUserTier("free");
-      }
+  // Keep flags in sync with localStorage (written by admin UI)
+  useEffect(() => {
+    setFlags(loadFromLocalStorage());
+  }, []);
 
-      // Fetch admin-controlled overrides from the DB.
-      // We persist them as a single JSON blob in a settings row keyed by "feature_flags".
-      // Using the existing `user_roles` or similar table is complex, so we store in
-      // localStorage as the source of truth and optionally sync to DB via profiles metadata.
-      // For now we read from localStorage (admin writes there via toggleFlag).
-      // In a real production setup you would have a dedicated feature_flags table.
-      const storedFlags = loadFromLocalStorage();
-      setFlags(storedFlags);
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  const refresh = useCallback(async () => {
+    setFlags(loadFromLocalStorage());
+  }, []);
 
   const canUse = useCallback(
     (key: string): boolean => {
@@ -234,5 +213,5 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
     [flags]
   );
 
-  return { flags, userTier, canUse, toggleFlag, loading, refresh: fetchAll };
+  return { flags, userTier, canUse, toggleFlag, loading, refresh };
 }

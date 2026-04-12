@@ -93,10 +93,12 @@ export default function AdminUsersPage() {
   const [filterTier, setFilterTier] = useState('all');
   const [filterStatus, setFilterStatus] = useState('all');
   const [editingUser, setEditingUser] = useState<string | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editTier, setEditTier] = useState('free');
   const [editStatus, setEditStatus] = useState('active');
   const [editRole, setEditRole] = useState('primary_user');
   const [editNotes, setEditNotes] = useState('');
+  const [editExpiresAt, setEditExpiresAt] = useState('');
   const [saving, setSaving] = useState(false);
 
   const fetchData = async () => {
@@ -178,43 +180,108 @@ export default function AdminUsersPage() {
     setEditStatus(sub?.status || 'active');
     setEditRole(role?.role || 'primary_user');
     setEditNotes(sub?.notes || '');
+    setEditExpiresAt(sub?.expires_at ? sub.expires_at.split('T')[0] : '');
+    setEditDialogOpen(true);
   };
 
   const handleSaveUser = async () => {
     if (!editingUser) return;
     setSaving(true);
     try {
-      // Update or insert subscription
-      const { error: subError } = await supabase
+      const now = new Date().toISOString();
+      const existingSub = getUserSub(editingUser);
+
+      // Upsert subscription — include started_at so NOT NULL constraint is satisfied on insert
+      const subPayload: Record<string, any> = {
+        user_id: editingUser,
+        tier: editTier,
+        status: editStatus,
+        notes: editNotes,
+        updated_at: now,
+        started_at: existingSub?.started_at ?? now,
+        expires_at: editExpiresAt ? new Date(editExpiresAt).toISOString() : null,
+      };
+
+      // Try update first; if no rows affected, insert
+      const { data: existing } = await supabase
         .from('user_subscriptions')
-        .upsert({
+        .select('id')
+        .eq('user_id', editingUser)
+        .maybeSingle();
+
+      let subError;
+      if (existing) {
+        const { error } = await supabase
+          .from('user_subscriptions')
+          .update(subPayload)
+          .eq('user_id', editingUser);
+        subError = error;
+      } else {
+        const { error } = await supabase
+          .from('user_subscriptions')
+          .insert(subPayload);
+        subError = error;
+      }
+
+      if (subError) throw subError;
+
+      // Update role safely: update in place if row exists, else insert
+      const { data: existingRole } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('user_id', editingUser)
+        .maybeSingle();
+
+      let roleError;
+      if (existingRole) {
+        const { error } = await supabase
+          .from('user_roles')
+          .update({ role: editRole as any, updated_at: now })
+          .eq('user_id', editingUser);
+        roleError = error;
+      } else {
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: editingUser, role: editRole as any });
+        roleError = error;
+      }
+
+      if (roleError) throw roleError;
+
+      // Optimistically update local state so table reflects changes immediately
+      setSubscriptions(prev => {
+        const idx = prev.findIndex(s => s.user_id === editingUser);
+        const updated = {
+          ...(prev[idx] ?? { id: '', started_at: now }),
           user_id: editingUser,
           tier: editTier,
           status: editStatus,
           notes: editNotes,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: 'user_id' });
+          expires_at: editExpiresAt ? new Date(editExpiresAt).toISOString() : null,
+          updated_at: now,
+        } as UserSubscription;
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = updated;
+          return next;
+        }
+        return [...prev, updated];
+      });
 
-      if (subError) throw subError;
+      setRoles(prev => {
+        const idx = prev.findIndex(r => r.user_id === editingUser);
+        const updated = { user_id: editingUser, role: editRole };
+        if (idx >= 0) {
+          const next = [...prev];
+          next[idx] = updated;
+          return next;
+        }
+        return [...prev, updated];
+      });
 
-      // Update role - delete existing and insert new
-      await supabase
-        .from('user_roles')
-        .delete()
-        .eq('user_id', editingUser);
-
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: editingUser,
-          role: editRole as any,
-        });
-
-      if (roleError) throw roleError;
-
-      toast({ title: 'User updated', description: 'User access and subscription updated successfully.' });
+      toast({ title: 'User updated', description: 'Subscription and role saved successfully.' });
+      setEditDialogOpen(false);
       setEditingUser(null);
-      fetchData();
     } catch (err: any) {
       console.error('Error updating user:', err);
       toast({ title: 'Error', description: err.message || 'Failed to update user.', variant: 'destructive' });
@@ -404,69 +471,13 @@ export default function AdminUsersPage() {
                               {p.last_login_at ? format(new Date(p.last_login_at), 'MMM d, yyyy') : 'Never'}
                             </TableCell>
                             <TableCell className="text-right">
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button variant="ghost" size="sm" onClick={() => openEditDialog(p.user_id)}>
-                                    <Edit className="h-4 w-4" />
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent>
-                                  <DialogHeader>
-                                    <DialogTitle>Manage User Access</DialogTitle>
-                                    <DialogDescription>
-                                      Update role and subscription for {getUserDisplayName(p)}
-                                    </DialogDescription>
-                                  </DialogHeader>
-                                  {editingUser === p.user_id && (
-                                    <div className="space-y-4 pt-2">
-                                      <div className="space-y-2">
-                                        <Label>Role</Label>
-                                        <Select value={editRole} onValueChange={setEditRole}>
-                                          <SelectTrigger><SelectValue /></SelectTrigger>
-                                          <SelectContent>
-                                            <SelectItem value="system_admin">System Admin</SelectItem>
-                                            <SelectItem value="primary_user">Primary User</SelectItem>
-                                            <SelectItem value="secondary_user">Secondary User</SelectItem>
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <Label>Subscription Tier</Label>
-                                        <Select value={editTier} onValueChange={setEditTier}>
-                                          <SelectTrigger><SelectValue /></SelectTrigger>
-                                          <SelectContent>
-                                            {SUBSCRIPTION_TIERS.map(t => (
-                                              <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <Label>Subscription Status</Label>
-                                        <Select value={editStatus} onValueChange={setEditStatus}>
-                                          <SelectTrigger><SelectValue /></SelectTrigger>
-                                          <SelectContent>
-                                            {SUBSCRIPTION_STATUSES.map(s => (
-                                              <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
-                                            ))}
-                                          </SelectContent>
-                                        </Select>
-                                      </div>
-                                      <div className="space-y-2">
-                                        <Label>Notes</Label>
-                                        <Textarea
-                                          value={editNotes}
-                                          onChange={(e) => setEditNotes(e.target.value)}
-                                          placeholder="Admin notes about this user..."
-                                        />
-                                      </div>
-                                      <Button onClick={handleSaveUser} disabled={saving} className="w-full">
-                                        {saving ? 'Saving...' : 'Save Changes'}
-                                      </Button>
-                                    </div>
-                                  )}
-                                </DialogContent>
-                              </Dialog>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openEditDialog(p.user_id)}
+                              >
+                                <Edit className="h-4 w-4" />
+                              </Button>
                             </TableCell>
                           </TableRow>
                         );
@@ -476,6 +487,80 @@ export default function AdminUsersPage() {
                 </Table>
               </ScrollArea>
             </Card>
+
+            {/* Single shared edit dialog — rendered outside the map to avoid stale state */}
+            <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingUser(null); }}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Manage User Access</DialogTitle>
+                  <DialogDescription>
+                    {editingUser
+                      ? `Editing: ${getUserDisplayName(profiles.find(p => p.user_id === editingUser)!)}`
+                      : 'Update role and subscription'}
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 pt-2">
+                  <div className="space-y-2">
+                    <Label>Role</Label>
+                    <Select value={editRole} onValueChange={setEditRole}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="system_admin">System Admin</SelectItem>
+                        <SelectItem value="primary_user">Primary User</SelectItem>
+                        <SelectItem value="secondary_user">Secondary User</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subscription Tier</Label>
+                    <Select value={editTier} onValueChange={setEditTier}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {SUBSCRIPTION_TIERS.map(t => (
+                          <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Subscription Status</Label>
+                    <Select value={editStatus} onValueChange={setEditStatus}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {SUBSCRIPTION_STATUSES.map(s => (
+                          <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Expires At <span className="text-xs text-muted-foreground">(leave blank = no expiry)</span></Label>
+                    <Input
+                      type="date"
+                      value={editExpiresAt}
+                      onChange={(e) => setEditExpiresAt(e.target.value)}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Admin Notes</Label>
+                    <Textarea
+                      value={editNotes}
+                      onChange={(e) => setEditNotes(e.target.value)}
+                      placeholder="e.g. manually upgraded for conference demo..."
+                      rows={2}
+                    />
+                  </div>
+                  <div className="flex gap-2 pt-1">
+                    <Button variant="outline" className="flex-1" onClick={() => { setEditDialogOpen(false); setEditingUser(null); }}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleSaveUser} disabled={saving} className="flex-1">
+                      {saving ? 'Saving...' : 'Save Changes'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
 
           <TabsContent value="agreements" className="space-y-4">
