@@ -1,7 +1,8 @@
+// @supabase-edge-function no-verify-jwt
 /**
  * Stripe Webhook Handler
  * ──────────────────────
- * STATUS: SCAFFOLDED — not yet active.
+ * STATUS: ACTIVE — JWT verification disabled so Stripe can call this without a token.
  *
  * TO ACTIVATE:
  *   1. Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to Supabase secrets:
@@ -41,8 +42,8 @@ const STRIPE_ENABLED = Deno.env.get('STRIPE_ENABLED') === 'true';
 // Map your Stripe Price IDs to SmartProf tiers.
 // Replace these placeholder IDs with your real ones from Stripe Dashboard.
 const PRICE_TO_TIER: Record<string, 'free' | 'pro'> = {
-  // 'price_1TLQbdI7kmdofyfEg3rgcHrW': 'pro',   // Pro Monthly
-  // 'price_1TLQfFI7kmdofyfEEYpNqChM': 'pro',   // Pro Annual
+  'price_1TLQbdI7kmdofyfEg3rgcHrW': 'pro',   // Pro Monthly
+  'price_1TLQfFI7kmdofyfEEYpNqChM': 'pro',   // Pro Annual
 };
 
 const corsHeaders = {
