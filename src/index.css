@@ -41,14 +41,14 @@
 
     --radius: 1rem;
 
-    --sidebar-background: 150 35% 92%;
-    --sidebar-foreground: 270 5% 20%;
-    --sidebar-primary: 190 60% 38%;
+    --sidebar-background: 222 55% 16%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 150 50% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 150 30% 88%;
-    --sidebar-accent-foreground: 270 5% 20%;
-    --sidebar-border: 150 20% 85%;
-    --sidebar-ring: 190 60% 38%;
+    --sidebar-accent: 222 50% 22%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 222 40% 25%;
+    --sidebar-ring: 150 50% 45%;
 
     --chart-1: 262 83% 58%;
     --chart-2: 172 66% 40%;
