@@ -137,66 +137,99 @@ export function AppSidebar() {
         // Ignore errors
       } // Force page reload for clean state
       window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
-      window.location.href = '/auth';}};return <Sidebar>
-      <SidebarHeader className="p-4 py-2.5 pb-2.5">
-        <div className="flex items-center gap-2.5 px-2">
-          <SmartProfLogo size={36} />
+      window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
+      window.location.href = '/auth';}};
+
+  return (
+    <Sidebar style={{ background: "linear-gradient(180deg, #0D1E41 0%, #0A3028 60%, #1B7A5A 100%)" }}>
+      {/* Header */}
+      <SidebarHeader className="p-4 py-3 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+        <div className="flex items-center gap-3 px-2">
+          <div className="rounded-xl p-0.5" style={{ background: "linear-gradient(135deg, #3DAA6E, #1B7A5A)" }}>
+            <SmartProfLogo size={36} className="rounded-[10px]" />
+          </div>
           <div className="flex flex-col text-left">
-            <span className="text-base font-bold tracking-tight">Smart<span className="text-primary">-Prof</span></span>
-            <span className="text-xs text-muted-foreground">Teaching Smarter</span>
+            <span className="text-base font-bold tracking-tight text-white">
+              Smart<span style={{ color: "#3DAA6E" }}>-Prof</span>
+            </span>
+            <span className="text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>Teaching Smarter</span>
           </div>
         </div>
       </SidebarHeader>
+
+      {/* Nav items */}
       <SidebarContent className="my-[30px]">
         <SidebarMenu>
           {navigationItems.map((item) => {
-          const isActive = location.pathname === item.path;
-          return (
-            <SidebarMenuItem key={item.id}>
-                <SidebarMenuButton asChild className={cn(isActive && "bg-primary/10 text-primary")}>
-                  <Link to={item.path} className="flex items-center gap-3 bg-primary-foreground">
-                    <item.icon className="h-5 w-5" />
-                    <span>{item.title}</span>
+            const isActive = location.pathname === item.path;
+            return (
+              <SidebarMenuItem key={item.id}>
+                <SidebarMenuButton
+                  asChild
+                  className={cn(
+                    "transition-all duration-150",
+                    isActive ? "text-white" : "text-white/70 hover:text-white"
+                  )}
+                  style={
+                    isActive
+                      ? { background: "linear-gradient(90deg, rgba(61,170,110,0.28) 0%, rgba(27,122,90,0.18) 100%)", borderLeft: "3px solid #3DAA6E" }
+                      : { background: "transparent", borderLeft: "3px solid transparent" }
+                  }
+                >
+                  <Link to={item.path} className="flex items-center gap-3">
+                    <item.icon className={cn("h-5 w-5", isActive ? "text-[#3DAA6E]" : "text-white/60")} />
+                    <span className="font-medium">{item.title}</span>
                   </Link>
                 </SidebarMenuButton>
-              </SidebarMenuItem>);
-
-        })}
+              </SidebarMenuItem>
+            );
+          })}
         </SidebarMenu>
       </SidebarContent>
-      <SidebarFooter className="p-4 border-t">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={profile?.avatar_url || ""} />
-              <AvatarFallback className="bg-primary text-primary-foreground">
-                {profile?.display_name?.charAt(0)?.toUpperCase() ||
-              profile?.first_name?.charAt(0)?.toUpperCase() ||
-              "U"}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">
-                {profile?.display_name ||
-              `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() ||
-              "User"}
-              </span>
-              <span className="text-xs text-muted-foreground">
-                {profile?.position || "Academic"}
-              </span>
-            </div>
+
+      {/* Footer */}
+      <SidebarFooter className="p-4" style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+        <div className="flex items-center gap-3 mb-3 px-1">
+          <Avatar className="h-9 w-9">
+            <AvatarImage src={profile?.avatar_url || ""} />
+            <AvatarFallback style={{ background: "linear-gradient(135deg, #1B7A5A, #3DAA6E)", color: "#fff" }}>
+              {profile?.display_name?.charAt(0)?.toUpperCase() ||
+                profile?.first_name?.charAt(0)?.toUpperCase() ||
+                "U"}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col min-w-0">
+            <span className="text-sm font-semibold text-white truncate">
+              {profile?.display_name ||
+                `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() ||
+                "User"}
+            </span>
+            <span className="text-xs truncate" style={{ color: "rgba(255,255,255,0.55)" }}>
+              {profile?.position || "Academic"}
+            </span>
           </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" size="icon" className="w-full" asChild>
+          <Button
+            size="icon"
+            className="flex-1 hover:text-white transition-colors"
+            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.8)" }}
+            asChild
+          >
             <Link to="/settings">
               <Settings className="h-4 w-4" />
             </Link>
           </Button>
-          <Button variant="outline" size="icon" className="w-full" onClick={handleLogout}>
+          <Button
+            size="icon"
+            className="flex-1 hover:text-white transition-colors"
+            style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", color: "rgba(255,255,255,0.8)" }}
+            onClick={handleLogout}
+          >
             <LogOut className="h-4 w-4" />
           </Button>
         </div>
       </SidebarFooter>
-    </Sidebar>;
+    </Sidebar>
+  );
 }
