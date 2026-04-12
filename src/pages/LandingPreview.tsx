@@ -279,7 +279,7 @@ const LandingPreview = () => {
                 transition={{ type: "spring", stiffness: 300 }}
                 className="rounded-3xl shadow-2xl overflow-hidden ring-4 ring-primary/20"
               >
-                <SmartProfLogo size={180} className="rounded-3xl" />
+                <SmartProfLogo size={400} className="rounded-3xl" />
               </motion.div>
             </motion.div>
 
