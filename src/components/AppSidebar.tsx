@@ -148,7 +148,7 @@ export function AppSidebar() {
       {/* Header */}
       <SidebarHeader className="p-4 py-3 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
         <div className="flex items-center px-2 py-1">
-          <SmartProfLogoWide height={38} />
+          <SmartProfLogoWide height={78} />
         </div>
       </SidebarHeader>
 
