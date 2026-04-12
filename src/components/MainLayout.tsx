@@ -55,7 +55,7 @@ export function MainLayout({ children }: MainLayoutProps) {
           <header className="h-14 border-b px-3 sm:px-5 flex items-center justify-between bg-sidebar-accent shrink-0 gap-2">
              <div className="flex items-center gap-2 min-w-0 flex-1">
                <SidebarTrigger className="shrink-0" />
-               <SmartProfLogo size={28} className="shrink-0" />
+               <SmartProfLogo size={48} className="shrink-0" />
                <span className="text-sm font-bold text-foreground tracking-tight hidden xs:inline sm:text-base truncate">
                  Smart<span className="text-primary">-Prof</span>
                </span>

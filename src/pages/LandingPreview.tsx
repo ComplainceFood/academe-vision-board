@@ -205,7 +205,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center space-x-2.5">
             <motion.div whileHover={{ scale: 1.05, rotate: 4 }} transition={{ type: "spring", stiffness: 300 }}>
-              <SmartProfLogo size={38} />
+              <SmartProfLogo size={58} />
             </motion.div>
             <span className="text-xl font-bold tracking-tight" style={{ color: "#0D1E41" }}>
               Smart<span style={{ color: "#1B7A5A" }}>-Prof</span>
@@ -302,7 +302,7 @@ const LandingPreview = () => {
                   boxShadow: "0 20px 60px -10px rgba(13,30,65,0.22), 0 0 0 4px rgba(27,122,90,0.18)",
                 }}
               >
-                <SmartProfLogo size={180} className="rounded-3xl" />
+                <SmartProfLogo size={400} className="rounded-3xl" />
               </motion.div>
             </motion.div>
 
@@ -841,7 +841,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-2.5">
-              <SmartProfLogo size={32} />
+              <SmartProfLogo size={45} />
               <span className="text-lg font-bold" style={{ color: "#0D1E41" }}>
                 Smart<span style={{ color: "#1B7A5A" }}>-Prof</span>
               </span>

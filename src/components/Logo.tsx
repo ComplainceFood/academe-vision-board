@@ -5,7 +5,7 @@ interface SmartProfLogoProps {
   className?: string;
 }
 
-export function SmartProfLogo({ size = 36, className = "" }: SmartProfLogoProps) {
+export function SmartProfLogo({ size = 50, className = "" }: SmartProfLogoProps) {
   return (
     <img
       src={logoSrc}
