@@ -42,6 +42,7 @@ import { EventDialog } from "@/components/planning/EventDialog";
 import { FutureTaskDialog } from "@/components/planning/FutureTaskDialog";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 import { GoogleCalendarIntegration } from "@/components/planning/GoogleCalendarIntegration";
+import { ProGate } from "@/components/common/ProGate";
 import { PlanningCalendar } from "@/components/planning/PlanningCalendar";
 import { FutureTaskCard } from "@/components/planning/FutureTaskCard";
 import { 
@@ -406,50 +407,56 @@ const PlanningPage = () => {
           
           <TabsContent value="calendar" className="space-y-6 mt-0">
             {/* AI Smart Planner */}
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold text-primary">AI Smart Planner</span>
-                <Badge variant="secondary" className="text-xs">Beta</Badge>
-                <span className="text-xs text-muted-foreground ml-1">Type in plain language — AI will parse the event for you</span>
+            <ProGate featureKey="planning_ai_event" featureLabel="AI Smart Planner">
+              <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-semibold text-primary">AI Smart Planner</span>
+                  <Badge variant="secondary" className="text-xs">Beta</Badge>
+                  <span className="text-xs text-muted-foreground ml-1">Type in plain language — AI will parse the event for you</span>
+                </div>
+                <div className="flex flex-col xs:flex-row gap-2">
+                  <Input
+                    placeholder='e.g. "Midterm grading due this Friday"'
+                    value={aiInput}
+                    onChange={(e) => setAIInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleAISmartAdd(); }}
+                    className="text-sm flex-1"
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleAISmartAdd}
+                    disabled={isAIPlanning || !aiInput.trim()}
+                    className="shrink-0"
+                  >
+                    {isAIPlanning
+                      ? <Loader2 className="h-4 w-4 animate-spin" />
+                      : <><Wand2 className="h-4 w-4 mr-1" />Add</>}
+                  </Button>
+                </div>
+                {aiConflictWarning && (
+                  <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3 shrink-0" />
+                    {aiConflictWarning}
+                  </p>
+                )}
               </div>
-              <div className="flex flex-col xs:flex-row gap-2">
-                <Input
-                  placeholder='e.g. "Midterm grading due this Friday"'
-                  value={aiInput}
-                  onChange={(e) => setAIInput(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') handleAISmartAdd(); }}
-                  className="text-sm flex-1"
-                />
-                <Button
-                  type="button"
-                  onClick={handleAISmartAdd}
-                  disabled={isAIPlanning || !aiInput.trim()}
-                  className="shrink-0"
-                >
-                  {isAIPlanning
-                    ? <Loader2 className="h-4 w-4 animate-spin" />
-                    : <><Wand2 className="h-4 w-4 mr-1" />Add</>}
-                </Button>
-              </div>
-              {aiConflictWarning && (
-                <p className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1">
-                  <AlertCircle className="h-3 w-3 shrink-0" />
-                  {aiConflictWarning}
-                </p>
-              )}
-            </div>
+            </ProGate>
 
             {/* Integrations */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              <OutlookIntegrationConsolidated onSyncComplete={() => {
-                eventsQuery.refetch();
-                toast({ title: "Outlook synced" });
-              }} />
-              <GoogleCalendarIntegration onSyncComplete={() => {
-                eventsQuery.refetch();
-                toast({ title: "Google Calendar synced" });
-              }} />
+              <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Sync">
+                <OutlookIntegrationConsolidated onSyncComplete={() => {
+                  eventsQuery.refetch();
+                  toast({ title: "Outlook synced" });
+                }} />
+              </ProGate>
+              <ProGate featureKey="planning_google_sync" featureLabel="Google Calendar Sync">
+                <GoogleCalendarIntegration onSyncComplete={() => {
+                  eventsQuery.refetch();
+                  toast({ title: "Google Calendar synced" });
+                }} />
+              </ProGate>
             </div>
             
             {/* Calendar */}

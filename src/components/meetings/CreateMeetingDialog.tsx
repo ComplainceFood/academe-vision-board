@@ -16,6 +16,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useRefreshContext } from "@/App";
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { FundingSource } from "@/types/funding";
+import { ProGate } from "@/components/common/ProGate";
 
 interface CreateMeetingDialogProps {
   isOpen: boolean;
@@ -239,6 +240,7 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
           </div>
 
           {/* AI Agenda Generator */}
+          <ProGate featureKey="meetings_ai_agenda" featureLabel="AI Agenda Generator">
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-3 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -303,6 +305,7 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
               </div>
             )}
           </div>
+          </ProGate>
 
           <div>
             <label className="text-sm font-medium">Agenda</label>

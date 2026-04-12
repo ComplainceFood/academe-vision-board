@@ -40,6 +40,7 @@ import {
 import { useDataFetching } from "@/hooks/useDataFetching";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { ProGate } from "@/components/common/ProGate";
 import type { Achievement } from "@/types/achievements";
 
 const AchievementsPage = () => {
@@ -131,9 +132,15 @@ const AchievementsPage = () => {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3 mt-2">
-                  <CVImportButton onImportComplete={handleRefresh} />
-                  <ResumeExportButton achievements={achievements ?? []} userName={userName} />
-                  <BiosketechGenerator achievements={achievements ?? []} />
+                  <ProGate featureKey="achievements_cv_import" variant="hide">
+                    <CVImportButton onImportComplete={handleRefresh} />
+                  </ProGate>
+                  <ProGate featureKey="achievements_resume_export" variant="hide">
+                    <ResumeExportButton achievements={achievements ?? []} userName={userName} />
+                  </ProGate>
+                  <ProGate featureKey="achievements_biosketch" variant="hide">
+                    <BiosketechGenerator achievements={achievements ?? []} />
+                  </ProGate>
                 </div>
               </div>
 
@@ -157,11 +164,15 @@ const AchievementsPage = () => {
         </div>
 
         {/* ORCID Integration + Citation Metrics */}
-        <OrcidIntegration
-          currentOrcidId={profile?.orcid_id}
-          onRefresh={handleRefresh}
-        />
-        <CitationMetrics orcidId={profile?.orcid_id} />
+        <ProGate featureKey="achievements_orcid" featureLabel="ORCID Integration">
+          <OrcidIntegration
+            currentOrcidId={profile?.orcid_id}
+            onRefresh={handleRefresh}
+          />
+        </ProGate>
+        <ProGate featureKey="achievements_citation_metrics" featureLabel="Citation Metrics">
+          <CitationMetrics orcidId={profile?.orcid_id} />
+        </ProGate>
 
         {/* Main Content with Tabs */}
         <Card className="border-0 shadow-lg overflow-hidden">

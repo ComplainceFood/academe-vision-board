@@ -24,6 +24,7 @@ import { ItemHistoryDialog } from "@/components/supplies/ItemHistoryDialog";
 import { SupplyItem } from "@/types/shoppingList";
 import { InventoryCsvManager } from "@/components/supplies/InventoryCsvManager";
 import { SuppliesAIAnalysis } from "@/components/supplies/SuppliesAIAnalysis";
+import { ProGate } from "@/components/common/ProGate";
 import { PageGuide } from "@/components/common/PageGuide";
 interface Expense {
   id: string;
@@ -466,7 +467,9 @@ const SuppliesPage = () => {
           </TabsContent>
 
           <TabsContent value="ai" className="mt-4">
-            <SuppliesAIAnalysis />
+            <ProGate featureKey="supplies_ai_analysis" featureLabel="AI Supply Analysis">
+              <SuppliesAIAnalysis />
+            </ProGate>
           </TabsContent>
         </Tabs>
       </div>

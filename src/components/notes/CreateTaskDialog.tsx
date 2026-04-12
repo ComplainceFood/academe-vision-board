@@ -19,6 +19,7 @@ import { Switch } from "@/components/ui/switch";
 import { GrantNoteToggle } from "@/components/notes/GrantNoteToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
+import { ProGate } from "@/components/common/ProGate";
 
 interface Category {
   id: string;
@@ -183,6 +184,7 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
         <form onSubmit={handleSubmit} className="space-y-4">
 
           {/* AI Draft Panel */}
+          <ProGate featureKey="notes_ai_draft" featureLabel="AI Task Assistant">
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
@@ -212,6 +214,7 @@ export function CreateTaskDialog({ open, onOpenChange, categories }: CreateTaskD
               <p className="text-xs text-muted-foreground italic">{aiReasoning}</p>
             )}
           </div>
+          </ProGate>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="grid w-full grid-cols-3">

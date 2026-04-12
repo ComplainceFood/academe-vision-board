@@ -21,6 +21,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AnalyticsInsights } from "./AnalyticsInsights";
+import { ProGate } from "@/components/common/ProGate";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 interface OverviewMetric {
@@ -718,7 +719,9 @@ export const AnalyticsDashboard = () => {
 
         {/* ── AI INSIGHTS TAB ──────────────────────────────────────────────── */}
         <TabsContent value="insights">
-          <AnalyticsInsights />
+          <ProGate featureKey="analytics_ai_insights" featureLabel="AI Analytics Insights">
+            <AnalyticsInsights />
+          </ProGate>
         </TabsContent>
       </Tabs>
     </div>

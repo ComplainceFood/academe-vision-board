@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, User, Bell, Shield, Camera, Key, Trash2, Link, Save } from "lucide-react";
+import { Settings, User, Bell, Shield, Camera, Key, Trash2, Link, Save, Database, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
@@ -18,13 +18,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
 import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExportImport";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
+import { ProGate } from "@/components/common/ProGate";
 
 const SettingsPage = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [updatingEmail, setUpdatingEmail] = useState(false);
   const { user } = useAuth();
   const { profile, loading: isLoading, updateProfile } = useProfile();
   const { toast } = useToast();
@@ -73,7 +77,6 @@ const SettingsPage = () => {
         display_name: displayName,
         first_name: firstName,
         last_name: lastName,
-        email: email,
         phone: phone,
         department: department,
         position: position,
@@ -111,11 +114,6 @@ const SettingsPage = () => {
 
   const handleLastNameChange = (value: string) => {
     setLastName(value);
-    markAsChanged();
-  };
-
-  const handleEmailChange = (value: string) => {
-    setEmail(value);
     markAsChanged();
   };
 
@@ -198,10 +196,19 @@ const SettingsPage = () => {
   };
 
   const handlePasswordChange = async () => {
+    if (!currentPassword) {
+      toast({
+        title: "Current password required",
+        description: "Please enter your current password to proceed",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!newPassword || newPassword !== confirmPassword) {
       toast({
         title: "Password mismatch",
-        description: "Passwords do not match",
+        description: "New passwords do not match",
         variant: "destructive",
       });
       return;
@@ -217,12 +224,25 @@ const SettingsPage = () => {
     }
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: newPassword
+      // Re-authenticate with current password first
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: user?.email ?? "",
+        password: currentPassword,
       });
 
+      if (signInError) {
+        toast({
+          title: "Incorrect password",
+          description: "Your current password is incorrect",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
 
+      setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
       toast({
@@ -239,29 +259,51 @@ const SettingsPage = () => {
     }
   };
 
-  const handleAccountDeletion = async () => {
-    try {
-      // Sign out and clean up auth state
-      await supabase.auth.signOut({ scope: 'global' });
-      
-      // Clear local storage
-      localStorage.clear();
-      sessionStorage.clear();
-      
-      // Notify user about manual deletion process
+  const handleEmailUpdate = async () => {
+    if (!newEmail || newEmail === (user?.email ?? "")) {
       toast({
-        title: "Account deletion initiated",
-        description: "You have been signed out. For complete account deletion, please contact support.",
+        title: "No change",
+        description: "Please enter a different email address",
         variant: "destructive",
       });
-      
-      // Redirect to auth page
-      window.location.href = '/auth';
-    } catch (error) {
-      console.error("Error during account deletion process:", error);
+      return;
+    }
+
+    setUpdatingEmail(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail });
+      if (error) throw error;
+
+      toast({
+        title: "Confirmation email sent",
+        description: "Check your new email address to confirm the change",
+      });
+      setNewEmail("");
+    } catch (error: any) {
+      console.error("Error updating email:", error);
       toast({
         title: "Error",
-        description: "Failed to process account deletion request",
+        description: error.message || "Failed to update email",
+        variant: "destructive",
+      });
+    } finally {
+      setUpdatingEmail(false);
+    }
+  };
+
+  const handleAccountDeletion = async () => {
+    try {
+      // We cannot delete the auth user from the client side (requires service role key).
+      // Sign the user out and instruct them to contact support for full deletion.
+      await supabase.auth.signOut({ scope: 'global' });
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error("Error signing out during deletion request:", error);
+      toast({
+        title: "Error",
+        description: "Failed to sign out. Please try again.",
         variant: "destructive",
       });
     }
@@ -285,7 +327,7 @@ const SettingsPage = () => {
       <div className="animate-fade-in max-w-4xl mx-auto space-y-6">
         <PageGuide page="settings" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
@@ -304,20 +346,24 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-2 sm:grid-cols-4">
-            <TabsTrigger value="profile" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-3 sm:grid-cols-5">
+            <TabsTrigger value="profile" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Profile</span>
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+            <TabsTrigger value="notifications" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Bell className="h-4 w-4" />
               <span className="hidden sm:inline">Notifications</span>
             </TabsTrigger>
-            <TabsTrigger value="connections" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+            <TabsTrigger value="connections" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Link className="h-4 w-4" />
               <span className="hidden sm:inline">Connections</span>
             </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+            <TabsTrigger value="data" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+              <Database className="h-4 w-4" />
+              <span className="hidden sm:inline">Data</span>
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Security</span>
             </TabsTrigger>
@@ -363,6 +409,7 @@ const SettingsPage = () => {
                       onChange={handleAvatarUpload}
                       className="hidden"
                       id="avatar-upload"
+                      aria-label="Upload avatar image"
                     />
                     <Button 
                       variant="outline" 
@@ -392,13 +439,13 @@ const SettingsPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">Email <span className="text-xs text-muted-foreground">(change in Security tab)</span></Label>
                     <Input
                       id="email"
                       type="email"
-                      value={email}
-                      onChange={(e) => handleEmailChange(e.target.value)}
-                      placeholder="your.email@example.com"
+                      value={user?.email ?? email}
+                      readOnly
+                      className="bg-muted/50 cursor-not-allowed"
                     />
                   </div>
                   <div className="space-y-2">
@@ -478,28 +525,73 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="connections" className="space-y-6">
-            <OutlookIntegrationConsolidated />
+            <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Integration">
+              <OutlookIntegrationConsolidated />
+            </ProGate>
+          </TabsContent>
+
+          <TabsContent value="data" className="space-y-6">
+            <ProGate featureKey="data_export_import" featureLabel="Advanced Data Export / Import">
+              <EnhancedDataExportImport />
+            </ProGate>
           </TabsContent>
 
           <TabsContent value="security" className="space-y-6">
-            {/* Data Export/Import Section */}
-            <EnhancedDataExportImport />
-            
             {/* Password & Security Section */}
             <Card>
               <CardHeader>
                 <CardTitle>Password & Security</CardTitle>
                 <CardDescription>
-                  Manage your account security and privacy settings
+                  Manage your account credentials and security settings
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {/* Change Email */}
                 <div className="space-y-4">
+                  <h4 className="font-medium flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Change Email
+                  </h4>
+                  <p className="text-sm text-muted-foreground">
+                    Current email: <span className="font-medium text-foreground">{user?.email}</span>
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-3 max-w-md">
+                    <Input
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="New email address"
+                    />
+                    <Button
+                      onClick={handleEmailUpdate}
+                      disabled={updatingEmail || !newEmail}
+                      variant="outline"
+                      className="shrink-0"
+                    >
+                      {updatingEmail ? "Sending..." : "Update Email"}
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    A confirmation link will be sent to your new email address.
+                  </p>
+                </div>
+
+                <div className="border-t pt-6 space-y-4">
                   <h4 className="font-medium flex items-center gap-2">
                     <Key className="h-4 w-4" />
                     Change Password
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="currentPassword">Current Password</Label>
+                      <Input
+                        id="currentPassword"
+                        type="password"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        placeholder="Current password"
+                      />
+                    </div>
                     <div className="space-y-2">
                       <Label htmlFor="newPassword">New Password</Label>
                       <Input
@@ -507,11 +599,11 @@ const SettingsPage = () => {
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="Enter new password"
+                        placeholder="New password"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm Password</Label>
+                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
@@ -521,9 +613,9 @@ const SettingsPage = () => {
                       />
                     </div>
                   </div>
-                  <Button 
+                  <Button
                     onClick={handlePasswordChange}
-                    disabled={!newPassword || !confirmPassword}
+                    disabled={!currentPassword || !newPassword || !confirmPassword}
                     variant="outline"
                   >
                     Update Password
@@ -537,28 +629,27 @@ const SettingsPage = () => {
                   </h4>
                   <div className="space-y-4">
                     <div className="rounded-lg border border-destructive/20 p-4">
-                      <h5 className="font-medium mb-2">Delete Account</h5>
+                      <h5 className="font-medium mb-2">Request Account Deletion</h5>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Once you delete your account, there is no going back. Please be certain.
+                        This will sign you out and submit a deletion request. Our team will permanently remove your account and all associated data within 30 days. This action cannot be undone.
                       </p>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="destructive" size="sm">
-                            Delete Account
+                            Request Deletion
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogTitle>Request account deletion?</AlertDialogTitle>
                             <AlertDialogDescription>
-                              This action cannot be undone. This will permanently delete your account
-                              and remove all your data from our servers.
+                              You will be signed out immediately. Our support team will permanently delete your account and all data within 30 days. You can cancel this request by contacting support before then.
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction onClick={handleAccountDeletion}>
-                              Delete Account
+                              Yes, request deletion
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>

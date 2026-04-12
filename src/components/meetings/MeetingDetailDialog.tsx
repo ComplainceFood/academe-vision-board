@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, User, MapPin, FileText, Bell, Check, X, Repeat, Trash2, Edit } from "lucide-react";
 import { MeetingAISummarizer } from "./MeetingAISummarizer";
+import { ProGate } from "@/components/common/ProGate";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -314,13 +315,15 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
             </Table>
           </div>
           
-          <MeetingAISummarizer
-            meetingId={meeting.id}
-            title={meeting.title}
-            agenda={meeting.agenda}
-            notes={meetingNotes}
-            onActionItemsAdded={() => triggerRefresh('meetings')}
-          />
+          <ProGate featureKey="meetings_ai_summary" featureLabel="AI Meeting Summarizer">
+            <MeetingAISummarizer
+              meetingId={meeting.id}
+              title={meeting.title}
+              agenda={meeting.agenda}
+              notes={meetingNotes}
+              onActionItemsAdded={() => triggerRefresh('meetings')}
+            />
+          </ProGate>
 
           <div>
             <h3 className="text-md font-semibold mb-2">Action Items</h3>

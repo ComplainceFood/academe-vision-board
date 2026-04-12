@@ -29,6 +29,7 @@ import { GrantMeetingsList } from "@/components/funding/GrantMeetingsList";
 import { GrantNotesList } from "@/components/funding/GrantNotesList";
 import { GrantAINarrative } from "@/components/funding/GrantAINarrative";
 import { PageGuide } from "@/components/common/PageGuide";
+import { ProGate } from "@/components/common/ProGate";
 
 type TabId = "overview" | "sources" | "expenditures" | "grant-meetings" | "grant-notes" | "ai-narrative";
 
@@ -293,7 +294,9 @@ const FundingPage = () => {
             )}
 
             {activeTab === "ai-narrative" && (
-              <GrantAINarrative sources={fundingSources} />
+              <ProGate featureKey="funding_ai_narrative" featureLabel="AI Grant Narrative Writer">
+                <GrantAINarrative sources={fundingSources} />
+              </ProGate>
             )}
           </div>
         </div>

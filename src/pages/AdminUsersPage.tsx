@@ -19,9 +19,10 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import {
   Users, ShieldAlert, Search, Crown, UserCheck, UserX,
-  Edit, BarChart3, Filter, RefreshCw, FileCheck, Database
+  Edit, BarChart3, Filter, RefreshCw, FileCheck, Database, ToggleLeft
 } from 'lucide-react';
 import { AdminSeedDataManager } from '@/components/admin/AdminSeedDataManager';
+import { FeatureFlagsAdmin } from '@/components/admin/FeatureFlagsAdmin';
 
 interface UserProfile {
   user_id: string;
@@ -250,22 +251,26 @@ export default function AdminUsersPage() {
         </div>
 
         <Tabs defaultValue="users" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 max-w-2xl">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 max-w-3xl">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
-              Users
+              <span className="hidden sm:inline">Users</span>
             </TabsTrigger>
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
-              Overview
+              <span className="hidden sm:inline">Overview</span>
             </TabsTrigger>
             <TabsTrigger value="agreements" className="flex items-center gap-2">
               <FileCheck className="h-4 w-4" />
-              Agreements
+              <span className="hidden sm:inline">Agreements</span>
+            </TabsTrigger>
+            <TabsTrigger value="feature-flags" className="flex items-center gap-2">
+              <ToggleLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Features</span>
             </TabsTrigger>
             <TabsTrigger value="admin-panel" className="flex items-center gap-2">
               <Database className="h-4 w-4" />
-              Admin Panel
+              <span className="hidden sm:inline">Admin Panel</span>
             </TabsTrigger>
           </TabsList>
 
@@ -526,6 +531,15 @@ export default function AdminUsersPage() {
                 </Table>
               </ScrollArea>
             </Card>
+          </TabsContent>
+          <TabsContent value="feature-flags" className="space-y-6">
+            <div className="space-y-2">
+              <h2 className="text-lg font-semibold">Feature Flag Control</h2>
+              <p className="text-sm text-muted-foreground">
+                Toggle Pro features on or off for all users. When a feature is toggled ON, every user (including free tier) can access it — use this to run promotions or during beta periods. Toggle OFF to enforce subscription-based access.
+              </p>
+            </div>
+            <FeatureFlagsAdmin />
           </TabsContent>
           <TabsContent value="admin-panel" className="space-y-6">
             <AdminSeedDataManager />
