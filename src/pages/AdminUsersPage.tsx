@@ -67,9 +67,9 @@ interface UserAgreementWithEmail {
 
 const SUBSCRIPTION_TIERS = [
   { value: 'free', label: 'Free', color: 'text-muted-foreground' },
-  { value: 'basic', label: 'Basic', color: 'text-blue-600' },
   { value: 'pro', label: 'Pro', color: 'text-purple-600' },
-  { value: 'enterprise', label: 'Enterprise', color: 'text-amber-600' },
+  // Enterprise reserved for future use — not yet offered to users
+  { value: 'enterprise', label: 'Enterprise (internal)', color: 'text-amber-600' },
 ];
 
 const SUBSCRIPTION_STATUSES = [

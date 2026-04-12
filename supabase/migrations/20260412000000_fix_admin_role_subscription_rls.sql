@@ -64,9 +64,9 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'Unauthorised: system_admin role required');
   END IF;
 
-  -- Validate tier value
+  -- Validate tier value (enterprise reserved for future internal use)
   IF p_tier NOT IN ('free', 'pro', 'enterprise') THEN
-    RETURN jsonb_build_object('success', false, 'error', 'Invalid tier: must be free, pro, or enterprise');
+    RETURN jsonb_build_object('success', false, 'error', 'Invalid tier: must be free or pro');
   END IF;
 
   -- Validate status value

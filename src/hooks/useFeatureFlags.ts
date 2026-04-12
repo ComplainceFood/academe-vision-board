@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useUserRole } from "./useUserRole";
 import { useSubscription } from "./useSubscription";
 
+// "enterprise" is reserved for future use — not yet offered publicly
 export type SubscriptionTier = "free" | "pro" | "enterprise";
 
 export interface FeatureFlag {
