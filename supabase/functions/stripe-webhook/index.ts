@@ -41,8 +41,8 @@ const STRIPE_ENABLED = Deno.env.get('STRIPE_ENABLED') === 'true';
 // Map your Stripe Price IDs to SmartProf tiers.
 // Replace these placeholder IDs with your real ones from Stripe Dashboard.
 const PRICE_TO_TIER: Record<string, 'free' | 'pro'> = {
-  // 'price_XXXXXXXXXXXXXXXX': 'pro',   // Pro Monthly
-  // 'price_YYYYYYYYYYYYYYYY': 'pro',   // Pro Annual
+  // 'price_1TLQbdI7kmdofyfEg3rgcHrW': 'pro',   // Pro Monthly
+  // 'price_1TLQfFI7kmdofyfEEYpNqChM': 'pro',   // Pro Annual
 };
 
 const corsHeaders = {
