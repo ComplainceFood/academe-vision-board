@@ -136,9 +136,12 @@ export function AppSidebar() {
 
         // Ignore errors
       } // Force page reload for clean state
-      window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
-      window.location.href = '/auth';} catch (error) {console.error("Error signing out:", error); // Even if signout fails, clean up and redirect
-      window.location.href = '/auth';}};
+      window.location.href = '/auth';
+    } catch (error) {
+      console.error("Error signing out:", error);
+      window.location.href = '/auth';
+    }
+  };;
 
   return (
     <Sidebar style={{ background: "linear-gradient(180deg, #0D1E41 0%, #0A3028 60%, #1B7A5A 100%)" }}>

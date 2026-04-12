@@ -1,5 +1,5 @@
 import logoSrc from "@/assets/smart-prof-logo.svg";
-import logoWideSrc from "@/assets/smart-prof-logo-wide.svg.svg";
+import logoWideSrc from "@/assets/smart-prof-logo-wide.svg";
 
 interface SmartProfLogoProps {
   size?: number;
