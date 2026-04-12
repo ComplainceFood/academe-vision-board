@@ -11,7 +11,7 @@ interface SmartProfLogoWideProps {
   className?: string;
 }
 
-export function SmartProfLogo({ size = 48, className = "" }: SmartProfLogoProps) {
+export function SmartProfLogo({ size = 50, className = "" }: SmartProfLogoProps) {
   return (
     <img
       src={logoSrc}
@@ -23,7 +23,7 @@ export function SmartProfLogo({ size = 48, className = "" }: SmartProfLogoProps)
   );
 }
 
-export function SmartProfLogoWide({ height = 36, className = "" }: SmartProfLogoWideProps) {
+export function SmartProfLogoWide({ height = 50, className = "" }: SmartProfLogoWideProps) {
   return (
     <img
       src={logoWideSrc}
