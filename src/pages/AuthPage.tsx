@@ -16,9 +16,12 @@ import { TermsOfService } from "@/components/legal/TermsOfService";
 import { useAuth } from "@/hooks/useAuth";
 import { Checkbox } from "@/components/ui/checkbox";
 
+const REMEMBER_ME_KEY = "smartprof_remember_email";
+
 const AuthPage = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => localStorage.getItem(REMEMBER_ME_KEY) ?? "");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem(REMEMBER_ME_KEY));
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -70,6 +73,8 @@ const AuthPage = () => {
       const cleanupAuthState = () => {
         localStorage.removeItem('supabase.auth.token');
         Object.keys(localStorage).forEach((key) => {
+          // Preserve remember-me email when cleaning auth state
+          if (key === REMEMBER_ME_KEY) return;
           if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
             localStorage.removeItem(key);
           }
@@ -171,13 +176,20 @@ const AuthPage = () => {
             body: { loginMethod: 'password' }
           });
 
+          // Persist or clear the remembered email
+          if (rememberMe) {
+            localStorage.setItem(REMEMBER_ME_KEY, email);
+          } else {
+            localStorage.removeItem(REMEMBER_ME_KEY);
+          }
+
           const hasAgreements = await checkExistingAgreements(data.user.id);
           if (!hasAgreements) {
             setShowLegalAgreement(true);
             return;
           }
         }
-        
+
         // Force page reload for clean state
         window.location.href = '/';
       }
@@ -352,9 +364,22 @@ const AuthPage = () => {
               )}
             </div>
 
-            {/* Forgot password link - sign in mode only */}
+            {/* Remember me + Forgot password — sign in mode only */}
             {!isSignUp && (
-              <div className="text-right">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id="remember-me"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked === true)}
+                  />
+                  <label
+                    htmlFor="remember-me"
+                    className="text-sm text-muted-foreground cursor-pointer select-none"
+                  >
+                    Remember me
+                  </label>
+                </div>
                 <button
                   type="button"
                   onClick={() => setIsForgotPassword(true)}
