@@ -1,9 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MainLayout } from '@/components/MainLayout';
 import { SystemHealthRunner } from '@/components/testing/SystemHealthRunner';
-import { ShieldCheck } from 'lucide-react';
+import { SecurityScanner } from '@/components/testing/SecurityScanner';
+import { ShieldCheck, Activity } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+const TABS = [
+  { id: 'health', label: 'System Health', icon: Activity },
+  { id: 'security', label: 'Security Scan', icon: ShieldCheck },
+];
 
 export default function TestingPage() {
+  const [activeTab, setActiveTab] = useState('health');
+
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-6">
@@ -17,15 +26,40 @@ export default function TestingPage() {
               <ShieldCheck className="h-10 w-10" />
             </div>
             <div>
-              <h1 className="text-4xl font-bold tracking-tight">System Health Monitor</h1>
+              <h1 className="text-4xl font-bold tracking-tight">Testing Platform</h1>
               <p className="text-primary-foreground/80 text-lg mt-1">
-                Automated checks across all platform modules - run on demand or on a schedule
+                System health monitoring and security vulnerability scanning
               </p>
             </div>
           </div>
         </div>
 
-        <SystemHealthRunner />
+        {/* Tabs */}
+        <div className="flex gap-1 p-1 bg-muted rounded-xl w-fit">
+          {TABS.map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150",
+                  activeTab === tab.id
+                    ? "bg-white shadow text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab content */}
+        {activeTab === 'health' && <SystemHealthRunner />}
+        {activeTab === 'security' && <SecurityScanner />}
       </div>
     </MainLayout>
   );
