@@ -1,7 +1,7 @@
 /**
  * Create Stripe Customer Portal Session
  * ──────────────────────────────────────
- * STATUS: SCAFFOLDED — not yet active.
+ * STATUS: SCAFFOLDED - not yet active.
  *
  * Redirects a Pro user to Stripe's self-service portal where they can:
  *   - View invoices

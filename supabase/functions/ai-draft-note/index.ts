@@ -108,6 +108,6 @@ function buildFallback(rough: string) {
     category: 'admin',
     suggested_due_date: null,
     subtasks: [],
-    reasoning: 'AI unavailable — please set priority and due date manually.',
+    reasoning: 'AI unavailable - please set priority and due date manually.',
   };
 }

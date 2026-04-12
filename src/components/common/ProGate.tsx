@@ -12,9 +12,9 @@ interface ProGateProps {
   children: ReactNode;
   /**
    * How to show the gate:
-   * - "overlay"  — render children blurred with a lock overlay (default)
-   * - "replace"  — replace children entirely with a locked card
-   * - "hide"     — render nothing if locked
+   * - "overlay"  - render children blurred with a lock overlay (default)
+   * - "replace"  - replace children entirely with a locked card
+   * - "hide"     - render nothing if locked
    */
   variant?: "overlay" | "replace" | "hide";
   /** Optional custom label for the feature name shown in the lock UI */

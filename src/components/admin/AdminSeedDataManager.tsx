@@ -42,7 +42,7 @@ const mockDataSets = {
     count: 14,
     data: [
       {
-        title: "Grade Midterm Exams — CS101",
+        title: "Grade Midterm Exams - CS101",
         content: "Complete grading for CS101 midterm exams. 47 students submitted online, 2 submitted hard-copy (accessibility accommodations). Use updated rubric v3. Deadline: this Friday.",
         type: "commitment",
         course: "Grading",
@@ -62,7 +62,7 @@ const mockDataSets = {
         due_date: daysFromNow(21) + "T17:00:00",
       },
       {
-        title: "Review Thesis Draft — Sarah Johnson",
+        title: "Review Thesis Draft - Sarah Johnson",
         content: "Review Chapter 3 of Sarah's thesis on 'Federated Learning for Healthcare Data Privacy'. Focus on methodology section and statistical validation approach. She needs feedback by next Tuesday.",
         type: "commitment",
         course: "Students",
@@ -73,7 +73,7 @@ const mockDataSets = {
         due_date: daysFromNow(5) + "T17:00:00",
       },
       {
-        title: "Prepare Lecture — Binary Search Trees",
+        title: "Prepare Lecture - Binary Search Trees",
         content: "Update slides for next week's Data Structures lecture. Add new interactive examples for BST insertion/deletion. Include a live-coding demo using Python.",
         type: "commitment",
         course: "Teaching",
@@ -112,7 +112,7 @@ const mockDataSets = {
         starred: false,
       },
       {
-        title: "Student Accommodation — John Davis",
+        title: "Student Accommodation - John Davis",
         content: "John D. has documented accommodations (extended exam time ×1.5, separate quiet room). Notify Testing Center for all remaining exams this semester.",
         type: "note",
         course: "Quick Notes",
@@ -141,7 +141,7 @@ const mockDataSets = {
         due_date: daysFromNow(30) + "T23:59:59",
       },
       {
-        title: "Letter of Recommendation — Emily Park",
+        title: "Letter of Recommendation - Emily Park",
         content: "Emily Park requested a letter of rec for her PhD applications (MIT, Stanford, CMU). Deadline: December 15. She was my top student in CS404 and contributed to the AI assessment paper.",
         type: "commitment",
         course: "Students",
@@ -152,7 +152,7 @@ const mockDataSets = {
         due_date: daysFromNow(10) + "T17:00:00",
       },
       {
-        title: "Update Course Syllabus — CS404",
+        title: "Update Course Syllabus - CS404",
         content: "Revise CS404 Advanced AI syllabus for Spring semester. Add new modules on transformer architecture and prompt engineering. Remove outdated RNN-only section.",
         type: "commitment",
         course: "Teaching",
@@ -171,7 +171,7 @@ const mockDataSets = {
         starred: false,
       },
       {
-        title: "Guest Lecture Confirmation — Dr. Martinez",
+        title: "Guest Lecture Confirmation - Dr. Martinez",
         content: "Dr. Ana Martinez (Google DeepMind) confirmed guest lecture on 'Responsible AI in Production' for CS404. Date: in two weeks. Need A/V setup and Zoom link for remote students.",
         type: "note",
         course: "Quick Notes",
@@ -188,7 +188,7 @@ const mockDataSets = {
     count: 8,
     data: [
       {
-        title: "PhD Advisory — Sarah Johnson",
+        title: "PhD Advisory - Sarah Johnson",
         type: "one_on_one",
         status: "scheduled",
         start_date: daysFromNow(2),
@@ -228,7 +228,7 @@ const mockDataSets = {
         reminder_minutes: 60,
       },
       {
-        title: "TA Weekly Sync — Michael Chen",
+        title: "TA Weekly Sync - Michael Chen",
         type: "one_on_one",
         status: "scheduled",
         start_date: daysFromNow(1),
@@ -282,7 +282,7 @@ const mockDataSets = {
         reminder_minutes: 15,
       },
       {
-        title: "NSF Grant Collaboration Call — Dr. Clark",
+        title: "NSF Grant Collaboration Call - Dr. Clark",
         type: "one_on_one",
         status: "completed",
         start_date: daysAgo(3),
@@ -349,17 +349,17 @@ const mockDataSets = {
     count: 12,
     data: [
       { name: "Dry Erase Markers (Assorted Colors)", category: "Office Supplies", course: "General", current_count: 8, total_count: 50, threshold: 15, cost: 2.49 },
-      { name: "Arduino Uno R4 Boards", category: "Lab Equipment", course: "CS202 — Embedded Systems", current_count: 14, total_count: 25, threshold: 8, cost: 27.50 },
-      { name: "Raspberry Pi 5 Starter Kits", category: "Lab Equipment", course: "CS301 — IoT Applications", current_count: 4, total_count: 15, threshold: 5, cost: 89.99 },
+      { name: "Arduino Uno R4 Boards", category: "Lab Equipment", course: "CS202 - Embedded Systems", current_count: 14, total_count: 25, threshold: 8, cost: 27.50 },
+      { name: "Raspberry Pi 5 Starter Kits", category: "Lab Equipment", course: "CS301 - IoT Applications", current_count: 4, total_count: 15, threshold: 5, cost: 89.99 },
       { name: "USB-C Cables (6 ft)", category: "Cables & Accessories", course: "General Lab", current_count: 22, total_count: 50, threshold: 10, cost: 8.99 },
-      { name: "Solderless Breadboards (Full-size)", category: "Lab Equipment", course: "CS202 — Embedded Systems", current_count: 3, total_count: 30, threshold: 10, cost: 5.99 },
-      { name: "LED Assortment Kit (500 pcs)", category: "Components", course: "CS202 — Embedded Systems", current_count: 2, total_count: 10, threshold: 3, cost: 14.99 },
+      { name: "Solderless Breadboards (Full-size)", category: "Lab Equipment", course: "CS202 - Embedded Systems", current_count: 3, total_count: 30, threshold: 10, cost: 5.99 },
+      { name: "LED Assortment Kit (500 pcs)", category: "Components", course: "CS202 - Embedded Systems", current_count: 2, total_count: 10, threshold: 3, cost: 14.99 },
       { name: "Printer Paper (Ream, 500 sheets)", category: "Office Supplies", course: "General", current_count: 4, total_count: 20, threshold: 5, cost: 7.99 },
       { name: "HDMI Cables (10 ft)", category: "Cables & Accessories", course: "General Lab", current_count: 12, total_count: 20, threshold: 5, cost: 12.99 },
-      { name: "Jumper Wire Kit (M/M, M/F, F/F)", category: "Components", course: "CS202 — Embedded Systems", current_count: 6, total_count: 20, threshold: 5, cost: 9.99 },
+      { name: "Jumper Wire Kit (M/M, M/F, F/F)", category: "Components", course: "CS202 - Embedded Systems", current_count: 6, total_count: 20, threshold: 5, cost: 9.99 },
       { name: "Whiteboard Erasers", category: "Office Supplies", course: "General", current_count: 2, total_count: 10, threshold: 3, cost: 3.49 },
-      { name: "Multimeter (Digital)", category: "Lab Equipment", course: "CS202 — Embedded Systems", current_count: 8, total_count: 12, threshold: 4, cost: 34.99 },
-      { name: "Ethernet Cables (Cat6, 3 ft)", category: "Cables & Accessories", course: "CS301 — IoT Applications", current_count: 18, total_count: 30, threshold: 8, cost: 4.99 },
+      { name: "Multimeter (Digital)", category: "Lab Equipment", course: "CS202 - Embedded Systems", current_count: 8, total_count: 12, threshold: 4, cost: 34.99 },
+      { name: "Ethernet Cables (Cat6, 3 ft)", category: "Cables & Accessories", course: "CS301 - IoT Applications", current_count: 18, total_count: 30, threshold: 8, cost: 4.99 },
     ],
   },
 
@@ -369,13 +369,13 @@ const mockDataSets = {
     count: 8,
     data: [
       { description: "SIGCSE 2026 Conference Registration (Early Bird)", amount: 495.00, date: daysAgo(10), category: "Professional Development", course: "Research", receipt: true },
-      { description: "Arduino Uno R4 Boards (10×) — Adafruit", amount: 275.00, date: daysAgo(18), category: "Lab Equipment", course: "CS202", receipt: true },
+      { description: "Arduino Uno R4 Boards (10×) - Adafruit", amount: 275.00, date: daysAgo(18), category: "Lab Equipment", course: "CS202", receipt: true },
       { description: "Textbooks: 'Intro to Algorithms' 4th Ed. (3 desk copies)", amount: 189.00, date: daysAgo(5), category: "Course Materials", course: "CS202", receipt: true },
       { description: "Office Supplies Restock (markers, paper, toner)", amount: 72.45, date: daysAgo(22), category: "Office Supplies", course: "General", receipt: true },
-      { description: "Student Worker Wages — Lab Prep (Nov)", amount: 640.00, date: daysAgo(8), category: "Personnel", course: "Lab Support", receipt: false },
-      { description: "AWS Educate Cloud Credits — Fall Semester", amount: 200.00, date: daysAgo(32), category: "Software & Services", course: "CS401", receipt: true },
-      { description: "Conference Travel — SIGCSE (Airfare + Hotel)", amount: 1245.00, date: daysAgo(45), category: "Travel", course: "Research", receipt: true },
-      { description: "Raspberry Pi 5 Kits (5×) — Replacement units", amount: 449.95, date: daysAgo(15), category: "Lab Equipment", course: "CS301", receipt: true },
+      { description: "Student Worker Wages - Lab Prep (Nov)", amount: 640.00, date: daysAgo(8), category: "Personnel", course: "Lab Support", receipt: false },
+      { description: "AWS Educate Cloud Credits - Fall Semester", amount: 200.00, date: daysAgo(32), category: "Software & Services", course: "CS401", receipt: true },
+      { description: "Conference Travel - SIGCSE (Airfare + Hotel)", amount: 1245.00, date: daysAgo(45), category: "Travel", course: "Research", receipt: true },
+      { description: "Raspberry Pi 5 Kits (5×) - Replacement units", amount: 449.95, date: daysAgo(15), category: "Lab Equipment", course: "CS301", receipt: true },
     ],
   },
 
@@ -404,7 +404,7 @@ const mockDataSets = {
       { title: "Launch AI Ethics & Society Elective", semester: "Spring 2026", priority: "high", estimated_hours: 60, description: "Develop new elective course (CS350) covering bias in ML, responsible AI, regulation, and societal impact. Cross-list with Philosophy dept." },
       { title: "Lab 204 Equipment Modernization", semester: "Summer 2026", priority: "medium", estimated_hours: 20, description: "Replace aging lab PCs (2019 models). Upgrade to 32GB RAM workstations for ML coursework. Coordinate with IT for imaging." },
       { title: "NSF CAREER Proposal Submission", semester: "Fall 2026", priority: "high", estimated_hours: 100, description: "Complete and submit NSF CAREER award proposal: 'AI-Augmented CS Education for Equity'. Includes 5-year budget, evaluation plan, and broader impacts." },
-      { title: "Study Abroad Partnership — CS in Barcelona", semester: "Spring 2027", priority: "low", estimated_hours: 30, description: "Explore partnership with Universitat Politècnica de Catalunya for a summer study abroad CS program." },
+      { title: "Study Abroad Partnership - CS in Barcelona", semester: "Spring 2027", priority: "low", estimated_hours: 30, description: "Explore partnership with Universitat Politècnica de Catalunya for a summer study abroad CS program." },
       { title: "Undergraduate Research Program Expansion", semester: "Summer 2026", priority: "medium", estimated_hours: 25, description: "Expand the summer undergraduate research program from 3 to 6 students. Secure additional funding through dean's office." },
     ],
   },
@@ -415,7 +415,7 @@ const mockDataSets = {
     count: 4,
     data: [
       { category: "feature_request", subject: "Canvas LMS Calendar Sync", description: "Would love to sync assignment deadlines from Canvas LMS directly into the planning calendar. This would save a lot of manual entry at the start of each semester.", priority: "high", status: "open" },
-      { category: "bug_report", subject: "Meeting Reminder Timing Issue", description: "Meeting reminders appear to fire at the wrong time — they come through about 5 minutes late instead of the configured 15 minutes before.", priority: "medium", status: "in_progress", admin_response: "Confirmed the timing bug. Fix is being tested and will ship in the next release." },
+      { category: "bug_report", subject: "Meeting Reminder Timing Issue", description: "Meeting reminders appear to fire at the wrong time - they come through about 5 minutes late instead of the configured 15 minutes before.", priority: "medium", status: "in_progress", admin_response: "Confirmed the timing bug. Fix is being tested and will ship in the next release." },
       { category: "general", subject: "Excellent Tool for Academic Workflow", description: "SmartProf has significantly improved how I manage my teaching, research, and admin responsibilities. The grant tracking feature is especially useful. Great work!", priority: "low", status: "closed", admin_response: "Thank you for the kind words! We're continually improving based on feedback from professors like you." },
       { category: "feature_request", subject: "Bulk CSV Import for Supplies", description: "At the start of each semester I need to add ~50 supply items. A CSV/Excel bulk import feature would save significant time versus adding them one by one.", priority: "medium", status: "open" },
     ],
@@ -427,7 +427,7 @@ const mockDataSets = {
     count: 5,
     data: [
       {
-        name: "NSF Grant — AI in CS Education (Award #2024-CS-1847)",
+        name: "NSF Grant - AI in CS Education (Award #2024-CS-1847)",
         type: "grant",
         total_amount: 285000,
         remaining_amount: 197500,
@@ -441,7 +441,7 @@ const mockDataSets = {
         reporting_requirements: "Annual progress report due every September. Final report due 120 days after award end date.",
       },
       {
-        name: "Department Operating Budget — FY2026",
+        name: "Department Operating Budget - FY2026",
         type: "budget_allocation",
         total_amount: 45000,
         remaining_amount: 28750,
@@ -469,7 +469,7 @@ const mockDataSets = {
         reporting_requirements: "Interim report at 6 months. Final report + published paper required within 90 days of conclusion.",
       },
       {
-        name: "Dean's Innovation Fund — Lab Modernization",
+        name: "Dean's Innovation Fund - Lab Modernization",
         type: "donation",
         total_amount: 30000,
         remaining_amount: 12500,
@@ -477,7 +477,7 @@ const mockDataSets = {
         end_date: daysFromNow(120),
         status: "active",
         description: "One-time allocation from the Dean of Engineering's innovation fund to modernize Lab 204. Covers new workstations, IoT hardware, and classroom display technology.",
-        restrictions: "Hardware only — no software licenses or personnel. All purchases must go through university procurement. Receipts required within 30 days.",
+        restrictions: "Hardware only - no software licenses or personnel. All purchases must go through university procurement. Receipts required within 30 days.",
         contact_person: "Dr. Thomas Reed (Associate Dean)",
         contact_email: "t.reed@university.edu",
         reporting_requirements: "Final equipment inventory report due 30 days after fund expiration.",
@@ -504,11 +504,11 @@ const mockDataSets = {
     description: "Items flagged for purchase or reorder",
     count: 6,
     data: [
-      { name: "Dry Erase Markers — Expo (Box of 12)", quantity: 4, priority: "high", purchased: false, notes: "Running low across all classrooms. Order ASAP." },
+      { name: "Dry Erase Markers - Expo (Box of 12)", quantity: 4, priority: "high", purchased: false, notes: "Running low across all classrooms. Order ASAP." },
       { name: "Solderless Breadboards (Full-size)", quantity: 10, priority: "high", purchased: false, notes: "Only 3 left for CS202 lab. Need before next lab session." },
       { name: "LED Assortment Kits", quantity: 3, priority: "medium", purchased: false, notes: "Restock for embedded systems labs." },
       { name: "Whiteboard Erasers", quantity: 5, priority: "low", purchased: false, notes: "General classroom replenishment." },
-      { name: "Raspberry Pi 5 Kits (w/ case & power supply)", quantity: 5, priority: "medium", purchased: false, notes: "Expansion for IoT course — funded by Dean's Innovation Fund." },
+      { name: "Raspberry Pi 5 Kits (w/ case & power supply)", quantity: 5, priority: "medium", purchased: false, notes: "Expansion for IoT course - funded by Dean's Innovation Fund." },
       { name: "USB-C to USB-A Adapters", quantity: 10, priority: "low", purchased: true, notes: "Ordered last week. Expected delivery: Friday." },
     ],
   },
@@ -544,7 +544,7 @@ const mockDataSets = {
       },
       {
         category: "award_honor",
-        title: "Outstanding Teaching Award — College of Engineering",
+        title: "Outstanding Teaching Award - College of Engineering",
         description: "Recognized for exceptional teaching effectiveness, innovative pedagogy, and dedication to student mentorship in 2024–2025.",
         organization: "University College of Engineering",
         award_type: "teaching",
@@ -557,7 +557,7 @@ const mockDataSets = {
         category: "invited_talk",
         title: "Keynote: The Future of AI-Assisted Learning in Higher Education",
         description: "Invited keynote address at the National Conference on Educational Technology discussing trends and challenges in AI-powered learning tools.",
-        venue: "NCET 2025 — Chicago, IL",
+        venue: "NCET 2025 - Chicago, IL",
         date: daysAgo(45),
         status: "completed",
         visibility: "public",
@@ -565,7 +565,7 @@ const mockDataSets = {
       },
       {
         category: "teaching_performance",
-        title: "CS101 — Introduction to Computer Science (Fall 2025)",
+        title: "CS101 - Introduction to Computer Science (Fall 2025)",
         description: "Teaching evaluation results: 4.7/5.0 overall. Students praised the interactive coding demos and accessibility of office hours.",
         course_code: "CS101",
         term: "Fall 2025",
@@ -577,7 +577,7 @@ const mockDataSets = {
       },
       {
         category: "teaching_performance",
-        title: "CS404 — Advanced Artificial Intelligence (Fall 2025)",
+        title: "CS404 - Advanced Artificial Intelligence (Fall 2025)",
         description: "Teaching evaluation: 4.5/5.0. Strong marks for real-world project assignments. Students suggested more industry guest speakers.",
         course_code: "CS404",
         term: "Fall 2025",
@@ -589,7 +589,7 @@ const mockDataSets = {
       },
       {
         category: "student_supervision",
-        title: "PhD Supervision — Sarah Johnson",
+        title: "PhD Supervision - Sarah Johnson",
         description: "Primary advisor for Sarah Johnson's PhD research on 'Federated Learning for Healthcare Data Privacy'. Expected defense: May 2026.",
         student_name: "Sarah Johnson",
         student_level: "phd",
@@ -599,7 +599,7 @@ const mockDataSets = {
       },
       {
         category: "service_review",
-        title: "Program Committee — SIGCSE 2026",
+        title: "Program Committee - SIGCSE 2026",
         description: "Serving on the program committee for SIGCSE 2026 Technical Symposium. Reviewing 12 paper submissions.",
         organization: "ACM SIGCSE",
         review_count: 12,
@@ -610,7 +610,7 @@ const mockDataSets = {
       },
       {
         category: "leadership_role",
-        title: "Undergraduate Program Director — CS Department",
+        title: "Undergraduate Program Director - CS Department",
         description: "Overseeing the undergraduate CS program including curriculum development, student advising coordination, and ABET accreditation preparation.",
         organization: "CS Department, University",
         date: daysAgo(365),
@@ -637,7 +637,7 @@ const mockDataSets = {
     count: 5,
     data: [
       {
-        title: "Platform Maintenance — March 28",
+        title: "Platform Maintenance - March 28",
         content: "SmartProf will undergo scheduled maintenance on March 28 from 2:00 AM to 4:00 AM EST. During this time, the platform will be temporarily unavailable. All data will be preserved. Please save your work before the maintenance window.",
         description: "Scheduled downtime notification for platform maintenance.",
         category: "maintenance",
@@ -666,7 +666,7 @@ const mockDataSets = {
       },
       {
         title: "Welcome to SmartProf!",
-        content: "Thank you for joining SmartProf — the comprehensive academic administration platform designed for professors and educators. Explore the dashboard to manage your notes, meetings, supplies, grants, and more. Visit Settings to customize your profile and notification preferences.",
+        content: "Thank you for joining SmartProf - the comprehensive academic administration platform designed for professors and educators. Explore the dashboard to manage your notes, meetings, supplies, grants, and more. Visit Settings to customize your profile and notification preferences.",
         description: "Welcome message for new platform users.",
         category: "general",
         priority: "normal",
@@ -799,7 +799,7 @@ export function AdminSeedDataManager() {
             return { ...cleanedItem, user_id: user.id };
           });
 
-          // Notification preferences have a unique constraint on user_id — upsert to avoid duplicate errors
+          // Notification preferences have a unique constraint on user_id - upsert to avoid duplicate errors
           const query = setKey === 'notificationPreferences'
             ? supabase.from(tableName as any).upsert(dataWithUserId, { onConflict: 'user_id' }).select('id')
             : supabase.from(tableName as any).insert(dataWithUserId).select('id');
@@ -830,12 +830,12 @@ export function AdminSeedDataManager() {
       if (fundingSourceIds.length > 0 && selectedSets.includes('fundingSources')) {
         try {
           const expenditures = [
-            { funding_source_id: fundingSourceIds[0], amount: 15000, description: "Graduate RA — Fall Semester (Sarah Johnson)", category: "Personnel", expenditure_date: daysAgo(60), receipt_number: "RA-2025-001", user_id: user.id },
-            { funding_source_id: fundingSourceIds[0], amount: 8500, description: "Cloud computing credits — AWS & GCP", category: "Software & Services", expenditure_date: daysAgo(45), receipt_number: "CC-2025-012", user_id: user.id },
-            { funding_source_id: fundingSourceIds[0], amount: 3200, description: "Conference travel — SIGCSE 2025", category: "Travel", expenditure_date: daysAgo(90), receipt_number: "TRV-2025-003", user_id: user.id },
+            { funding_source_id: fundingSourceIds[0], amount: 15000, description: "Graduate RA - Fall Semester (Sarah Johnson)", category: "Personnel", expenditure_date: daysAgo(60), receipt_number: "RA-2025-001", user_id: user.id },
+            { funding_source_id: fundingSourceIds[0], amount: 8500, description: "Cloud computing credits - AWS & GCP", category: "Software & Services", expenditure_date: daysAgo(45), receipt_number: "CC-2025-012", user_id: user.id },
+            { funding_source_id: fundingSourceIds[0], amount: 3200, description: "Conference travel - SIGCSE 2025", category: "Travel", expenditure_date: daysAgo(90), receipt_number: "TRV-2025-003", user_id: user.id },
             { funding_source_id: fundingSourceIds[1], amount: 4250, description: "Lab workstation upgrades (RAM + SSD)", category: "Equipment", expenditure_date: daysAgo(30), receipt_number: "PO-2025-088", user_id: user.id },
-            { funding_source_id: fundingSourceIds[1], amount: 1800, description: "Software licenses — JetBrains, MATLAB", category: "Software & Services", expenditure_date: daysAgo(15), receipt_number: "SW-2025-022", user_id: user.id },
-            { funding_source_id: fundingSourceIds[2], amount: 12000, description: "Graduate RA — LLM tutoring project", category: "Personnel", expenditure_date: daysAgo(50), user_id: user.id },
+            { funding_source_id: fundingSourceIds[1], amount: 1800, description: "Software licenses - JetBrains, MATLAB", category: "Software & Services", expenditure_date: daysAgo(15), receipt_number: "SW-2025-022", user_id: user.id },
+            { funding_source_id: fundingSourceIds[2], amount: 12000, description: "Graduate RA - LLM tutoring project", category: "Personnel", expenditure_date: daysAgo(50), user_id: user.id },
             { funding_source_id: fundingSourceIds[2], amount: 5500, description: "GCP API credits for LLM inference", category: "Software & Services", expenditure_date: daysAgo(20), user_id: user.id },
             { funding_source_id: fundingSourceIds[3], amount: 9800, description: "10× Dell Optiplex workstations", category: "Equipment", expenditure_date: daysAgo(40), receipt_number: "PO-2025-102", user_id: user.id },
             { funding_source_id: fundingSourceIds[3], amount: 4200, description: "IoT sensor kits + Raspberry Pi bundles", category: "Equipment", expenditure_date: daysAgo(25), receipt_number: "PO-2025-115", user_id: user.id },
@@ -1047,7 +1047,7 @@ export function AdminSeedDataManager() {
               <AlertDialogDescription>
                 This will permanently delete <strong>all your data</strong> across every table (notes, meetings, supplies, expenses, funding, achievements, communications, shopping list, planning events, and more). 
                 <br /><br />
-                <strong>Only your admin account data is affected</strong> — no other user accounts will be touched. This action cannot be undone.
+                <strong>Only your admin account data is affected</strong> - no other user accounts will be touched. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -1176,7 +1176,7 @@ export function AdminSeedDataManager() {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete Selected Mock Data</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This will permanently delete <strong>all your data</strong> from the {selectedSets.length} selected table(s). Only your admin account is affected — no other user data will be touched. This cannot be undone.
+                  This will permanently delete <strong>all your data</strong> from the {selectedSets.length} selected table(s). Only your admin account is affected - no other user data will be touched. This cannot be undone.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

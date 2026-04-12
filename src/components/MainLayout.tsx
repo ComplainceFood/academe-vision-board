@@ -59,7 +59,7 @@ export function MainLayout({ children }: MainLayoutProps) {
                <span className="text-sm font-bold text-foreground tracking-tight hidden xs:inline sm:text-base truncate">
                  Smart<span className="text-primary">-Prof</span>
                </span>
-               <h1 className="sr-only">Smart-Prof — Organize, Optimize, Excel</h1>
+               <h1 className="sr-only">Smart-Prof - Organize, Optimize, Excel</h1>
              </div>
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <GlobalSearch />

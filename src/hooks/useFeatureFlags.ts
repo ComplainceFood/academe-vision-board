@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useUserRole } from "./useUserRole";
 import { useSubscription } from "./useSubscription";
 
-// "enterprise" is reserved for future use — not yet offered publicly
+// "enterprise" is reserved for future use - not yet offered publicly
 export type SubscriptionTier = "free" | "pro" | "enterprise";
 
 export interface FeatureFlag {
@@ -191,7 +191,7 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
       if (isSystemAdmin()) return true;
 
       const def = FEATURE_DEFINITIONS.find((f) => f.key === key);
-      if (!def) return true; // unknown key — allow by default
+      if (!def) return true; // unknown key - allow by default
 
       // Feature is force-enabled for everyone by admin override
       if (flags[key] === true) return true;

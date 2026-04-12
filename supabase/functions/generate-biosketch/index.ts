@@ -154,8 +154,8 @@ Respond ONLY with valid JSON in this exact structure:
       }
     ],
     "synergistic_activities": [
-      "Activity 1 — one sentence description",
-      "Activity 2 — one sentence description"
+      "Activity 1 - one sentence description",
+      "Activity 2 - one sentence description"
     ]
   }
 }`;
@@ -190,7 +190,7 @@ Respond ONLY with valid JSON in this exact structure:
       "other_significant": ["Up to 5 other significant publications"]
     },
     "synergistic_activities": [
-      "Activity description — one sentence each, up to 5 activities highlighting broader impact"
+      "Activity description - one sentence each, up to 5 activities highlighting broader impact"
     ]
   }
 }`;

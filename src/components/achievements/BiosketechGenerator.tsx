@@ -45,7 +45,7 @@ const FORMAT_OPTIONS: { value: BiosketechFormat; label: string; badge: string; d
     value: "academic_summary",
     label: "Academic Summary",
     badge: "General",
-    description: "Short professional bio, research interests, selected publications — for faculty pages or cover letters",
+    description: "Short professional bio, research interests, selected publications - for faculty pages or cover letters",
   },
 ];
 

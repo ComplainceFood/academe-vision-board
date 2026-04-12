@@ -79,7 +79,7 @@ async function generateAIInsights(data: any) {
   const summary = buildDataSummary(data);
 
   if (!GEMINI_API_KEY) {
-    console.warn('No GEMINI_API_KEY — returning rule-based insights');
+    console.warn('No GEMINI_API_KEY - returning rule-based insights');
     return { insights: ruleBasedInsights(data) };
   }
 
@@ -92,12 +92,12 @@ Analyse the following data snapshot from an academic management platform and pro
 
 ${summary}
 
-Return ONLY valid JSON — no markdown fences, no explanation — in this exact shape:
+Return ONLY valid JSON - no markdown fences, no explanation - in this exact shape:
 {
   "insights": [
     {
       "title": "Concise insight title (max 60 chars)",
-      "description": "2–3 sentences specific to the data above — reference actual numbers, names, or deadlines where relevant.",
+      "description": "2–3 sentences specific to the data above - reference actual numbers, names, or deadlines where relevant.",
       "action": "One concrete next step the user should take this week.",
       "priority": "high|medium|low",
       "category": "funding|research|tasks|meetings|supplies|productivity"
@@ -110,7 +110,7 @@ Priority rules:
 - medium → due within 90 days, moderate issues, patterns worth addressing
 - low    → optimisation opportunities, long-term recommendations
 
-Coverage: cover a diverse set of categories; do not generate more than 2 insights per category. Be specific — avoid generic advice.`;
+Coverage: cover a diverse set of categories; do not generate more than 2 insights per category. Be specific - avoid generic advice.`;
 
   const response = await fetch(
     'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',

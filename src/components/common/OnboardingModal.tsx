@@ -101,7 +101,7 @@ export function OnboardingModal() {
             </div>
           </div>
           <p className="text-sm text-muted-foreground text-center leading-relaxed">
-            Smart‑Prof is designed specifically for university professors — whether you focus
+            Smart‑Prof is designed specifically for university professors - whether you focus
             on teaching, research, or both. This short guide (4 steps) will help you understand
             what each part of the platform does and what information to fill in.
           </p>
@@ -162,7 +162,7 @@ export function OnboardingModal() {
       content: (
         <div className="space-y-3">
           <p className="text-sm text-muted-foreground">
-            Each module is independent — use what fits your workflow. Nothing is mandatory.
+            Each module is independent - use what fits your workflow. Nothing is mandatory.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {MODULE_CARDS.map(({ icon: Icon, label, desc, color }) => (
@@ -198,7 +198,7 @@ export function OnboardingModal() {
               {
                 icon: Calendar,
                 tip: "Add your first Planning Event",
-                detail: "Go to Semester Planning and type a task or deadline in the AI Smart Planner — it parses plain language.",
+                detail: "Go to Semester Planning and type a task or deadline in the AI Smart Planner - it parses plain language.",
               },
               {
                 icon: DollarSign,
@@ -299,7 +299,7 @@ export function OnboardingModal() {
   );
 }
 
-/** Utility — call this to reset the onboarding (e.g. from a Help button) */
+/** Utility - call this to reset the onboarding (e.g. from a Help button) */
 export function resetOnboarding() {
   localStorage.removeItem(ONBOARDING_KEY);
 }

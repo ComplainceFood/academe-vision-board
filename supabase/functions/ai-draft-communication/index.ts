@@ -41,7 +41,7 @@ Draft a complete communication for the following:
 - Topic / main subject: "${topic}"
 - Category: ${category || 'general'}
 - Priority level: ${priority || 'normal'}
-- Key points to cover: ${key_points || 'Not specified — infer from topic'}
+- Key points to cover: ${key_points || 'Not specified - infer from topic'}
 - Tone: ${toneDesc}
 
 Respond ONLY with valid JSON, no markdown fences:

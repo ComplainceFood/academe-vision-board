@@ -19,7 +19,7 @@ export default function TestingPage() {
             <div>
               <h1 className="text-4xl font-bold tracking-tight">System Health Monitor</h1>
               <p className="text-primary-foreground/80 text-lg mt-1">
-                Automated checks across all platform modules — run on demand or on a schedule
+                Automated checks across all platform modules - run on demand or on a schedule
               </p>
             </div>
           </div>

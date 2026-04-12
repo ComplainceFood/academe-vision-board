@@ -237,7 +237,7 @@ const FundingPage = () => {
               <div className="flex items-center gap-2">
                 <activeNav.icon className="h-5 w-5 text-primary" />
                 <h2 className="text-lg font-semibold">{activeNav.label}</h2>
-                <span className="text-sm text-muted-foreground hidden sm:inline">— {activeNav.description}</span>
+                <span className="text-sm text-muted-foreground hidden sm:inline">- {activeNav.description}</span>
               </div>
               {showSearch && (
                 <div className="relative w-full sm:w-64">

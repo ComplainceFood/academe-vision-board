@@ -118,7 +118,7 @@ export const AnalyticsInsights = () => {
                 <h3 className="text-lg font-bold">AI Insights</h3>
                 <Sparkles className="h-4 w-4 text-yellow-300 animate-pulse" />
               </div>
-              <p className="text-white/80 text-sm">Powered by Gemini AI — personalised for your academic profile</p>
+              <p className="text-white/80 text-sm">Powered by Gemini AI - personalised for your academic profile</p>
             </div>
           </div>
           <Button
@@ -190,7 +190,7 @@ export const AnalyticsInsights = () => {
           </div>
           <h3 className="font-semibold text-lg mb-2">No insights yet</h3>
           <p className="text-sm text-muted-foreground max-w-sm mx-auto mb-6 leading-relaxed">
-            Click the button above to let AI analyse your notes, meetings, grants, and achievements — and get personalised recommendations.
+            Click the button above to let AI analyse your notes, meetings, grants, and achievements - and get personalised recommendations.
           </p>
           <div className="flex flex-wrap justify-center gap-2 mb-6 text-xs text-muted-foreground">
             {['Task Management', 'Grant Deadlines', 'Supply Alerts', 'Productivity Tips', 'Research Insights'].map(tag => (

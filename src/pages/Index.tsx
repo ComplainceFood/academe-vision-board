@@ -152,7 +152,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Profile completion nudge — shown until position + department are filled */}
+        {/* Profile completion nudge - shown until position + department are filled */}
         {profile && (!profile.position || !profile.department) && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 rounded-2xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 px-4 py-3">
             <div className="flex items-center gap-2.5 flex-1 min-w-0">

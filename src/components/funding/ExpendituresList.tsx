@@ -251,7 +251,7 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
                             View
                           </Button>
                         ) : (
-                          <span className="text-xs text-muted-foreground/50">—</span>
+                          <span className="text-xs text-muted-foreground/50">-</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">

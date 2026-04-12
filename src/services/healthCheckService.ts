@@ -116,7 +116,7 @@ async function runCheck(def: CheckDefinition, userId: string): Promise<CheckResu
       name: def.name,
       description: def.description,
       status: 'fail',
-      message: message.includes('timed out') ? 'Check timed out — the database may be slow or unavailable' : 'An unexpected error occurred during this check',
+      message: message.includes('timed out') ? 'Check timed out - the database may be slow or unavailable' : 'An unexpected error occurred during this check',
       details: message,
       duration: Date.now() - start,
     };
@@ -151,10 +151,10 @@ export const SUITES: SuiteDefinition[] = [
         description: 'Checks that your current login session is active and secure',
         fn: async () => {
           const { data, error } = await supabase.auth.getSession();
-          if (error || !data.session) return { status: 'fail', message: 'No active login session found — please log in again' };
+          if (error || !data.session) return { status: 'fail', message: 'No active login session found - please log in again' };
           const expiresAt = data.session.expires_at;
           if (expiresAt && expiresAt * 1000 < Date.now() + 3_600_000) {
-            return { status: 'warning', message: 'Your session will expire within the next hour — consider logging out and back in' };
+            return { status: 'warning', message: 'Your session will expire within the next hour - consider logging out and back in' };
           }
           return { status: 'pass', message: 'Login session is active and valid' };
         },
@@ -198,7 +198,7 @@ export const SUITES: SuiteDefinition[] = [
             .from('notes')
             .insert({
               user_id: userId,
-              title: '[SmartProf Health Check — Auto Delete]',
+              title: '[SmartProf Health Check - Auto Delete]',
               content: 'Automated test record created by the health monitor. Safe to ignore.',
               type: 'note',
               course: 'Health Check',
@@ -216,7 +216,7 @@ export const SUITES: SuiteDefinition[] = [
 
           const { error: deleteError } = await supabase.from('notes').delete().eq('id', inserted.id);
           if (deleteError) {
-            return { status: 'warning', message: 'Records saved successfully but test cleanup failed — a stray test record may exist', details: deleteError.message };
+            return { status: 'warning', message: 'Records saved successfully but test cleanup failed - a stray test record may exist', details: deleteError.message };
           }
 
           return { status: 'pass', message: 'Records can be created and deleted correctly' };
@@ -375,7 +375,7 @@ export const SUITES: SuiteDefinition[] = [
         fn: async (userId) => {
           const { data, error } = await supabase.from('user_roles').select('role').eq('user_id', userId);
           if (error) return { status: 'fail', message: 'Cannot verify user role assignment', details: error.message };
-          if (!data || data.length === 0) return { status: 'warning', message: 'No role is assigned to this account — contact an administrator' };
+          if (!data || data.length === 0) return { status: 'warning', message: 'No role is assigned to this account - contact an administrator' };
           return { status: 'pass', message: `Account role is correctly assigned (${data[0].role.replace(/_/g, ' ')})` };
         },
       },

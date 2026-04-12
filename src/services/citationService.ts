@@ -1,4 +1,4 @@
-// OpenAlex API — free, no key required
+// OpenAlex API - free, no key required
 // Docs: https://docs.openalex.org
 
 const OPENALEX_BASE = "https://api.openalex.org";

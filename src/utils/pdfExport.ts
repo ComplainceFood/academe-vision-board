@@ -108,7 +108,7 @@ export async function exportAchievementsToPdf(
     }
   };
 
-  // Helper: wrapped text block — returns new y
+  // Helper: wrapped text block - returns new y
   const writeWrapped = (
     text: string,
     x: number,

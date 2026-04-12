@@ -413,7 +413,7 @@ const PlanningPage = () => {
                   <Sparkles className="h-4 w-4 text-primary" />
                   <span className="text-sm font-semibold text-primary">AI Smart Planner</span>
                   <Badge variant="secondary" className="text-xs">Beta</Badge>
-                  <span className="text-xs text-muted-foreground ml-1">Type in plain language — AI will parse the event for you</span>
+                  <span className="text-xs text-muted-foreground ml-1">Type in plain language - AI will parse the event for you</span>
                 </div>
                 <div className="flex flex-col xs:flex-row gap-2">
                   <Input
@@ -790,7 +790,7 @@ const PlanningPage = () => {
                   <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 p-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
                     <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                      All focus items complete — great semester!
+                      All focus items complete - great semester!
                     </p>
                   </div>
                 )}

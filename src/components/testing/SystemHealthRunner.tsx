@@ -74,10 +74,10 @@ function OverallBanner({ result }: { result: HealthRunResult }) {
           </h3>
           <p className="text-sm text-muted-foreground mt-0.5">
             {ok
-              ? `All ${result.totalChecks} checks passed — the platform is working correctly`
+              ? `All ${result.totalChecks} checks passed - the platform is working correctly`
               : warn
-              ? `${result.passed} passed, ${result.warnings} warning${result.warnings > 1 ? 's' : ''} — review the highlighted items below`
-              : `${result.failed} check${result.failed > 1 ? 's' : ''} failed — attention required`}
+              ? `${result.passed} passed, ${result.warnings} warning${result.warnings > 1 ? 's' : ''} - review the highlighted items below`
+              : `${result.failed} check${result.failed > 1 ? 's' : ''} failed - attention required`}
           </p>
         </div>
         <div className="flex gap-4 text-sm font-medium shrink-0">
@@ -281,7 +281,7 @@ function HistoryRow({ run, expanded, onToggle }: { run: HealthRunResult; expande
                         <StatusIcon status={check.status} size="sm" />
                         <div>
                           <span className="font-medium text-foreground">{check.name}</span>
-                          <span className="text-muted-foreground"> — {check.message}</span>
+                          <span className="text-muted-foreground"> - {check.message}</span>
                         </div>
                       </div>
                     ))}
@@ -585,7 +585,7 @@ export function SystemHealthRunner() {
               <CardContent>
                 {history.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground text-sm">
-                    No history yet — run your first health check above.
+                    No history yet - run your first health check above.
                   </div>
                 ) : (
                   <div className="space-y-2">

@@ -156,7 +156,7 @@
     @apply min-h-[44px] min-w-[44px];
   }
 
-  /* Page hero section — consistent mobile padding */
+  /* Page hero section - consistent mobile padding */
   .page-hero {
     @apply relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground;
   }

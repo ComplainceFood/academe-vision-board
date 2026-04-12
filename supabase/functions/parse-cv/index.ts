@@ -10,7 +10,7 @@ const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
 
 const EXTRACTION_PROMPT = `You are an expert academic CV parser. Extract ALL academic achievements from this CV text and return them as structured JSON.
 
-Category mapping — use EXACTLY these values:
+Category mapping - use EXACTLY these values:
 - "publication": journal articles, book chapters, books, conference papers, working papers, preprints, reports
 - "research_presentation": conference presentations, symposium talks, poster presentations
 - "invited_talk": keynote speeches, invited seminars, guest lectures, named lectures, panels
@@ -23,7 +23,7 @@ Category mapping — use EXACTLY these values:
 - "professional_development": workshops attended, certifications earned, training completed
 - "external_impact": media appearances, patents, policy documents, community engagement, industry consulting
 
-Status values — use EXACTLY: "published", "accepted", "submitted", "completed", "in_progress"
+Status values - use EXACTLY: "published", "accepted", "submitted", "completed", "in_progress"
 
 Return ONLY valid JSON, no markdown fences, in this exact structure:
 {
@@ -42,7 +42,7 @@ Return ONLY valid JSON, no markdown fences, in this exact structure:
       "impact_factor": <number if mentioned, else null>,
       "status": "<see status values above>",
       "organization": "<institution or organization name if applicable, else null>",
-      "award_type": "<e.g. Best Paper, Fellowship, Grant — for award_honor category, else null>",
+      "award_type": "<e.g. Best Paper, Fellowship, Grant - for award_honor category, else null>",
       "student_name": "<student full name for supervision, else null>",
       "student_level": "<undergraduate|masters|phd|postdoc for supervision, else null>",
       "course_code": "<course number like CS101 if present, else null>",
@@ -53,7 +53,7 @@ Return ONLY valid JSON, no markdown fences, in this exact structure:
 }
 
 Rules:
-- Extract EVERY item you find — be thorough, miss nothing
+- Extract EVERY item you find - be thorough, miss nothing
 - For publications: always try to extract co-authors, year, and journal/venue
 - For courses: if taught multiple times, create one entry with the most recent term
 - Default status to "completed" for past items, "published" for publications

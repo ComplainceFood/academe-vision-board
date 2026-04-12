@@ -68,7 +68,7 @@ interface UserAgreementWithEmail {
 const SUBSCRIPTION_TIERS = [
   { value: 'free', label: 'Free', color: 'text-muted-foreground' },
   { value: 'pro', label: 'Pro', color: 'text-purple-600' },
-  // Enterprise reserved for future use — not yet offered to users
+  // Enterprise reserved for future use - not yet offered to users
   { value: 'enterprise', label: 'Enterprise (internal)', color: 'text-amber-600' },
 ];
 
@@ -448,7 +448,7 @@ export default function AdminUsersPage() {
               </ScrollArea>
             </Card>
 
-            {/* Single shared edit dialog — rendered outside the map to avoid stale state */}
+            {/* Single shared edit dialog - rendered outside the map to avoid stale state */}
             <Dialog open={editDialogOpen} onOpenChange={(open) => { setEditDialogOpen(open); if (!open) setEditingUser(null); }}>
               <DialogContent>
                 <DialogHeader>
@@ -558,7 +558,7 @@ export default function AdminUsersPage() {
                         <TableRow key={a.id}>
                           <TableCell className="text-sm font-medium">{a.email || a.user_id}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {a.display_name || `${a.first_name || ''} ${a.last_name || ''}`.trim() || '—'}
+                            {a.display_name || `${a.first_name || ''} ${a.last_name || ''}`.trim() || '-'}
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className="text-xs capitalize">
@@ -581,7 +581,7 @@ export default function AdminUsersPage() {
             <div className="space-y-2">
               <h2 className="text-lg font-semibold">Feature Flag Control</h2>
               <p className="text-sm text-muted-foreground">
-                Toggle Pro features on or off for all users. When a feature is toggled ON, every user (including free tier) can access it — use this to run promotions or during beta periods. Toggle OFF to enforce subscription-based access.
+                Toggle Pro features on or off for all users. When a feature is toggled ON, every user (including free tier) can access it - use this to run promotions or during beta periods. Toggle OFF to enforce subscription-based access.
               </p>
             </div>
             <FeatureFlagsAdmin />

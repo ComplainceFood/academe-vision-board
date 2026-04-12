@@ -210,7 +210,7 @@ export function ResumeExportButton({ achievements, userName }: ResumeExportButto
             </div>
 
             <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3">
-              Plain formatting with no tables or graphics — optimized for ATS parsers. Entries are ordered reverse-chronologically within each section.
+              Plain formatting with no tables or graphics - optimized for ATS parsers. Entries are ordered reverse-chronologically within each section.
             </p>
           </div>
 

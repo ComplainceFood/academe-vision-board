@@ -534,7 +534,7 @@ const mockAchievements = [
   },
   {
     category: "award_honor",
-    title: "Outstanding Teaching Award — College of Engineering",
+    title: "Outstanding Teaching Award - College of Engineering",
     description: "Recognized for exceptional teaching effectiveness, innovative pedagogy, and dedication to student mentorship in 2024–2025.",
     organization: "University College of Engineering",
     award_type: "teaching",
@@ -545,7 +545,7 @@ const mockAchievements = [
   },
   {
     category: "course_taught",
-    title: "CS101 — Introduction to Computer Science (Spring 2025)",
+    title: "CS101 - Introduction to Computer Science (Spring 2025)",
     description: "Redesigned the introductory CS curriculum to incorporate Python-first instruction and active-learning exercises.",
     course_code: "CS101",
     term: "Spring 2025",
@@ -556,7 +556,7 @@ const mockAchievements = [
   },
   {
     category: "teaching_performance",
-    title: "CS404 — Advanced Artificial Intelligence (Fall 2024)",
+    title: "CS404 - Advanced Artificial Intelligence (Fall 2024)",
     description: "Teaching evaluation: 4.6/5.0. Students highlighted real-world project assignments and research-oriented instruction.",
     course_code: "CS404",
     term: "Fall 2024",
@@ -568,7 +568,7 @@ const mockAchievements = [
   },
   {
     category: "student_supervision",
-    title: "PhD Supervision — Sarah Johnson",
+    title: "PhD Supervision - Sarah Johnson",
     description: "Primary advisor for Sarah Johnson's PhD dissertation on 'Federated Learning for Healthcare Data Privacy'. Expected defense: May 2026.",
     student_name: "Sarah Johnson",
     student_level: "phd",
@@ -578,7 +578,7 @@ const mockAchievements = [
   },
   {
     category: "service_review",
-    title: "Program Committee Member — SIGCSE 2026",
+    title: "Program Committee Member - SIGCSE 2026",
     description: "Serving as a program committee reviewer for SIGCSE 2026 Technical Symposium. Reviewing 12 paper submissions across CS education tracks.",
     organization: "ACM SIGCSE",
     review_count: 12,
@@ -589,7 +589,7 @@ const mockAchievements = [
   },
   {
     category: "leadership_role",
-    title: "Undergraduate Program Director — CS Department",
+    title: "Undergraduate Program Director - CS Department",
     description: "Overseeing undergraduate CS program: curriculum governance, advising coordination, and ABET accreditation self-study.",
     organization: "CS Department, University",
     date: "2024-08-15",
@@ -609,7 +609,7 @@ const mockAchievements = [
   },
   {
     category: "external_impact",
-    title: "K-12 CS Education Outreach — Hour of Code 2024",
+    title: "K-12 CS Education Outreach - Hour of Code 2024",
     description: "Led 3 coding sessions for local high school students as part of the national Hour of Code initiative. Reached 85 students across two schools.",
     organization: "Local School District / Code.org",
     date: "2024-12-12",

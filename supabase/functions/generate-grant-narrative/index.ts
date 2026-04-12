@@ -137,7 +137,7 @@ function buildFallback(grant: any) {
   const riskFlags: string[] = [];
   if (spentPct > 80 && grant.end_date) {
     const daysLeft = Math.round((new Date(grant.end_date).getTime() - Date.now()) / (24 * 3600 * 1000));
-    if (daysLeft > 30) riskFlags.push(`${spentPct}% of budget expended with ${daysLeft} days remaining — review remaining expenditures.`);
+    if (daysLeft > 30) riskFlags.push(`${spentPct}% of budget expended with ${daysLeft} days remaining - review remaining expenditures.`);
   }
   if (grant.reporting_requirements) riskFlags.push(`Reporting requirement on file: ${grant.reporting_requirements}`);
   return {

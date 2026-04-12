@@ -2,7 +2,7 @@
 /**
  * Stripe Webhook Handler
  * ──────────────────────
- * STATUS: ACTIVE — JWT verification disabled so Stripe can call this without a token.
+ * STATUS: ACTIVE - JWT verification disabled so Stripe can call this without a token.
  *
  * TO ACTIVATE:
  *   1. Add STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET to Supabase secrets:
@@ -27,7 +27,7 @@
  *
  * TIER MAPPING (Stripe Price IDs → SmartProf tiers):
  *   Update PRICE_TO_TIER below with your actual Stripe Price IDs.
- *   Free plan: no Stripe product needed — default on signup.
+ *   Free plan: no Stripe product needed - default on signup.
  *   Pro plan:  create a Product "SmartProf Pro" with a monthly + annual price.
  */
 
@@ -183,7 +183,7 @@ Deno.serve(async (req) => {
         const invoice = event.data.object as Stripe.Invoice;
         const customerId = invoice.customer as string;
 
-        // Suspend access after failed payment — Stripe will retry automatically
+        // Suspend access after failed payment - Stripe will retry automatically
         await supabase
           .from('user_subscriptions')
           .update({ status: 'suspended', updated_at: new Date().toISOString() })

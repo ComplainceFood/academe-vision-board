@@ -4,12 +4,12 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- "S" letter — dark blue -->
+    <!-- "S" letter - dark blue -->
     <path
         android:fillColor="#2d4f9e"
         android:pathData="M20,18 C20,18 44,16 44,26 C44,36 24,40 24,48 C24,56 44,58 44,58 C44,58 20,60 20,70 C20,80 44,82 44,82 L44,76 C44,76 26,74 26,68 C26,62 46,58 46,50 C46,42 26,36 26,28 C26,20 44,20 44,20 Z" />
 
-    <!-- "P" letter — cream/off-white -->
+    <!-- "P" letter - cream/off-white -->
     <path
         android:fillColor="#e8dcc8"
         android:pathData="M52,16 L52,82 L60,82 L60,52 L68,52 C80,52 86,44 86,36 C86,24 78,16 66,16 Z M60,22 L64,22 C74,22 78,28 78,36 C78,44 74,48 64,48 L60,48 Z" />

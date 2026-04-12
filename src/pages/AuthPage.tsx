@@ -364,7 +364,7 @@ const AuthPage = () => {
               )}
             </div>
 
-            {/* Remember me + Forgot password — sign in mode only */}
+            {/* Remember me + Forgot password - sign in mode only */}
             {!isSignUp && (
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">

@@ -38,7 +38,7 @@ WITH CHECK (current_user_has_role('system_admin'::app_role));
 --    Handles role + subscription update atomically, bypassing RLS.
 --    Called from the admin UI. Also serves as the pattern for the
 --    Stripe webhook edge function (which uses service_role key and
---    bypasses RLS entirely — so it calls upsert directly).
+--    bypasses RLS entirely - so it calls upsert directly).
 --
 --    Returns: jsonb with {success: bool, error: text}
 
@@ -158,7 +158,7 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'error', 'User not found for stripe_customer_id: ' || p_stripe_customer_id);
   END IF;
 
-  -- Upsert subscription — this triggers the realtime listener on the frontend
+  -- Upsert subscription - this triggers the realtime listener on the frontend
   INSERT INTO public.user_subscriptions (
     user_id, tier, status, started_at, expires_at,
     stripe_customer_id, stripe_subscription_id, updated_at

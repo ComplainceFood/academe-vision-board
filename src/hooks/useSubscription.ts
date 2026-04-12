@@ -1,5 +1,5 @@
 /**
- * useSubscription — single source of truth for the current user's subscription tier.
+ * useSubscription - single source of truth for the current user's subscription tier.
  *
  * Today:  reads from `user_subscriptions` table (admin-managed).
  * Stripe: when Stripe is integrated, the webhook handler (edge function) should
@@ -84,7 +84,7 @@ export function useSubscription() {
     fetchSubscription();
   }, [fetchSubscription]);
 
-  // Realtime subscription updates — when Stripe webhook updates the row, the UI
+  // Realtime subscription updates - when Stripe webhook updates the row, the UI
   // will reflect the new tier automatically without a page reload.
   useEffect(() => {
     if (!user) return;

@@ -1,7 +1,7 @@
 /**
  * Create Stripe Checkout Session
  * ────────────────────────────────
- * STATUS: SCAFFOLDED — not yet active.
+ * STATUS: SCAFFOLDED - not yet active.
  *
  * Called from the frontend when a user clicks "Upgrade to Pro".
  * Returns a Stripe Checkout URL to redirect the user to.
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
 
     const { successUrl } = await req.json();
 
-    // Price IDs — monthly and annual Pro plans
+    // Price IDs - monthly and annual Pro plans
     const PRO_MONTHLY = Deno.env.get('STRIPE_PRO_PRICE_ID') ?? '';
     const PRO_ANNUAL  = Deno.env.get('STRIPE_PRO_ANNUAL_PRICE_ID') ?? PRO_MONTHLY;
 
@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
       allow_promotion_codes: true,
       subscription_data: {
         metadata: { supabase_user_id: user.id },
-        trial_period_days: 14,  // 14-day free trial for new Pro subscribers — remove when ready
+        trial_period_days: 14,  // 14-day free trial for new Pro subscribers - remove when ready
       },
     });
 

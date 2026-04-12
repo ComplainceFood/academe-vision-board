@@ -334,7 +334,7 @@ export const ExpenseList = ({
                       ) : expense.receipt ? (
                         <CheckCircle className="h-4 w-4 text-secondary" title="Receipt marked (no file)" />
                       ) : (
-                        <span className="text-xs text-muted-foreground/50">—</span>
+                        <span className="text-xs text-muted-foreground/50">-</span>
                       )}
                     </TableCell>
                     <TableCell>
