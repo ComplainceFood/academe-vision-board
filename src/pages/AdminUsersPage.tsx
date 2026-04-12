@@ -225,28 +225,28 @@ export default function AdminUsersPage() {
 
       if (subError) throw subError;
 
-      // Update role safely: update in place if row exists, else insert
-      const { data: existingRole } = await supabase
+      // Update role:
+      // The unique constraint is on (user_id, role) — not just user_id — so a user
+      // can have multiple rows. Strategy: insert the desired role first (ignore if
+      // already exists), then delete all OTHER role rows for this user. This way
+      // the user is never left role-less even if the delete step fails.
+      const { error: roleInsertError } = await supabase
         .from('user_roles')
-        .select('user_id')
+        .upsert(
+          { user_id: editingUser, role: editRole as any },
+          { onConflict: 'user_id,role', ignoreDuplicates: true }
+        );
+
+      if (roleInsertError) throw roleInsertError;
+
+      // Remove any other role rows for this user (roles that differ from editRole)
+      const { error: roleDeleteError } = await supabase
+        .from('user_roles')
+        .delete()
         .eq('user_id', editingUser)
-        .maybeSingle();
+        .neq('role', editRole);
 
-      let roleError;
-      if (existingRole) {
-        const { error } = await supabase
-          .from('user_roles')
-          .update({ role: editRole as any, updated_at: now })
-          .eq('user_id', editingUser);
-        roleError = error;
-      } else {
-        const { error } = await supabase
-          .from('user_roles')
-          .insert({ user_id: editingUser, role: editRole as any });
-        roleError = error;
-      }
-
-      if (roleError) throw roleError;
+      if (roleDeleteError) throw roleDeleteError;
 
       // Optimistically update local state so table reflects changes immediately
       setSubscriptions(prev => {
