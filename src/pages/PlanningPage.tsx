@@ -247,80 +247,78 @@ const PlanningPage = () => {
     <MainLayout>
       <div className="animate-fade-in space-y-6">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
-          
+
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
-                    <Calendar className="h-10 w-10" />
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
+                  <CalendarDays className="h-7 w-7 sm:h-10 sm:w-10" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight">Semester Planning</h1>
+                    <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-accent animate-pulse shrink-0" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Semester Planning</h1>
-                      <Sparkles className="h-6 w-6 text-accent animate-pulse" />
-                    </div>
-                    <p className="text-primary-foreground/80 text-lg mt-1">
-                      Organize your academic calendar and plan future semesters
-                    </p>
-                  </div>
+                  <p className="text-primary-foreground/80 text-xs sm:text-base mt-0.5">
+                    Organize your academic calendar and plan future semesters
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-3">
-                <Button 
-                  size="lg" 
+              <div className="flex flex-wrap gap-2 sm:gap-3">
+                <Button
+                  size="sm"
                   className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground border border-primary-foreground/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105"
                   onClick={() => handleOpenEventDialog()}
                 >
-                  <Plus className="h-5 w-5 mr-2" />
+                  <Plus className="h-4 w-4 mr-1.5" />
                   New Event
                 </Button>
-                <Button 
-                  size="lg" 
+                <Button
+                  size="sm"
                   className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105"
                   onClick={() => handleOpenTaskDialog()}
                 >
-                  <ListTodo className="h-5 w-5 mr-2" />
+                  <ListTodo className="h-4 w-4 mr-1.5" />
                   Plan Task
                 </Button>
               </div>
             </div>
-            
+
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">This Week</p>
-                <p className="text-3xl font-bold">{stats.thisWeekEvents}</p>
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 mt-4 sm:mt-6">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">This Week</p>
+                <p className="text-xl sm:text-3xl font-bold">{stats.thisWeekEvents}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Task Progress</p>
-                <p className="text-3xl font-bold">{stats.taskProgress}%</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Progress</p>
+                <p className="text-xl sm:text-3xl font-bold">{stats.taskProgress}%</p>
               </div>
-              <div className="bg-destructive backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Urgent</p>
-                <p className="text-3xl font-bold text-primary-foreground">{stats.urgentDeadlines}</p>
+              <div className="bg-destructive backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Urgent</p>
+                <p className="text-xl sm:text-3xl font-bold text-primary-foreground">{stats.urgentDeadlines}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Future Tasks</p>
-                <p className="text-3xl font-bold">{stats.totalFutureTasks}</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Future</p>
+                <p className="text-xl sm:text-3xl font-bold">{stats.totalFutureTasks}</p>
               </div>
             </div>
           </div>
         </div>
-        
+
         {/* Main Content */}
         <Tabs defaultValue="calendar" className="space-y-6">
-          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full max-w-md grid-cols-2">
-            <TabsTrigger value="calendar" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
-              <Calendar className="h-4 w-4" />
+          <TabsList className="p-1 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full sm:max-w-md grid-cols-2">
+            <TabsTrigger value="calendar" className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
+              <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
               <span>Calendar View</span>
             </TabsTrigger>
-            <TabsTrigger value="future" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
-              <Layers className="h-4 w-4" />
+            <TabsTrigger value="future" className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
+              <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
               <span>Future Planning</span>
             </TabsTrigger>
           </TabsList>
@@ -334,13 +332,13 @@ const PlanningPage = () => {
                 <Badge variant="secondary" className="text-xs">Beta</Badge>
                 <span className="text-xs text-muted-foreground ml-1">Type in plain language — AI will parse the event for you</span>
               </div>
-              <div className="flex gap-2">
+              <div className="flex flex-col xs:flex-row gap-2">
                 <Input
-                  placeholder='e.g. "Midterm grading due this Friday" or "Research seminar next Tuesday at 2pm in Science Hall"'
+                  placeholder='e.g. "Midterm grading due this Friday"'
                   value={aiInput}
                   onChange={(e) => setAIInput(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleAISmartAdd(); }}
-                  className="text-sm"
+                  className="text-sm flex-1"
                 />
                 <Button
                   type="button"

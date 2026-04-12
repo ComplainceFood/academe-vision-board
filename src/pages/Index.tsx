@@ -124,47 +124,47 @@ const Index = () => {
       <div className="animate-fade-in space-y-6">
 
         {/* Welcome Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-secondary p-6 text-primary-foreground shadow-lg">
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-secondary p-4 sm:p-6 text-primary-foreground shadow-lg">
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
             <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-secondary/30 blur-2xl" />
           </div>
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+            <div className="min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="h-4 w-4 text-yellow-300" />
-                <span className="text-sm text-primary-foreground/80">{today}</span>
+                <Sparkles className="h-3.5 w-3.5 text-yellow-300 shrink-0" />
+                <span className="text-xs sm:text-sm text-primary-foreground/80 truncate">{today}</span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Welcome back!</h1>
-              <p className="text-primary-foreground/75 text-sm mt-1">Here's your academic overview for today</p>
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-tight">Welcome back!</h1>
+              <p className="text-primary-foreground/75 text-xs sm:text-sm mt-1">Your academic overview for today</p>
             </div>
-            <div className="flex gap-2">
-              <Button asChild size="sm" className="bg-white/15 hover:bg-white/25 border border-white/20 text-white backdrop-blur-sm">
-                <Link to="/analytics"><BarChart className="h-4 w-4 mr-1.5" />Analytics</Link>
+            <div className="flex gap-2 shrink-0">
+              <Button asChild size="sm" className="bg-white/15 hover:bg-white/25 border border-white/20 text-white backdrop-blur-sm text-xs sm:text-sm h-8 sm:h-9">
+                <Link to="/analytics"><BarChart className="h-3.5 w-3.5 mr-1" />Analytics</Link>
               </Button>
-              <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold shadow-md">
-                <Link to="/planning"><CalendarRange className="h-4 w-4 mr-1.5" />Planning</Link>
+              <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold shadow-md text-xs sm:text-sm h-8 sm:h-9">
+                <Link to="/planning"><CalendarRange className="h-3.5 w-3.5 mr-1" />Planning</Link>
               </Button>
             </div>
           </div>
         </div>
 
         {/* Stat Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3">
           {statCards.map(({ title, value, icon: Icon, to, desc, alert }) => (
             <Link key={title} to={to} className="group">
               <Card className={`border bg-card shadow-sm transition-all duration-200 group-hover:shadow-md group-hover:-translate-y-0.5 ${alert ? 'border-red-200 dark:border-red-900/30' : ''}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className={`p-1.5 rounded-lg ${alert ? 'bg-red-100 dark:bg-red-900/30' : 'bg-primary/10'}`}>
-                      <Icon className={`h-4 w-4 ${alert ? 'text-red-500' : 'text-primary'}`} />
+                <CardContent className="p-3 sm:p-4">
+                  <div className="flex items-start justify-between mb-2 sm:mb-3">
+                    <div className={`p-1 sm:p-1.5 rounded-lg ${alert ? 'bg-red-100 dark:bg-red-900/30' : 'bg-primary/10'}`}>
+                      <Icon className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${alert ? 'text-red-500' : 'text-primary'}`} />
                     </div>
                     {alert && (
-                      <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-1.5 py-0.5 rounded-full font-medium">!</span>
+                      <span className="text-[10px] bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400 px-1 py-0.5 rounded-full font-medium">!</span>
                     )}
                   </div>
-                  <p className="text-2xl font-bold text-foreground">{value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5 truncate">{title}</p>
+                  <p className="text-xl sm:text-2xl font-bold text-foreground leading-none">{value}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mt-1 leading-tight line-clamp-2">{title}</p>
                 </CardContent>
               </Card>
             </Link>
@@ -172,7 +172,7 @@ const Index = () => {
         </div>
 
         {/* Schedule + Quick Actions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
           {/* Today's Schedule */}
           <Card className="lg:col-span-2">
             <CardHeader className="pb-3">
@@ -246,7 +246,7 @@ const Index = () => {
             <Layers className="h-4 w-4 text-primary" />
             All Modules
           </h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 sm:gap-3">
             {[
               { label: 'Notes & Commitments', icon: BookOpen, to: '/notes' },
               { label: 'Meetings', icon: Users, to: '/meetings' },
@@ -258,10 +258,10 @@ const Index = () => {
               { label: 'Communications', icon: BellRing, to: '/communications' },
             ].map(({ label, icon: Icon, to }) => (
               <Link key={label} to={to}>
-                <Card className="border bg-card hover:bg-muted/50 transition-all duration-200 hover:shadow-sm cursor-pointer">
-                  <CardContent className="p-3.5 flex items-center gap-3">
-                    <Icon className="h-5 w-5 shrink-0 text-primary" />
-                    <span className="text-xs font-medium leading-tight">{label}</span>
+                <Card className="border bg-card hover:bg-muted/50 transition-all duration-200 hover:shadow-sm cursor-pointer h-full">
+                  <CardContent className="p-3 flex items-center gap-2 sm:gap-3">
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 shrink-0 text-primary" />
+                    <span className="text-[11px] sm:text-xs font-medium leading-tight">{label}</span>
                   </CardContent>
                 </Card>
               </Link>

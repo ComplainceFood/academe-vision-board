@@ -150,7 +150,7 @@ export function CreateNoteDialog({ open, onOpenChange, onNoteCreated }: CreateNo
           </Button>
         </DialogTrigger>
       )}
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="w-[95vw] sm:max-w-[425px]">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle>Create New {type === "note" ? "Note" : "Commitment"}</DialogTitle>

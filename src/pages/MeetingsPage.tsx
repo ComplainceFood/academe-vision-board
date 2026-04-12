@@ -200,7 +200,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
           </div>
           <div className="flex items-center gap-2">
             <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm truncate max-w-[150px]">{meeting.location}</span>
+            <span className="text-sm truncate max-w-[120px] sm:max-w-[200px]">{meeting.location}</span>
           </div>
         </div>
         
@@ -354,25 +354,23 @@ const MeetingsPage = () => {
     <MainLayout>
       <div className="animate-fade-in space-y-6">
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
-          
+
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
-                    <Calendar className="h-10 w-10" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Meetings & 1:1s</h1>
-                    <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">Schedule and manage your meetings</p>
-                  </div>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
+              <div className="flex items-center gap-3 sm:gap-4">
+                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
+                  <Calendar className="h-7 w-7 sm:h-10 sm:w-10" />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight">Meetings & 1:1s</h1>
+                  <p className="text-primary-foreground/80 text-xs sm:text-base mt-0.5">Schedule and manage your meetings</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2 sm:gap-3">
                 <QuickAdd
                   type="meeting"
                   onQuickAdd={handleQuickAddMeeting}
@@ -381,32 +379,31 @@ const MeetingsPage = () => {
 
                 <Button
                   onClick={() => setIsCreateOpen(true)}
-                  size="lg"
-                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105">
-
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Schedule Meeting
+                  size="sm"
+                  className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105 sm:size-lg">
+                  <Calendar className="h-4 w-4 mr-1.5" />
+                  Schedule
                 </Button>
               </div>
             </div>
-            
+
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mt-6">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Upcoming</p>
-                <p className="text-3xl font-bold">{stats.upcoming}</p>
+            <div className="grid grid-cols-4 gap-2 sm:gap-4 mt-4 sm:mt-6">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Upcoming</p>
+                <p className="text-xl sm:text-3xl font-bold">{stats.upcoming}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">This Week</p>
-                <p className="text-3xl font-bold text-primary-foreground">{stats.thisWeek}</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">This Week</p>
+                <p className="text-xl sm:text-3xl font-bold">{stats.thisWeek}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Completed</p>
-                <p className="text-3xl font-bold text-primary-foreground">{stats.past}</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Completed</p>
+                <p className="text-xl sm:text-3xl font-bold">{stats.past}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-4 py-3 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total</p>
-                <p className="text-3xl font-bold">{stats.total}</p>
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Total</p>
+                <p className="text-xl sm:text-3xl font-bold">{stats.total}</p>
               </div>
             </div>
           </div>
@@ -414,8 +411,8 @@ const MeetingsPage = () => {
 
         {/* Search and Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full space-y-4">
-          <div className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
-            <div className="relative w-full md:w-80">
+          <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+            <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search meetings..."
@@ -423,22 +420,22 @@ const MeetingsPage = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)} />
             </div>
-            
-            <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl">
-              <TabsTrigger value="upcoming" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
-                <ArrowUp className="h-4 w-4" />
+
+            <TabsList className="p-1 bg-muted/70 backdrop-blur-sm rounded-xl grid grid-cols-3 w-full sm:w-auto">
+              <TabsTrigger value="upcoming" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
+                <ArrowUp className="h-3.5 w-3.5 shrink-0" />
                 <span>Upcoming</span>
-                <Badge variant="secondary" className="ml-1">{stats.upcoming}</Badge>
+                <Badge variant="secondary" className="ml-0.5 text-[10px] px-1 hidden xs:inline-flex">{stats.upcoming}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="past" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
-                <ArrowDown className="h-4 w-4" />
+              <TabsTrigger value="past" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
+                <ArrowDown className="h-3.5 w-3.5 shrink-0" />
                 <span>Past</span>
-                <Badge variant="secondary" className="ml-1">{stats.past}</Badge>
+                <Badge variant="secondary" className="ml-0.5 text-[10px] px-1 hidden xs:inline-flex">{stats.past}</Badge>
               </TabsTrigger>
-              <TabsTrigger value="all" className="flex items-center gap-2 px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
-                <Calendar className="h-4 w-4" />
+              <TabsTrigger value="all" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
                 <span>All</span>
-                <Badge variant="secondary" className="ml-1">{stats.total}</Badge>
+                <Badge variant="secondary" className="ml-0.5 text-[10px] px-1 hidden xs:inline-flex">{stats.total}</Badge>
               </TabsTrigger>
             </TabsList>
           </div>

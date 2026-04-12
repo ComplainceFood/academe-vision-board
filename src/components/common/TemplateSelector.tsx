@@ -129,7 +129,7 @@ export function TemplateSelector({
       </DropdownMenu>
 
       <Dialog open={isSaveDialogOpen} onOpenChange={setIsSaveDialogOpen}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className="w-[95vw] sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Save as Template</DialogTitle>
             <DialogDescription>

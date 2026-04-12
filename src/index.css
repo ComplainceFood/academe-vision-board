@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    font-size: 15px;
+    font-size: 14px;
     --background: 180 44% 96%;
     --foreground: 270 5% 20%;
 
@@ -120,15 +120,21 @@
   }
 }
 
+@media (min-width: 480px) {
+  :root {
+    font-size: 15px;
+  }
+}
+
 @media (min-width: 768px) {
   :root {
-    font-size: 17px;
+    font-size: 16px;
   }
 }
 
 @media (min-width: 1024px) {
   :root {
-    font-size: 19px;
+    font-size: 17px;
   }
 }
 
@@ -136,12 +142,22 @@
   .glassmorphism {
     @apply bg-white/70 dark:bg-gray-900/70 backdrop-blur-lg border border-white/20 dark:border-gray-800/20 shadow-lg;
   }
-  
+
   .hover-scale {
     @apply transition-transform duration-300 hover:scale-105;
   }
-  
+
   .story-link {
     @apply relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-0.5 after:bottom-0 after:left-0 after:bg-primary after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
+
+  /* Ensure tap targets are at least 44px on mobile */
+  .touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+
+  /* Page hero section — consistent mobile padding */
+  .page-hero {
+    @apply relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground;
   }
 }

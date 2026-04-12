@@ -207,7 +207,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">{meeting.title}</DialogTitle>
           <div className="flex items-center gap-2 mt-2">

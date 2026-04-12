@@ -361,7 +361,7 @@ export function AdminFeedbackManagement() {
             </Select>
           </div>
 
-          <ScrollArea className="h-[600px]">
+          <ScrollArea className="h-[400px] sm:h-[500px] md:h-[600px]">
             <div className="space-y-4 pr-4">
               {filteredFeedback.map((item) => {
                 const priorityInfo = getPriorityInfo(item.priority);

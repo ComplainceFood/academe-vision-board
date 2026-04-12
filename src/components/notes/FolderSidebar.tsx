@@ -194,7 +194,7 @@ export function FolderSidebar({
 
       {/* Create Folder Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-[400px]">
+        <DialogContent className="w-[95vw] sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>Create New Notebook</DialogTitle>
           </DialogHeader>

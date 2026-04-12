@@ -327,7 +327,7 @@ export default function AdminUsersPage() {
 
             {/* Users Table */}
             <Card>
-              <ScrollArea className="h-[600px]">
+              <ScrollArea className="h-[400px] sm:h-[500px] md:h-[600px]">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -479,7 +479,7 @@ export default function AdminUsersPage() {
                 <CardTitle className="text-base">User Legal Agreements</CardTitle>
                 <CardDescription>All recorded Terms of Service and Privacy Policy acceptances</CardDescription>
               </CardHeader>
-              <ScrollArea className="h-[600px]">
+              <ScrollArea className="h-[400px] sm:h-[500px] md:h-[600px]">
                 <Table>
                   <TableHeader>
                     <TableRow>

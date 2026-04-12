@@ -50,30 +50,28 @@ export function MainLayout({ children }: MainLayoutProps) {
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
-          <header className="h-14 md:h-16 border-b px-3 sm:px-6 flex items-center justify-between bg-sidebar-accent shrink-0">
-             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
-               <SidebarTrigger />
-               <SmartProfLogo size={32} />
-               <span className="text-base font-bold text-foreground tracking-tight hidden sm:inline">
+          <header className="h-14 border-b px-3 sm:px-5 flex items-center justify-between bg-sidebar-accent shrink-0 gap-2">
+             <div className="flex items-center gap-2 min-w-0 flex-1">
+               <SidebarTrigger className="shrink-0" />
+               <SmartProfLogo size={28} className="shrink-0" />
+               <span className="text-sm font-bold text-foreground tracking-tight hidden xs:inline sm:text-base truncate">
                  Smart<span className="text-primary">-Prof</span>
                </span>
                <h1 className="sr-only">Smart-Prof — Organize, Optimize, Excel</h1>
              </div>
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <GlobalSearch />
-              <div className="flex items-center gap-1 sm:gap-2">
-                <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
-                  {isDarkMode ? <Sun className="h-4 w-4 md:h-5 md:w-5" /> : <Moon className="h-4 w-4 md:h-5 md:w-5" />}
+              <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="h-8 w-8 sm:h-9 sm:w-9">
+                {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+              </Button>
+              {user &&
+                <Button variant="ghost" size="icon" onClick={handleLogout} className="h-8 w-8 sm:h-9 sm:w-9">
+                  <LogOut className="h-4 w-4" />
                 </Button>
-                {user &&
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4 md:h-5 md:w-5" />
-                  </Button>
-                }
-              </div>
+              }
             </div>
           </header>
-          <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto">
+          <main className="flex-1 p-3 sm:p-4 md:p-6 overflow-auto overflow-x-hidden">
             {children}
           </main>
         </div>

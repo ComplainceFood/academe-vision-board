@@ -163,7 +163,7 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] sm:max-w-[520px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Schedule New Meeting</DialogTitle>
         </DialogHeader>

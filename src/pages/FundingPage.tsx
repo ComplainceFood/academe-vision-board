@@ -82,44 +82,44 @@ const FundingPage = () => {
       <div className="animate-fade-in space-y-6">
 
         {/* ── Hero Header ── */}
-        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-white/10 rounded-full blur-3xl animate-pulse" />
           </div>
 
-          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="p-4 rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl">
-                <PiggyBank className="h-10 w-10" />
+          <div className="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-white/15 backdrop-blur-sm border border-white/20 shadow-xl shrink-0">
+                <PiggyBank className="h-7 w-7 sm:h-10 sm:w-10" />
               </div>
-              <div>
+              <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Grant Management</h1>
-                  <Sparkles className="h-6 w-6 text-yellow-300 animate-pulse" />
+                  <h1 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight">Grant Management</h1>
+                  <Sparkles className="h-4 w-4 sm:h-6 sm:w-6 text-yellow-300 animate-pulse shrink-0" />
                 </div>
-                <p className="text-primary-foreground/80 text-lg mt-1">
+                <p className="text-primary-foreground/80 text-xs sm:text-base mt-0.5">
                   Track research grants, funding sources &amp; expenditures
                 </p>
               </div>
             </div>
 
-            {/* Header action buttons — clearly visible */}
-            <div className="flex flex-wrap gap-3">
+            {/* Header action buttons */}
+            <div className="flex flex-wrap gap-2 sm:gap-3">
               <Button
                 onClick={() => setShowSourceDialog(true)}
-                size="lg"
-                className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg transition-all hover:scale-105"
+                size="sm"
+                className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg transition-all hover:scale-105 sm:size-lg"
               >
-                <Plus className="h-5 w-5 mr-2" />
+                <Plus className="h-4 w-4 mr-1.5" />
                 New Grant
               </Button>
               <Button
                 onClick={() => setShowExpenditureDialog(true)}
-                size="lg"
+                size="sm"
                 variant="outline"
-                className="border-white/60 text-white hover:bg-white/15 font-semibold shadow-lg transition-all hover:scale-105 bg-white/10 backdrop-blur-sm"
+                className="border-white/60 text-white hover:bg-white/15 font-semibold shadow-lg transition-all hover:scale-105 bg-white/10 backdrop-blur-sm sm:size-lg"
               >
-                <Receipt className="h-5 w-5 mr-2" />
+                <Receipt className="h-4 w-4 mr-1.5" />
                 Record Expense
               </Button>
             </div>
@@ -127,16 +127,43 @@ const FundingPage = () => {
         </div>
 
         {/* ── Page body: collapsible side-nav + content ── */}
-        <div className="flex gap-4 items-start">
+        <div className="flex flex-col sm:flex-row gap-4 items-start">
 
           {/* Collapsible vertical nav */}
           <aside
             className={cn(
-              "shrink-0 transition-all duration-300 ease-in-out",
-              navCollapsed ? "w-14" : "w-52"
+              "shrink-0 transition-all duration-300 ease-in-out w-full sm:w-auto",
+              navCollapsed ? "sm:w-14" : "sm:w-52"
             )}
           >
-            <div className="rounded-2xl border bg-card shadow-sm overflow-hidden">
+            {/* Mobile: horizontal scrollable tab strip */}
+            <div className="sm:hidden rounded-2xl border bg-card shadow-sm overflow-hidden">
+              <div className="flex overflow-x-auto scrollbar-none p-1.5 gap-1">
+                {NAV_ITEMS.map(item => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.id;
+                  return (
+                    <button
+                      type="button"
+                      key={item.id}
+                      onClick={() => setActiveTab(item.id)}
+                      className={cn(
+                        "flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-medium whitespace-nowrap transition-all duration-150 shrink-0",
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5 shrink-0" />
+                      {item.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Desktop: vertical collapsible nav */}
+            <div className="hidden sm:block rounded-2xl border bg-card shadow-sm overflow-hidden">
               {/* Toggle button */}
               <div className="flex items-center justify-between px-3 py-3 border-b bg-muted/40">
                 {!navCollapsed && (

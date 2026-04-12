@@ -18,7 +18,7 @@ export function ViewNoteDialog({ note, open, onOpenChange, onEdit, onDelete }: V
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px]">
+      <DialogContent className="w-[95vw] sm:max-w-[600px]">
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div className="flex-1">

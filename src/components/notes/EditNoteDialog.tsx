@@ -72,7 +72,7 @@ export function EditNoteDialog({ note, open, onOpenChange }: EditNoteDialogProps
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="w-[95vw] sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Edit Note</DialogTitle>
         </DialogHeader>
