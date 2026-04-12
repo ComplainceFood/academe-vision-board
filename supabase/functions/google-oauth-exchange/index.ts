@@ -2,12 +2,25 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = [
+  'https://smartprof.app',
+  'https://www.smartprof.app',
+  'https://64d94714-e892-42c9-981a-bb6f485a7ae3.lovableproject.com',
+];
+
+function getCorsHeaders(origin: string | null): Record<string, string> {
+  const allowed = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  };
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -48,7 +61,9 @@ serve(async (req) => {
 
     const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
     const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
-    const redirectUri = `${req.headers.get('origin')}/auth/google/callback`;
+    // Build redirect URI from allowlist only — never trust the Origin header directly
+    const safeOrigin = ALLOWED_ORIGINS.includes(origin || '') ? origin : ALLOWED_ORIGINS[0];
+    const redirectUri = `${safeOrigin}/auth/google/callback`;
 
     if (!clientId || !clientSecret) {
       throw new Error('Google OAuth credentials not configured');

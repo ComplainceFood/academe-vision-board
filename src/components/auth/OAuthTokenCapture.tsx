@@ -23,13 +23,8 @@ export const OAuthTokenCapture = () => {
     if (provider === "google" && providerToken) {
       savedRef.current = true; // prevent duplicate writes on rerenders
 
-      // Check for linking flow indicator using sessionStorage (more secure, cleared on tab close)
-      let originalUserId: string | null = null;
-      try {
-        originalUserId = sessionStorage.getItem('sp_linking_user_id');
-      } catch {}
-
-      const targetUserId = originalUserId || user.id;
+      // Always use the authenticated user's own ID — never trust sessionStorage for user identity
+      const targetUserId = user.id;
 
       (async () => {
         try {
