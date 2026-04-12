@@ -838,7 +838,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <div className="flex items-center space-x-2.5">
-              <SmartProfLogoWide height={36} />
+              <SmartProfLogoWide height={76} />
             </div>
 
             <p className="text-sm" style={{ color: "#4A6B5A" }}>
