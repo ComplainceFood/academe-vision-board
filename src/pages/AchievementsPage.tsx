@@ -109,7 +109,7 @@ const AchievementsPage = () => {
       <div className="animate-fade-in space-y-8">
         <PageGuide page="achievements" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>

@@ -394,7 +394,7 @@ const SuppliesPage = () => {
                 <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">Items</p>
                 <p className="text-xl sm:text-3xl font-bold text-primary-foreground">{supplies.length}</p>
               </div>
-              <div className="backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20 bg-destructive">
+              <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
                 <p className="text-primary-foreground/80 text-[9px] sm:text-xs uppercase tracking-wider">Low Stock</p>
                 <p className="text-xl sm:text-3xl font-bold text-primary-foreground">{warningItems.length}</p>
               </div>

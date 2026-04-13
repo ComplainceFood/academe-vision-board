@@ -269,7 +269,7 @@ const NotesPage = () => {
       <div className="space-y-6">
         <PageGuide page="notes" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-3xl bg-primary p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
@@ -300,7 +300,7 @@ const NotesPage = () => {
                 <p className="text-2xl font-bold">{stats.pendingTasks}</p>
                 <p className="text-xs text-primary-foreground/70">Pending</p>
               </div>
-              <div className="bg-destructive backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
+              <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
                 <p className="text-2xl font-bold text-primary-foreground">{stats.overdueTasks}</p>
                 <p className="text-xs text-primary-foreground/70">Overdue</p>
               </div>
