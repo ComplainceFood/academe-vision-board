@@ -58,49 +58,41 @@ serve(async (req) => {
       .map((e) => `${e.date}: ${e.title}`)
       .join('\n') || 'None';
 
-    const prompt = `You are a smart calendar assistant for academic professionals (professors, researchers, lecturers).
-
-Parse the following natural language description and create a structured calendar event or task.
+    const prompt = `You are a calendar assistant for academic professionals. Parse the user input and return a JSON object.
 
 User input: "${description}"
-Today's date: ${todayStr}
-Upcoming busy dates:
-${busyDates}
+Today: ${todayStr}
+Existing events: ${busyDates}
 
-Respond ONLY with valid JSON (no markdown, no code fences) in this exact format:
-{
-  "title": "Clear event/task title (max 80 chars)",
-  "date": "YYYY-MM-DD",
-  "time": "HH:MM or empty string if all-day",
-  "type": "event|task|deadline|meeting",
-  "priority": "low|medium|high|urgent",
-  "course": "Course code or topic (e.g. 'CS 101', 'Research', 'Committee Work') or empty string",
-  "description": "2-3 sentence description with relevant context",
-  "conflict_warning": "Warning if date conflicts with existing events, or empty string"
-}
+Return a JSON object with these exact keys:
+- title: string (max 80 chars, clear event title)
+- date: string (YYYY-MM-DD format, never in the past)
+- time: string (HH:MM 24h format, or empty string for all-day)
+- type: string (one of: task, deadline, event, meeting)
+- priority: string (one of: low, medium, high, urgent)
+- course: string (course code or topic, or empty string)
+- description: string (1-2 sentences of context)
+- conflict_warning: string (note if date clashes with existing events, or empty string)
 
-Date parsing rules (today = ${todayStr}):
-- "tomorrow" → next day
-- "next Monday/Friday/etc" → next occurrence of that weekday
-- "this week" → nearest Friday
-- "this saturday/sunday" → the upcoming Saturday/Sunday
-- "end of month" → last day of current month
-- "next semester" → roughly 4 months from today
-- "in X days/weeks" → calculate exactly
-- If no date mentioned → use tomorrow
-- Never use a date in the past
+Date rules (today = ${todayStr}):
+- "tomorrow" = next day
+- "this saturday" = upcoming Saturday
+- "next [weekday]" = next occurrence of that weekday
+- "this week" = nearest Friday
+- "in X days" = calculate exactly
+- No date mentioned = tomorrow
 
 Type rules:
-- "task" → action to complete (do, write, grade, review, submit, remember to)
-- "deadline" → submission/due date
-- "event" → seminar, conference, appointment, ceremony
-- "meeting" → meeting, class, lecture, office hours, committee, sync
+- task: grade, write, review, submit, do, prepare
+- deadline: due date, submission deadline
+- meeting: meeting, class, lecture, office hours, committee
+- event: seminar, conference, appointment, ceremony
 
 Priority rules:
-- "urgent" → today or tomorrow, or explicitly urgent/ASAP
-- "high" → this week
-- "medium" → this month
-- "low" → beyond a month or vague`;
+- urgent: today or tomorrow, or explicitly urgent
+- high: this week
+- medium: this month
+- low: beyond a month`;
 
     const geminiRes = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
@@ -115,6 +107,7 @@ Priority rules:
           generationConfig: {
             temperature: 0.2,
             maxOutputTokens: 512,
+            responseMimeType: "application/json",
           },
         }),
       }
