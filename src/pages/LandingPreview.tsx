@@ -35,7 +35,7 @@ import { SmartProfLogo, SmartProfLogoWide } from "@/components/Logo";
 
 // Import preview images
 import notesPreview from "@/assets/landing/notes-preview.png";
-import planningPreview from "@/assets/landing/planning-preview.png";
+import narrativePreview from "@/assets/landing/AI-Grant-Narrative.png";
 import analyticsPreview from "@/assets/landing/analytics-preview.png";
 import fundingPreview from "@/assets/landing/funding-preview.png";
 
@@ -164,7 +164,7 @@ const LandingPreview = () => {
         "Semester Planning with event and deadline tracking",
         "Google Calendar & Outlook sync (Pro)",
       ],
-      image: planningPreview,
+      image: notesPreview,
       badge: null,
     },
     {
@@ -209,7 +209,7 @@ const LandingPreview = () => {
         "AI Analytics Insights and AI Supply Analysis",
         "NIH Biosketch Generator",
       ],
-      image: notesPreview,
+      image: narrativePreview,
       badge: "Pro",
     },
   ];
