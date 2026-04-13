@@ -226,23 +226,23 @@ const Index = () => {
           ))}
         </div>
 
-        {/* Three-column panel: Events | Quick Actions | All Modules */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {/* Three-column panel: Events 33% | Quick Actions 20% | All Modules ~47% */}
+        <div className="grid grid-cols-1 md:grid-cols-[33%_20%_1fr] gap-3">
 
-          {/* Col 1 — This Week's Events */}
+          {/* Col 1 — This Week's Events (33%) */}
           <Card className="flex flex-col">
             <CardHeader className="pb-1.5 pt-3 px-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-1.5 text-xs font-semibold">
-                  <BellRing className="h-3.5 w-3.5 text-primary" />
+                <CardTitle className="flex items-center gap-1.5 text-sm font-semibold">
+                  <BellRing className="h-4 w-4 text-primary" />
                   This Week's Events
                 </CardTitle>
-                <Badge variant="outline" className="text-[10px] px-1.5 py-0">{weekEvents.length} upcoming</Badge>
+                <Badge variant="outline" className="text-xs px-2 py-0">{weekEvents.length} upcoming</Badge>
               </div>
             </CardHeader>
             <CardContent className="flex-1 px-4 pb-2 pt-0">
               {weekEvents.length > 0 ? (
-                <div className="space-y-1">
+                <div className="space-y-1.5">
                   {weekEvents.slice(0, 7).map((event: any) => {
                     const eventDate = parseLocalDate(event.date);
                     const isToday = eventDate.toDateString() === nowDate.toDateString();
@@ -250,22 +250,22 @@ const Index = () => {
                     const dayLabel = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : eventDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                     const timeLabel = event.start_time || event.time || null;
                     return (
-                      <div key={event.id} className="flex items-center justify-between px-2.5 py-1.5 rounded-md bg-muted/50 hover:bg-muted transition-colors">
+                      <div key={event.id} className="flex items-center justify-between px-3 py-2 rounded-md bg-muted/50 hover:bg-muted transition-colors">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${
                             event.priority === 'high' ? 'bg-red-500' :
                             event.priority === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
                           }`} />
                           <div className="min-w-0">
-                            <p className="text-xs font-medium truncate leading-tight">{event.title}</p>
-                            <p className="text-[10px] text-muted-foreground leading-tight">
+                            <p className="text-sm font-medium truncate leading-tight">{event.title}</p>
+                            <p className="text-xs text-muted-foreground leading-tight">
                               <span className={isToday ? 'text-primary font-medium' : ''}>{dayLabel}</span>
                               {timeLabel && <span> · {timeLabel}</span>}
                               <span className="capitalize"> · {event.type}</span>
                             </p>
                           </div>
                         </div>
-                        <Badge variant={event.priority === 'high' ? 'destructive' : event.priority === 'medium' ? 'default' : 'secondary'} className="text-[9px] px-1 py-0 ml-1.5 shrink-0 leading-tight">
+                        <Badge variant={event.priority === 'high' ? 'destructive' : event.priority === 'medium' ? 'default' : 'secondary'} className="text-[10px] px-1.5 ml-2 shrink-0">
                           {event.priority || 'low'}
                         </Badge>
                       </div>
@@ -273,49 +273,49 @@ const Index = () => {
                   })}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-4 text-center">
-                  <CheckCircle2 className="h-6 w-6 text-emerald-500 mb-1.5" />
-                  <p className="font-medium text-xs">No events this week</p>
-                  <p className="text-[10px] text-muted-foreground mt-0.5">Schedule is clear</p>
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <CheckCircle2 className="h-7 w-7 text-emerald-500 mb-2" />
+                  <p className="font-medium text-sm">No events this week</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Schedule is clear</p>
                 </div>
               )}
             </CardContent>
             <CardFooter className="px-4 pt-1 pb-3">
-              <Button variant="outline" asChild className="w-full h-7 text-[11px]">
-                <Link to="/planning">View Full Schedule <ArrowRight className="h-3 w-3 ml-1" /></Link>
+              <Button variant="outline" asChild className="w-full h-8 text-xs">
+                <Link to="/planning">View Full Schedule <ArrowRight className="h-3.5 w-3.5 ml-1.5" /></Link>
               </Button>
             </CardFooter>
           </Card>
 
-          {/* Col 2 — Quick Actions */}
+          {/* Col 2 — Quick Actions (20%) */}
           <Card className="flex flex-col">
-            <CardHeader className="pb-1.5 pt-3 px-4">
-              <CardTitle className="text-xs font-semibold flex items-center gap-1.5">
-                <Zap className="h-3.5 w-3.5 text-amber-500" />
+            <CardHeader className="pb-1.5 pt-3 px-3">
+              <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                <Zap className="h-4 w-4 text-amber-500" />
                 Quick Actions
               </CardTitle>
             </CardHeader>
-            <CardContent className="flex-1 px-4 pb-3 pt-0 space-y-1">
+            <CardContent className="flex-1 px-3 pb-3 pt-0 space-y-1.5">
               {quickLinks.map(({ label, icon: Icon, to }) => (
-                <Link key={label} to={to} className="flex items-center gap-2 w-full px-2.5 py-1.5 rounded-md transition-colors bg-muted/40 hover:bg-muted/80">
-                  <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
-                  <span className="text-xs font-medium">{label}</span>
-                  <ArrowRight className="h-3 w-3 ml-auto text-muted-foreground/50" />
+                <Link key={label} to={to} className="flex items-center gap-2 w-full px-2.5 py-2 rounded-md transition-colors bg-muted/40 hover:bg-muted/80">
+                  <Icon className="h-4 w-4 shrink-0 text-primary" />
+                  <span className="text-xs font-medium leading-tight">{label}</span>
+                  <ArrowRight className="h-3.5 w-3.5 ml-auto text-muted-foreground/50 shrink-0" />
                 </Link>
               ))}
             </CardContent>
           </Card>
 
-          {/* Col 3 — All Modules */}
+          {/* Col 3 — All Modules (remaining ~47%) */}
           <Card className="flex flex-col">
             <CardHeader className="pb-1.5 pt-3 px-4">
-              <CardTitle className="text-xs font-semibold flex items-center gap-1.5">
-                <Layers className="h-3.5 w-3.5 text-primary" />
+              <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                <Layers className="h-4 w-4 text-primary" />
                 All Modules
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 px-4 pb-3 pt-0">
-              <div className="grid grid-cols-2 gap-1">
+              <div className="grid grid-cols-2 gap-1.5">
                 {[
                   { label: 'Notes & Commitments', icon: BookOpen, to: '/notes' },
                   { label: 'Meetings', icon: Users, to: '/meetings' },
