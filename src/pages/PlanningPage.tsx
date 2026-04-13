@@ -296,16 +296,33 @@ const PlanningPage = () => {
           existing_events: events.slice(0, 30).map(e => ({ date: e.date, title: e.title })),
         },
       });
-      if (error) throw error;
-      if (data.error) throw new Error(data.error);
 
-      if (data.conflict_warning) setAIConflictWarning(data.conflict_warning);
+      // FunctionsHttpError: edge function returned non-2xx — extract real message
+      if (error) {
+        let msg = error.message ?? "Edge function error";
+        try {
+          const ctx = await (error as any).context?.json?.();
+          if (ctx?.error) msg = ctx.error;
+        } catch { /* ignore */ }
+        console.error("AI planning invoke error:", msg);
+        // Fall back: open dialog pre-filled with raw text so user isn't blocked
+        openFallbackDialog();
+        return;
+      }
 
-      // Pre-fill the EventDialog with AI-parsed data
+      // Edge function always returns 200; errors come as { error: "..." }
+      if (data?.error) {
+        console.warn("AI planning returned error:", data.error);
+        openFallbackDialog();
+        return;
+      }
+
+      if (data?.conflict_warning) setAIConflictWarning(data.conflict_warning);
+
       const validTypes = ['event', 'task', 'deadline', 'meeting'];
       const validPriorities = ['low', 'medium', 'high', 'urgent'];
       const prefilledEvent: Partial<PlanningEvent> = {
-        title: data.title || "",
+        title: data.title || aiInput.slice(0, 80),
         date: data.date || new Date().toISOString().split('T')[0],
         time: data.time || "",
         type: validTypes.includes(data.type) ? data.type : "task",
@@ -320,10 +337,28 @@ const PlanningPage = () => {
       toast({ title: "Event parsed", description: "Review the pre-filled form and save." });
     } catch (err) {
       console.error("AI planning error:", err);
-      toast({ title: "AI planning failed", description: "Use the 'New Event' button to add manually.", variant: "destructive" });
+      openFallbackDialog();
     } finally {
       setIsAIPlanning(false);
     }
+  };
+
+  // Opens the new-event dialog pre-filled with whatever the user typed so they're never blocked
+  const openFallbackDialog = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setCurrentEvent({
+      title: aiInput.slice(0, 80),
+      date: tomorrow.toISOString().split('T')[0],
+      time: "",
+      type: "task",
+      priority: "medium",
+      course: "",
+      description: aiInput,
+    } as any);
+    setIsEventDialogOpen(true);
+    setAIInput("");
+    toast({ title: "AI unavailable", description: "Form pre-filled — adjust details and save.", variant: "default" });
   };
 
   return (

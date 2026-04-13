@@ -6,36 +6,56 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
+// Read key at request time so hot-reloads pick it up
+function getGeminiKey() {
+  return Deno.env.get('GEMINI_API_KEY') ?? '';
+}
+
+// Always return 200 so the Supabase JS client surfaces the body in `data` not `error`.
+// Errors are communicated via { error: "..." } in the JSON body.
+function ok(payload: unknown) {
+  return new Response(JSON.stringify(payload), {
+    status: 200,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
+}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let description = '';
+  let today = '';
+  let existing_events: { date: string; title: string }[] = [];
+
   try {
-    const { description, today, existing_events } = await req.json();
+    const body = await req.json();
+    description = (body.description ?? '').trim();
+    today = body.today ?? new Date().toISOString().split('T')[0];
+    existing_events = body.existing_events ?? [];
+  } catch {
+    return ok({ error: 'Invalid request body' });
+  }
 
-    if (!description?.trim()) {
-      return new Response(
-        JSON.stringify({ error: 'Description is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+  if (!description) {
+    return ok({ error: 'Description is required' });
+  }
 
-    if (!GEMINI_API_KEY) {
-      return new Response(
-        JSON.stringify(buildFallback(description, today)),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+  const GEMINI_API_KEY = getGeminiKey();
 
+  // No API key → graceful fallback (open the dialog pre-filled with the raw text)
+  if (!GEMINI_API_KEY) {
+    console.warn('ai-plan-event: GEMINI_API_KEY not set, using fallback');
+    return ok(buildFallback(description, today));
+  }
+
+  try {
     const todayStr = today || new Date().toISOString().split('T')[0];
 
-    // Summarize existing events to help AI avoid conflicts
     const busyDates = existing_events
-      ?.slice(0, 20)
-      .map((e: any) => `${e.date}: ${e.title}`)
+      .slice(0, 20)
+      .map((e) => `${e.date}: ${e.title}`)
       .join('\n') || 'None';
 
     const prompt = `You are a smart calendar assistant for academic professionals (professors, researchers, lecturers).
@@ -47,7 +67,7 @@ Today's date: ${todayStr}
 Upcoming busy dates:
 ${busyDates}
 
-Respond ONLY with valid JSON in this exact format:
+Respond ONLY with valid JSON (no markdown, no code fences) in this exact format:
 {
   "title": "Clear event/task title (max 80 chars)",
   "date": "YYYY-MM-DD",
@@ -63,6 +83,7 @@ Date parsing rules (today = ${todayStr}):
 - "tomorrow" → next day
 - "next Monday/Friday/etc" → next occurrence of that weekday
 - "this week" → nearest Friday
+- "this saturday/sunday" → the upcoming Saturday/Sunday
 - "end of month" → last day of current month
 - "next semester" → roughly 4 months from today
 - "in X days/weeks" → calculate exactly
@@ -81,7 +102,7 @@ Priority rules:
 - "medium" → this month
 - "low" → beyond a month or vague`;
 
-    const response = await fetch(
+    const geminiRes = await fetch(
       'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
       {
         method: 'POST',
@@ -99,39 +120,57 @@ Priority rules:
       }
     );
 
-    if (!response.ok) {
-      throw new Error(`Gemini API error: ${response.status}`);
+    if (!geminiRes.ok) {
+      const errBody = await geminiRes.text().catch(() => '');
+      console.error(`ai-plan-event: Gemini ${geminiRes.status}:`, errBody);
+      // Fall back gracefully instead of failing
+      return ok(buildFallback(description, todayStr));
     }
 
-    const result = await response.json();
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const result = await geminiRes.json();
+    const text: string = result.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
 
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) throw new Error('No JSON in Gemini response');
+    // Strip markdown code fences if Gemini wraps JSON in ```json ... ```
+    const cleaned = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '').trim();
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+
+    if (!jsonMatch) {
+      console.error('ai-plan-event: no JSON in response:', text);
+      return ok(buildFallback(description, todayStr));
+    }
 
     const parsed = JSON.parse(jsonMatch[0]);
 
-    return new Response(JSON.stringify(parsed), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    // Sanitize fields so the frontend never receives invalid values
+    const validTypes = ['event', 'task', 'deadline', 'meeting'];
+    const validPriorities = ['low', 'medium', 'high', 'urgent'];
+
+    return ok({
+      title: parsed.title || description.slice(0, 80),
+      date: parsed.date || todayStr,
+      time: parsed.time || '',
+      type: validTypes.includes(parsed.type) ? parsed.type : 'task',
+      priority: validPriorities.includes(parsed.priority) ? parsed.priority : 'medium',
+      course: parsed.course || '',
+      description: parsed.description || '',
+      conflict_warning: parsed.conflict_warning || '',
     });
 
-  } catch (error) {
-    console.error('ai-plan-event error:', error);
-    return new Response(
-      JSON.stringify({ error: 'Failed to plan event' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
+  } catch (err) {
+    console.error('ai-plan-event: unexpected error:', err);
+    // Return fallback so the dialog still opens — never block the user
+    return ok(buildFallback(description, today));
   }
 });
 
-function buildFallback(description: string, today: string) {
+function buildFallback(description: string, today: string): Record<string, string> {
   const words = description.trim().split(/\s+/);
   const title = words.slice(0, 8).join(' ');
-  const tomorrow = new Date(today || new Date());
-  tomorrow.setDate(tomorrow.getDate() + 1);
+  const d = new Date(today || new Date());
+  d.setDate(d.getDate() + 1);
   return {
     title: title.charAt(0).toUpperCase() + title.slice(1),
-    date: tomorrow.toISOString().split('T')[0],
+    date: d.toISOString().split('T')[0],
     time: '',
     type: 'task',
     priority: 'medium',
