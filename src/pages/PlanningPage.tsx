@@ -302,12 +302,14 @@ const PlanningPage = () => {
       if (data.conflict_warning) setAIConflictWarning(data.conflict_warning);
 
       // Pre-fill the EventDialog with AI-parsed data
+      const validTypes = ['event', 'task', 'deadline', 'meeting'];
+      const validPriorities = ['low', 'medium', 'high', 'urgent'];
       const prefilledEvent: Partial<PlanningEvent> = {
         title: data.title || "",
         date: data.date || new Date().toISOString().split('T')[0],
         time: data.time || "",
-        type: data.type || "task",
-        priority: data.priority || "medium",
+        type: validTypes.includes(data.type) ? data.type : "task",
+        priority: validPriorities.includes(data.priority) ? data.priority : "medium",
         course: data.course || "",
         description: data.description || "",
       } as any;
@@ -405,7 +407,7 @@ const PlanningPage = () => {
             </TabsTrigger>
           </TabsList>
           
-          <TabsContent value="calendar" className="space-y-6 mt-0">
+          <TabsContent value="calendar" className="space-y-4 mt-0">
             {/* AI Smart Planner */}
             <ProGate featureKey="planning_ai_event" featureLabel="AI Smart Planner">
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
@@ -443,7 +445,26 @@ const PlanningPage = () => {
               </div>
             </ProGate>
 
-            {/* Integrations */}
+            {/* Calendar */}
+            <Card className="border-border/50 shadow-sm">
+              <CardContent className="p-4 sm:p-6">
+                {eventsLoading ? (
+                  <div className="py-12 text-center">
+                    <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4" />
+                    <p className="text-muted-foreground">Loading calendar...</p>
+                  </div>
+                ) : (
+                  <PlanningCalendar
+                    events={events}
+                    onEditEvent={handleOpenEventDialog}
+                    onDeleteEvent={handleDeleteEvent}
+                    onToggleCompletion={handleToggleCompletion}
+                  />
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Calendar Integrations — below calendar */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Sync">
                 <OutlookIntegrationConsolidated onSyncComplete={() => {
@@ -458,25 +479,6 @@ const PlanningPage = () => {
                 }} />
               </ProGate>
             </div>
-            
-            {/* Calendar */}
-            <Card className="border-border/50 shadow-sm">
-              <CardContent className="p-6">
-                {eventsLoading ? (
-                  <div className="py-12 text-center">
-                    <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-                    <p className="text-muted-foreground">Loading calendar...</p>
-                  </div>
-                ) : (
-                  <PlanningCalendar 
-                    events={events} 
-                    onEditEvent={handleOpenEventDialog}
-                    onDeleteEvent={handleDeleteEvent}
-                    onToggleCompletion={handleToggleCompletion}
-                  />
-                )}
-              </CardContent>
-            </Card>
           </TabsContent>
           
           <TabsContent value="future" className="space-y-6 mt-0">

@@ -52,7 +52,7 @@ Respond ONLY with valid JSON in this exact format:
   "title": "Clear event/task title (max 80 chars)",
   "date": "YYYY-MM-DD",
   "time": "HH:MM or empty string if all-day",
-  "type": "event|task|deadline|reminder",
+  "type": "event|task|deadline|meeting",
   "priority": "low|medium|high|urgent",
   "course": "Course code or topic (e.g. 'CS 101', 'Research', 'Committee Work') or empty string",
   "description": "2-3 sentence description with relevant context",
@@ -70,10 +70,10 @@ Date parsing rules (today = ${todayStr}):
 - Never use a date in the past
 
 Type rules:
-- "task" → action to complete (do, write, grade, review, submit)
+- "task" → action to complete (do, write, grade, review, submit, remember to)
 - "deadline" → submission/due date
-- "event" → meeting, class, seminar, conference, appointment
-- "reminder" → follow-up, check-in, remember to
+- "event" → seminar, conference, appointment, ceremony
+- "meeting" → meeting, class, lecture, office hours, committee, sync
 
 Priority rules:
 - "urgent" → today or tomorrow, or explicitly urgent/ASAP
@@ -82,7 +82,7 @@ Priority rules:
 - "low" → beyond a month or vague`;
 
     const response = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent',
+      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
       {
         method: 'POST',
         headers: {
