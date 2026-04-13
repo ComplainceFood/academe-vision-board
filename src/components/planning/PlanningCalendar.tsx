@@ -86,7 +86,7 @@ export function PlanningCalendar({
             {day}
           </div>
 
-          {/* Event labels — desktop */}
+          {/* Event labels - desktop */}
           <div className="flex flex-col gap-0.5">
             {dayEvents.slice(0, 1).map((event, idx) => (
               <div
@@ -179,7 +179,7 @@ export function PlanningCalendar({
         </div>
       </div>
 
-      {/* Sidebar — Selected Date or Upcoming */}
+      {/* Sidebar - Selected Date or Upcoming */}
       <div className="space-y-2">
         {selectedDate && selectedDateEvents.length > 0 ? (
           <>

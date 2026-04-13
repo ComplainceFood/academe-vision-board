@@ -89,7 +89,7 @@ const gradientDark = "linear-gradient(135deg, #0D1E41 0%, #0A3028 55%, #1B7A5A 1
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatPrice(unit_amount: number | null, currency: string): string {
-  if (unit_amount == null) return "—";
+  if (unit_amount == null) return "-";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency.toUpperCase(),
@@ -137,7 +137,7 @@ const LandingPreview = () => {
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("annual");
 
   // Fetch live prices from Stripe. Falls back to known amounts if Stripe isn't
-  // configured in this environment — update FALLBACK_PRICES when you change
+  // configured in this environment - update FALLBACK_PRICES when you change
   // prices on Stripe (the live env will always override these automatically).
   const FALLBACK_PRICES = {
     monthly: { id: "", unit_amount: 7.99,  currency: "usd", interval: "month" },
@@ -166,7 +166,7 @@ const LandingPreview = () => {
       icon: ListTodo,
       headline: "Stay on top of everything",
       description:
-        "One place for every task, note, meeting, and semester deadline — so nothing falls through the cracks.",
+        "One place for every task, note, meeting, and semester deadline - so nothing falls through the cracks.",
       bullets: [
         "Tasks & Notes with subtasks, folders, and smart deadlines",
         "Recurring-task automation for office hours, grading cycles, and reviews",
@@ -181,7 +181,7 @@ const LandingPreview = () => {
       icon: Wallet,
       headline: "Win and manage grants without chaos",
       description:
-        "Track every funding source, expenditure, and lab resource in one organized system — no more spreadsheet archaeology before a reporting deadline.",
+        "Track every funding source, expenditure, and lab resource in one organized system - no more spreadsheet archaeology before a reporting deadline.",
       bullets: [
         "Grant Management: budgets, commitments, and multi-source funding",
         "Grant-linked meetings and notes for full context",
@@ -202,7 +202,7 @@ const LandingPreview = () => {
         "ORCID integration + live citation metrics (Pro)",
         "CV / biosketch import and export",
         "One-click NIH Biosketch generation via AI (Pro)",
-        "Full data export anytime — your records are yours",
+        "Full data export anytime - your records are yours",
       ],
       image: analyticsPreview,
       badge: "New",
@@ -211,7 +211,7 @@ const LandingPreview = () => {
       icon: Brain,
       headline: "Let AI handle the first draft",
       description:
-        "Eight purpose-built AI tools draft text, surface patterns, and plan your week — so you can focus on the thinking that actually requires you.",
+        "Eight purpose-built AI tools draft text, surface patterns, and plan your week - so you can focus on the thinking that actually requires you.",
       bullets: [
         "AI Task Draft and AI Smart Planner",
         "AI Meeting Agenda and AI Meeting Summarizer",
@@ -237,7 +237,7 @@ const LandingPreview = () => {
       step: "2",
       title: "Run your meetings",
       description:
-        "AI generates the agenda, Smart-Prof captures action items, and the AI Summarizer sends a clean recap — all linked to the right grant or project.",
+        "AI generates the agenda, Smart-Prof captures action items, and the AI Summarizer sends a clean recap - all linked to the right grant or project.",
     },
     {
       icon: Wallet,
@@ -261,7 +261,7 @@ const LandingPreview = () => {
       role: "Associate Professor of Biology",
       institution: "State Research University",
       content:
-        "I finished my promotion dossier in a weekend instead of a month. Every publication, talk, and service entry was already there — I just exported.",
+        "I finished my promotion dossier in a weekend instead of a month. Every publication, talk, and service entry was already there - I just exported.",
       rating: 5,
     },
     {
@@ -285,15 +285,15 @@ const LandingPreview = () => {
   const faqs = [
     {
       q: "Does Smart-Prof replace my LMS (Canvas, Blackboard, etc.)?",
-      a: "No — it complements your LMS. Smart-Prof is built for your work outside the classroom: research, grants, lab management, service, and promotion tracking. Think of it as the cockpit for your faculty career, not a gradebook.",
+      a: "No - it complements your LMS. Smart-Prof is built for your work outside the classroom: research, grants, lab management, service, and promotion tracking. Think of it as the cockpit for your faculty career, not a gradebook.",
     },
     {
       q: "Can I use Smart-Prof without institutional approval or IT involvement?",
-      a: "Yes. You sign up with your email and start immediately — no IT ticket, no department buy-in required. Smart-Prof is a personal productivity tool that lives entirely in your own account.",
+      a: "Yes. You sign up with your email and start immediately - no IT ticket, no department buy-in required. Smart-Prof is a personal productivity tool that lives entirely in your own account.",
     },
     {
       q: "Is my data portable if I stop subscribing?",
-      a: "Absolutely. Full data export is available at any time on every plan, in standard formats (CSV, JSON). Your records are yours — always.",
+      a: "Absolutely. Full data export is available at any time on every plan, in standard formats (CSV, JSON). Your records are yours - always.",
     },
     {
       q: "What's the difference between Free and Pro?",
@@ -380,7 +380,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
 
-            {/* Logo — smaller on mobile so the headline is above the fold */}
+            {/* Logo - smaller on mobile so the headline is above the fold */}
             <motion.div variants={fadeInUp} className="flex justify-center mb-10">
               <motion.div whileHover={{ scale: 1.06, rotate: 1 }} transition={{ type: "spring", stiffness: 280 }}
                 className="rounded-3xl overflow-hidden"
@@ -429,7 +429,7 @@ const LandingPreview = () => {
               className="text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
               style={{ color: C.muted }}>
               Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
-              organized system — so you can spend more time on research and teaching.
+              organized system - so you can spend more time on research and teaching.
             </motion.p>
 
             {/* CTAs */}
@@ -477,7 +477,7 @@ const LandingPreview = () => {
         </div>
       </section>
 
-      {/* ══ 2. PROBLEM — light background, not dark ═════════════════════════════ */}
+      {/* ══ 2. PROBLEM - light background, not dark ═════════════════════════════ */}
       <section className="py-14 md:py-20 relative overflow-hidden" style={{ backgroundColor: C.bgAlt }}>
         <div className="absolute inset-0 pointer-events-none opacity-50"
           style={{ backgroundImage: "radial-gradient(circle, rgba(27,122,90,0.07) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
@@ -500,7 +500,7 @@ const LandingPreview = () => {
               {
                 icon: ListTodo,
                 title: "Tools everywhere",
-                body: "Email, sticky notes, spreadsheets, a task app, a calendar — none of them talk to each other.",
+                body: "Email, sticky notes, spreadsheets, a task app, a calendar - none of them talk to each other.",
               },
               {
                 icon: Clock,
@@ -510,7 +510,7 @@ const LandingPreview = () => {
               {
                 icon: RefreshCw,
                 title: "Duplicate data entry",
-                body: "Re-entering the same publications, talks, and awards into your CV, annual report, biosketch, and department form — every year.",
+                body: "Re-entering the same publications, talks, and awards into your CV, annual report, biosketch, and department form - every year.",
               },
             ].map((item, i) => (
               <motion.div key={i} variants={scaleIn}
@@ -528,12 +528,12 @@ const LandingPreview = () => {
 
           <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
             className="text-center text-lg font-semibold mt-10" style={{ color: C.navy }}>
-            Smart-Prof replaces the chaos with one organized system — built specifically for faculty.
+            Smart-Prof replaces the chaos with one organized system - built specifically for faculty.
           </motion.p>
         </div>
       </section>
 
-      {/* ══ 3. PILLARS — "Your Academic Cockpit" ════════════════════════════════ */}
+      {/* ══ 3. PILLARS - "Your Academic Cockpit" ════════════════════════════════ */}
       <section id="features" className="py-16 md:py-32 relative" style={{ backgroundColor: C.bg }}>
         <div className="absolute inset-0 pointer-events-none opacity-40"
           style={{ backgroundImage: "radial-gradient(circle, rgba(27,122,90,0.08) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
@@ -651,7 +651,7 @@ const LandingPreview = () => {
               Start free. Upgrade when you're ready.
             </h2>
             <p className="text-xl max-w-2xl mx-auto" style={{ color: C.muted }}>
-              No credit card required to start. Both plans give you permanent access — not a trial.
+              No credit card required to start. Both plans give you permanent access - not a trial.
             </p>
 
             {/* Billing toggle */}
@@ -669,7 +669,7 @@ const LandingPreview = () => {
                       : { background: "transparent", color: C.muted, border: "none" }
                   }
                 >
-                  {interval === "annual" ? "Annual — save ~20%" : "Monthly"}
+                  {interval === "annual" ? "Annual - save ~20%" : "Monthly"}
                 </button>
               ))}
             </div>
@@ -720,7 +720,7 @@ const LandingPreview = () => {
 
             {/* Pro card */}
             <motion.div variants={fadeInRight} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-              {/* Most popular badge — outside Card so overflow-hidden doesn't clip it */}
+              {/* Most popular badge - outside Card so overflow-hidden doesn't clip it */}
               <div className="flex justify-end pr-6 mb-[-14px] relative z-10">
                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold"
                   style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff", boxShadow: "0 4px 12px rgba(27,122,90,0.4)" }}>
@@ -742,7 +742,7 @@ const LandingPreview = () => {
                       For faculty and lab leads who want AI to draft and organize for them.
                     </p>
 
-                    {/* Live price from Stripe — matches SettingsPage display logic */}
+                    {/* Live price from Stripe - matches SettingsPage display logic */}
                     <div>
                       <div className="flex items-baseline gap-2">
                         <span className="text-4xl font-black" style={{ color: "#F0F7F4" }}>
@@ -801,7 +801,7 @@ const LandingPreview = () => {
             className="text-center text-sm mt-10 font-medium"
             style={{ color: C.muted }}>
             <Shield className="h-4 w-4 inline mr-1.5 mb-0.5" style={{ color: C.tealLight }} />
-            Your data is yours — full export anytime on every plan. No lock-in.
+            Your data is yours - full export anytime on every plan. No lock-in.
           </motion.p>
         </div>
       </section>
@@ -849,7 +849,7 @@ const LandingPreview = () => {
         </div>
       </section>
 
-      {/* ══ 7. FAQ — using ui/accordion ═════════════════════════════════════════ */}
+      {/* ══ 7. FAQ - using ui/accordion ═════════════════════════════════════════ */}
       <section id="faq" className="py-16 md:py-28 relative" style={{ backgroundColor: C.bg }}>
         <div className="container mx-auto px-6 max-w-2xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp} className="text-center mb-12">
@@ -912,7 +912,7 @@ const LandingPreview = () => {
             </h2>
 
             <p className="text-xl mb-12 max-w-xl mx-auto" style={{ color: C.mutedLight }}>
-              Join faculty who replaced five scattered tools with one organized system. Start free this semester — no credit card, no IT ticket.
+              Join faculty who replaced five scattered tools with one organized system. Start free this semester - no credit card, no IT ticket.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

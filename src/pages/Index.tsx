@@ -229,7 +229,7 @@ const Index = () => {
         {/* Three-column panel: Events 33% | Quick Actions 20% | All Modules ~47% */}
         <div className="grid grid-cols-1 md:grid-cols-[33%_20%_1fr] gap-3">
 
-          {/* Col 1 — This Week's Events (33%) */}
+          {/* Col 1 - This Week's Events (33%) */}
           <Card className="flex flex-col">
             <CardHeader className="pb-1.5 pt-3 px-4">
               <div className="flex items-center justify-between">
@@ -287,7 +287,7 @@ const Index = () => {
             </CardFooter>
           </Card>
 
-          {/* Col 2 — Quick Actions (20%) */}
+          {/* Col 2 - Quick Actions (20%) */}
           <Card className="flex flex-col">
             <CardHeader className="pb-1.5 pt-3 px-3">
               <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
@@ -306,7 +306,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          {/* Col 3 — All Modules (remaining ~47%) */}
+          {/* Col 3 - All Modules (remaining ~47%) */}
           <Card className="flex flex-col">
             <CardHeader className="pb-1.5 pt-3 px-4">
               <CardTitle className="text-sm font-semibold flex items-center gap-1.5">

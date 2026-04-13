@@ -61,7 +61,7 @@ serve(async (req) => {
 
     const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
     const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
-    // Build redirect URI from allowlist only — never trust the Origin header directly
+    // Build redirect URI from allowlist only - never trust the Origin header directly
     const safeOrigin = ALLOWED_ORIGINS.includes(origin || '') ? origin : ALLOWED_ORIGINS[0];
     const redirectUri = `${safeOrigin}/auth/google/callback`;
 

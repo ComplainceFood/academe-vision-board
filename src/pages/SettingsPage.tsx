@@ -48,7 +48,7 @@ interface PricesData {
 }
 
 function formatPrice(amount: number | null, currency: string): string {
-  if (amount === null) return "—";
+  if (amount === null) return "-";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: currency.toUpperCase(),
@@ -105,7 +105,7 @@ const SettingsPage = () => {
   }, [profile, user, isLoading]);
 
   // Fetch live prices directly from Stripe via the get-prices edge function.
-  // No amounts are hardcoded — always pulled from Stripe so price changes and
+  // No amounts are hardcoded - always pulled from Stripe so price changes and
   // promotions are reflected automatically without touching the frontend.
   useEffect(() => {
     setPricesLoading(true);
@@ -817,7 +817,7 @@ const SettingsPage = () => {
                   )}
                 </div>
 
-                {/* Billing interval toggle — shown inside card so it's clearly linked to the upgrade button */}
+                {/* Billing interval toggle - shown inside card so it's clearly linked to the upgrade button */}
                 {!isPro && (
                   <div className="flex items-center justify-center gap-3 py-1">
                     <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
@@ -884,7 +884,7 @@ const SettingsPage = () => {
                     <CardTitle className="text-base">Pro</CardTitle>
                     {isPro && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Current</Badge>}
                   </div>
-                  {/* Dynamic price pulled live from Stripe — never hardcoded */}
+                  {/* Dynamic price pulled live from Stripe - never hardcoded */}
                   {pricesLoading ? (
                     <div className="h-8 w-28 bg-muted animate-pulse rounded mt-1" />
                   ) : billingInterval === "annual" ? (
@@ -892,13 +892,13 @@ const SettingsPage = () => {
                       <CardDescription className="text-2xl font-bold text-foreground">
                         {prices?.annual?.unit_amount != null
                           ? formatPrice(prices.annual.unit_amount, prices.annual.currency)
-                          : "—"}
+                          : "-"}
                         <span className="text-sm font-normal text-muted-foreground"> / year</span>
                       </CardDescription>
                       {prices?.annual?.unit_amount != null && prices?.monthly?.unit_amount != null && (
                         <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-0.5">
                           {formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency)}/mo
-                          {" — "}saves {formatPrice(prices.monthly.unit_amount * 12 - prices.annual.unit_amount, prices.annual.currency)}/yr
+                          {" - "}saves {formatPrice(prices.monthly.unit_amount * 12 - prices.annual.unit_amount, prices.annual.currency)}/yr
                         </p>
                       )}
                     </div>
@@ -906,7 +906,7 @@ const SettingsPage = () => {
                     <CardDescription className="text-2xl font-bold text-foreground">
                       {prices?.monthly?.unit_amount != null
                         ? formatPrice(prices.monthly.unit_amount, prices.monthly.currency)
-                        : "—"}
+                        : "-"}
                       <span className="text-sm font-normal text-muted-foreground"> / month</span>
                     </CardDescription>
                   )}

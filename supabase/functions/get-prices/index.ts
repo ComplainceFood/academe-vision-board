@@ -2,7 +2,7 @@
  * Get Stripe Prices
  * ──────────────────
  * Returns live pricing from Stripe so the frontend never has hardcoded prices.
- * Does NOT require STRIPE_ENABLED — price data is not sensitive.
+ * Does NOT require STRIPE_ENABLED - price data is not sensitive.
  *
  * Response shape:
  * {
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
   const monthlyId = Deno.env.get('STRIPE_PRO_PRICE_ID') ?? '';
   const annualId  = Deno.env.get('STRIPE_PRO_ANNUAL_PRICE_ID') ?? '';
 
-  // If no Stripe key, return empty shells — UI will show "—"
+  // If no Stripe key, return empty shells - UI will show "-"
   if (!stripeKey || !monthlyId) {
     return ok({
       monthly: { id: monthlyId, unit_amount: null, currency: 'usd', interval: 'month' },

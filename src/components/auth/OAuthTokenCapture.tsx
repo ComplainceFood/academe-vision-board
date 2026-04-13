@@ -23,7 +23,7 @@ export const OAuthTokenCapture = () => {
     if (provider === "google" && providerToken) {
       savedRef.current = true; // prevent duplicate writes on rerenders
 
-      // Always use the authenticated user's own ID — never trust sessionStorage for user identity
+      // Always use the authenticated user's own ID - never trust sessionStorage for user identity
       const targetUserId = user.id;
 
       (async () => {

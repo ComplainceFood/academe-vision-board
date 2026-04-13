@@ -350,7 +350,7 @@ export default function AdminUsersPage() {
               </span>
             </div>
 
-            {/* Users Table — no fixed height, grows with content */}
+            {/* Users Table - no fixed height, grows with content */}
             <Card className="overflow-hidden">
               <Table>
                 <TableHeader>
@@ -450,7 +450,7 @@ export default function AdminUsersPage() {
                   </DialogTitle>
                   <DialogDescription>
                     {editingProfile
-                      ? <span><strong>{getUserDisplayName(editingProfile)}</strong> — {editingProfile.email}</span>
+                      ? <span><strong>{getUserDisplayName(editingProfile)}</strong> - {editingProfile.email}</span>
                       : 'Update role and subscription'}
                   </DialogDescription>
                 </DialogHeader>
@@ -559,7 +559,7 @@ export default function AdminUsersPage() {
                       <TableRow key={a.id} className="hover:bg-muted/30">
                         <TableCell className="py-2 text-xs font-medium">{a.email || a.user_id}</TableCell>
                         <TableCell className="py-2 text-xs text-muted-foreground">
-                          {a.display_name || `${a.first_name || ''} ${a.last_name || ''}`.trim() || '—'}
+                          {a.display_name || `${a.first_name || ''} ${a.last_name || ''}`.trim() || '-'}
                         </TableCell>
                         <TableCell className="py-2">
                           <Badge variant="outline" className="text-[10px] capitalize">

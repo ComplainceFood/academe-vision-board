@@ -150,12 +150,12 @@ Priority rules:
 
   } catch (err) {
     console.error('ai-plan-event: unexpected error:', err);
-    // Return fallback so the dialog still opens — never block the user
+    // Return fallback so the dialog still opens - never block the user
     return ok(buildFallback(description, today));
   }
 });
 
-// ── Fallback parser — runs when GEMINI_API_KEY is missing or Gemini fails ────
+// ── Fallback parser - runs when GEMINI_API_KEY is missing or Gemini fails ────
 // Parses common natural language date/time patterns so the dialog is
 // pre-filled with sensible values instead of just "tomorrow".
 function buildFallback(description: string, today: string): Record<string, string> {

@@ -113,7 +113,7 @@ async function checkHTTPS(): Promise<{ status: CheckStatus; message: string; det
   const isLocalhost = location.hostname === "localhost" || location.hostname === "127.0.0.1";
 
   if (isHTTPS) return { status: "pass", message: "Application is served over HTTPS with encrypted transport" };
-  if (isLocalhost) return { status: "warning", message: "Running on HTTP locally — ensure HTTPS is enforced in production" };
+  if (isLocalhost) return { status: "warning", message: "Running on HTTP locally - ensure HTTPS is enforced in production" };
   return {
     status: "fail",
     message: "Application is not served over HTTPS",
@@ -124,7 +124,7 @@ async function checkHTTPS(): Promise<{ status: CheckStatus; message: string; det
 async function checkAuthSessionSecurity(): Promise<{ status: CheckStatus; message: string; details?: string }> {
   const { data, error } = await supabase.auth.getSession();
   if (error || !data.session) {
-    return { status: "fail", message: "No active session found — cannot evaluate session security" };
+    return { status: "fail", message: "No active session found - cannot evaluate session security" };
   }
 
   const session = data.session;
@@ -149,7 +149,7 @@ async function checkAuthSessionSecurity(): Promise<{ status: CheckStatus; messag
 }
 
 async function checkLocalStorageSensitiveData(): Promise<{ status: CheckStatus; message: string; details?: string }> {
-  // Supabase auth tokens (sb-* keys) are expected and managed by the Supabase SDK — not flagged.
+  // Supabase auth tokens (sb-* keys) are expected and managed by the Supabase SDK - not flagged.
   // Only flag keys that look like app-level secrets stored by custom code.
   const knownSafePatterns = ["sb-", "supabase", "smartprof_"];
   const sensitivePatterns = ["password", "secret", "private_key", "api_key", "credit_card", "ssn"];
@@ -174,7 +174,7 @@ async function checkLocalStorageSensitiveData(): Promise<{ status: CheckStatus; 
   return {
     status: "warning",
     message: `${foundKeys.length} custom sensitive key(s) found in localStorage`,
-    details: `Keys: ${foundKeys.join(", ")}. Avoid storing passwords or API secrets in localStorage — use server-side sessions or secure HttpOnly cookies instead.`,
+    details: `Keys: ${foundKeys.join(", ")}. Avoid storing passwords or API secrets in localStorage - use server-side sessions or secure HttpOnly cookies instead.`,
   };
 }
 
@@ -189,7 +189,7 @@ async function checkRLSNotes(userId: string): Promise<{ status: CheckStatus; mes
 
   if (error) {
     // RLS blocking this query is expected behavior
-    return { status: "pass", message: "Row-level security is enforced on the notes table — cross-user access is blocked" };
+    return { status: "pass", message: "Row-level security is enforced on the notes table - cross-user access is blocked" };
   }
   if (data && data.length > 0) {
     return {
@@ -198,7 +198,7 @@ async function checkRLSNotes(userId: string): Promise<{ status: CheckStatus; mes
       details: "The query returned records belonging to other users. Review RLS policies on the notes table in Supabase.",
     };
   }
-  return { status: "pass", message: "Notes table RLS is working — no other users' records are accessible" };
+  return { status: "pass", message: "Notes table RLS is working - no other users' records are accessible" };
 }
 
 async function checkRLSUserRoles(userId: string): Promise<{ status: CheckStatus; message: string; details?: string }> {
@@ -209,12 +209,12 @@ async function checkRLSUserRoles(userId: string): Promise<{ status: CheckStatus;
     .limit(1);
 
   if (error) {
-    return { status: "pass", message: "Row-level security is enforced on user roles — cross-user role data is blocked" };
+    return { status: "pass", message: "Row-level security is enforced on user roles - cross-user role data is blocked" };
   }
   if (data && data.length > 0) {
     return {
       status: "pass",
-      message: "User roles are readable by authenticated users — this is expected for role-based access control",
+      message: "User roles are readable by authenticated users - this is expected for role-based access control",
       details: "The user_roles table intentionally allows authenticated users to read roles for permission resolution. Only role assignments (writes) should be admin-restricted.",
     };
   }
@@ -226,11 +226,11 @@ async function checkPasswordPolicy(): Promise<{ status: CheckStatus; message: st
   // We verify an active session exists and report the policy as a manual verification item.
   const { data } = await supabase.auth.getSession();
   if (!data.session) {
-    return { status: "fail", message: "No active session — cannot confirm authentication is functioning" };
+    return { status: "fail", message: "No active session - cannot confirm authentication is functioning" };
   }
   return {
     status: "pass",
-    message: "Authentication is active — password policy is enforced server-side by Supabase",
+    message: "Authentication is active - password policy is enforced server-side by Supabase",
     details: "To review your policy: go to Supabase Dashboard > Authentication > Policies. Recommended: minimum 8 characters, enable HaveIBeenPwned leaked password protection.",
   };
 }
@@ -238,7 +238,7 @@ async function checkPasswordPolicy(): Promise<{ status: CheckStatus; message: st
 async function checkAdminRouteProtection(): Promise<{ status: CheckStatus; message: string; details?: string }> {
   const { data } = await supabase.auth.getSession();
   if (!data.session) {
-    return { status: "fail", message: "No session — cannot verify admin route protection" };
+    return { status: "fail", message: "No session - cannot verify admin route protection" };
   }
 
   const { data: roles } = await supabase
@@ -248,7 +248,7 @@ async function checkAdminRouteProtection(): Promise<{ status: CheckStatus; messa
 
   const isAdmin = roles?.some(r => r.role === "system_admin");
   if (isAdmin) {
-    return { status: "pass", message: "Current user has admin role — admin routes are accessible as expected" };
+    return { status: "pass", message: "Current user has admin role - admin routes are accessible as expected" };
   }
   return {
     status: "warning",
@@ -259,7 +259,7 @@ async function checkAdminRouteProtection(): Promise<{ status: CheckStatus; messa
 
 async function checkXSSVectors(): Promise<{ status: CheckStatus; message: string; details?: string }> {
   // Check for dangerous innerHTML usage patterns via checking if any script injection is possible
-  // in the current document — look for inline scripts not from known sources
+  // in the current document - look for inline scripts not from known sources
   const scripts = Array.from(document.querySelectorAll("script"));
   const inlineScripts = scripts.filter(s => !s.src && s.textContent && s.textContent.trim().length > 0);
 
@@ -303,7 +303,7 @@ async function checkThirdPartyScripts(): Promise<{ status: CheckStatus; message:
 async function checkCookieSecurity(): Promise<{ status: CheckStatus; message: string; details?: string }> {
   const cookies = document.cookie;
   if (!cookies || cookies.trim() === "") {
-    return { status: "pass", message: "No JavaScript-readable cookies found — session is securely managed via Supabase localStorage tokens" };
+    return { status: "pass", message: "No JavaScript-readable cookies found - session is securely managed via Supabase localStorage tokens" };
   }
 
   // Cookies visible to JS means they lack HttpOnly. Filter out known harmless ones (e.g. analytics).
@@ -314,7 +314,7 @@ async function checkCookieSecurity(): Promise<{ status: CheckStatus; message: st
   );
 
   if (sensitiveReadable.length === 0) {
-    return { status: "pass", message: "Only known analytics cookies are JS-readable — no sensitive cookies exposed" };
+    return { status: "pass", message: "Only known analytics cookies are JS-readable - no sensitive cookies exposed" };
   }
   return {
     status: "warning",
@@ -357,14 +357,14 @@ async function checkSupabaseAnonKey(): Promise<{ status: CheckStatus; message: s
   if (isAnonymous) {
     return {
       status: "warning",
-      message: "No authenticated session — Supabase anon key has full public access",
+      message: "No authenticated session - Supabase anon key has full public access",
       details: "Ensure RLS policies are enabled on all tables to restrict what the anon key can access.",
     };
   }
 
   return {
     status: "pass",
-    message: "Supabase connection is authenticated — anon key exposure is mitigated by active session and RLS policies",
+    message: "Supabase connection is authenticated - anon key exposure is mitigated by active session and RLS policies",
   };
 }
 

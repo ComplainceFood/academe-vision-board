@@ -297,7 +297,7 @@ const PlanningPage = () => {
         },
       });
 
-      // FunctionsHttpError: edge function returned non-2xx — extract real message
+      // FunctionsHttpError: edge function returned non-2xx - extract real message
       if (error) {
         let msg = error.message ?? "Edge function error";
         try {
@@ -358,7 +358,7 @@ const PlanningPage = () => {
     } as any);
     setIsEventDialogOpen(true);
     setAIInput("");
-    toast({ title: "AI unavailable", description: "Form pre-filled — adjust details and save.", variant: "default" });
+    toast({ title: "AI unavailable", description: "Form pre-filled - adjust details and save.", variant: "default" });
   };
 
   return (
@@ -499,7 +499,7 @@ const PlanningPage = () => {
               </CardContent>
             </Card>
 
-            {/* Calendar Integrations — below calendar */}
+            {/* Calendar Integrations - below calendar */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Sync">
                 <OutlookIntegrationConsolidated onSyncComplete={() => {

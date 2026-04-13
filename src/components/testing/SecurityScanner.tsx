@@ -196,7 +196,7 @@ function ScanProgress({ suiteIdx, checkIdx, total }: { suiteIdx: number; checkId
       </div>
       <Progress value={pct} className="h-2" />
       <div className="text-xs text-muted-foreground">
-        {suite && <span>{suite.name} — {check?.name ?? "..."}</span>}
+        {suite && <span>{suite.name} - {check?.name ?? "..."}</span>}
         <span className="float-right">{done}/{total} checks</span>
       </div>
     </div>

@@ -36,7 +36,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    // Require a valid JWT — extract userId from token, never from user-controlled input
+    // Require a valid JWT - extract userId from token, never from user-controlled input
     const authHeader = req.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
@@ -57,7 +57,7 @@ serve(async (req) => {
       );
     }
 
-    // userId is always from the verified JWT — never from state param
+    // userId is always from the verified JWT - never from state param
     const userId = user.id;
 
     const MICROSOFT_CLIENT_ID = Deno.env.get('MICROSOFT_CLIENT_ID');
@@ -80,7 +80,7 @@ serve(async (req) => {
       );
     }
 
-    // Validate redirectUri against allowlist — never trust arbitrary client-supplied origins
+    // Validate redirectUri against allowlist - never trust arbitrary client-supplied origins
     const origin = req.headers.get('origin') || '';
     const expectedRedirectUri = `${origin}/auth/outlook/callback`;
     const safeRedirectUri = ALLOWED_ORIGINS.some(o => redirectUri?.startsWith(o))
@@ -122,7 +122,7 @@ serve(async (req) => {
 
     const expiresAt = new Date(Date.now() + (tokenData.expires_in * 1000)).toISOString();
 
-    // Use service role client to write tokens — scoped to the authenticated user's ID only
+    // Use service role client to write tokens - scoped to the authenticated user's ID only
     const adminClient = createClient(supabaseUrl, supabaseServiceKey);
 
     const { error: upsertError } = await adminClient

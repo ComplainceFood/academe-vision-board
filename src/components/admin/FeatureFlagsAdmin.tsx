@@ -63,7 +63,7 @@ export function FeatureFlagsAdmin() {
       toast.success(
         changed.length === 0
           ? "No changes to save"
-          : `${changed.length} feature flag${changed.length !== 1 ? "s" : ""} updated — changes are live for all users`
+          : `${changed.length} feature flag${changed.length !== 1 ? "s" : ""} updated - changes are live for all users`
       );
     } catch (err: any) {
       toast.error(err?.message || "Failed to save feature flags");
@@ -116,7 +116,7 @@ export function FeatureFlagsAdmin() {
                   </p>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  Toggles save to the database and take effect immediately for every user — no page reload needed.
+                  Toggles save to the database and take effect immediately for every user - no page reload needed.
                   Use this to run promotions or open beta features to free-tier users.
                 </p>
               </div>

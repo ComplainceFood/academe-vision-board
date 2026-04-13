@@ -209,7 +209,7 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
     if (user) fetchFlags();
   }, [user, fetchFlags]);
 
-  // ── Realtime subscription — updates ALL users when admin changes a flag ──
+  // ── Realtime subscription - updates ALL users when admin changes a flag ──
   useEffect(() => {
     if (!user) return;
 
@@ -238,7 +238,7 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
       if (isSystemAdmin()) return true;
 
       const def = FEATURE_DEFINITIONS.find((f) => f.key === key);
-      if (!def) return true; // unknown key — allow by default
+      if (!def) return true; // unknown key - allow by default
 
       // Feature is force-enabled for everyone by admin override
       if (flags[key] === true) return true;

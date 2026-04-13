@@ -25,7 +25,7 @@ serve(async (req) => {
   }
 
   try {
-    // Require authentication — this endpoint exposes OAuth client config
+    // Require authentication - this endpoint exposes OAuth client config
     const authHeader = req.headers.get('authorization');
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
@@ -59,7 +59,7 @@ serve(async (req) => {
       );
     }
 
-    // Build redirect URI from allowlist — never from user-controlled headers
+    // Build redirect URI from allowlist - never from user-controlled headers
     const safeOrigin = ALLOWED_ORIGINS.includes(origin || '') ? origin : ALLOWED_ORIGINS[0];
     const redirectUri = `${safeOrigin}/auth/outlook/callback`;
 
