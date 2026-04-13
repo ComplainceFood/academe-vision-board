@@ -62,6 +62,7 @@ const SettingsPage = () => {
   const [loadingPortal, setLoadingPortal] = useState(false);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("monthly");
   const [prices, setPrices] = useState<PricesData | null>(null);
+  const [pricesLoading, setPricesLoading] = useState(true);
   const { subscription, isPro, isTrial } = useSubscription();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -103,35 +104,21 @@ const SettingsPage = () => {
     }
   }, [profile, user, isLoading]);
 
-  // Fetch live prices from Stripe via the get-prices edge function.
-  // Seed with known price IDs + amounts immediately so the UI is never blank.
-  // These match exactly what is configured in Stripe — update here if you change
-  // prices in the Stripe dashboard. get-prices will override with live data when available.
+  // Fetch live prices directly from Stripe via the get-prices edge function.
+  // No amounts are hardcoded — always pulled from Stripe so price changes and
+  // promotions are reflected automatically without touching the frontend.
   useEffect(() => {
-    const KNOWN: PricesData = {
-      monthly: { id: "price_1TLQbdI7kmdofyfEg3rgcHrW", unit_amount: 799,   currency: "usd", interval: "month" },
-      annual:  { id: "price_1TLQfFI7kmdofyfEEYpNqChM", unit_amount: 7900,  currency: "usd", interval: "year"  },
-    };
-    setPrices(KNOWN);
-
-    // Try to get live amounts from Stripe — overrides the seed if successful
-    supabase.functions.invoke("get-prices").then(({ data }) => {
-      if (!data) return;
-      setPrices({
-        monthly: {
-          id: data.monthly?.id || KNOWN.monthly.id,
-          unit_amount: data.monthly?.unit_amount ?? KNOWN.monthly.unit_amount,
-          currency: data.monthly?.currency || "usd",
-          interval: data.monthly?.interval || "month",
-        },
-        annual: {
-          id: data.annual?.id || KNOWN.annual.id,
-          unit_amount: data.annual?.unit_amount ?? KNOWN.annual.unit_amount,
-          currency: data.annual?.currency || "usd",
-          interval: data.annual?.interval || "year",
-        },
-      });
-    }).catch(() => {/* keep seeded values */});
+    setPricesLoading(true);
+    supabase.functions.invoke("get-prices")
+      .then(({ data, error }) => {
+        if (error || !data) return;
+        // Only set if we got real data back
+        if (data.monthly?.id || data.annual?.id) {
+          setPrices(data as PricesData);
+        }
+      })
+      .catch(() => {/* prices stay null, UI shows loading state */})
+      .finally(() => setPricesLoading(false));
   }, []);
 
   // Handle upgrading to Pro via Stripe Checkout
@@ -897,18 +884,21 @@ const SettingsPage = () => {
                     <CardTitle className="text-base">Pro</CardTitle>
                     {isPro && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Current</Badge>}
                   </div>
-                  {/* Dynamic price from Stripe */}
-                  {billingInterval === "annual" && prices?.annual ? (
+                  {/* Dynamic price pulled live from Stripe — never hardcoded */}
+                  {pricesLoading ? (
+                    <div className="h-8 w-28 bg-muted animate-pulse rounded mt-1" />
+                  ) : billingInterval === "annual" ? (
                     <div>
                       <CardDescription className="text-2xl font-bold text-foreground">
-                        {prices.annual.unit_amount != null
+                        {prices?.annual?.unit_amount != null
                           ? formatPrice(prices.annual.unit_amount, prices.annual.currency)
                           : "—"}
                         <span className="text-sm font-normal text-muted-foreground"> / year</span>
                       </CardDescription>
-                      {prices.annual.unit_amount != null && prices.monthly.unit_amount != null && (
+                      {prices?.annual?.unit_amount != null && prices?.monthly?.unit_amount != null && (
                         <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-0.5">
-                          {formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency)}/mo — saves {formatPrice(prices.monthly.unit_amount * 12 - prices.annual.unit_amount, prices.annual.currency)}/yr
+                          {formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency)}/mo
+                          {" — "}saves {formatPrice(prices.monthly.unit_amount * 12 - prices.annual.unit_amount, prices.annual.currency)}/yr
                         </p>
                       )}
                     </div>
