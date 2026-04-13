@@ -156,19 +156,109 @@ Priority rules:
   }
 });
 
+// ── Fallback parser — runs when GEMINI_API_KEY is missing or Gemini fails ────
+// Parses common natural language date/time patterns so the dialog is
+// pre-filled with sensible values instead of just "tomorrow".
 function buildFallback(description: string, today: string): Record<string, string> {
-  const words = description.trim().split(/\s+/);
-  const title = words.slice(0, 8).join(' ');
-  const d = new Date(today || new Date());
-  d.setDate(d.getDate() + 1);
+  const text = description.trim();
+  const lower = text.toLowerCase();
+  const base = today ? new Date(`${today}T12:00:00`) : new Date();
+
+  // ── Date parsing ──────────────────────────────────────────────────────────
+  let date = new Date(base);
+  date.setDate(date.getDate() + 1); // default: tomorrow
+
+  const dayNames = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'];
+
+  // "this sunday", "this monday", etc.
+  const thisDayMatch = lower.match(/this\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/);
+  if (thisDayMatch) {
+    const target = dayNames.indexOf(thisDayMatch[1]);
+    const diff = (target - base.getDay() + 7) % 7 || 7;
+    date = new Date(base);
+    date.setDate(base.getDate() + diff);
+  }
+
+  // "next sunday", "next monday", etc.
+  const nextDayMatch = lower.match(/next\s+(sunday|monday|tuesday|wednesday|thursday|friday|saturday)/);
+  if (nextDayMatch) {
+    const target = dayNames.indexOf(nextDayMatch[1]);
+    const diff = (target - base.getDay() + 7) % 7 || 7;
+    date = new Date(base);
+    date.setDate(base.getDate() + diff);
+  }
+
+  // bare day name without "this/next": "saturday at 9am"
+  const bareDayMatch = lower.match(/\b(sunday|monday|tuesday|wednesday|thursday|friday|saturday)\b/);
+  if (!thisDayMatch && !nextDayMatch && bareDayMatch) {
+    const target = dayNames.indexOf(bareDayMatch[1]);
+    const diff = (target - base.getDay() + 7) % 7 || 7;
+    date = new Date(base);
+    date.setDate(base.getDate() + diff);
+  }
+
+  // "tomorrow"
+  if (lower.includes('tomorrow')) {
+    date = new Date(base);
+    date.setDate(base.getDate() + 1);
+  }
+
+  // "today"
+  if (lower.includes('today')) {
+    date = new Date(base);
+  }
+
+  // "in X days"
+  const inDaysMatch = lower.match(/in\s+(\d+)\s+days?/);
+  if (inDaysMatch) {
+    date = new Date(base);
+    date.setDate(base.getDate() + parseInt(inDaysMatch[1]));
+  }
+
+  // "in X weeks"
+  const inWeeksMatch = lower.match(/in\s+(\d+)\s+weeks?/);
+  if (inWeeksMatch) {
+    date = new Date(base);
+    date.setDate(base.getDate() + parseInt(inWeeksMatch[1]) * 7);
+  }
+
+  // ── Time parsing ──────────────────────────────────────────────────────────
+  let time = '';
+
+  // "at 9 am", "at 9:30 am", "at 14:00", "at 9am"
+  const timeMatch = lower.match(/at\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?/);
+  if (timeMatch) {
+    let hours = parseInt(timeMatch[1]);
+    const mins = timeMatch[2] ? parseInt(timeMatch[2]) : 0;
+    const meridiem = timeMatch[3];
+    if (meridiem === 'pm' && hours < 12) hours += 12;
+    if (meridiem === 'am' && hours === 12) hours = 0;
+    time = `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+  }
+
+  // ── Type detection ────────────────────────────────────────────────────────
+  let type = 'task';
+  if (/meeting|class|lecture|office hours|committee|seminar|sync/i.test(text)) type = 'meeting';
+  else if (/deadline|due|submit|submission/i.test(text)) type = 'deadline';
+  else if (/conference|appointment|ceremony|event/i.test(text)) type = 'event';
+
+  // ── Priority ──────────────────────────────────────────────────────────────
+  let priority = 'medium';
+  if (/urgent|asap|immediately|critical/i.test(text)) priority = 'urgent';
+  else if (type === 'meeting' || /today|tomorrow/i.test(text)) priority = 'high';
+
+  // ── Title ─────────────────────────────────────────────────────────────────
+  // Capitalise first letter, strip trailing time/day phrases for cleanliness
+  const title = text.charAt(0).toUpperCase() + text.slice(1);
+
   return {
-    title: title.charAt(0).toUpperCase() + title.slice(1),
-    date: d.toISOString().split('T')[0],
-    time: '',
-    type: 'task',
-    priority: 'medium',
+    title: title.slice(0, 80),
+    date: date.toISOString().split('T')[0],
+    time,
+    type,
+    priority,
     course: '',
-    description: description.trim(),
+    description: text,
     conflict_warning: '',
   };
 }
