@@ -103,11 +103,37 @@ const SettingsPage = () => {
     }
   }, [profile, user, isLoading]);
 
-  // Fetch live prices from Stripe on mount
+  // Fetch live prices from Stripe on mount.
+  // Seed with known price IDs immediately so checkout always has a priceId to send,
+  // even before the edge function responds or if it returns null amounts.
   useEffect(() => {
+    // Known price IDs from Stripe (matches stripe-webhook PRICE_TO_TIER map)
+    const KNOWN_MONTHLY_ID = "price_1TLQbdI7kmdofyfEg3rgcHrW";
+    const KNOWN_ANNUAL_ID  = "price_1TLQfFI7kmdofyfEEYpNqChM";
+
+    setPrices({
+      monthly: { id: KNOWN_MONTHLY_ID, unit_amount: null, currency: "usd", interval: "month" },
+      annual:  { id: KNOWN_ANNUAL_ID,  unit_amount: null, currency: "usd", interval: "year"  },
+    });
+
     supabase.functions.invoke("get-prices").then(({ data }) => {
-      if (data?.monthly || data?.annual) setPrices(data as PricesData);
-    }).catch(() => {/* silently ignore — UI shows fallback */});
+      if (!data) return;
+      // Merge: keep known IDs as fallback if Stripe returns empty ids
+      setPrices({
+        monthly: {
+          id: data.monthly?.id || KNOWN_MONTHLY_ID,
+          unit_amount: data.monthly?.unit_amount ?? null,
+          currency: data.monthly?.currency || "usd",
+          interval: data.monthly?.interval || "month",
+        },
+        annual: {
+          id: data.annual?.id || KNOWN_ANNUAL_ID,
+          unit_amount: data.annual?.unit_amount ?? null,
+          currency: data.annual?.currency || "usd",
+          interval: data.annual?.interval || "year",
+        },
+      });
+    }).catch(() => {/* keep seeded fallback */});
   }, []);
 
   // Handle upgrading to Pro via Stripe Checkout
@@ -800,11 +826,36 @@ const SettingsPage = () => {
                       {loadingPortal ? "Opening..." : "Manage Billing"}
                     </Button>
                   ) : (
-                    <Button onClick={handleUpgradeToPro} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
-                      {loadingCheckout ? "Loading..." : "Upgrade to Pro"}
+                    <Button onClick={() => handleUpgradeToPro(billingInterval)} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
+                      {loadingCheckout ? "Loading..." : `Upgrade to Pro · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
                     </Button>
                   )}
                 </div>
+
+                {/* Billing interval toggle — shown inside card so it's clearly linked to the upgrade button */}
+                {!isPro && (
+                  <div className="flex items-center justify-center gap-3 py-1">
+                    <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={billingInterval === "annual" ? "true" : "false"}
+                      aria-label="Toggle billing interval between monthly and annual"
+                      onClick={() => setBillingInterval(b => b === "monthly" ? "annual" : "monthly")}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${billingInterval === "annual" ? "bg-amber-500" : "bg-muted-foreground/30"}`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${billingInterval === "annual" ? "translate-x-6" : "translate-x-1"}`} />
+                    </button>
+                    <span className={`text-sm font-medium ${billingInterval === "annual" ? "text-foreground" : "text-muted-foreground"}`}>
+                      Annual
+                      {prices?.annual?.unit_amount && prices?.monthly?.unit_amount && (
+                        <span className="ml-1.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded-full font-semibold">
+                          Save {Math.round((1 - (prices.annual.unit_amount / 12) / prices.monthly.unit_amount) * 100)}%
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                )}
 
                 {subscription.stripe_subscription_id && (
                   <p className="text-xs text-muted-foreground">
@@ -813,31 +864,6 @@ const SettingsPage = () => {
                 )}
               </CardContent>
             </Card>
-
-            {/* Billing interval toggle */}
-            {!isPro && (
-              <div className="flex items-center justify-center gap-3">
-                <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={billingInterval === "annual" ? "true" : "false"}
-                  aria-label="Toggle billing interval between monthly and annual"
-                  onClick={() => setBillingInterval(b => b === "monthly" ? "annual" : "monthly")}
-                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${billingInterval === "annual" ? "bg-amber-500" : "bg-muted-foreground/30"}`}
-                >
-                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${billingInterval === "annual" ? "translate-x-6" : "translate-x-1"}`} />
-                </button>
-                <span className={`text-sm font-medium ${billingInterval === "annual" ? "text-foreground" : "text-muted-foreground"}`}>
-                  Annual
-                  {prices?.annual?.unit_amount && prices?.monthly?.unit_amount && (
-                    <span className="ml-1.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded-full font-semibold">
-                      Save {Math.round((1 - (prices.annual.unit_amount / 12) / prices.monthly.unit_amount) * 100)}%
-                    </span>
-                  )}
-                </span>
-              </div>
-            )}
 
             {/* Plan comparison */}
             <div className="grid sm:grid-cols-2 gap-4">
