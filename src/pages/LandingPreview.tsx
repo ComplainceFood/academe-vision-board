@@ -136,17 +136,27 @@ const LandingPreview = () => {
   const [prices, setPrices] = useState<{ monthly: PriceData; annual: PriceData } | null>(null);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("annual");
 
-  // Fetch live prices from Stripe via the edge function — same pattern as SettingsPage
+  // Fetch live prices from Stripe. Falls back to known amounts if Stripe isn't
+  // configured in this environment — update FALLBACK_PRICES when you change
+  // prices on Stripe (the live env will always override these automatically).
+  const FALLBACK_PRICES = {
+    monthly: { id: "", unit_amount: 799,  currency: "usd", interval: "month" },
+    annual:  { id: "", unit_amount: 7500, currency: "usd", interval: "year"  },
+  } as const;
+
   useEffect(() => {
     supabase.functions.invoke("get-prices").then(({ data, error }) => {
-      if (!error && data?.monthly?.id) setPrices(data);
+      if (!error && data?.monthly?.unit_amount != null) setPrices(data);
     });
   }, []);
 
-  const activePrice = billingInterval === "annual" ? prices?.annual : prices?.monthly;
-  const monthlyEquivalent =
-    billingInterval === "annual" && prices?.annual?.unit_amount != null
-      ? formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency) + "/mo"
+  const monthlyPrice = prices?.monthly ?? FALLBACK_PRICES.monthly;
+  const annualPrice  = prices?.annual  ?? FALLBACK_PRICES.annual;
+  // Derived display helpers
+  const shownPrice = billingInterval === "annual" ? annualPrice : monthlyPrice;
+  const savingsPerMonth =
+    annualPrice?.unit_amount != null && monthlyPrice?.unit_amount != null
+      ? monthlyPrice.unit_amount - Math.round(annualPrice.unit_amount / 12)
       : null;
 
   // ── Data ────────────────────────────────────────────────────────────────────
@@ -710,55 +720,50 @@ const LandingPreview = () => {
 
             {/* Pro card */}
             <motion.div variants={fadeInRight} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
+              {/* Most popular badge — outside Card so overflow-hidden doesn't clip it */}
+              <div className="flex justify-end pr-6 mb-[-14px] relative z-10">
+                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold"
+                  style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff", boxShadow: "0 4px 12px rgba(27,122,90,0.4)" }}>
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Most popular
+                </span>
+              </div>
+
               <Card className="h-full relative overflow-hidden"
                 style={{
                   background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 60%, #1B4A3A 100%)`,
                   border: `2px solid ${C.teal}`,
                   boxShadow: `0 8px 40px rgba(27,122,90,0.35)`
                 }}>
-                {/* Most popular badge */}
-                <div className="absolute top-0 right-6 -translate-y-1/2">
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold"
-                    style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff" }}>
-                    <Sparkles className="h-3.5 w-3.5" />
-                    Most popular
-                  </span>
-                </div>
-
-                <CardContent className="p-8">
+                <CardContent className="p-8 pt-10">
                   <div className="mb-6">
                     <h3 className="text-2xl font-bold mb-1" style={{ color: "#F0F7F4" }}>Pro</h3>
                     <p className="text-sm font-medium mb-4" style={{ color: C.mutedLight }}>
                       For faculty and lab leads who want AI to draft and organize for them.
                     </p>
 
-                    {/* Live price from Stripe */}
-                    <div className="flex items-baseline gap-2">
-                      {activePrice?.unit_amount != null ? (
-                        <>
-                          <span className="text-4xl font-black" style={{ color: "#F0F7F4" }}>
-                            {billingInterval === "annual" && monthlyEquivalent
-                              ? monthlyEquivalent
-                              : formatPrice(activePrice.unit_amount, activePrice.currency) + "/mo"}
-                          </span>
-                          {billingInterval === "annual" && (
-                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                              style={{ background: "rgba(61,170,110,0.25)", color: C.tealLight }}>
-                              billed annually
-                            </span>
-                          )}
-                        </>
-                      ) : (
-                        <span className="text-2xl font-bold" style={{ color: "#F0F7F4" }}>
-                          Pricing available at sign-up
+                    {/* Live price from Stripe — matches SettingsPage display logic */}
+                    <div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-4xl font-black" style={{ color: "#F0F7F4" }}>
+                          {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
                         </span>
+                        <span className="text-base font-medium" style={{ color: C.mutedLight }}>
+                          {billingInterval === "annual" ? "/ year" : "/ month"}
+                        </span>
+                      </div>
+                      {billingInterval === "annual" && savingsPerMonth != null && savingsPerMonth > 0 && (
+                        <p className="text-xs mt-1.5 font-medium" style={{ color: C.tealLight }}>
+                          {formatPrice(Math.round(shownPrice.unit_amount / 12), shownPrice.currency)}/mo equivalent
+                          {" · "}saves {formatPrice(savingsPerMonth, shownPrice.currency)}/mo vs monthly
+                        </p>
+                      )}
+                      {billingInterval === "monthly" && (
+                        <p className="text-xs mt-1.5 font-medium" style={{ color: C.mutedLight }}>
+                          Switch to annual to save ~20%
+                        </p>
                       )}
                     </div>
-                    {billingInterval === "annual" && activePrice?.unit_amount != null && (
-                      <p className="text-xs mt-1" style={{ color: C.mutedLight }}>
-                        {formatPrice(activePrice.unit_amount, activePrice.currency)} billed once per year
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-5 mb-8">
