@@ -140,8 +140,8 @@ const LandingPreview = () => {
   // configured in this environment — update FALLBACK_PRICES when you change
   // prices on Stripe (the live env will always override these automatically).
   const FALLBACK_PRICES = {
-    monthly: { id: "", unit_amount: 799,  currency: "usd", interval: "month" },
-    annual:  { id: "", unit_amount: 7500, currency: "usd", interval: "year"  },
+    monthly: { id: "", unit_amount: 7.99,  currency: "usd", interval: "month" },
+    annual:  { id: "", unit_amount: 75, currency: "usd", interval: "year"  },
   } as const;
 
   useEffect(() => {
