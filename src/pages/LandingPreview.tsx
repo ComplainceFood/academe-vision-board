@@ -1,49 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, type Easing } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Link } from "react-router-dom";
 import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
 import { TermsOfService } from "@/components/legal/TermsOfService";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Calendar,
   Users,
-  TrendingUp,
-  Shield,
   Zap,
   ArrowRight,
   Sparkles,
   Star,
   ChevronRight,
-  CheckCircle2,
   Play,
   ListTodo,
   Package,
   Wallet,
-  LineChart,
   Clock,
-  BarChart,
   Award,
-  Target,
   Layers,
-  FolderOpen,
   Menu,
   X,
-  MessageSquare,
   Brain,
   Check,
   AlertTriangle,
   RefreshCw,
-  ChevronDown,
+  Shield,
 } from "lucide-react";
 import { SmartProfLogo, SmartProfLogoWide } from "@/components/Logo";
 
 // Import preview images
 import notesPreview from "@/assets/landing/notes-preview.png";
-import meetingsPreview from "@/assets/landing/meetings-preview.png";
 import planningPreview from "@/assets/landing/planning-preview.png";
-import suppliesPreview from "@/assets/landing/supplies-preview.png";
 import analyticsPreview from "@/assets/landing/analytics-preview.png";
 import fundingPreview from "@/assets/landing/funding-preview.png";
 
@@ -94,6 +86,18 @@ const C = {
 const gradientBtn = { background: "linear-gradient(135deg, #1B7A5A 0%, #0D5C3E 100%)", color: "#fff", border: "none" };
 const gradientDark = "linear-gradient(135deg, #0D1E41 0%, #0A3028 55%, #1B7A5A 100%)";
 
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function formatPrice(unit_amount: number | null, currency: string): string {
+  if (unit_amount == null) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(unit_amount / 100);
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function SectionBadge({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
@@ -106,23 +110,44 @@ function SectionBadge({ icon: Icon, label }: { icon: React.ElementType; label: s
   );
 }
 
-function CheckItem({ children }: { children: React.ReactNode }) {
+function CheckItem({ children, dark = false }: { children: React.ReactNode; dark?: boolean }) {
   return (
     <li className="flex items-start gap-2.5">
       <Check className="h-4 w-4 mt-0.5 shrink-0" style={{ color: C.tealLight }} />
-      <span className="text-sm leading-snug" style={{ color: C.muted }}>{children}</span>
+      <span className="text-sm leading-snug" style={{ color: dark ? C.mutedLight : C.muted }}>{children}</span>
     </li>
   );
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
 
+interface PriceData {
+  id: string;
+  unit_amount: number | null;
+  currency: string;
+  interval: string;
+}
+
 const LandingPreview = () => {
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showContact, setShowContact] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [prices, setPrices] = useState<{ monthly: PriceData; annual: PriceData } | null>(null);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("annual");
+
+  // Fetch live prices from Stripe via the edge function — same pattern as SettingsPage
+  useEffect(() => {
+    supabase.functions.invoke("get-prices").then(({ data, error }) => {
+      if (!error && data?.monthly?.id) setPrices(data);
+    });
+  }, []);
+
+  const activePrice = billingInterval === "annual" ? prices?.annual : prices?.monthly;
+  const monthlyEquivalent =
+    billingInterval === "annual" && prices?.annual?.unit_amount != null
+      ? formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency) + "/mo"
+      : null;
 
   // ── Data ────────────────────────────────────────────────────────────────────
 
@@ -226,7 +251,7 @@ const LandingPreview = () => {
       role: "Associate Professor of Biology",
       institution: "State Research University",
       content:
-        "Smart-Prof cut my grant-reporting prep from a full day to under an hour. The budget tracker and meeting notes are always in sync.",
+        "I finished my promotion dossier in a weekend instead of a month. Every publication, talk, and service entry was already there — I just exported.",
       rating: 5,
     },
     {
@@ -234,7 +259,7 @@ const LandingPreview = () => {
       role: "Associate Professor, Computer Science",
       institution: "Midwest Technical Institute",
       content:
-        "The AI Biosketch alone saved me three hours before my last NSF submission. Having ORCID pull my citations automatically is a game-changer.",
+        "The AI Biosketch alone saved me three hours before my last NSF submission. I used to dread biosketches. Now it's a 10-minute job.",
       rating: 5,
     },
     {
@@ -242,7 +267,7 @@ const LandingPreview = () => {
       role: "Psychology Department Chair",
       institution: "Liberal Arts College",
       content:
-        "I stopped using six different tools. Smart-Prof replaced my task app, my grant spreadsheet, and my lab inventory tracker in one go.",
+        "Grant reporting used to eat a full day every cycle. Now I open the dashboard, everything's current, and I'm done before lunch.",
       rating: 5,
     },
   ];
@@ -345,12 +370,19 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
 
-            {/* Logo */}
+            {/* Logo — smaller on mobile so the headline is above the fold */}
             <motion.div variants={fadeInUp} className="flex justify-center mb-10">
               <motion.div whileHover={{ scale: 1.06, rotate: 1 }} transition={{ type: "spring", stiffness: 280 }}
                 className="rounded-3xl overflow-hidden"
                 style={{ boxShadow: "0 20px 60px -10px rgba(13,30,65,0.22), 0 0 0 4px rgba(27,122,90,0.18)" }}>
-                <SmartProfLogo size={400} className="rounded-3xl" />
+                {/* 160px on mobile → 280px on sm → 400px on md+ */}
+                <SmartProfLogo size={160} className="rounded-3xl sm:hidden" />
+                <span className="hidden sm:block md:hidden">
+                  <SmartProfLogo size={280} className="rounded-3xl" />
+                </span>
+                <span className="hidden md:block">
+                  <SmartProfLogo size={400} className="rounded-3xl" />
+                </span>
               </motion.div>
             </motion.div>
 
@@ -405,7 +437,7 @@ const LandingPreview = () => {
                   className="inline-flex items-center gap-2 h-14 px-6 text-base font-medium rounded-lg border transition-all duration-200"
                   style={{ color: C.teal, borderColor: "rgba(27,122,90,0.3)", background: "rgba(27,122,90,0.06)" }}>
                   <Play className="h-4 w-4" />
-                  See how it works
+                  See how it fits your week
                   <ChevronRight className="h-4 w-4" />
                 </a>
               </motion.div>
@@ -421,7 +453,7 @@ const LandingPreview = () => {
                 { icon: Package, label: "Lab Supplies" },
                 { icon: Award, label: "Achievements & CV" },
                 { icon: Brain, label: "8 AI Tools" },
-                { icon: LineChart, label: "Analytics" },
+                { icon: Clock, label: "Save 4+ hrs/week" },
               ].map((item, i) => (
                 <motion.div key={i} variants={scaleIn} whileHover={{ y: -4, scale: 1.05 }} transition={{ type: "spring", stiffness: 400 }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-full cursor-default border"
@@ -435,56 +467,59 @@ const LandingPreview = () => {
         </div>
       </section>
 
-      {/* ══ 2. PROBLEM ══════════════════════════════════════════════════════════ */}
-      <section className="py-14 md:py-20 relative overflow-hidden"
-        style={{ background: `linear-gradient(135deg, ${C.navy} 0%, #0D3D2E 60%, ${C.teal} 100%)` }}>
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse at top, rgba(61,170,110,0.12), transparent 60%)" }} />
+      {/* ══ 2. PROBLEM — light background, not dark ═════════════════════════════ */}
+      <section className="py-14 md:py-20 relative overflow-hidden" style={{ backgroundColor: C.bgAlt }}>
+        <div className="absolute inset-0 pointer-events-none opacity-50"
+          style={{ backgroundImage: "radial-gradient(circle, rgba(27,122,90,0.07) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
 
-        <div className="container mx-auto px-6 relative z-10 max-w-3xl text-center">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp}>
+        <div className="container mx-auto px-6 relative z-10 max-w-4xl">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-10">
             <span className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-sm font-semibold border"
-              style={{ background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.2)", color: C.mutedLight }}>
+              style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#b91c1c" }}>
               <AlertTriangle className="h-3.5 w-3.5" />
               Sound familiar?
             </span>
-
-            <h2 className="text-3xl md:text-4xl font-bold mb-8" style={{ color: "#F0F7F4" }}>
+            <h2 className="text-3xl md:text-4xl font-bold" style={{ color: C.navy }}>
               Faculty admin is out of control.
             </h2>
-
-            <div className="grid sm:grid-cols-3 gap-6 text-left">
-              {[
-                {
-                  icon: FolderOpen,
-                  title: "Tools everywhere",
-                  body: "Email, sticky notes, spreadsheets, a task app, a calendar — none of them talk to each other."
-                },
-                {
-                  icon: Clock,
-                  title: "Grant scrambles",
-                  body: "Pulling together expenditure reports and meeting notes at the last minute, every single reporting cycle."
-                },
-                {
-                  icon: RefreshCw,
-                  title: "Duplicate data entry",
-                  body: "Re-entering the same publications, talks, and awards into your CV, annual report, biosketch, and department form — every year."
-                },
-              ].map((item, i) => (
-                <motion.div key={i} variants={scaleIn}
-                  className="rounded-2xl p-5"
-                  style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}>
-                  <item.icon className="h-6 w-6 mb-3" style={{ color: C.tealLight }} />
-                  <h3 className="font-semibold mb-2" style={{ color: "#F0F7F4" }}>{item.title}</h3>
-                  <p className="text-sm leading-relaxed" style={{ color: C.mutedLight }}>{item.body}</p>
-                </motion.div>
-              ))}
-            </div>
-
-            <p className="mt-10 text-lg font-medium" style={{ color: "#F0F7F4" }}>
-              Smart-Prof replaces the chaos with one organized system — built specifically for faculty.
-            </p>
           </motion.div>
+
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }} variants={staggerContainer}
+            className="grid sm:grid-cols-3 gap-6">
+            {[
+              {
+                icon: ListTodo,
+                title: "Tools everywhere",
+                body: "Email, sticky notes, spreadsheets, a task app, a calendar — none of them talk to each other.",
+              },
+              {
+                icon: Clock,
+                title: "Grant scrambles",
+                body: "Pulling together expenditure reports and meeting notes at the last minute, every single reporting cycle.",
+              },
+              {
+                icon: RefreshCw,
+                title: "Duplicate data entry",
+                body: "Re-entering the same publications, talks, and awards into your CV, annual report, biosketch, and department form — every year.",
+              },
+            ].map((item, i) => (
+              <motion.div key={i} variants={scaleIn}
+                className="rounded-2xl p-6 bg-white"
+                style={{ border: `1px solid ${C.border}`, boxShadow: "0 2px 12px rgba(13,30,65,0.06)" }}>
+                <div className="p-2.5 rounded-xl w-fit mb-4"
+                  style={{ background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.15)" }}>
+                  <item.icon className="h-5 w-5" style={{ color: "#dc2626" }} />
+                </div>
+                <h3 className="font-bold mb-2" style={{ color: C.navy }}>{item.title}</h3>
+                <p className="text-sm leading-relaxed" style={{ color: C.muted }}>{item.body}</p>
+              </motion.div>
+            ))}
+          </motion.div>
+
+          <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
+            className="text-center text-lg font-semibold mt-10" style={{ color: C.navy }}>
+            Smart-Prof replaces the chaos with one organized system — built specifically for faculty.
+          </motion.p>
         </div>
       </section>
 
@@ -608,6 +643,26 @@ const LandingPreview = () => {
             <p className="text-xl max-w-2xl mx-auto" style={{ color: C.muted }}>
               No credit card required to start. Both plans give you permanent access — not a trial.
             </p>
+
+            {/* Billing toggle */}
+            <div className="inline-flex items-center mt-8 rounded-full p-1 gap-1"
+              style={{ background: "rgba(27,122,90,0.08)", border: `1px solid ${C.border}` }}>
+              {(["annual", "monthly"] as const).map((interval) => (
+                <button
+                  key={interval}
+                  type="button"
+                  onClick={() => setBillingInterval(interval)}
+                  className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
+                  style={
+                    billingInterval === interval
+                      ? { ...gradientBtn, boxShadow: "0 2px 8px rgba(27,122,90,0.3)" }
+                      : { background: "transparent", color: C.muted, border: "none" }
+                  }
+                >
+                  {interval === "annual" ? "Annual — save ~20%" : "Monthly"}
+                </button>
+              ))}
+            </div>
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={staggerContainer}
@@ -661,7 +716,7 @@ const LandingPreview = () => {
                   border: `2px solid ${C.teal}`,
                   boxShadow: `0 8px 40px rgba(27,122,90,0.35)`
                 }}>
-                {/* Recommended badge */}
+                {/* Most popular badge */}
                 <div className="absolute top-0 right-6 -translate-y-1/2">
                   <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold"
                     style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff" }}>
@@ -676,10 +731,34 @@ const LandingPreview = () => {
                     <p className="text-sm font-medium mb-4" style={{ color: C.mutedLight }}>
                       For faculty and lab leads who want AI to draft and organize for them.
                     </p>
+
+                    {/* Live price from Stripe */}
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-black" style={{ color: "#F0F7F4" }}>See pricing</span>
+                      {activePrice?.unit_amount != null ? (
+                        <>
+                          <span className="text-4xl font-black" style={{ color: "#F0F7F4" }}>
+                            {billingInterval === "annual" && monthlyEquivalent
+                              ? monthlyEquivalent
+                              : formatPrice(activePrice.unit_amount, activePrice.currency) + "/mo"}
+                          </span>
+                          {billingInterval === "annual" && (
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full"
+                              style={{ background: "rgba(61,170,110,0.25)", color: C.tealLight }}>
+                              billed annually
+                            </span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-2xl font-bold" style={{ color: "#F0F7F4" }}>
+                          Pricing available at sign-up
+                        </span>
+                      )}
                     </div>
-                    <p className="text-xs mt-1" style={{ color: C.mutedLight }}>Monthly and annual plans available</p>
+                    {billingInterval === "annual" && activePrice?.unit_amount != null && (
+                      <p className="text-xs mt-1" style={{ color: C.mutedLight }}>
+                        {formatPrice(activePrice.unit_amount, activePrice.currency)} billed once per year
+                      </p>
+                    )}
                   </div>
 
                   <div className="space-y-5 mb-8">
@@ -687,17 +766,14 @@ const LandingPreview = () => {
                       { label: "Everything in Free, plus:", items: [] },
                       { label: "AI & Automation", items: ["AI Task Draft and AI Smart Planner", "AI Meeting Agenda and AI Summarizer", "AI Grant Narrative Writer", "AI Supply Analysis and AI Analytics Insights", "NIH Biosketch Generator"] },
                       { label: "Integrations", items: ["Google Calendar sync", "Outlook Calendar sync", "ORCID integration + live citation metrics"] },
-                      { label: "Achievements & Export", items: ["Advanced CV / biosketch import and export", "Full data export in standard formats"] },
+                      { label: "Advanced Export", items: ["Advanced CV / biosketch import and export", "Full data export in standard formats"] },
                     ].map((group, gi) => (
                       <div key={gi}>
                         <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: C.tealLight }}>{group.label}</p>
                         {group.items.length > 0 && (
                           <ul className="space-y-1.5">
                             {group.items.map((item, ii) => (
-                              <li key={ii} className="flex items-start gap-2.5">
-                                <Check className="h-4 w-4 mt-0.5 shrink-0" style={{ color: C.tealLight }} />
-                                <span className="text-sm leading-snug" style={{ color: C.mutedLight }}>{item}</span>
-                              </li>
+                              <CheckItem key={ii} dark>{item}</CheckItem>
                             ))}
                           </ul>
                         )}
@@ -707,7 +783,7 @@ const LandingPreview = () => {
 
                   <Button asChild size="lg" className="w-full font-semibold h-12 shadow-lg transition-all duration-300"
                     style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealLight} 100%)`, color: "#fff", border: "none" }}>
-                    <Link to="/auth">Start Pro trial</Link>
+                    <Link to="/auth?plan=pro">Start Pro trial</Link>
                   </Button>
                   <p className="text-xs text-center mt-3" style={{ color: C.mutedLight }}>No credit card required to try</p>
                 </CardContent>
@@ -738,17 +814,6 @@ const LandingPreview = () => {
             </p>
           </motion.div>
 
-          {/* University logos placeholder */}
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
-            className="flex flex-wrap justify-center gap-6 mb-14 opacity-50">
-            {["State Research University", "Midwest Technical Institute", "Liberal Arts College", "National Science Lab"].map((uni, i) => (
-              <div key={i} className="px-5 py-2.5 rounded-lg border text-sm font-semibold"
-                style={{ borderColor: C.border, color: C.muted, background: "rgba(255,255,255,0.6)" }}>
-                {uni}
-              </div>
-            ))}
-          </motion.div>
-
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={staggerContainer}
             className="grid md:grid-cols-3 gap-8">
             {testimonials.map((testimonial, i) => (
@@ -759,8 +824,8 @@ const LandingPreview = () => {
                     style={{ background: `linear-gradient(180deg, ${C.teal}, ${C.tealLight})` }} />
                   <CardContent className="relative p-8">
                     <div className="flex gap-1 mb-5">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <Star key={i} className="h-5 w-5 fill-current" style={{ color: C.tealLight }} />
+                      {[...Array(testimonial.rating)].map((_, ri) => (
+                        <Star key={ri} className="h-5 w-5 fill-current" style={{ color: C.tealLight }} />
                       ))}
                     </div>
                     <p className="mb-8 leading-relaxed text-base italic" style={{ color: "#3A5C4A" }}>
@@ -779,43 +844,40 @@ const LandingPreview = () => {
         </div>
       </section>
 
-      {/* ══ 7. FAQ ═══════════════════════════════════════════════════════════ */}
+      {/* ══ 7. FAQ — using ui/accordion ═════════════════════════════════════════ */}
       <section id="faq" className="py-16 md:py-28 relative" style={{ backgroundColor: C.bg }}>
         <div className="container mx-auto px-6 max-w-2xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp} className="text-center mb-12">
-            <SectionBadge icon={MessageSquare} label="Common questions" />
+            <SectionBadge icon={Brain} label="Common questions" />
             <h2 className="text-4xl md:text-5xl font-bold mb-5" style={{ color: C.navy }}>
               FAQ
             </h2>
           </motion.div>
 
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={staggerContainer} className="space-y-3">
-            {faqs.map((faq, i) => (
-              <motion.div key={i} variants={fadeInUp}>
-                <button
-                  type="button"
-                  onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full text-left rounded-xl px-6 py-5 flex items-start justify-between gap-4 transition-colors duration-200 group"
-                  style={{
-                    background: openFaq === i ? "#fff" : "rgba(255,255,255,0.6)",
-                    border: `1px solid ${openFaq === i ? C.borderMed : C.border}`,
-                    boxShadow: openFaq === i ? "0 4px 16px rgba(13,30,65,0.08)" : "none"
-                  }}
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp}>
+            <Accordion type="single" collapsible className="space-y-3">
+              {faqs.map((faq, i) => (
+                <AccordionItem
+                  key={i}
+                  value={`faq-${i}`}
+                  className="rounded-xl overflow-hidden border-0"
+                  style={{ border: `1px solid ${C.border}`, background: "#fff", boxShadow: "0 2px 8px rgba(13,30,65,0.04)" }}
                 >
-                  <span className="font-semibold text-sm md:text-base" style={{ color: C.navy }}>{faq.q}</span>
-                  <ChevronDown
-                    className={`h-5 w-5 shrink-0 mt-0.5 transition-transform duration-300 ${openFaq === i ? "rotate-180" : ""}`}
-                    style={{ color: C.teal }} />
-                </button>
-                {openFaq === i && (
-                  <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}
-                    className="px-6 py-4 text-sm leading-relaxed rounded-b-xl -mt-1"
-                    style={{ background: "#fff", borderLeft: `1px solid ${C.borderMed}`, borderRight: `1px solid ${C.borderMed}`, borderBottom: `1px solid ${C.borderMed}`, color: C.muted }}>
+                  <AccordionTrigger
+                    className="px-6 py-5 text-left font-semibold hover:no-underline hover:bg-[rgba(27,122,90,0.03)] transition-colors duration-200 [&[data-state=open]]:bg-[rgba(27,122,90,0.04)]"
+                    style={{ color: C.navy }}
+                  >
+                    {faq.q}
+                  </AccordionTrigger>
+                  <AccordionContent
+                    className="px-6 pb-5 text-sm leading-relaxed"
+                    style={{ color: C.muted }}
+                  >
                     {faq.a}
-                  </motion.div>
-                )}
-              </motion.div>
-            ))}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
           </motion.div>
         </div>
       </section>
