@@ -1,6 +1,21 @@
+/**
+ * useFeatureFlags
+ *
+ * Source of truth for feature-flag state.
+ *
+ * Flags are stored in the `feature_flags` Supabase table (previously localStorage),
+ * so admin toggles propagate to ALL users in real-time via a postgres_changes listener.
+ *
+ * canUse(key) returns true when ANY of the following:
+ *   1. The current user is a system_admin
+ *   2. The flag is globally enabled in the DB (admin promo override)
+ *   3. The user's subscription tier meets the feature's minTier requirement
+ */
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "./useUserRole";
 import { useSubscription } from "./useSubscription";
+import { useAuth } from "./useAuth";
 
 // "enterprise" is reserved for future use - not yet offered publicly
 export type SubscriptionTier = "free" | "pro" | "enterprise";
@@ -17,8 +32,8 @@ export interface FeatureFlag {
 }
 
 // Canonical list of gated features.
-// minTier = 'free' means everyone can use it (no gate needed, but listed for completeness).
-// minTier = 'pro' means Pro + Enterprise only.
+// minTier = 'free' means everyone can use it.
+// minTier = 'pro'  means Pro + Enterprise only (unless globally enabled by admin).
 export const FEATURE_DEFINITIONS: Omit<FeatureFlag, "globallyEnabled">[] = [
   // ── Achievements ──────────────────────────────────────────────
   {
@@ -135,63 +150,95 @@ export const FEATURE_DEFINITIONS: Omit<FeatureFlag, "globallyEnabled">[] = [
   },
 ];
 
-// Local-storage key used as an offline cache / fallback for the admin settings
-const LS_KEY = "smartprof_feature_flags";
-
-// Default globallyEnabled state (all false = honour tier restrictions)
+// Build a default map (all false) for flags not yet in the DB
 function buildDefaults(): Record<string, boolean> {
   return Object.fromEntries(FEATURE_DEFINITIONS.map((f) => [f.key, false]));
-}
-
-function loadFromLocalStorage(): Record<string, boolean> {
-  try {
-    const raw = localStorage.getItem(LS_KEY);
-    if (raw) return { ...buildDefaults(), ...JSON.parse(raw) };
-  } catch {
-    // ignore
-  }
-  return buildDefaults();
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 interface UseFeatureFlagsReturn {
-  flags: Record<string, boolean>; // globallyEnabled map
+  /** globallyEnabled map keyed by feature key */
+  flags: Record<string, boolean>;
   userTier: SubscriptionTier;
   /** Returns true if the current user may use this feature */
   canUse: (key: string) => boolean;
-  /** Admin: toggle a feature's globallyEnabled state */
+  /** Admin: toggle a feature's globallyEnabled state in the DB */
   toggleFlag: (key: string, enabled: boolean) => Promise<void>;
   loading: boolean;
   refresh: () => Promise<void>;
 }
 
 export function useFeatureFlags(): UseFeatureFlagsReturn {
+  const { user } = useAuth();
   const { isSystemAdmin } = useUserRole();
-  // Delegate all tier/subscription logic to useSubscription (single source of truth).
-  // When Stripe is integrated the same hook reflects updates in real-time via postgres_changes.
   const { subscription, loading: subLoading } = useSubscription();
-  const [flags, setFlags] = useState<Record<string, boolean>>(loadFromLocalStorage);
+
+  const [flags, setFlags] = useState<Record<string, boolean>>(buildDefaults);
+  const [flagsLoading, setFlagsLoading] = useState(true);
 
   const userTier = subscription.tier;
-  const loading = subLoading;
+  const loading = subLoading || flagsLoading;
 
-  // Keep flags in sync with localStorage (written by admin UI)
-  useEffect(() => {
-    setFlags(loadFromLocalStorage());
+  // ── Fetch all flags from Supabase ────────────────────────────────────────
+  const fetchFlags = useCallback(async () => {
+    setFlagsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("feature_flags" as any)
+        .select("key, enabled");
+
+      if (error) {
+        console.error("useFeatureFlags fetch error:", error);
+        return;
+      }
+
+      const map = { ...buildDefaults() };
+      if (data) {
+        for (const row of data as { key: string; enabled: boolean }[]) {
+          map[row.key] = row.enabled;
+        }
+      }
+      setFlags(map);
+    } finally {
+      setFlagsLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    if (user) fetchFlags();
+  }, [user, fetchFlags]);
+
+  // ── Realtime subscription — updates ALL users when admin changes a flag ──
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel("feature-flags-global")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "feature_flags" },
+        () => {
+          fetchFlags();
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user, fetchFlags]);
 
   const refresh = useCallback(async () => {
-    setFlags(loadFromLocalStorage());
-  }, []);
+    await fetchFlags();
+  }, [fetchFlags]);
 
+  // ── canUse ───────────────────────────────────────────────────────────────
   const canUse = useCallback(
     (key: string): boolean => {
       // System admins always have access to everything
       if (isSystemAdmin()) return true;
 
       const def = FEATURE_DEFINITIONS.find((f) => f.key === key);
-      if (!def) return true; // unknown key - allow by default
+      if (!def) return true; // unknown key — allow by default
 
       // Feature is force-enabled for everyone by admin override
       if (flags[key] === true) return true;
@@ -205,13 +252,27 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
     [flags, userTier, isSystemAdmin]
   );
 
+  // ── toggleFlag ───────────────────────────────────────────────────────────
+  // Writes to Supabase via SECURITY DEFINER RPC. The realtime listener above
+  // will then update flags for ALL connected sessions automatically.
   const toggleFlag = useCallback(
     async (key: string, enabled: boolean) => {
-      const updated = { ...flags, [key]: enabled };
-      setFlags(updated);
-      localStorage.setItem(LS_KEY, JSON.stringify(updated));
+      const { data, error } = await supabase.rpc("admin_set_feature_flag" as any, {
+        p_key: key,
+        p_enabled: enabled,
+      });
+
+      if (error) throw error;
+
+      const result = data as { success: boolean; error?: string };
+      if (!result?.success) {
+        throw new Error(result?.error || "Failed to update feature flag");
+      }
+
+      // Optimistic local update (realtime will also confirm this)
+      setFlags((prev) => ({ ...prev, [key]: enabled }));
     },
-    [flags]
+    []
   );
 
   return { flags, userTier, canUse, toggleFlag, loading, refresh };

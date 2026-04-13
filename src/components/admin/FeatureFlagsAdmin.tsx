@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Sparkles, Lock, Unlock, RotateCcw, Save, Info } from "lucide-react";
+import { Sparkles, Lock, Unlock, RotateCcw, Save, Info, Globe } from "lucide-react";
 import { FEATURE_DEFINITIONS, useFeatureFlags, type SubscriptionTier } from "@/hooks/useFeatureFlags";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -27,9 +27,13 @@ export function FeatureFlagsAdmin() {
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  // Sync local copy whenever the DB-backed flags update (e.g. from another session)
+  // Only reset local edits when not currently dirty to avoid clobbering pending changes.
   useEffect(() => {
-    setLocalFlags({ ...flags });
-  }, [flags]);
+    if (!dirty) {
+      setLocalFlags({ ...flags });
+    }
+  }, [flags, dirty]);
 
   // Group features by module
   const grouped = FEATURE_DEFINITIONS.reduce<Record<string, typeof FEATURE_DEFINITIONS>>((acc, f) => {
@@ -46,13 +50,23 @@ export function FeatureFlagsAdmin() {
   const handleSaveAll = async () => {
     setSaving(true);
     try {
-      for (const [key, enabled] of Object.entries(localFlags)) {
+      // Find only the flags that actually changed to minimize DB writes
+      const changed = Object.entries(localFlags).filter(
+        ([key, val]) => val !== flags[key]
+      );
+
+      for (const [key, enabled] of changed) {
         await toggleFlag(key, enabled);
       }
+
       setDirty(false);
-      toast.success("Feature flags saved successfully");
-    } catch {
-      toast.error("Failed to save feature flags");
+      toast.success(
+        changed.length === 0
+          ? "No changes to save"
+          : `${changed.length} feature flag${changed.length !== 1 ? "s" : ""} updated — changes are live for all users`
+      );
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to save feature flags");
     } finally {
       setSaving(false);
     }
@@ -88,18 +102,22 @@ export function FeatureFlagsAdmin() {
 
   return (
     <TooltipProvider>
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Summary bar */}
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="py-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-sm font-medium">
-                  {enabledCount} of {totalCount} Pro features are currently{" "}
-                  <span className="text-green-600 font-semibold">unlocked for all users</span>
-                </p>
+                <div className="flex items-center gap-2">
+                  <Globe className="h-4 w-4 text-primary" />
+                  <p className="text-sm font-medium">
+                    {enabledCount} of {totalCount} Pro features{" "}
+                    <span className="text-green-600 font-semibold">unlocked for all users</span>
+                  </p>
+                </div>
                 <p className="text-xs text-muted-foreground">
-                  Toggle features ON to make them available to free-tier users. Toggle OFF to enforce Pro-only access.
+                  Toggles save to the database and take effect immediately for every user — no page reload needed.
+                  Use this to run promotions or open beta features to free-tier users.
                 </p>
               </div>
               <div className="flex flex-wrap gap-2 shrink-0">
@@ -151,22 +169,26 @@ export function FeatureFlagsAdmin() {
         {/* Grouped feature cards */}
         {Object.entries(grouped).map(([module, features]) => (
           <Card key={module}>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">{module}</CardTitle>
-              <CardDescription>
-                {features.length} feature{features.length !== 1 ? "s" : ""} in this module
+            <CardHeader className="pb-2 pt-4 px-5">
+              <CardTitle className="text-sm font-semibold">{module}</CardTitle>
+              <CardDescription className="text-xs">
+                {features.length} feature{features.length !== 1 ? "s" : ""}
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-0 p-0">
+            <CardContent className="space-y-0 p-0 pb-1">
               {features.map((feature, idx) => {
                 const isEnabled = localFlags[feature.key] ?? false;
+                const isAi =
+                  feature.label.toLowerCase().includes("ai") ||
+                  feature.description.toLowerCase().includes("ai");
+
                 return (
                   <div key={feature.key}>
                     {idx > 0 && <Separator />}
-                    <div className="flex items-center gap-4 px-6 py-4">
+                    <div className="flex items-center gap-3 px-5 py-3">
                       {/* Left: labels */}
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex-1 min-w-0 space-y-0.5">
+                        <div className="flex flex-wrap items-center gap-1.5">
                           <span className="text-sm font-medium">{feature.label}</span>
                           <Badge
                             variant="outline"
@@ -174,19 +196,18 @@ export function FeatureFlagsAdmin() {
                           >
                             {TIER_LABELS[feature.minTier]}+
                           </Badge>
-                          {feature.label.toLowerCase().includes("ai") ||
-                          feature.description.toLowerCase().includes("ai") ? (
+                          {isAi && (
                             <Badge className="bg-violet-100 text-violet-700 border-violet-200 text-[10px] px-1.5 py-0 gap-0.5">
                               <Sparkles className="h-2.5 w-2.5" />
                               AI
                             </Badge>
-                          ) : null}
+                          )}
                         </div>
-                        <p className="text-xs text-muted-foreground">{feature.description}</p>
+                        <p className="text-xs text-muted-foreground leading-snug">{feature.description}</p>
                       </div>
 
                       {/* Right: status + toggle */}
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-2.5 shrink-0">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Info className="h-3.5 w-3.5 text-muted-foreground cursor-help" />
@@ -194,12 +215,12 @@ export function FeatureFlagsAdmin() {
                           <TooltipContent side="left" className="max-w-[220px] text-xs">
                             {isEnabled
                               ? "All users (including free tier) can use this feature right now."
-                              : `Only users on ${TIER_LABELS[feature.minTier]} plan or higher can use this.`}
+                              : `Only users on the ${TIER_LABELS[feature.minTier]} plan or higher can use this.`}
                           </TooltipContent>
                         </Tooltip>
 
                         <span
-                          className={`text-xs font-medium w-14 text-right ${
+                          className={`text-xs font-medium w-16 text-right tabular-nums ${
                             isEnabled ? "text-green-600" : "text-muted-foreground"
                           }`}
                         >
