@@ -100,9 +100,31 @@ const Index = () => {
   ).length;
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
-  const todayEvents = events.filter((event: any) =>
-    new Date(event.date).toDateString() === new Date().toDateString()
-  );
+
+  // Parse a date string (YYYY-MM-DD or ISO) as local date to avoid UTC-offset shifting
+  const parseLocalDate = (dateStr: string): Date => {
+    // If it's just a date (YYYY-MM-DD), parse as local to avoid UTC midnight -> prev day in local tz
+    const dateOnly = /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+    if (dateOnly) {
+      const [y, m, d] = dateStr.split('-').map(Number);
+      return new Date(y, m - 1, d);
+    }
+    return new Date(dateStr);
+  };
+
+  const nowDate = new Date();
+  const startOfToday = new Date(nowDate.getFullYear(), nowDate.getMonth(), nowDate.getDate());
+  // End of week = start of Sunday 7 days from today
+  const endOfWeek = new Date(startOfToday);
+  endOfWeek.setDate(startOfToday.getDate() + 7);
+
+  const weekEvents = events
+    .filter((event: any) => {
+      if (!event.date) return false;
+      const d = parseLocalDate(event.date);
+      return d >= startOfToday && d < endOfWeek;
+    })
+    .sort((a: any, b: any) => parseLocalDate(a.date).getTime() - parseLocalDate(b.date).getTime());
 
   const statCards = [
     { title: 'Commitments', value: promiseCount, icon: CheckSquare, to: '/notes', desc: 'Student commitments' },
@@ -206,48 +228,60 @@ const Index = () => {
 
         {/* Schedule + Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-          {/* Today's Schedule */}
+          {/* This Week's Events */}
           <Card className="lg:col-span-2">
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-2 pt-4">
               <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2 text-base">
+                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
                   <BellRing className="h-4 w-4 text-primary" />
-                  Today's Schedule
+                  This Week's Events
                 </CardTitle>
-                <Badge variant="outline" className="text-xs">{todayEvents.length} events</Badge>
+                <Badge variant="outline" className="text-xs">{weekEvents.length} upcoming</Badge>
               </div>
             </CardHeader>
-            <CardContent>
-              {todayEvents.length > 0 ? (
-                <div className="space-y-2">
-                  {todayEvents.slice(0, 5).map((event: any) => (
-                    <div key={event.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div className={`w-2 h-2 rounded-full shrink-0 ${
-                          event.priority === 'high' ? 'bg-red-500' :
-                          event.priority === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
-                        }`} />
-                        <div className="min-w-0">
-                          <p className="text-sm font-medium truncate">{event.title}</p>
-                          <p className="text-xs text-muted-foreground">{event.time || 'All day'} · {event.type}</p>
+            <CardContent className="pb-2">
+              {weekEvents.length > 0 ? (
+                <div className="space-y-1.5">
+                  {weekEvents.slice(0, 6).map((event: any) => {
+                    const eventDate = parseLocalDate(event.date);
+                    const isToday = eventDate.toDateString() === nowDate.toDateString();
+                    const isTomorrow = eventDate.toDateString() === new Date(startOfToday.getTime() + 86400000).toDateString();
+                    const dayLabel = isToday ? 'Today' : isTomorrow ? 'Tomorrow' : eventDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    const timeLabel = event.start_time || event.time || null;
+
+                    return (
+                      <div key={event.id} className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className={`w-2 h-2 rounded-full shrink-0 ${
+                            event.priority === 'high' ? 'bg-red-500' :
+                            event.priority === 'medium' ? 'bg-amber-500' : 'bg-emerald-500'
+                          }`} />
+                          <div className="min-w-0">
+                            <p className="text-xs font-medium truncate">{event.title}</p>
+                            <p className="text-[11px] text-muted-foreground">
+                              <span className={isToday ? 'text-primary font-medium' : ''}>{dayLabel}</span>
+                              {timeLabel && <span> · {timeLabel}</span>}
+                              <span> · {event.type}</span>
+                            </p>
+                          </div>
                         </div>
+                        <Badge variant={event.priority === 'high' ? 'destructive' : event.priority === 'medium' ? 'default' : 'secondary'} className="text-[10px] px-1.5 ml-2 shrink-0">
+                          {event.priority || 'normal'}
+                        </Badge>
                       </div>
-                      <Badge variant={event.priority === 'high' ? 'destructive' : event.priority === 'medium' ? 'default' : 'secondary'} className="text-xs ml-2 shrink-0">
-                        {event.priority || 'normal'}
-                      </Badge>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
-                <div className="flex flex-col items-center justify-center py-10 text-center">
-                  <CheckCircle2 className="h-10 w-10 text-emerald-500 mb-3" />
-                  <p className="font-medium text-sm">No events today</p>
-                  <p className="text-xs text-muted-foreground mt-1">Your schedule is clear</p>
+                <div className="flex flex-col items-center justify-center py-6 text-center">
+                  <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-2" />
+                  <p className="font-medium text-sm">No events this week</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">Your schedule is clear</p>
                 </div>
               )}
             </CardContent>
-            <CardFooter className="pt-0">
-              <Button variant="outline" asChild className="w-full h-9 text-sm">
+            <CardFooter className="pt-1 pb-3">
+              <Button variant="outline" asChild className="w-full h-8 text-xs">
                 <Link to="/planning">View Full Schedule <ArrowRight className="h-3.5 w-3.5 ml-1.5" /></Link>
               </Button>
             </CardFooter>
