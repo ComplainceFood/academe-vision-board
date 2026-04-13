@@ -103,37 +103,35 @@ const SettingsPage = () => {
     }
   }, [profile, user, isLoading]);
 
-  // Fetch live prices from Stripe on mount.
-  // Seed with known price IDs immediately so checkout always has a priceId to send,
-  // even before the edge function responds or if it returns null amounts.
+  // Fetch live prices from Stripe via the get-prices edge function.
+  // Seed with known price IDs + amounts immediately so the UI is never blank.
+  // These match exactly what is configured in Stripe — update here if you change
+  // prices in the Stripe dashboard. get-prices will override with live data when available.
   useEffect(() => {
-    // Known price IDs from Stripe (matches stripe-webhook PRICE_TO_TIER map)
-    const KNOWN_MONTHLY_ID = "price_1TLQbdI7kmdofyfEg3rgcHrW";
-    const KNOWN_ANNUAL_ID  = "price_1TLQfFI7kmdofyfEEYpNqChM";
+    const KNOWN: PricesData = {
+      monthly: { id: "price_1TLQbdI7kmdofyfEg3rgcHrW", unit_amount: 799,   currency: "usd", interval: "month" },
+      annual:  { id: "price_1TLQfFI7kmdofyfEEYpNqChM", unit_amount: 7900,  currency: "usd", interval: "year"  },
+    };
+    setPrices(KNOWN);
 
-    setPrices({
-      monthly: { id: KNOWN_MONTHLY_ID, unit_amount: null, currency: "usd", interval: "month" },
-      annual:  { id: KNOWN_ANNUAL_ID,  unit_amount: null, currency: "usd", interval: "year"  },
-    });
-
+    // Try to get live amounts from Stripe — overrides the seed if successful
     supabase.functions.invoke("get-prices").then(({ data }) => {
       if (!data) return;
-      // Merge: keep known IDs as fallback if Stripe returns empty ids
       setPrices({
         monthly: {
-          id: data.monthly?.id || KNOWN_MONTHLY_ID,
-          unit_amount: data.monthly?.unit_amount ?? null,
+          id: data.monthly?.id || KNOWN.monthly.id,
+          unit_amount: data.monthly?.unit_amount ?? KNOWN.monthly.unit_amount,
           currency: data.monthly?.currency || "usd",
           interval: data.monthly?.interval || "month",
         },
         annual: {
-          id: data.annual?.id || KNOWN_ANNUAL_ID,
-          unit_amount: data.annual?.unit_amount ?? null,
+          id: data.annual?.id || KNOWN.annual.id,
+          unit_amount: data.annual?.unit_amount ?? KNOWN.annual.unit_amount,
           currency: data.annual?.currency || "usd",
           interval: data.annual?.interval || "year",
         },
       });
-    }).catch(() => {/* keep seeded fallback */});
+    }).catch(() => {/* keep seeded values */});
   }, []);
 
   // Handle upgrading to Pro via Stripe Checkout
@@ -900,15 +898,19 @@ const SettingsPage = () => {
                     {isPro && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Current</Badge>}
                   </div>
                   {/* Dynamic price from Stripe */}
-                  {billingInterval === "annual" && prices?.annual?.unit_amount ? (
+                  {billingInterval === "annual" && prices?.annual ? (
                     <div>
                       <CardDescription className="text-2xl font-bold text-foreground">
-                        {formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency)}
-                        <span className="text-sm font-normal text-muted-foreground"> / month</span>
+                        {prices.annual.unit_amount != null
+                          ? formatPrice(prices.annual.unit_amount, prices.annual.currency)
+                          : "—"}
+                        <span className="text-sm font-normal text-muted-foreground"> / year</span>
                       </CardDescription>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        Billed {formatPrice(prices.annual.unit_amount, prices.annual.currency)} / year
-                      </p>
+                      {prices.annual.unit_amount != null && prices.monthly.unit_amount != null && (
+                        <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-0.5">
+                          {formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency)}/mo — saves {formatPrice(prices.monthly.unit_amount * 12 - prices.annual.unit_amount, prices.annual.currency)}/yr
+                        </p>
+                      )}
                     </div>
                   ) : (
                     <CardDescription className="text-2xl font-bold text-foreground">
