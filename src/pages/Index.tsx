@@ -315,7 +315,7 @@ const Index = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-1 px-4 pb-3 pt-0">
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 {[
                   { label: 'Notes & Commitments', icon: BookOpen, to: '/notes' },
                   { label: 'Meetings', icon: Users, to: '/meetings' },
@@ -327,9 +327,9 @@ const Index = () => {
                   { label: 'Communications', icon: BellRing, to: '/communications' },
                 ].map(({ label, icon: Icon, to }) => (
                   <Link key={label} to={to}>
-                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-muted/40 hover:bg-muted/80 transition-colors cursor-pointer">
-                      <Icon className="h-3.5 w-3.5 shrink-0 text-primary" />
-                      <span className="text-[11px] font-medium leading-tight line-clamp-1">{label}</span>
+                    <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-md bg-muted/40 hover:bg-muted/80 transition-colors cursor-pointer">
+                      <Icon className="h-4 w-4 shrink-0 text-primary" />
+                      <span className="text-sm font-medium leading-tight">{label}</span>
                     </div>
                   </Link>
                 ))}
