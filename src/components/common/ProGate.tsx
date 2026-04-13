@@ -64,7 +64,7 @@ export function ProGate({
             <p className="text-xs text-muted-foreground">Upgrade to Pro to unlock this feature</p>
           </div>
           <Button size="sm" variant="outline" className="text-xs" asChild>
-            <a href="/settings">View Plans</a>
+            <a href="/settings?tab=subscription">Upgrade to Pro</a>
           </Button>
         </div>
       </div>
@@ -95,7 +95,7 @@ export function ProGate({
         </p>
       </div>
       <Button size="sm" variant="outline" asChild>
-        <a href="/settings">View Plans</a>
+        <a href="/settings?tab=subscription">Upgrade to Pro</a>
       </Button>
     </div>
   );

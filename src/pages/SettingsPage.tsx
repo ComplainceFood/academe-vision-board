@@ -35,10 +35,33 @@ const PRO_FEATURES = [
   "Advanced Data Export / Import",
 ];
 
+interface StripePriceInfo {
+  id: string;
+  unit_amount: number | null;
+  currency: string;
+  interval: string;
+}
+
+interface PricesData {
+  monthly: StripePriceInfo;
+  annual: StripePriceInfo;
+}
+
+function formatPrice(amount: number | null, currency: string): string {
+  if (amount === null) return "—";
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: currency.toUpperCase(),
+    minimumFractionDigits: amount % 100 === 0 ? 0 : 2,
+  }).format(amount / 100);
+}
+
 const SettingsPage = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [loadingPortal, setLoadingPortal] = useState(false);
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("monthly");
+  const [prices, setPrices] = useState<PricesData | null>(null);
   const { subscription, isPro, isTrial } = useSubscription();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -80,12 +103,23 @@ const SettingsPage = () => {
     }
   }, [profile, user, isLoading]);
 
+  // Fetch live prices from Stripe on mount
+  useEffect(() => {
+    supabase.functions.invoke("get-prices").then(({ data }) => {
+      if (data?.monthly || data?.annual) setPrices(data as PricesData);
+    }).catch(() => {/* silently ignore — UI shows fallback */});
+  }, []);
+
   // Handle upgrading to Pro via Stripe Checkout
-  const handleUpgradeToPro = async () => {
+  const handleUpgradeToPro = async (interval: "monthly" | "annual" = billingInterval) => {
     setLoadingCheckout(true);
+    const priceId = interval === "annual" ? prices?.annual?.id : prices?.monthly?.id;
     try {
       const { data, error } = await supabase.functions.invoke("create-checkout-session", {
-        body: { successUrl: `${window.location.origin}/settings?tab=subscription&upgraded=1` },
+        body: {
+          successUrl: `${window.location.origin}/settings?tab=subscription&upgraded=1`,
+          priceId: priceId || undefined,
+        },
       });
       if (error || !data?.url) throw error ?? new Error("No checkout URL returned");
       window.location.href = data.url;
@@ -780,6 +814,31 @@ const SettingsPage = () => {
               </CardContent>
             </Card>
 
+            {/* Billing interval toggle */}
+            {!isPro && (
+              <div className="flex items-center justify-center gap-3">
+                <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={billingInterval === "annual" ? "true" : "false"}
+                  aria-label="Toggle billing interval between monthly and annual"
+                  onClick={() => setBillingInterval(b => b === "monthly" ? "annual" : "monthly")}
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${billingInterval === "annual" ? "bg-amber-500" : "bg-muted-foreground/30"}`}
+                >
+                  <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${billingInterval === "annual" ? "translate-x-6" : "translate-x-1"}`} />
+                </button>
+                <span className={`text-sm font-medium ${billingInterval === "annual" ? "text-foreground" : "text-muted-foreground"}`}>
+                  Annual
+                  {prices?.annual?.unit_amount && prices?.monthly?.unit_amount && (
+                    <span className="ml-1.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded-full font-semibold">
+                      Save {Math.round((1 - (prices.annual.unit_amount / 12) / prices.monthly.unit_amount) * 100)}%
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
+
             {/* Plan comparison */}
             <div className="grid sm:grid-cols-2 gap-4">
               {/* Free */}
@@ -789,7 +848,9 @@ const SettingsPage = () => {
                     <CardTitle className="text-base">Free</CardTitle>
                     {!isPro && <Badge variant="outline" className="text-xs">Current</Badge>}
                   </div>
-                  <CardDescription className="text-2xl font-bold text-foreground">$0 <span className="text-sm font-normal text-muted-foreground">/ month</span></CardDescription>
+                  <CardDescription className="text-2xl font-bold text-foreground">
+                    $0 <span className="text-sm font-normal text-muted-foreground">/ month</span>
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-2">
                   {["Goals & semester planning", "Funding tracker", "Meeting notes", "Supply inventory", "Basic analytics"].map((f) => (
@@ -812,7 +873,25 @@ const SettingsPage = () => {
                     <CardTitle className="text-base">Pro</CardTitle>
                     {isPro && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Current</Badge>}
                   </div>
-                  <CardDescription className="text-2xl font-bold text-foreground">$12 <span className="text-sm font-normal text-muted-foreground">/ month</span></CardDescription>
+                  {/* Dynamic price from Stripe */}
+                  {billingInterval === "annual" && prices?.annual?.unit_amount ? (
+                    <div>
+                      <CardDescription className="text-2xl font-bold text-foreground">
+                        {formatPrice(Math.round(prices.annual.unit_amount / 12), prices.annual.currency)}
+                        <span className="text-sm font-normal text-muted-foreground"> / month</span>
+                      </CardDescription>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Billed {formatPrice(prices.annual.unit_amount, prices.annual.currency)} / year
+                      </p>
+                    </div>
+                  ) : (
+                    <CardDescription className="text-2xl font-bold text-foreground">
+                      {prices?.monthly?.unit_amount != null
+                        ? formatPrice(prices.monthly.unit_amount, prices.monthly.currency)
+                        : "—"}
+                      <span className="text-sm font-normal text-muted-foreground"> / month</span>
+                    </CardDescription>
+                  )}
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">Everything in Free, plus:</p>
@@ -823,8 +902,12 @@ const SettingsPage = () => {
                     </div>
                   ))}
                   {!isPro && (
-                    <Button className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white" onClick={handleUpgradeToPro} disabled={loadingCheckout}>
-                      {loadingCheckout ? "Loading..." : "Start 14-day Free Trial"}
+                    <Button
+                      className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white"
+                      onClick={() => handleUpgradeToPro(billingInterval)}
+                      disabled={loadingCheckout}
+                    >
+                      {loadingCheckout ? "Loading..." : `Start 14-day Free Trial · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
                     </Button>
                   )}
                 </CardContent>

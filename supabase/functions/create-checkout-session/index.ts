@@ -61,11 +61,15 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Unauthorised' }), { status: 401, headers: corsHeaders });
     }
 
-    const { successUrl } = await req.json();
+    const { successUrl, priceId } = await req.json();
 
     // Price IDs - monthly and annual Pro plans
     const PRO_MONTHLY = Deno.env.get('STRIPE_PRO_PRICE_ID') ?? '';
     const PRO_ANNUAL  = Deno.env.get('STRIPE_PRO_ANNUAL_PRICE_ID') ?? PRO_MONTHLY;
+
+    // Use caller-supplied priceId if valid, otherwise default to monthly
+    const validPriceIds = [PRO_MONTHLY, PRO_ANNUAL].filter(Boolean);
+    const selectedPrice = (priceId && validPriceIds.includes(priceId)) ? priceId : PRO_MONTHLY;
 
     // Look up or create a Stripe customer for this user
     const supabaseAdmin = createClient(
@@ -96,7 +100,7 @@ Deno.serve(async (req) => {
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       mode: 'subscription',
-      line_items: [{ price: PRO_MONTHLY, quantity: 1 }],
+      line_items: [{ price: selectedPrice, quantity: 1 }],
       success_url: successUrl ?? `${req.headers.get('origin')}/settings?upgraded=1`,
       cancel_url: `${req.headers.get('origin')}/settings?cancelled=1`,
       allow_promotion_codes: true,
