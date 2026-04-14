@@ -691,11 +691,9 @@ const LandingPreview = () => {
 
             {/* ── Free card ── */}
             <motion.div variants={fadeInLeft} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="flex">
-              <Card className="w-full flex flex-col relative"
+              <Card className="w-full flex flex-col"
                 style={{ background: "#fff", border: `1px solid ${C.borderMed}`, boxShadow: "0 4px 20px rgba(13,30,65,0.07)" }}>
-                <CardContent className="p-6 flex flex-col flex-1">
-
-                  {/* Header */}
+                <CardContent className="p-6 flex flex-col h-full">
                   <div className="mb-4">
                     <h3 className="text-2xl font-bold mb-1" style={{ color: C.navy }}>Free</h3>
                     <p className="text-sm mb-4" style={{ color: C.muted }}>Perfect for individual faculty getting out of chaos.</p>
@@ -704,25 +702,19 @@ const LandingPreview = () => {
                       <span className="text-base font-medium" style={{ color: C.muted }}>/ forever</span>
                     </div>
                   </div>
-
-                  {/* Features */}
                   <div className="space-y-3 flex-1">
                     {[
-                      { label: "Planning & Tasks", items: ["Tasks & Notes with subtasks and folders", "Semester Planning with event tracking", "Smart deadlines and recurring tasks"] },
-                      { label: "Meetings",         items: ["Meeting Hub: agendas and action items", "Recurring meeting support"] },
-                      { label: "Grants & Lab",     items: ["Grant Management: budgets and commitments", "Supplies & Expenses with threshold alerts", "Shopping lists and CSV export"] },
-                      { label: "Achievements & CV",items: ["11 achievement categories", "CV / biosketch import and export", "Communications and announcements"] },
+                      { label: "Planning & Tasks",  items: ["Tasks & Notes with subtasks and folders", "Semester Planning with event tracking", "Smart deadlines and recurring tasks"] },
+                      { label: "Meetings",          items: ["Meeting Hub: agendas and action items", "Recurring meeting support"] },
+                      { label: "Grants & Lab",      items: ["Grant Management: budgets and commitments", "Supplies & Expenses with threshold alerts", "Shopping lists and CSV export"] },
+                      { label: "Achievements & CV", items: ["11 achievement categories", "CV / biosketch import and export", "Communications and announcements"] },
                     ].map((group, gi) => (
                       <div key={gi}>
                         <p className="text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: C.teal }}>{group.label}</p>
-                        <ul className="space-y-1">
-                          {group.items.map((item, ii) => <CheckItem key={ii}>{item}</CheckItem>)}
-                        </ul>
+                        <ul className="space-y-1">{group.items.map((item, ii) => <CheckItem key={ii}>{item}</CheckItem>)}</ul>
                       </div>
                     ))}
                   </div>
-
-                  {/* CTA pinned to bottom */}
                   <Button asChild size="lg" variant="outline" className="w-full font-semibold h-11 mt-5 transition-all duration-300"
                     style={{ borderColor: C.borderMed, color: C.teal }}>
                     <Link to="/auth">Start free</Link>
@@ -732,20 +724,15 @@ const LandingPreview = () => {
             </motion.div>
 
             {/* ── Pro card ── */}
-            <motion.div variants={fadeInRight} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="flex flex-col">
-              {/* Badge outside card so overflow-hidden doesn't clip */}
-              <div className="flex justify-end pr-5 mb-[-14px] relative z-10">
-                <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold"
-                  style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff", boxShadow: "0 4px 12px rgba(27,122,90,0.4)" }}>
-                  <Sparkles className="h-3.5 w-3.5" /> Most popular
-                </span>
-              </div>
-
-              <Card className="w-full flex flex-col flex-1 relative overflow-hidden"
+            <motion.div variants={fadeInRight} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="flex">
+              <Card className="w-full flex flex-col relative"
                 style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 60%, #1B4A3A 100%)`, border: `2px solid ${C.teal}`, boxShadow: `0 8px 40px rgba(27,122,90,0.35)` }}>
-                <CardContent className="p-6 pt-8 flex flex-col flex-1">
-
-                  {/* Header */}
+                {/* Badge — absolute top-right, inside card, no overflow issue since no overflow-hidden */}
+                <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold z-10"
+                  style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff", boxShadow: "0 4px 12px rgba(27,122,90,0.4)" }}>
+                  <Sparkles className="h-3 w-3" /> Most popular
+                </span>
+                <CardContent className="p-6 flex flex-col h-full">
                   <div className="mb-4">
                     <h3 className="text-2xl font-bold mb-1" style={{ color: "#F0F7F4" }}>Pro</h3>
                     <p className="text-sm mb-4" style={{ color: C.mutedLight }}>For faculty and lab leads who want AI to draft and organize for them.</p>
@@ -765,8 +752,6 @@ const LandingPreview = () => {
                       <p className="text-sm mt-1.5 font-medium" style={{ color: C.mutedLight }}>Switch to annual to save ~20%</p>
                     ) : null}
                   </div>
-
-                  {/* Features */}
                   <div className="space-y-3 flex-1">
                     {[
                       { label: "Everything in Free, plus:", items: [] },
@@ -777,15 +762,11 @@ const LandingPreview = () => {
                       <div key={gi}>
                         <p className="text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: C.tealLight }}>{group.label}</p>
                         {group.items.length > 0 && (
-                          <ul className="space-y-1">
-                            {group.items.map((item, ii) => <CheckItem key={ii} dark>{item}</CheckItem>)}
-                          </ul>
+                          <ul className="space-y-1">{group.items.map((item, ii) => <CheckItem key={ii} dark>{item}</CheckItem>)}</ul>
                         )}
                       </div>
                     ))}
                   </div>
-
-                  {/* CTA pinned to bottom */}
                   <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
                     style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealLight} 100%)`, color: "#fff", border: "none" }}>
                     <Link to="/auth?plan=pro">Start Pro trial</Link>
