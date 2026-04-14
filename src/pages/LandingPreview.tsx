@@ -376,7 +376,6 @@ const LandingPreview = () => {
           <motion.div initial="hidden" animate="visible" variants={staggerContainer}
             className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
 
-      {/* ── Col 1: AI feature showcase card (only tile in the row) ── */}
             {/* ── Col 1: AI feature showcase card ── */}
             <motion.div variants={fadeInLeft} className="flex">
               <div className="w-full rounded-2xl overflow-hidden flex flex-col"
