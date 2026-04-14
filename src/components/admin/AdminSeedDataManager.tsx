@@ -84,7 +84,7 @@ const mockDataSets = {
       },
       {
         title: "Extended Office Hours Before Finals",
-        content: "Set up additional office hours (Mon/Wed 4–6 PM) during the two weeks before final exams. Coordinate with TA Michael to cover Tuesday slots.",
+        content: "Set up additional office hours (Mon/Wed 4 to 6 PM) during the two weeks before final exams. Coordinate with TA Michael to cover Tuesday slots.",
         type: "reminder",
         course: "Admin",
         priority: "medium",
@@ -545,7 +545,7 @@ const mockDataSets = {
       {
         category: "award_honor",
         title: "Outstanding Teaching Award - College of Engineering",
-        description: "Recognized for exceptional teaching effectiveness, innovative pedagogy, and dedication to student mentorship in 2024–2025.",
+        description: "Recognized for exceptional teaching effectiveness, innovative pedagogy, and dedication to student mentorship in the 2024-2025 academic year.",
         organization: "University College of Engineering",
         award_type: "teaching",
         date: daysAgo(30),
