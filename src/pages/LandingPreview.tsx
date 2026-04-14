@@ -374,10 +374,10 @@ const LandingPreview = () => {
 
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-[5fr_7fr_5fr] gap-5 items-center">
+            className="grid grid-cols-1 md:grid-cols-[4fr_8fr_4fr] gap-3 items-center">
 
             {/* ── Col 1: AI feature showcase card ── */}
-            <motion.div variants={fadeInLeft} className="flex">
+            <motion.div variants={fadeInLeft} className="flex md:-ml-4">
               <div className="w-full rounded-2xl overflow-hidden flex flex-col"
                 style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`, boxShadow: "0 20px 48px -10px rgba(13,30,65,0.3), 0 0 0 1px rgba(27,122,90,0.22)" }}>
                 <div className="flex items-center justify-between px-4 py-3 border-b"
@@ -430,7 +430,7 @@ const LandingPreview = () => {
                   <Sparkles className="h-3 w-3" style={{ color: C.tealLight }} />
                   Professors · Researchers · Lab Leads
                 </span>
-                <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-[1.1] tracking-tight">
+                <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-[1.1] tracking-tight">
                   <span style={{ color: C.navy }}>The academic cockpit</span>
                   <br />
                   <span className="relative inline-block pb-2">
@@ -443,7 +443,7 @@ const LandingPreview = () => {
                       style={{ background: `linear-gradient(90deg, ${C.teal}, ${C.tealLight}, ${C.teal})` }} />
                   </span>
                 </h1>
-                <p className="text-sm md:text-base mb-7 leading-relaxed" style={{ color: C.muted }}>
+                <p className="text-base md:text-lg mb-7 leading-relaxed" style={{ color: C.muted }}>
                   Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
                   organized system — so you can focus on research and teaching.
                 </p>
@@ -480,7 +480,7 @@ const LandingPreview = () => {
             </motion.div>
 
             {/* ── Col 3: Logo only, no background, fills the column ── */}
-            <motion.div variants={fadeInRight} className="flex items-center justify-end pr-2">
+            <motion.div variants={fadeInRight} className="flex items-center justify-end md:-mr-4">
               <SmartProfLogo size={320} className="w-full h-auto max-w-full" />
             </motion.div>
 
