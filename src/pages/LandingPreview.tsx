@@ -377,7 +377,7 @@ const LandingPreview = () => {
             className="grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
 
             {/* ── Col 1: AI feature showcase card ── */}
-            <motion.div variants={fadeInLeft} className="flex">
+            <motion.div variants={fadeInLeft} className="flex self-start">
               <div className="w-full rounded-2xl overflow-hidden flex flex-col"
                 style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`, boxShadow: "0 20px 48px -10px rgba(13,30,65,0.3), 0 0 0 1px rgba(27,122,90,0.22)" }}>
                 <div className="flex items-center justify-between px-4 py-3 border-b"
@@ -422,10 +422,9 @@ const LandingPreview = () => {
               </div>
             </motion.div>
 
-            {/* ── Col 2: Hero text card (center) ── */}
+            {/* ── Col 2: Hero text (center, no background) ── */}
             <motion.div variants={fadeInUp} className="flex">
-              <div className="w-full rounded-2xl flex flex-col items-center justify-center text-center px-6 py-8"
-                style={{ background: "rgba(255,255,255,0.72)", backdropFilter: "blur(12px)", border: "1px solid rgba(27,122,90,0.14)", boxShadow: "0 16px 40px -8px rgba(13,30,65,0.10)" }}>
+              <div className="w-full flex flex-col items-center justify-center text-center px-6 py-8">
                 <span className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-xs font-semibold border"
                   style={{ background: "rgba(27,122,90,0.08)", borderColor: C.borderMed, color: C.teal }}>
                   <Sparkles className="h-3 w-3" style={{ color: C.tealLight }} />
