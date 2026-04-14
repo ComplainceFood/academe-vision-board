@@ -314,182 +314,181 @@ const LandingPreview = () => {
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
-        className="sticky top-0 z-50 backdrop-blur-xl border-b"
-        style={{ backgroundColor: "rgba(240,247,244,0.88)", borderColor: C.border }}
+        className="sticky top-0 z-50 border-b"
+        style={{ background: `linear-gradient(135deg, ${C.navy} 0%, #0D3D2E 100%)`, borderColor: "rgba(255,255,255,0.08)" }}
       >
-        <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-          <motion.div whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }}>
-            <SmartProfLogoWide height={100} />
+        <div className="container mx-auto px-6 py-3 flex justify-between items-center">
+          <motion.div whileHover={{ scale: 1.04 }} transition={{ type: "spring", stiffness: 300 }}>
+            <SmartProfLogoWide height={80} />
           </motion.div>
 
-          <div className="flex items-center gap-2 md:gap-8">
-            <a href="#how-it-works" className="hidden md:block text-sm font-medium transition-colors duration-300" style={{ color: C.muted }}>How it works</a>
-            <a href="#pricing" className="hidden md:block text-sm font-medium transition-colors duration-300" style={{ color: C.muted }}>Pricing</a>
-            <a href="#faq" className="hidden md:block text-sm font-medium transition-colors duration-300" style={{ color: C.muted }}>FAQ</a>
+          <div className="flex items-center gap-2 md:gap-7">
+            {["How it works", "Pricing", "FAQ"].map((label, i) => (
+              <a key={i} href={["#how-it-works", "#pricing", "#faq"][i]}
+                className="hidden md:block text-sm font-medium transition-colors duration-200 hover:text-white"
+                style={{ color: "rgba(168,223,200,0.8)" }}>
+                {label}
+              </a>
+            ))}
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="hidden md:block">
-              <Button asChild size="lg" className="shadow-lg hover:shadow-xl transition-all duration-300 font-semibold" style={gradientBtn}>
-                <Link to="/auth">
-                  Start free
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
+              <Button asChild size="sm" className="font-semibold px-5"
+                style={{ background: C.tealLight, color: C.navy, border: "none" }}>
+                <Link to="/auth">Start free <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
               </Button>
             </motion.div>
-            <button
-              type="button"
-              className="md:hidden p-2 rounded-lg transition-colors duration-200"
-              style={{ color: C.muted }}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
+            <button type="button" className="md:hidden p-2 rounded-lg" style={{ color: "rgba(168,223,200,0.8)" }}
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
         {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className="md:hidden border-t px-6 py-4 flex flex-col gap-4 backdrop-blur-xl"
-            style={{ borderColor: C.border, backgroundColor: "rgba(240,247,244,0.97)" }}
-          >
-            <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium" style={{ color: C.muted }}>How it works</a>
-            <a href="#pricing" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium" style={{ color: C.muted }}>Pricing</a>
-            <a href="#faq" onClick={() => setMobileMenuOpen(false)} className="text-sm font-medium" style={{ color: C.muted }}>FAQ</a>
-            <Button asChild size="default" className="w-full mt-1 font-semibold" style={gradientBtn} onClick={() => setMobileMenuOpen(false)}>
+          <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }}
+            className="md:hidden border-t px-6 py-4 flex flex-col gap-4"
+            style={{ borderColor: "rgba(255,255,255,0.08)", background: C.navy }}>
+            {["How it works", "Pricing", "FAQ"].map((label, i) => (
+              <a key={i} href={["#how-it-works", "#pricing", "#faq"][i]}
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-sm font-medium" style={{ color: "rgba(168,223,200,0.85)" }}>
+                {label}
+              </a>
+            ))}
+            <Button asChild size="default" className="w-full mt-1 font-semibold"
+              style={{ background: C.tealLight, color: C.navy, border: "none" }}
+              onClick={() => setMobileMenuOpen(false)}>
               <Link to="/auth">Start free <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
           </motion.div>
         )}
       </motion.nav>
 
-      {/* ══ 1. HERO ═════════════════════════════════════════════════════════════ */}
-      <section className="relative py-20 md:py-32 lg:py-40 overflow-hidden">
-        {/* Background blobs */}
+      {/* ══ 1. HERO — 2-col split: text left, logo right ════════════════════════ */}
+      <section className="relative py-10 md:py-16 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <motion.div animate={{ y: [0, -30, 0], opacity: [0.18, 0.32, 0.18] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-32 -right-32 w-[200px] h-[200px] sm:w-[380px] sm:h-[380px] md:w-[540px] md:h-[540px] rounded-full blur-[110px]"
-            style={{ background: "radial-gradient(circle, rgba(27,122,90,0.35) 0%, transparent 70%)" }} />
-          <motion.div animate={{ y: [0, 30, 0], opacity: [0.12, 0.22, 0.12] }} transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -bottom-32 -left-32 w-[160px] h-[160px] sm:w-[300px] sm:h-[300px] md:w-[440px] md:h-[440px] rounded-full blur-[100px]"
-            style={{ background: "radial-gradient(circle, rgba(13,30,65,0.22) 0%, transparent 70%)" }} />
+          <motion.div animate={{ y: [0, -20, 0], opacity: [0.15, 0.28, 0.15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-24 -right-24 w-[320px] h-[320px] md:w-[480px] md:h-[480px] rounded-full blur-[100px]"
+            style={{ background: "radial-gradient(circle, rgba(27,122,90,0.32) 0%, transparent 70%)" }} />
+          <motion.div animate={{ y: [0, 20, 0], opacity: [0.08, 0.18, 0.08] }} transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-20 -left-20 w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full blur-[90px]"
+            style={{ background: "radial-gradient(circle, rgba(13,30,65,0.2) 0%, transparent 70%)" }} />
         </div>
 
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="text-center max-w-4xl mx-auto">
+          <motion.div initial="hidden" animate="visible" variants={staggerContainer}
+            className="grid md:grid-cols-2 gap-8 md:gap-12 items-center">
 
-            {/* Logo - smaller on mobile so the headline is above the fold */}
-            <motion.div variants={fadeInUp} className="flex justify-center mb-10">
-              <motion.div whileHover={{ scale: 1.06, rotate: 1 }} transition={{ type: "spring", stiffness: 280 }}
-                className="rounded-3xl overflow-hidden"
-                style={{ boxShadow: "0 20px 60px -10px rgba(13,30,65,0.22), 0 0 0 4px rgba(27,122,90,0.18)" }}>
-                {/* 160px on mobile → 280px on sm → 400px on md+ */}
-                <SmartProfLogo size={160} className="rounded-3xl sm:hidden" />
-                <span className="hidden sm:block md:hidden">
-                  <SmartProfLogo size={280} className="rounded-3xl" />
-                </span>
-                <span className="hidden md:block">
-                  <SmartProfLogo size={400} className="rounded-3xl" />
-                </span>
-              </motion.div>
-            </motion.div>
-
-            {/* Audience pill */}
-            <motion.div variants={fadeInUp}>
-              <span className="inline-flex items-center gap-2 mb-8 px-5 py-2 rounded-full text-sm font-semibold border"
+            {/* ── Left: text block ── */}
+            <motion.div variants={fadeInLeft} className="flex flex-col items-start">
+              {/* Audience pill */}
+              <span className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-sm font-semibold border"
                 style={{ background: "rgba(27,122,90,0.08)", borderColor: C.borderMed, color: C.teal }}>
-                <Sparkles className="h-4 w-4" style={{ color: C.tealLight }} />
+                <Sparkles className="h-3.5 w-3.5" style={{ color: C.tealLight }} />
                 Built for Professors · Researchers · Lab Leads
               </span>
-            </motion.div>
 
-            {/* H1 */}
-            <motion.h1 variants={fadeInUp}
-              className="text-4xl sm:text-5xl md:text-7xl font-bold mb-6 leading-[1.1] tracking-tight">
-              <span style={{ color: C.navy }}>The academic cockpit</span>
-              <br />
-              <span className="relative inline-block pb-3">
-                <span style={{
-                  backgroundImage: `linear-gradient(90deg, ${C.teal} 0%, ${C.tealLight} 50%, ${C.teal} 100%)`,
-                  WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text"
-                }}>
-                  for your entire career.
+              {/* H1 */}
+              <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-bold mb-4 leading-[1.1] tracking-tight">
+                <span style={{ color: C.navy }}>The academic cockpit</span>
+                <br />
+                <span className="relative inline-block pb-2">
+                  <span style={{
+                    backgroundImage: `linear-gradient(90deg, ${C.teal} 0%, ${C.tealLight} 50%, ${C.teal} 100%)`,
+                    WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text"
+                  }}>
+                    for your entire career.
+                  </span>
+                  <motion.span initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+                    transition={{ delay: 0.8, duration: 0.9, ease: easeOut }}
+                    className="absolute bottom-0 left-0 right-0 h-[3px] origin-left rounded-full"
+                    style={{ background: `linear-gradient(90deg, ${C.teal}, ${C.tealLight}, ${C.teal})` }} />
                 </span>
-                <motion.span initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
-                  transition={{ delay: 1, duration: 0.9, ease: easeOut }}
-                  className="absolute bottom-0 left-[5%] right-[5%] h-[3px] origin-left rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${C.teal}, ${C.tealLight}, ${C.teal})` }} />
-              </span>
-            </motion.h1>
+              </h1>
 
-            {/* Subhead */}
-            <motion.p variants={fadeInUp}
-              className="text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed"
-              style={{ color: C.muted }}>
-              Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
-              organized system - so you can spend more time on research and teaching.
-            </motion.p>
+              {/* Subhead */}
+              <p className="text-base md:text-lg mb-7 leading-relaxed max-w-lg" style={{ color: C.muted }}>
+                Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
+                organized system — so you can spend more time on research and teaching.
+              </p>
 
-            {/* CTAs */}
-            <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row gap-4 justify-center mb-14">
-              <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
-                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-shadow duration-300" style={gradientBtn}>
-                  <Link to="/auth">
-                    Start free for this semester
-                    <ArrowRight className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ x: 3 }} transition={{ type: "spring", stiffness: 400 }}>
-                <a href="#how-it-works"
-                  className="inline-flex items-center gap-2 h-14 px-6 text-base font-medium rounded-lg border transition-all duration-200"
-                  style={{ color: C.teal, borderColor: "rgba(27,122,90,0.3)", background: "rgba(27,122,90,0.06)" }}>
-                  <Play className="h-4 w-4" />
-                  See how it fits your week
-                  <ChevronRight className="h-4 w-4" />
-                </a>
-              </motion.div>
-            </motion.div>
-
-            {/* Capability chips */}
-            <motion.div variants={staggerContainer} className="flex flex-wrap justify-center gap-3">
-              {[
-                { icon: ListTodo, label: "Tasks & Notes" },
-                { icon: Users, label: "Meeting Hub" },
-                { icon: Calendar, label: "Semester Planning" },
-                { icon: Wallet, label: "Grant Management" },
-                { icon: Package, label: "Lab Supplies" },
-                { icon: Award, label: "Achievements & CV" },
-                { icon: Brain, label: "8 AI Tools" },
-                { icon: Clock, label: "Save 4+ hrs/week" },
-              ].map((item, i) => (
-                <motion.div key={i} variants={scaleIn} whileHover={{ y: -4, scale: 1.05 }} transition={{ type: "spring", stiffness: 400 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-full cursor-default border"
-                  style={{ background: "rgba(255,255,255,0.7)", borderColor: "rgba(27,122,90,0.2)", backdropFilter: "blur(8px)", boxShadow: "0 2px 8px rgba(13,30,65,0.06)" }}>
-                  <item.icon className="h-4 w-4" style={{ color: C.teal }} />
-                  <span className="text-sm font-medium" style={{ color: C.navy }}>{item.label}</span>
+              {/* CTAs */}
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
+                  <Button asChild size="lg" className="h-12 px-8 text-base font-semibold shadow-lg hover:shadow-xl transition-shadow duration-300" style={gradientBtn}>
+                    <Link to="/auth">
+                      Start free for this semester
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
                 </motion.div>
-              ))}
+                <motion.div whileHover={{ x: 2 }} transition={{ type: "spring", stiffness: 400 }}>
+                  <a href="#how-it-works"
+                    className="inline-flex items-center gap-2 h-12 px-5 text-sm font-medium rounded-lg border transition-all duration-200"
+                    style={{ color: C.teal, borderColor: "rgba(27,122,90,0.3)", background: "rgba(27,122,90,0.06)" }}>
+                    <Play className="h-4 w-4" />
+                    See how it fits your week
+                    <ChevronRight className="h-4 w-4" />
+                  </a>
+                </motion.div>
+              </div>
+
+              {/* Capability chips */}
+              <motion.div variants={staggerContainer} className="flex flex-wrap gap-2">
+                {[
+                  { icon: ListTodo, label: "Tasks & Notes" },
+                  { icon: Users, label: "Meeting Hub" },
+                  { icon: Calendar, label: "Semester Planning" },
+                  { icon: Wallet, label: "Grant Management" },
+                  { icon: Package, label: "Lab Supplies" },
+                  { icon: Award, label: "Achievements & CV" },
+                  { icon: Brain, label: "8 AI Tools" },
+                  { icon: Clock, label: "Save 4+ hrs/week" },
+                ].map((item, i) => (
+                  <motion.div key={i} variants={scaleIn}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium"
+                    style={{ background: "rgba(255,255,255,0.75)", borderColor: "rgba(27,122,90,0.18)", color: C.navy, backdropFilter: "blur(6px)" }}>
+                    <item.icon className="h-3.5 w-3.5" style={{ color: C.teal }} />
+                    {item.label}
+                  </motion.div>
+                ))}
+              </motion.div>
             </motion.div>
+
+            {/* ── Right: logo ── */}
+            <motion.div variants={fadeInRight} className="flex justify-center md:justify-end">
+              <motion.div
+                whileHover={{ scale: 1.04, rotate: 1 }}
+                transition={{ type: "spring", stiffness: 260 }}
+                className="rounded-3xl overflow-hidden"
+                style={{ boxShadow: "0 20px 60px -10px rgba(13,30,65,0.2), 0 0 0 3px rgba(27,122,90,0.15)" }}>
+                <SmartProfLogo size={260} className="rounded-3xl sm:hidden" />
+                <span className="hidden sm:block md:hidden">
+                  <SmartProfLogo size={320} className="rounded-3xl" />
+                </span>
+                <span className="hidden md:block">
+                  <SmartProfLogo size={360} className="rounded-3xl" />
+                </span>
+              </motion.div>
+            </motion.div>
+
           </motion.div>
         </div>
       </section>
 
-      {/* ══ 2. PROBLEM - light background, not dark ═════════════════════════════ */}
-      <section className="py-14 md:py-20 relative overflow-hidden" style={{ backgroundColor: C.bgAlt }}>
+      {/* ══ 2. PROBLEM ══════════════════════════════════════════════════════════ */}
+      <section className="py-8 md:py-12 relative overflow-hidden" style={{ backgroundColor: C.bgAlt }}>
         <div className="absolute inset-0 pointer-events-none opacity-50"
           style={{ backgroundImage: "radial-gradient(circle, rgba(27,122,90,0.07) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
 
         <div className="container mx-auto px-6 relative z-10 max-w-4xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-10">
-            <span className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full text-sm font-semibold border"
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-7">
+            <span className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-sm font-semibold border"
               style={{ background: "rgba(239,68,68,0.08)", borderColor: "rgba(239,68,68,0.2)", color: "#b91c1c" }}>
               <AlertTriangle className="h-3.5 w-3.5" />
               Sound familiar?
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold" style={{ color: C.navy }}>
+            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: C.navy }}>
               Faculty admin is out of control.
             </h2>
           </motion.div>
@@ -527,29 +526,29 @@ const LandingPreview = () => {
           </motion.div>
 
           <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
-            className="text-center text-lg font-semibold mt-10" style={{ color: C.navy }}>
+            className="text-center text-base font-semibold mt-7" style={{ color: C.navy }}>
             Smart-Prof replaces the chaos with one organized system - built specifically for faculty.
           </motion.p>
         </div>
       </section>
 
-      {/* ══ 3. PILLARS - "Your Academic Cockpit" ════════════════════════════════ */}
-      <section id="features" className="py-16 md:py-32 relative" style={{ backgroundColor: C.bg }}>
+      {/* ══ 3. PILLARS ══════════════════════════════════════════════════════════ */}
+      <section id="features" className="py-10 md:py-16 relative" style={{ backgroundColor: C.bg }}>
         <div className="absolute inset-0 pointer-events-none opacity-40"
           style={{ backgroundImage: "radial-gradient(circle, rgba(27,122,90,0.08) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
 
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp} className="text-center mb-14 md:mb-20">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-10">
             <SectionBadge icon={Layers} label="Smart-Prof is your academic cockpit" />
-            <h2 className="text-4xl md:text-5xl font-bold mb-5" style={{ color: C.navy }}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Four outcomes. One platform.
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: C.muted }}>
+            <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
               Instead of a long feature list, here's what Smart-Prof actually does for your career.
             </p>
           </motion.div>
 
-          <div className="space-y-20 md:space-y-28">
+          <div className="space-y-12 md:space-y-16">
             {pillars.map((pillar, i) => (
               <motion.div
                 key={i}
@@ -557,7 +556,7 @@ const LandingPreview = () => {
                 whileInView="visible"
                 viewport={{ once: true, margin: "-60px" }}
                 variants={staggerContainer}
-                className={`grid md:grid-cols-2 gap-10 md:gap-16 items-center ${i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""}`}
+                className={`grid md:grid-cols-2 gap-8 md:gap-12 items-center ${i % 2 === 1 ? "md:[&>*:first-child]:order-2" : ""}`}
               >
                 {/* Text block */}
                 <motion.div variants={i % 2 === 0 ? fadeInLeft : fadeInRight}>
@@ -599,15 +598,15 @@ const LandingPreview = () => {
       </section>
 
       {/* ══ 4. HOW IT FITS INTO YOUR WEEK ════════════════════════════════════ */}
-      <section id="how-it-works" className="py-16 md:py-28 relative overflow-hidden"
+      <section id="how-it-works" className="py-10 md:py-16 relative overflow-hidden"
         style={{ background: `linear-gradient(180deg, ${C.bgAlt} 0%, ${C.bg} 100%)` }}>
         <div className="container mx-auto px-6">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp} className="text-center mb-14">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-8">
             <SectionBadge icon={Clock} label="A typical week with Smart-Prof" />
-            <h2 className="text-4xl md:text-5xl font-bold mb-5" style={{ color: C.navy }}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               How it fits into your week
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: C.muted }}>
+            <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
               Four moments where Smart-Prof replaces friction with flow.
             </p>
           </motion.div>
@@ -640,18 +639,18 @@ const LandingPreview = () => {
       </section>
 
       {/* ══ 5. PRICING ══════════════════════════════════════════════════════════ */}
-      <section id="pricing" className="py-16 md:py-32 relative" style={{ backgroundColor: C.bg }}>
+      <section id="pricing" className="py-10 md:py-16 relative" style={{ backgroundColor: C.bg }}>
         <div className="absolute inset-0 pointer-events-none opacity-40"
           style={{ backgroundImage: "radial-gradient(circle, rgba(27,122,90,0.08) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
 
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp} className="text-center mb-14">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-8">
             <SectionBadge icon={Zap} label="Simple, honest pricing" />
-            <h2 className="text-4xl md:text-5xl font-bold mb-5" style={{ color: C.navy }}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Start free. Upgrade when you're ready.
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: C.muted }}>
-              No credit card required to start. Both plans give you permanent access - not a trial.
+            <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
+              No credit card required to start. Both plans give you permanent access — not a trial.
             </p>
 
             {/* Billing toggle */}
@@ -806,15 +805,15 @@ const LandingPreview = () => {
         </div>
       </section>
 
-      {/* ══ 6. SOCIAL PROOF & TRUST ══════════════════════════════════════════ */}
-      <section id="testimonials" className="py-16 md:py-32 relative" style={{ backgroundColor: C.bgAlt }}>
+      {/* ══ 6. TESTIMONIALS ══════════════════════════════════════════════════ */}
+      <section id="testimonials" className="py-10 md:py-16 relative" style={{ backgroundColor: C.bgAlt }}>
         <div className="container mx-auto px-6">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp} className="text-center mb-14">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-8">
             <SectionBadge icon={Award} label="Trusted by academics" />
-            <h2 className="text-4xl md:text-5xl font-bold mb-5" style={{ color: C.navy }}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Faculty who got their time back
             </h2>
-            <p className="text-xl max-w-2xl mx-auto" style={{ color: C.muted }}>
+            <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
               Real results from professors and researchers who switched to Smart-Prof.
             </p>
           </motion.div>
@@ -849,12 +848,12 @@ const LandingPreview = () => {
         </div>
       </section>
 
-      {/* ══ 7. FAQ - using ui/accordion ═════════════════════════════════════════ */}
-      <section id="faq" className="py-16 md:py-28 relative" style={{ backgroundColor: C.bg }}>
+      {/* ══ 7. FAQ ══════════════════════════════════════════════════════════════ */}
+      <section id="faq" className="py-10 md:py-16 relative" style={{ backgroundColor: C.bg }}>
         <div className="container mx-auto px-6 max-w-2xl">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp} className="text-center mb-12">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-7">
             <SectionBadge icon={Brain} label="Common questions" />
-            <h2 className="text-4xl md:text-5xl font-bold mb-5" style={{ color: C.navy }}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: C.navy }}>
               FAQ
             </h2>
           </motion.div>
@@ -888,7 +887,7 @@ const LandingPreview = () => {
       </section>
 
       {/* ══ FINAL CTA ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 md:py-32 relative overflow-hidden" style={{ background: gradientDark }}>
+      <section className="py-10 md:py-16 relative overflow-hidden" style={{ background: gradientDark }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at center, rgba(61,170,110,0.1), transparent 60%)" }} />
         <motion.div animate={{ y: [-20, 20, -20], x: [-15, 15, -15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
@@ -907,11 +906,11 @@ const LandingPreview = () => {
               Your cockpit is ready
             </span>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6" style={{ color: "#F0F7F4" }}>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4" style={{ color: "#F0F7F4" }}>
               Less admin. More impact.
             </h2>
 
-            <p className="text-xl mb-12 max-w-xl mx-auto" style={{ color: C.mutedLight }}>
+            <p className="text-base md:text-lg mb-8 max-w-xl mx-auto" style={{ color: C.mutedLight }}>
               Join faculty who replaced five scattered tools with one organized system. Start free this semester - no credit card, no IT ticket.
             </p>
 
@@ -939,7 +938,7 @@ const LandingPreview = () => {
       </section>
 
       {/* ══ Footer ══════════════════════════════════════════════════════════════ */}
-      <footer className="py-12 border-t" style={{ background: C.bgAlt, borderColor: C.border }}>
+      <footer className="py-7 border-t" style={{ background: C.bgAlt, borderColor: C.border }}>
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <SmartProfLogoWide height={76} />
