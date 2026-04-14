@@ -32,6 +32,7 @@ import {
   Shield,
 } from "lucide-react";
 import { SmartProfLogo, SmartProfLogoWide } from "@/components/Logo";
+import { SmartProfLogo, SmartProfLogo } from "@/components/Logo";
 
 // Import preview images
 import notesPreview from "@/assets/landing/notes-preview.png";
