@@ -269,57 +269,47 @@ const NotesPage = () => {
       <div className="space-y-6">
         <PageGuide page="notes" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-xl bg-primary p-3 sm:p-5 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
           <div className="relative z-10">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20">
-                  <ListTodo className="h-8 w-8" />
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shrink-0">
+                  <ListTodo className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold">Academic Workspace</h1>
-                  <p className="text-primary-foreground/80 mt-1">Manage tasks, track deadlines, and organize your notes</p>
+                  <h1 className="text-base sm:text-xl font-bold">Academic Workspace</h1>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">Manage tasks, track deadlines, and organize your notes</p>
                 </div>
               </div>
-              <Button 
-                onClick={() => setIsCreateDialogOpen(true)} 
-                className="bg-primary-foreground/15 hover:bg-primary-foreground/25 backdrop-blur-sm border-primary-foreground/30"
+              <Button
+                onClick={() => setIsCreateDialogOpen(true)}
+                size="sm"
+                className="bg-primary-foreground/15 hover:bg-primary-foreground/25 backdrop-blur-sm border border-primary-foreground/30 text-primary-foreground"
                 variant="outline"
               >
-                <Plus className="h-4 w-4 mr-2" />
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
                 New Task
               </Button>
             </div>
-            
+
             {/* Quick Stats */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mt-6">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold">{stats.pendingTasks}</p>
-                <p className="text-xs text-primary-foreground/70">Pending</p>
-              </div>
-              <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold text-primary-foreground">{stats.overdueTasks}</p>
-                <p className="text-xs text-primary-foreground/70">Overdue</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold text-primary-foreground">{stats.dueTodayTasks}</p>
-                <p className="text-xs text-primary-foreground/70">Due Today</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold text-primary-foreground">{stats.completedTasks}</p>
-                <p className="text-xs text-primary-foreground/70">Completed</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold">{stats.recurringTasks}</p>
-                <p className="text-xs text-primary-foreground/70">Recurring</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-2 border border-primary-foreground/20 text-center">
-                <p className="text-2xl font-bold">{stats.totalNotes}</p>
-                <p className="text-xs text-primary-foreground/70">Notes</p>
-              </div>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
+              {[
+                { label: "Pending",   value: stats.pendingTasks,   bg: "bg-primary-foreground/15" },
+                { label: "Overdue",   value: stats.overdueTasks,   bg: "bg-amber-500/70" },
+                { label: "Due Today", value: stats.dueTodayTasks,  bg: "bg-primary-foreground/15" },
+                { label: "Completed", value: stats.completedTasks, bg: "bg-primary-foreground/15" },
+                { label: "Recurring", value: stats.recurringTasks, bg: "bg-primary-foreground/15" },
+                { label: "Notes",     value: stats.totalNotes,     bg: "bg-primary-foreground/15" },
+              ].map(({ label, value, bg }) => (
+                <div key={label} className={`${bg} backdrop-blur-sm rounded-lg px-3 py-1.5 border border-primary-foreground/20 text-center`}>
+                  <p className="text-lg sm:text-2xl font-bold">{value}</p>
+                  <p className="text-[10px] text-primary-foreground/70">{label}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

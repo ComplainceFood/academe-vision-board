@@ -363,26 +363,26 @@ const PlanningPage = () => {
 
   return (
     <MainLayout>
-      <div className="animate-fade-in space-y-6">
+      <div className="animate-fade-in space-y-3">
         <PageGuide page="planning" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-xl bg-primary p-3 sm:p-5 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
 
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
-                  <CalendarDays className="h-7 w-7 sm:h-10 sm:w-10" />
+                <div className="p-2 rounded-lg bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
+                  <CalendarDays className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h1 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight">Semester Planning</h1>
+                    <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">Semester Planning</h1>
                     <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-accent animate-pulse shrink-0" />
                   </div>
-                  <p className="text-primary-foreground/80 text-xs sm:text-base mt-0.5">
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">
                     Organize your academic calendar and plan future semesters
                   </p>
                 </div>
@@ -408,22 +408,22 @@ const PlanningPage = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-4 mt-4 sm:mt-6">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+            <div className="grid grid-cols-4 gap-2 mt-3">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">This Week</p>
-                <p className="text-xl sm:text-3xl font-bold">{stats.thisWeekEvents}</p>
+                <p className="text-lg sm:text-2xl font-bold">{stats.thisWeekEvents}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Progress</p>
-                <p className="text-xl sm:text-3xl font-bold">{stats.taskProgress}%</p>
+                <p className="text-lg sm:text-2xl font-bold">{stats.taskProgress}%</p>
               </div>
-              <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+              <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Urgent</p>
-                <p className="text-xl sm:text-3xl font-bold text-primary-foreground">{stats.urgentDeadlines}</p>
+                <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{stats.urgentDeadlines}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Future</p>
-                <p className="text-xl sm:text-3xl font-bold">{stats.totalFutureTasks}</p>
+                <p className="text-lg sm:text-2xl font-bold">{stats.totalFutureTasks}</p>
               </div>
             </div>
           </div>

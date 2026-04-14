@@ -6,102 +6,104 @@
 @layer base {
   :root {
     font-size: 14px;
-    --background: 180 44% 96%;
-    --foreground: 270 5% 20%;
+    /* Brand palette: Navy #0D1E41 | Teal #1B7A5A | Light green #3DAA6E | Bg #F0F7F4 */
+    --background: 150 33% 95%;        /* #F0F7F4 — landing page bg */
+    --foreground: 220 59% 15%;        /* #0D1E41 navy */
 
     --card: 0 0% 100%;
-    --card-foreground: 270 5% 20%;
+    --card-foreground: 220 59% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 270 5% 20%;
+    --popover-foreground: 220 59% 15%;
 
-    --primary: 190 60% 38%;
+    --primary: 220 59% 15%;           /* #0D1E41 navy — main CTA, banners */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 172 66% 40%;
+    --secondary: 158 63% 28%;         /* #1B7A5A teal */
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 180 10% 92%;
-    --muted-foreground: 270 5% 40%;
+    --muted: 150 20% 91%;             /* soft green-grey */
+    --muted-foreground: 158 20% 37%;  /* muted teal-grey */
 
-    --accent: 24 94% 53%;
+    --accent: 148 50% 45%;            /* #3DAA6E light green — highlights */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 148 50% 40%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 270 5% 90%;
-    --input: 270 5% 90%;
-    --ring: 190 60% 38%;
+    --border: 158 30% 87%;
+    --input: 158 30% 87%;
+    --ring: 148 50% 45%;
 
     --radius: 1rem;
 
-    --sidebar-background: 222 55% 16%;
+    /* Sidebar — already overridden via inline styles in AppSidebar, keep consistent */
+    --sidebar-background: 220 59% 15%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 150 50% 45%;
+    --sidebar-primary: 148 50% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 222 50% 22%;
+    --sidebar-accent: 220 50% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 222 40% 25%;
-    --sidebar-ring: 150 50% 45%;
+    --sidebar-border: 220 40% 25%;
+    --sidebar-ring: 148 50% 45%;
 
     --chart-1: 262 83% 58%;
-    --chart-2: 172 66% 40%;
+    --chart-2: 148 50% 45%;
     --chart-3: 24 94% 53%;
     --chart-4: 336 84% 60%;
     --chart-5: 60 88% 55%;
   }
 
   .dark {
-    --background: 270 10% 10%;
-    --foreground: 0 0% 95%;
+    --background: 220 45% 9%;         /* deep navy dark bg */
+    --foreground: 150 30% 92%;
 
-    --card: 270 10% 15%;
-    --card-foreground: 0 0% 95%;
+    --card: 220 40% 13%;
+    --card-foreground: 150 30% 92%;
 
-    --popover: 270 10% 15%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 220 40% 13%;
+    --popover-foreground: 150 30% 92%;
 
-    --primary: 190 65% 45%;
+    --primary: 148 50% 45%;           /* teal-green as primary in dark */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 172 66% 40%;
+    --secondary: 158 63% 28%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 270 10% 20%;
-    --muted-foreground: 0 0% 70%;
+    --muted: 220 30% 18%;
+    --muted-foreground: 150 20% 65%;
 
-    --accent: 24 94% 53%;
+    --accent: 148 50% 45%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 142 70% 45%;
+    --success: 148 50% 40%;
     --success-foreground: 0 0% 100%;
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --border: 270 10% 25%;
-    --input: 270 10% 25%;
-    --ring: 190 65% 45%;
+    --border: 220 30% 22%;
+    --input: 220 30% 22%;
+    --ring: 148 50% 45%;
 
-    --sidebar-background: 190 25% 13%;
+    --sidebar-background: 220 55% 11%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 190 65% 45%;
+    --sidebar-primary: 148 50% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 190 20% 18%;
+    --sidebar-accent: 220 45% 16%;
     --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 190 15% 25%;
-    --sidebar-ring: 190 65% 45%;
+    --sidebar-border: 220 35% 20%;
+    --sidebar-ring: 148 50% 45%;
 
     --chart-1: 262 83% 58%;
-    --chart-2: 172 66% 40%;
+    --chart-2: 148 50% 45%;
     --chart-3: 24 94% 53%;
     --chart-4: 336 84% 60%;
     --chart-5: 60 88% 55%;

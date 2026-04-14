@@ -149,25 +149,25 @@ const Index = () => {
       <div className="animate-fade-in space-y-4">
 
         {/* Welcome Banner */}
-        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary via-primary to-secondary p-4 sm:p-6 text-primary-foreground shadow-lg">
+        <div className="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary via-primary to-secondary p-3 sm:p-4 text-primary-foreground shadow-lg">
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10 blur-2xl" />
             <div className="absolute -bottom-8 -left-8 w-32 h-32 rounded-full bg-secondary/30 blur-2xl" />
           </div>
-          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
             <div className="min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <Sparkles className="h-3.5 w-3.5 text-yellow-300 shrink-0" />
-                <span className="text-xs sm:text-sm text-primary-foreground/80 truncate">{today}</span>
+              <div className="flex items-center gap-2 mb-0.5">
+                <Sparkles className="h-3 w-3 text-yellow-300 shrink-0" />
+                <span className="text-xs text-primary-foreground/80 truncate">{today}</span>
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight leading-tight">Welcome back!</h1>
-              <p className="text-primary-foreground/75 text-xs sm:text-sm mt-1">Your academic overview for today</p>
+              <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">Welcome back!</h1>
+              <p className="text-primary-foreground/75 text-xs mt-0.5">Your academic overview for today</p>
             </div>
             <div className="flex gap-2 shrink-0">
-              <Button asChild size="sm" className="bg-white/15 hover:bg-white/25 border border-white/20 text-white backdrop-blur-sm text-xs sm:text-sm h-8 sm:h-9">
+              <Button asChild size="sm" className="bg-white/15 hover:bg-white/25 border border-white/20 text-white backdrop-blur-sm text-xs h-7 sm:h-8">
                 <Link to="/analytics"><BarChart className="h-3.5 w-3.5 mr-1" />Analytics</Link>
               </Button>
-              <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold shadow-md text-xs sm:text-sm h-8 sm:h-9">
+              <Button asChild size="sm" className="bg-white text-primary hover:bg-white/90 font-semibold shadow-md text-xs h-7 sm:h-8">
                 <Link to="/planning"><CalendarRange className="h-3.5 w-3.5 mr-1" />Planning</Link>
               </Button>
             </div>

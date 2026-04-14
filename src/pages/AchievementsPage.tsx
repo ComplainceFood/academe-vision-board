@@ -109,29 +109,39 @@ const AchievementsPage = () => {
       <div className="animate-fade-in space-y-8">
         <PageGuide page="achievements" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-xl bg-primary p-3 sm:p-5 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
-          
+
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl">
-                    <Trophy className="h-10 w-10" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Scholastic Achievements</h1>
-                      <Sparkles className="h-6 w-6 text-accent animate-pulse" />
-                    </div>
-                    <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">
-                      Track and showcase your academic portfolio
-                    </p>
-                  </div>
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shrink-0">
+                  <Trophy className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
-                <div className="flex flex-wrap gap-3 mt-2">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-base sm:text-xl font-bold tracking-tight">Scholastic Achievements</h1>
+                    <Sparkles className="h-4 w-4 text-accent animate-pulse" />
+                  </div>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">Track and showcase your academic portfolio</p>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Stats inline */}
+                {[
+                  { label: "Total", value: totalAchievements },
+                  { label: "Publications", value: stats.publication },
+                  { label: "Awards", value: stats.award_honor },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-primary-foreground/15 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-primary-foreground/20 text-center min-w-[60px]">
+                    <p className="text-primary-foreground/70 text-[10px] uppercase tracking-wider">{label}</p>
+                    <p className="text-lg sm:text-2xl font-bold">{value}</p>
+                  </div>
+                ))}
+                <div className="flex flex-wrap gap-2">
                   <ProGate featureKey="achievements_cv_import" variant="hide">
                     <CVImportButton onImportComplete={handleRefresh} />
                   </ProGate>
@@ -141,22 +151,6 @@ const AchievementsPage = () => {
                   <ProGate featureKey="achievements_biosketch" variant="hide">
                     <BiosketechGenerator achievements={achievements ?? []} />
                   </ProGate>
-                </div>
-              </div>
-
-              {/* Stats Summary */}
-              <div className="flex flex-wrap gap-4">
-                <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-5 py-3 border border-primary-foreground/20">
-                  <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Total Achievements</p>
-                  <p className="text-3xl font-bold">{totalAchievements}</p>
-                </div>
-                <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-5 py-3 border border-primary-foreground/20">
-                  <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Publications</p>
-                  <p className="text-3xl font-bold">{stats.publication}</p>
-                </div>
-                <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-5 py-3 border border-primary-foreground/20">
-                  <p className="text-primary-foreground/70 text-xs uppercase tracking-wider">Awards</p>
-                  <p className="text-3xl font-bold">{stats.award_honor}</p>
                 </div>
               </div>
             </div>

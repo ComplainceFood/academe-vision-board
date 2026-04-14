@@ -7,21 +7,21 @@ import { Badge } from "@/components/ui/badge";
 const AnalyticsPage = () => {
   return (
     <MainLayout>
-      <div className="animate-fade-in space-y-6">
+      <div className="animate-fade-in space-y-3">
         <PageGuide page="analytics" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-xl bg-primary p-3 sm:p-5 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
 
           <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5">
-            <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
+            <div className="p-2 rounded-lg bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
               <BarChart3 className="h-7 w-7 sm:h-9 sm:w-9" />
             </div>
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-xl sm:text-3xl font-bold tracking-tight">Analytics & Insights</h1>
+                <h1 className="text-lg sm:text-2xl font-bold tracking-tight">Analytics & Insights</h1>
                 <Badge className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 text-xs">
                   <Sparkles className="h-3 w-3 mr-1" />
                   AI Powered

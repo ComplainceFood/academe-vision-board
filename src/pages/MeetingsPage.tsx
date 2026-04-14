@@ -353,23 +353,23 @@ const MeetingsPage = () => {
 
   return (
     <MainLayout>
-      <div className="animate-fade-in space-y-6">
+      <div className="animate-fade-in space-y-3">
         <PageGuide page="meetings" />
         {/* Hero Header */}
-        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-primary p-5 sm:p-8 text-primary-foreground">
+        <div className="relative overflow-hidden rounded-xl bg-primary p-3 sm:p-5 text-primary-foreground">
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-1/2 -right-1/2 w-full h-full bg-secondary/20 rounded-full blur-3xl animate-pulse" />
           </div>
 
           <div className="relative z-10">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 sm:gap-6">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 sm:gap-4">
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
-                  <Calendar className="h-7 w-7 sm:h-10 sm:w-10" />
+                <div className="p-2 rounded-lg bg-primary-foreground/15 backdrop-blur-sm border border-primary-foreground/20 shadow-xl shrink-0">
+                  <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight">Meetings & 1:1s</h1>
-                  <p className="text-primary-foreground/80 text-xs sm:text-base mt-0.5">Schedule and manage your meetings</p>
+                  <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">Meetings & 1:1s</h1>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">Schedule and manage your meetings</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -390,22 +390,22 @@ const MeetingsPage = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-4 gap-2 sm:gap-4 mt-4 sm:mt-6">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+            <div className="grid grid-cols-4 gap-2 mt-3">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Upcoming</p>
-                <p className="text-xl sm:text-3xl font-bold">{stats.upcoming}</p>
+                <p className="text-lg sm:text-2xl font-bold">{stats.upcoming}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">This Week</p>
-                <p className="text-xl sm:text-3xl font-bold">{stats.thisWeek}</p>
+                <p className="text-lg sm:text-2xl font-bold">{stats.thisWeek}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Completed</p>
-                <p className="text-xl sm:text-3xl font-bold">{stats.past}</p>
+                <p className="text-lg sm:text-2xl font-bold">{stats.past}</p>
               </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-2 sm:px-4 py-2 sm:py-3 border border-primary-foreground/20">
+              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Total</p>
-                <p className="text-xl sm:text-3xl font-bold">{stats.total}</p>
+                <p className="text-lg sm:text-2xl font-bold">{stats.total}</p>
               </div>
             </div>
           </div>
