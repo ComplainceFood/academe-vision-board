@@ -549,7 +549,7 @@ const LandingPreview = () => {
 
       {/* ── Col 3: Logo only — no card, no background, vertically centered ── */}
       <motion.div variants={fadeInRight} className="flex items-center justify-center py-6">
-        <SmartProfLogo height={150} />
+        <SmartProfLogo height={100} />
       </motion.div>
 
     </motion.div>
