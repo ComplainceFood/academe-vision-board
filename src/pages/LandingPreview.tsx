@@ -463,7 +463,7 @@ const LandingPreview = () => {
 
       {/* ── Col 2: Hero text — no card, no background ── */}
       <motion.div variants={fadeInUp} className="flex">
-        <div className="w-full flex flex-col items-center justify-center text-center px-4 py-6">
+        <div className="w-full flex flex-col items-center justify-center text-center px-6 py-8">
 
           {/* Audience pill */}
           <span
@@ -549,7 +549,7 @@ const LandingPreview = () => {
 
       {/* ── Col 3: Logo only — no card, no background, vertically centered ── */}
       <motion.div variants={fadeInRight} className="flex items-center justify-center py-6">
-        <SmartProfLogoWide height={64} />
+        <SmartProfLogoWide height={300} />
       </motion.div>
 
     </motion.div>
