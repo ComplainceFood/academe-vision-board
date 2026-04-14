@@ -361,200 +361,134 @@ const LandingPreview = () => {
         )}
       </motion.nav>
 
-  {/* ══ 1. HERO — 3-col: AI card left · bare text center · bare logo right ══ */}
-<section className="relative py-10 md:py-14 overflow-hidden">
-  <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <motion.div
-      animate={{ y: [0, -20, 0], opacity: [0.15, 0.28, 0.15] }}
-      transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-      className="absolute -top-24 -right-24 w-[320px] h-[320px] md:w-[480px] md:h-[480px] rounded-full blur-[100px]"
-      style={{ background: "radial-gradient(circle, rgba(27,122,90,0.32) 0%, transparent 70%)" }}
-    />
-    <motion.div
-      animate={{ y: [0, 20, 0], opacity: [0.08, 0.18, 0.08] }}
-      transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
-      className="absolute -bottom-20 -left-20 w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full blur-[90px]"
-      style={{ background: "radial-gradient(circle, rgba(13,30,65,0.2) 0%, transparent 70%)" }}
-    />
-  </div>
+      {/* ══ 1. HERO — 3-col cards: AI left · text center · logo right ═══════════ */}
+      <section className="relative py-10 md:py-14 overflow-hidden">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <motion.div animate={{ y: [0, -20, 0], opacity: [0.15, 0.28, 0.15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -top-24 -right-24 w-[320px] h-[320px] md:w-[480px] md:h-[480px] rounded-full blur-[100px]"
+            style={{ background: "radial-gradient(circle, rgba(27,122,90,0.32) 0%, transparent 70%)" }} />
+          <motion.div animate={{ y: [0, 20, 0], opacity: [0.08, 0.18, 0.08] }} transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute -bottom-20 -left-20 w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full blur-[90px]"
+            style={{ background: "radial-gradient(circle, rgba(13,30,65,0.2) 0%, transparent 70%)" }} />
+        </div>
 
-  <div className="container mx-auto px-6 relative z-10">
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={staggerContainer}
-      className="grid grid-cols-1 md:grid-cols-[3fr_4fr_3fr] gap-3 items-center"
-    >
+        <div className="container mx-auto px-6 relative z-10">
+          <motion.div initial="hidden" animate="visible" variants={staggerContainer}
+            className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
 
       {/* ── Col 1: AI feature showcase card (only tile in the row) ── */}
-      <motion.div variants={fadeInLeft} className="flex">
-        <div
-          className="w-full rounded-2xl overflow-hidden flex flex-col"
-          style={{
-            background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`,
-            boxShadow: "0 20px 48px -10px rgba(13,30,65,0.3), 0 0 0 1px rgba(27,122,90,0.22)",
-          }}
-        >
-          {/* Card header */}
-          <div
-            className="flex items-center justify-between px-4 py-2.5 border-b"
-            style={{ borderColor: "rgba(255,255,255,0.08)" }}
-          >
-            <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(168,223,200,0.6)" }}>
-              AI Tools
-            </p>
-            <span
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
-              style={{
-                background: "rgba(61,170,110,0.18)",
-                border: "1px solid rgba(61,170,110,0.32)",
-                color: C.tealLight,
-              }}
-            >
-              <Brain className="h-3 w-3" />
-              8 included in Pro
-            </span>
-          </div>
-
-          {/* AI tool rows */}
-          <div className="p-3 space-y-2">
-            {[
-              { icon: Brain,    label: "AI Grant Narrative Writer",  preview: "Drafting Specific Aims for your NSF proposal...", color: "#3DAA6E" },
-              { icon: Users,    label: "AI Meeting Summarizer",       preview: "Action items extracted from today's lab meeting.", color: "#60A5FA" },
-              { icon: Award,    label: "NIH Biosketch Generator",     preview: "Generating Section A from your achievements...",  color: "#A78BFA" },
-              { icon: Calendar, label: "AI Smart Planner",            preview: "Balancing 3 deadlines across your week.",          color: "#FB923C" },
-            ].map((tool, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -16 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3 + i * 0.15, duration: 0.5, ease: easeOut }}
-                className="rounded-xl px-3 py-2 flex items-start gap-2.5"
-                style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}
-              >
-                <div
-                  className="p-1.5 rounded-lg shrink-0 mt-0.5"
-                  style={{ background: `${tool.color}22`, border: `1px solid ${tool.color}44` }}
-                >
-                  <tool.icon className="h-3.5 w-3.5" style={{ color: tool.color }} />
+            {/* ── Col 1: AI feature showcase card ── */}
+            <motion.div variants={fadeInLeft} className="flex">
+              <div className="w-full rounded-2xl overflow-hidden flex flex-col"
+                style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`, boxShadow: "0 20px 48px -10px rgba(13,30,65,0.3), 0 0 0 1px rgba(27,122,90,0.22)" }}>
+                <div className="flex items-center justify-between px-4 py-3 border-b"
+                  style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(168,223,200,0.6)" }}>AI Tools</p>
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
+                    style={{ background: "rgba(61,170,110,0.18)", border: "1px solid rgba(61,170,110,0.32)", color: C.tealLight }}>
+                    <Brain className="h-3 w-3" />
+                    8 included in Pro
+                  </span>
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold mb-0.5 truncate" style={{ color: "rgba(240,247,244,0.95)" }}>
-                    {tool.label}
-                  </p>
-                  <p className="text-xs leading-snug" style={{ color: "rgba(168,223,200,0.55)" }}>
-                    {tool.preview}
-                  </p>
+                <div className="p-4 space-y-2.5 flex-1">
+                  {[
+                    { icon: Brain,    label: "AI Grant Narrative Writer",  preview: "Drafting Specific Aims for your NSF proposal...", color: "#3DAA6E" },
+                    { icon: Users,    label: "AI Meeting Summarizer",       preview: "Action items extracted from today's lab meeting.", color: "#60A5FA" },
+                    { icon: Award,    label: "NIH Biosketch Generator",     preview: "Generating Section A from your achievements...",  color: "#A78BFA" },
+                    { icon: Calendar, label: "AI Smart Planner",            preview: "Balancing 3 deadlines across your week.",          color: "#FB923C" },
+                  ].map((tool, i) => (
+                    <motion.div key={i}
+                      initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + i * 0.15, duration: 0.5, ease: easeOut }}
+                      className="rounded-xl px-3 py-2.5 flex items-start gap-2.5"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}>
+                      <div className="p-1.5 rounded-lg shrink-0 mt-0.5"
+                        style={{ background: `${tool.color}22`, border: `1px solid ${tool.color}44` }}>
+                        <tool.icon className="h-3.5 w-3.5" style={{ color: tool.color }} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold mb-0.5 truncate" style={{ color: "rgba(240,247,244,0.95)" }}>{tool.label}</p>
+                        <p className="text-xs leading-snug" style={{ color: "rgba(168,223,200,0.55)" }}>{tool.preview}</p>
+                      </div>
+                      <motion.div animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.35 }}
+                        className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5"
+                        style={{ background: tool.color }} />
+                    </motion.div>
+                  ))}
+                  <div className="pt-0.5 text-center">
+                    <p className="text-xs" style={{ color: "rgba(168,223,200,0.4)" }}>+ 4 more AI tools in Pro</p>
+                  </div>
                 </div>
-                <motion.div
-                  animate={{ opacity: [1, 0.3, 1] }}
-                  transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.35 }}
-                  className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5"
-                  style={{ background: tool.color }}
-                />
-              </motion.div>
-            ))}
-            <div className="pt-0.5 text-center">
-              <p className="text-xs" style={{ color: "rgba(168,223,200,0.4)" }}>+ 4 more AI tools in Pro</p>
-            </div>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── Col 2: Hero text — no card, no background ── */}
-      <motion.div variants={fadeInUp} className="flex">
-        <div className="w-full flex flex-col items-center justify-center text-center px-3 py-5">
-
-          {/* Audience pill */}
-          <span
-            className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-xs font-semibold border"
-            style={{ background: "rgba(27,122,90,0.08)", borderColor: C.borderMed, color: C.teal }}
-          >
-            <Sparkles className="h-3 w-3" style={{ color: C.tealLight }} />
-            Professors · Researchers · Lab Leads
-          </span>
-
-          {/* H1 */}
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-[1.1] tracking-tight">
-            <span style={{ color: C.navy }}>The academic cockpit</span>
-            <br />
-            <span className="relative inline-block pb-2">
-              <span
-                style={{
-                  backgroundImage: `linear-gradient(90deg, ${C.teal} 0%, ${C.tealLight} 50%, ${C.teal} 100%)`,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                for your entire career.
-              </span>
-              <motion.span
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.8, duration: 0.9, ease: easeOut }}
-                className="absolute bottom-0 left-0 right-0 h-[3px] origin-left rounded-full"
-                style={{ background: `linear-gradient(90deg, ${C.teal}, ${C.tealLight}, ${C.teal})` }}
-              />
-            </span>
-          </h1>
-
-          {/* Subhead */}
-          <p className="text-sm md:text-base mb-7 leading-relaxed" style={{ color: C.muted }}>
-            Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
-            organized system — so you can focus on research and teaching.
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col gap-3 w-full max-w-xs">
-            <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
-              <Button asChild size="lg" className="w-full h-11 text-sm font-semibold shadow-lg" style={gradientBtn}>
-                <Link to="/auth">
-                  Start free for this semester <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
+              </div>
             </motion.div>
-            <motion.div whileHover={{ x: 2 }} transition={{ type: "spring", stiffness: 400 }}>
-              <a
-                href="#how-it-works"
-                className="inline-flex items-center justify-center gap-2 w-full h-10 px-5 text-sm font-medium rounded-lg border transition-all duration-200"
-                style={{ color: C.teal, borderColor: "rgba(27,122,90,0.3)", background: "rgba(27,122,90,0.05)" }}
-              >
-                <Play className="h-3.5 w-3.5" />
-                See how it fits your week
-                <ChevronRight className="h-3.5 w-3.5" />
-              </a>
+
+            {/* ── Col 2: Hero text card (center) ── */}
+            <motion.div variants={fadeInUp} className="flex">
+              <div className="w-full rounded-2xl flex flex-col items-center justify-center text-center px-6 py-8"
+                style={{ background: "rgba(255,255,255,0.72)", backdropFilter: "blur(12px)", border: "1px solid rgba(27,122,90,0.14)", boxShadow: "0 16px 40px -8px rgba(13,30,65,0.10)" }}>
+                <span className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-xs font-semibold border"
+                  style={{ background: "rgba(27,122,90,0.08)", borderColor: C.borderMed, color: C.teal }}>
+                  <Sparkles className="h-3 w-3" style={{ color: C.tealLight }} />
+                  Professors · Researchers · Lab Leads
+                </span>
+                <h1 className="text-3xl sm:text-4xl font-bold mb-4 leading-[1.1] tracking-tight">
+                  <span style={{ color: C.navy }}>The academic cockpit</span>
+                  <br />
+                  <span className="relative inline-block pb-2">
+                    <span style={{ backgroundImage: `linear-gradient(90deg, ${C.teal} 0%, ${C.tealLight} 50%, ${C.teal} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
+                      for your entire career.
+                    </span>
+                    <motion.span initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
+                      transition={{ delay: 0.8, duration: 0.9, ease: easeOut }}
+                      className="absolute bottom-0 left-0 right-0 h-[3px] origin-left rounded-full"
+                      style={{ background: `linear-gradient(90deg, ${C.teal}, ${C.tealLight}, ${C.teal})` }} />
+                  </span>
+                </h1>
+                <p className="text-sm md:text-base mb-7 leading-relaxed" style={{ color: C.muted }}>
+                  Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
+                  organized system — so you can focus on research and teaching.
+                </p>
+                <div className="flex flex-col gap-3 w-full max-w-xs">
+                  <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
+                    <Button asChild size="lg" className="w-full h-11 text-sm font-semibold shadow-lg" style={gradientBtn}>
+                      <Link to="/auth">Start free for this semester <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    </Button>
+                  </motion.div>
+                  <motion.div whileHover={{ x: 2 }} transition={{ type: "spring", stiffness: 400 }}>
+                    <a href="#how-it-works"
+                      className="inline-flex items-center justify-center gap-2 w-full h-10 px-5 text-sm font-medium rounded-lg border transition-all duration-200"
+                      style={{ color: C.teal, borderColor: "rgba(27,122,90,0.3)", background: "rgba(27,122,90,0.05)" }}>
+                      <Play className="h-3.5 w-3.5" />
+                      See how it fits your week
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </a>
+                  </motion.div>
+                </div>
+                <div className="flex flex-wrap justify-center gap-2 mt-6">
+                  {[
+                    { icon: Clock,  label: "Save 4+ hrs/week" },
+                    { icon: Brain,  label: "8 AI Tools" },
+                    { icon: Shield, label: "Free to start" },
+                  ].map((item, i) => (
+                    <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-medium"
+                      style={{ background: "rgba(27,122,90,0.06)", borderColor: "rgba(27,122,90,0.18)", color: C.navy }}>
+                      <item.icon className="h-3 w-3" style={{ color: C.teal }} />
+                      {item.label}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </motion.div>
-          </div>
 
-          {/* Stat chips */}
-          <div className="flex flex-wrap justify-center gap-2 mt-6">
-            {[
-              { icon: Clock,  label: "Save 8+ hrs/week" },
-              { icon: Brain,  label: "8 AI Tools" },
-              { icon: Shield, label: "Free to start" },
-            ].map((item, i) => (
-              <span
-                key={i}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-medium"
-                style={{ background: "rgba(27,122,90,0.06)", borderColor: "rgba(27,122,90,0.18)", color: C.navy }}
-              >
-                <item.icon className="h-3 w-3" style={{ color: C.teal }} />
-                {item.label}
-              </span>
-            ))}
-          </div>
+            {/* ── Col 3: Logo only, no background, fills the column ── */}
+            <motion.div variants={fadeInRight} className="flex items-center justify-center p-4">
+              <SmartProfLogo size={320} className="w-full h-auto max-w-full" />
+            </motion.div>
+
+          </motion.div>
         </div>
-      </motion.div>
-
-      {/* ── Col 3: Logo only — no card, no background, vertically centered ── */}
-      <motion.div variants={fadeInRight} className="flex items-center justify-center py-6">
-        <SmartProfLogo height={100} />
-      </motion.div>
-
-    </motion.div>
-  </div>
-</section>
+      </section>
 
       {/* ══ 2. PROBLEM ══════════════════════════════════════════════════════════ */}
       <section className="py-8 md:py-12 relative overflow-hidden" style={{ backgroundColor: C.bgAlt }}>
