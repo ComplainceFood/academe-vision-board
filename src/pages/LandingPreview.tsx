@@ -361,7 +361,7 @@ const LandingPreview = () => {
         )}
       </motion.nav>
 
-   {/* ══ 1. HERO — 3-col cards: AI left · text center · logo right ═══════════ */}
+  {/* ══ 1. HERO — 3-col: AI card left · bare text center · bare logo right ══ */}
 <section className="relative py-10 md:py-14 overflow-hidden">
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <motion.div
@@ -383,10 +383,10 @@ const LandingPreview = () => {
       initial="hidden"
       animate="visible"
       variants={staggerContainer}
-      className="grid grid-cols-1 md:grid-cols-[3fr_4fr_3fr] gap-3 items-start"
+      className="grid grid-cols-1 md:grid-cols-[3fr_4fr_3fr] gap-3 items-center"
     >
 
-      {/* ── Col 1: AI feature showcase card ── */}
+      {/* ── Col 1: AI feature showcase card (only tile in the row) ── */}
       <motion.div variants={fadeInLeft} className="flex">
         <div
           className="w-full rounded-2xl overflow-hidden flex flex-col"
@@ -416,7 +416,7 @@ const LandingPreview = () => {
             </span>
           </div>
 
-          {/* AI tool cards */}
+          {/* AI tool rows */}
           <div className="p-3 space-y-2">
             {[
               { icon: Brain,    label: "AI Grant Narrative Writer",  preview: "Drafting Specific Aims for your NSF proposal...", color: "#3DAA6E" },
@@ -454,7 +454,6 @@ const LandingPreview = () => {
                 />
               </motion.div>
             ))}
-
             <div className="pt-0.5 text-center">
               <p className="text-xs" style={{ color: "rgba(168,223,200,0.4)" }}>+ 4 more AI tools in Pro</p>
             </div>
@@ -462,17 +461,10 @@ const LandingPreview = () => {
         </div>
       </motion.div>
 
-      {/* ── Col 2: Hero text card (center, 40%) ── */}
+      {/* ── Col 2: Hero text — no card, no background ── */}
       <motion.div variants={fadeInUp} className="flex">
-        <div
-          className="w-full rounded-2xl flex flex-col items-center justify-center text-center px-6 py-8"
-          style={{
-            background: "rgba(255,255,255,0.72)",
-            backdropFilter: "blur(12px)",
-            border: "1px solid rgba(27,122,90,0.14)",
-            boxShadow: "0 16px 40px -8px rgba(13,30,65,0.10)",
-          }}
-        >
+        <div className="w-full flex flex-col items-center justify-center text-center px-4 py-6">
+
           {/* Audience pill */}
           <span
             className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-xs font-semibold border"
@@ -555,17 +547,9 @@ const LandingPreview = () => {
         </div>
       </motion.div>
 
-      {/* ── Col 3: Logo only ── */}
-      <motion.div variants={fadeInRight} className="flex">
-        <div
-          className="w-full rounded-2xl flex items-center justify-center px-5 py-7"
-          style={{
-            background: `linear-gradient(160deg, ${C.navy} 0%, #0D3D2E 55%, #1B7A5A 100%)`,
-            boxShadow: "0 20px 48px -10px rgba(13,30,65,0.3), 0 0 0 1px rgba(27,122,90,0.22)",
-          }}
-        >
-          <SmartProfLogoWide height={64} />
-        </div>
+      {/* ── Col 3: Logo only — no card, no background, vertically centered ── */}
+      <motion.div variants={fadeInRight} className="flex items-center justify-center py-6">
+        <SmartProfLogoWide height={64} />
       </motion.div>
 
     </motion.div>
