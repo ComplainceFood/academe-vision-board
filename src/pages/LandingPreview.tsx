@@ -32,7 +32,6 @@ import {
   Shield,
 } from "lucide-react";
 import { SmartProfLogo, SmartProfLogoWide } from "@/components/Logo";
-import { SmartProfLogo, SmartProfLogo } from "@/components/Logo";
 
 // Import preview images
 import notesPreview from "@/assets/landing/notes-preview.png";
@@ -464,7 +463,7 @@ const LandingPreview = () => {
 
       {/* ── Col 2: Hero text — no card, no background ── */}
       <motion.div variants={fadeInUp} className="flex">
-        <div className="w-full flex flex-col items-center justify-center text-center px-6 py-8">
+        <div className="w-full flex flex-col items-center justify-center text-center px-3 py-5">
 
           {/* Audience pill */}
           <span
@@ -550,7 +549,7 @@ const LandingPreview = () => {
 
       {/* ── Col 3: Logo only — no card, no background, vertically centered ── */}
       <motion.div variants={fadeInRight} className="flex items-center justify-center py-6">
-        <SmartProfLogoWide height={300} />
+        <SmartProfLogo height={300} />
       </motion.div>
 
     </motion.div>
