@@ -317,7 +317,7 @@ const LandingPreview = () => {
       >
         <div className="container mx-auto px-6 py-3 flex justify-between items-center">
           <motion.div whileHover={{ scale: 1.04 }} transition={{ type: "spring", stiffness: 300 }}>
-            <SmartProfLogoWide height={80} />
+            <SmartProfLogo height={80} />
           </motion.div>
 
           <div className="flex items-center gap-2 md:gap-7">
