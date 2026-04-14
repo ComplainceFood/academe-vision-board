@@ -452,21 +452,88 @@ const LandingPreview = () => {
               </motion.div>
             </motion.div>
 
-            {/* ── Right: logo ── */}
+            {/* ── Right: AI feature showcase panel ── */}
             <motion.div variants={fadeInRight} className="flex justify-center md:justify-end">
-              <motion.div
-                whileHover={{ scale: 1.04, rotate: 1 }}
-                transition={{ type: "spring", stiffness: 260 }}
-                className="rounded-3xl overflow-hidden"
-                style={{ boxShadow: "0 20px 60px -10px rgba(13,30,65,0.2), 0 0 0 3px rgba(27,122,90,0.15)" }}>
-                <SmartProfLogo size={260} className="rounded-3xl sm:hidden" />
-                <span className="hidden sm:block md:hidden">
-                  <SmartProfLogo size={320} className="rounded-3xl" />
-                </span>
-                <span className="hidden md:block">
-                  <SmartProfLogo size={360} className="rounded-3xl" />
-                </span>
-              </motion.div>
+              <div className="w-full max-w-sm rounded-2xl overflow-hidden"
+                style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`, boxShadow: "0 24px 64px -12px rgba(13,30,65,0.35), 0 0 0 1px rgba(27,122,90,0.25)" }}>
+
+                {/* Panel header — logo + AI badge */}
+                <div className="flex items-center justify-between px-4 py-3 border-b"
+                  style={{ borderColor: "rgba(255,255,255,0.08)" }}>
+                  <SmartProfLogoWide height={52} />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                    style={{ background: "linear-gradient(135deg, rgba(61,170,110,0.25), rgba(27,122,90,0.15))", border: "1px solid rgba(61,170,110,0.35)", color: C.tealLight }}>
+                    <Brain className="h-3 w-3" />
+                    8 AI Tools
+                  </span>
+                </div>
+
+                {/* AI tool cards */}
+                <div className="p-4 space-y-2.5">
+                  {[
+                    {
+                      icon: Brain,
+                      label: "AI Grant Narrative Writer",
+                      preview: "Drafting Specific Aims for your NSF proposal...",
+                      color: "#3DAA6E",
+                    },
+                    {
+                      icon: Users,
+                      label: "AI Meeting Summarizer",
+                      preview: "Action items extracted from today's lab meeting.",
+                      color: "#60A5FA",
+                    },
+                    {
+                      icon: Award,
+                      label: "NIH Biosketch Generator",
+                      preview: "Generating Section A from your achievements...",
+                      color: "#A78BFA",
+                    },
+                    {
+                      icon: Calendar,
+                      label: "AI Smart Planner",
+                      preview: "Balancing 3 deadlines across your week.",
+                      color: "#FB923C",
+                    },
+                  ].map((tool, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 + i * 0.15, duration: 0.5, ease: easeOut }}
+                      className="rounded-xl px-3.5 py-3 flex items-start gap-3"
+                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}
+                    >
+                      <div className="p-1.5 rounded-lg shrink-0 mt-0.5"
+                        style={{ background: `${tool.color}22`, border: `1px solid ${tool.color}44` }}>
+                        <tool.icon className="h-3.5 w-3.5" style={{ color: tool.color }} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold mb-0.5 truncate" style={{ color: "rgba(240,247,244,0.95)" }}>
+                          {tool.label}
+                        </p>
+                        <p className="text-xs leading-snug" style={{ color: "rgba(168,223,200,0.6)" }}>
+                          {tool.preview}
+                        </p>
+                      </div>
+                      {/* Animated "working" dot */}
+                      <motion.div
+                        animate={{ opacity: [1, 0.3, 1] }}
+                        transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.35 }}
+                        className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5"
+                        style={{ background: tool.color }}
+                      />
+                    </motion.div>
+                  ))}
+
+                  {/* Bottom CTA strip */}
+                  <div className="pt-1 text-center">
+                    <p className="text-xs font-medium" style={{ color: "rgba(168,223,200,0.5)" }}>
+                      + 4 more AI tools included in Pro
+                    </p>
+                  </div>
+                </div>
+              </div>
             </motion.div>
 
           </motion.div>
