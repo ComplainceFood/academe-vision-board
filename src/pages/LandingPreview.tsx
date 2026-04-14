@@ -687,41 +687,43 @@ const LandingPreview = () => {
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={staggerContainer}
-            className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+            className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto items-stretch">
 
-            {/* Free card */}
-            <motion.div variants={fadeInLeft} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-              <Card className="h-full relative overflow-hidden"
-                style={{ background: "#fff", border: `1px solid ${C.border}`, boxShadow: "0 4px 20px rgba(13,30,65,0.07)" }}>
-                <CardContent className="p-8">
-                  <div className="mb-6">
+            {/* ── Free card ── */}
+            <motion.div variants={fadeInLeft} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="flex">
+              <Card className="w-full flex flex-col relative"
+                style={{ background: "#fff", border: `1px solid ${C.borderMed}`, boxShadow: "0 4px 20px rgba(13,30,65,0.07)" }}>
+                <CardContent className="p-6 flex flex-col flex-1">
+
+                  {/* Header */}
+                  <div className="mb-4">
                     <h3 className="text-2xl font-bold mb-1" style={{ color: C.navy }}>Free</h3>
-                    <p className="text-sm font-medium mb-4" style={{ color: C.muted }}>
-                      Perfect for individual faculty getting out of chaos.
-                    </p>
+                    <p className="text-sm mb-4" style={{ color: C.muted }}>Perfect for individual faculty getting out of chaos.</p>
                     <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-black" style={{ color: C.navy }}>$0</span>
-                      <span className="text-sm" style={{ color: C.muted }}>forever</span>
+                      <span className="text-5xl font-black" style={{ color: C.navy }}>$0</span>
+                      <span className="text-base font-medium" style={{ color: C.muted }}>/ forever</span>
                     </div>
                   </div>
 
-                  <div className="space-y-5 mb-8">
+                  {/* Features */}
+                  <div className="space-y-3 flex-1">
                     {[
                       { label: "Planning & Tasks", items: ["Tasks & Notes with subtasks and folders", "Semester Planning with event tracking", "Smart deadlines and recurring tasks"] },
-                      { label: "Meetings", items: ["Meeting Hub: agendas and action items", "Recurring meeting support"] },
-                      { label: "Grants & Lab", items: ["Grant Management: budgets and commitments", "Supplies & Expenses with threshold alerts", "Shopping lists and CSV export"] },
-                      { label: "Achievements & CV", items: ["11 achievement categories", "CV / biosketch import and export", "Communications and announcements"] },
+                      { label: "Meetings",         items: ["Meeting Hub: agendas and action items", "Recurring meeting support"] },
+                      { label: "Grants & Lab",     items: ["Grant Management: budgets and commitments", "Supplies & Expenses with threshold alerts", "Shopping lists and CSV export"] },
+                      { label: "Achievements & CV",items: ["11 achievement categories", "CV / biosketch import and export", "Communications and announcements"] },
                     ].map((group, gi) => (
                       <div key={gi}>
-                        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: C.teal }}>{group.label}</p>
-                        <ul className="space-y-1.5">
+                        <p className="text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: C.teal }}>{group.label}</p>
+                        <ul className="space-y-1">
                           {group.items.map((item, ii) => <CheckItem key={ii}>{item}</CheckItem>)}
                         </ul>
                       </div>
                     ))}
                   </div>
 
-                  <Button asChild size="lg" variant="outline" className="w-full font-semibold h-12 transition-all duration-300"
+                  {/* CTA pinned to bottom */}
+                  <Button asChild size="lg" variant="outline" className="w-full font-semibold h-11 mt-5 transition-all duration-300"
                     style={{ borderColor: C.borderMed, color: C.teal }}>
                     <Link to="/auth">Start free</Link>
                   </Button>
@@ -729,82 +731,69 @@ const LandingPreview = () => {
               </Card>
             </motion.div>
 
-            {/* Pro card */}
-            <motion.div variants={fadeInRight} whileHover={{ y: -6 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
-              {/* Most popular badge - outside Card so overflow-hidden doesn't clip it */}
-              <div className="flex justify-end pr-6 mb-[-14px] relative z-10">
+            {/* ── Pro card ── */}
+            <motion.div variants={fadeInRight} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="flex flex-col">
+              {/* Badge outside card so overflow-hidden doesn't clip */}
+              <div className="flex justify-end pr-5 mb-[-14px] relative z-10">
                 <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-bold"
                   style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff", boxShadow: "0 4px 12px rgba(27,122,90,0.4)" }}>
-                  <Sparkles className="h-3.5 w-3.5" />
-                  Most popular
+                  <Sparkles className="h-3.5 w-3.5" /> Most popular
                 </span>
               </div>
 
-              <Card className="h-full relative overflow-hidden"
-                style={{
-                  background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 60%, #1B4A3A 100%)`,
-                  border: `2px solid ${C.teal}`,
-                  boxShadow: `0 8px 40px rgba(27,122,90,0.35)`
-                }}>
-                <CardContent className="p-8 pt-10">
-                  <div className="mb-6">
-                    <h3 className="text-2xl font-bold mb-1" style={{ color: "#F0F7F4" }}>Pro</h3>
-                    <p className="text-sm font-medium mb-4" style={{ color: C.mutedLight }}>
-                      For faculty and lab leads who want AI to draft and organize for them.
-                    </p>
+              <Card className="w-full flex flex-col flex-1 relative overflow-hidden"
+                style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 60%, #1B4A3A 100%)`, border: `2px solid ${C.teal}`, boxShadow: `0 8px 40px rgba(27,122,90,0.35)` }}>
+                <CardContent className="p-6 pt-8 flex flex-col flex-1">
 
-                    {/* Live price from Stripe - matches SettingsPage display logic */}
-                    <div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-4xl font-black" style={{ color: "#F0F7F4" }}>
-                          {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
-                        </span>
-                        <span className="text-base font-medium" style={{ color: C.mutedLight }}>
-                          {billingInterval === "annual" ? "/ year" : "/ month"}
-                        </span>
-                      </div>
-                      {billingInterval === "annual" && savingsPerMonth != null && savingsPerMonth > 0 && (
-                        <p className="text-xs mt-1.5 font-medium" style={{ color: C.tealLight }}>
-                          {formatPrice(Math.round(shownPrice.unit_amount / 12), shownPrice.currency)}/mo equivalent
-                          {" · "}saves {formatPrice(savingsPerMonth, shownPrice.currency)}/mo vs monthly
-                        </p>
-                      )}
-                      {billingInterval === "monthly" && (
-                        <p className="text-xs mt-1.5 font-medium" style={{ color: C.mutedLight }}>
-                          Switch to annual to save ~20%
-                        </p>
-                      )}
+                  {/* Header */}
+                  <div className="mb-4">
+                    <h3 className="text-2xl font-bold mb-1" style={{ color: "#F0F7F4" }}>Pro</h3>
+                    <p className="text-sm mb-4" style={{ color: C.mutedLight }}>For faculty and lab leads who want AI to draft and organize for them.</p>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-5xl font-black" style={{ color: "#F0F7F4" }}>
+                        {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
+                      </span>
+                      <span className="text-base font-medium" style={{ color: C.mutedLight }}>
+                        {billingInterval === "annual" ? "/ year" : "/ month"}
+                      </span>
                     </div>
+                    {billingInterval === "annual" && savingsPerMonth != null && savingsPerMonth > 0 ? (
+                      <p className="text-sm mt-1.5 font-medium" style={{ color: C.tealLight }}>
+                        {formatPrice(Math.round(shownPrice.unit_amount / 12), shownPrice.currency)}/mo · saves {formatPrice(savingsPerMonth, shownPrice.currency)}/mo vs monthly
+                      </p>
+                    ) : billingInterval === "monthly" ? (
+                      <p className="text-sm mt-1.5 font-medium" style={{ color: C.mutedLight }}>Switch to annual to save ~20%</p>
+                    ) : null}
                   </div>
 
-                  <div className="space-y-5 mb-8">
+                  {/* Features */}
+                  <div className="space-y-3 flex-1">
                     {[
                       { label: "Everything in Free, plus:", items: [] },
-                      { label: "AI & Automation", items: ["AI Task Draft and AI Smart Planner", "AI Meeting Agenda and AI Summarizer", "AI Grant Narrative Writer", "AI Supply Analysis and AI Analytics Insights", "NIH Biosketch Generator"] },
-                      { label: "Integrations", items: ["Google Calendar sync", "Outlook Calendar sync", "ORCID integration + live citation metrics"] },
-                      { label: "Advanced Export", items: ["Advanced CV / biosketch import and export", "Full data export in standard formats"] },
+                      { label: "AI & Automation",  items: ["AI Task Draft and AI Smart Planner", "AI Meeting Agenda and AI Summarizer", "AI Grant Narrative Writer", "AI Supply Analysis and AI Analytics Insights", "NIH Biosketch Generator"] },
+                      { label: "Integrations",      items: ["Google Calendar sync", "Outlook Calendar sync", "ORCID integration + live citation metrics"] },
+                      { label: "Advanced Export",   items: ["Advanced CV / biosketch import and export", "Full data export in standard formats"] },
                     ].map((group, gi) => (
                       <div key={gi}>
-                        <p className="text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: C.tealLight }}>{group.label}</p>
+                        <p className="text-xs font-bold uppercase tracking-wider mb-1.5" style={{ color: C.tealLight }}>{group.label}</p>
                         {group.items.length > 0 && (
-                          <ul className="space-y-1.5">
-                            {group.items.map((item, ii) => (
-                              <CheckItem key={ii} dark>{item}</CheckItem>
-                            ))}
+                          <ul className="space-y-1">
+                            {group.items.map((item, ii) => <CheckItem key={ii} dark>{item}</CheckItem>)}
                           </ul>
                         )}
                       </div>
                     ))}
                   </div>
 
-                  <Button asChild size="lg" className="w-full font-semibold h-12 shadow-lg transition-all duration-300"
+                  {/* CTA pinned to bottom */}
+                  <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
                     style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealLight} 100%)`, color: "#fff", border: "none" }}>
                     <Link to="/auth?plan=pro">Start Pro trial</Link>
                   </Button>
-                  <p className="text-xs text-center mt-3" style={{ color: C.mutedLight }}>No credit card required to try</p>
                 </CardContent>
               </Card>
             </motion.div>
+
           </motion.div>
 
           {/* Data portability note */}
