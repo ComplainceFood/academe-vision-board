@@ -530,7 +530,7 @@ const LandingPreview = () => {
           {/* Stat chips */}
           <div className="flex flex-wrap justify-center gap-2 mt-6">
             {[
-              { icon: Clock,  label: "Save 4+ hrs/week" },
+              { icon: Clock,  label: "Save 8+ hrs/week" },
               { icon: Brain,  label: "8 AI Tools" },
               { icon: Shield, label: "Free to start" },
             ].map((item, i) => (
@@ -549,7 +549,7 @@ const LandingPreview = () => {
 
       {/* ── Col 3: Logo only — no card, no background, vertically centered ── */}
       <motion.div variants={fadeInRight} className="flex items-center justify-center py-6">
-        <SmartProfLogo height={300} />
+        <SmartProfLogo height={3000} />
       </motion.div>
 
     </motion.div>
