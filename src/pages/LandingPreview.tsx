@@ -134,7 +134,7 @@ const LandingPreview = () => {
   const [showContact, setShowContact] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [prices, setPrices] = useState<{ monthly: PriceData; annual: PriceData } | null>(null);
-  const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("annual");
+  const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("monthly");
 
   // Fetch live prices from Stripe. Falls back to known amounts if Stripe isn't
   // configured in this environment - update FALLBACK_PRICES when you change
@@ -259,7 +259,6 @@ const LandingPreview = () => {
     {
       name: "Dr. Sarah Johnson",
       role: "Associate Professor of Biology",
-      institution: "State Research University",
       content:
         "I finished my promotion dossier in a weekend instead of a month. Every publication, talk, and service entry was already there - I just exported.",
       rating: 5,
@@ -267,7 +266,6 @@ const LandingPreview = () => {
     {
       name: "Prof. Michael Chen",
       role: "Associate Professor, Computer Science",
-      institution: "Midwest Technical Institute",
       content:
         "The AI Biosketch alone saved me three hours before my last NSF submission. I used to dread biosketches. Now it's a 10-minute job.",
       rating: 5,
@@ -275,7 +273,6 @@ const LandingPreview = () => {
     {
       name: "Dr. Emily Rodriguez",
       role: "Psychology Department Chair",
-      institution: "Liberal Arts College",
       content:
         "Grant reporting used to eat a full day every cycle. Now I open the dashboard, everything's current, and I'm done before lunch.",
       rating: 5,
@@ -601,7 +598,7 @@ const LandingPreview = () => {
       <section id="how-it-works" className="py-10 md:py-16 relative overflow-hidden"
         style={{ background: `linear-gradient(180deg, ${C.bgAlt} 0%, ${C.bg} 100%)` }}>
         <div className="container mx-auto px-6">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-8">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-6">
             <SectionBadge icon={Clock} label="A typical week with Smart-Prof" />
             <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               How it fits into your week
@@ -644,7 +641,7 @@ const LandingPreview = () => {
           style={{ backgroundImage: "radial-gradient(circle, rgba(27,122,90,0.08) 1px, transparent 1px)", backgroundSize: "32px 32px" }} />
 
         <div className="container mx-auto px-6 relative z-10">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-8">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-6">
             <SectionBadge icon={Zap} label="Simple, honest pricing" />
             <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Start free. Upgrade when you're ready.
@@ -808,7 +805,7 @@ const LandingPreview = () => {
       {/* ══ 6. TESTIMONIALS ══════════════════════════════════════════════════ */}
       <section id="testimonials" className="py-10 md:py-16 relative" style={{ backgroundColor: C.bgAlt }}>
         <div className="container mx-auto px-6">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-8">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-6">
             <SectionBadge icon={Award} label="Trusted by academics" />
             <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Faculty who got their time back
@@ -819,26 +816,25 @@ const LandingPreview = () => {
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={staggerContainer}
-            className="grid md:grid-cols-3 gap-8">
+            className="grid md:grid-cols-3 gap-5">
             {testimonials.map((testimonial, i) => (
               <motion.div key={i} variants={fadeInUp} whileHover={{ y: -8 }} transition={{ type: "spring", stiffness: 300, damping: 20 }}>
                 <Card className="group h-full relative overflow-hidden transition-all duration-500"
                   style={{ background: "#fff", border: `1px solid ${C.border}`, boxShadow: "0 4px 20px rgba(13,30,65,0.07)" }}>
                   <div className="absolute left-0 top-8 bottom-8 w-[3px] rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
                     style={{ background: `linear-gradient(180deg, ${C.teal}, ${C.tealLight})` }} />
-                  <CardContent className="relative p-8">
-                    <div className="flex gap-1 mb-5">
+                  <CardContent className="relative p-5">
+                    <div className="flex gap-1 mb-3">
                       {[...Array(testimonial.rating)].map((_, ri) => (
                         <Star key={ri} className="h-5 w-5 fill-current" style={{ color: C.tealLight }} />
                       ))}
                     </div>
-                    <p className="mb-8 leading-relaxed text-base italic" style={{ color: "#3A5C4A" }}>
+                    <p className="mb-5 leading-relaxed text-sm italic" style={{ color: "#3A5C4A" }}>
                       "{testimonial.content}"
                     </p>
-                    <div className="pt-4 border-t" style={{ borderColor: "rgba(27,122,90,0.12)" }}>
-                      <p className="font-semibold" style={{ color: C.navy }}>{testimonial.name}</p>
-                      <p className="text-sm font-medium" style={{ color: C.teal }}>{testimonial.role}</p>
-                      <p className="text-xs mt-0.5" style={{ color: C.muted }}>{testimonial.institution}</p>
+                    <div className="pt-3 border-t" style={{ borderColor: "rgba(27,122,90,0.12)" }}>
+                      <p className="font-semibold text-sm" style={{ color: C.navy }}>{testimonial.name}</p>
+                      <p className="text-xs font-medium" style={{ color: C.teal }}>{testimonial.role}</p>
                     </div>
                   </CardContent>
                 </Card>
@@ -859,7 +855,7 @@ const LandingPreview = () => {
           </motion.div>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp}>
-            <Accordion type="single" collapsible className="space-y-3">
+            <Accordion type="single" collapsible className="space-y-2">
               {faqs.map((faq, i) => (
                 <AccordionItem
                   key={i}
@@ -900,7 +896,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-80px" }} variants={fadeInUp}
             className="text-center max-w-3xl mx-auto">
-            <span className="inline-flex items-center gap-2 mb-8 px-4 py-1.5 rounded-full text-sm font-semibold border"
+            <span className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-sm font-semibold border"
               style={{ background: "rgba(255,255,255,0.1)", borderColor: "rgba(255,255,255,0.2)", color: C.mutedLight }}>
               <Zap className="h-3.5 w-3.5" />
               Your cockpit is ready
