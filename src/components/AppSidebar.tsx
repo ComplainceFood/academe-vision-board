@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut, BarChart3, MessageCircle, Megaphone, Award, TestTube, Users } from "lucide-react";
@@ -23,7 +23,7 @@ export function AppSidebar() {
 
   const isAdmin = isSystemAdmin();
 
-  const navigationItems = [{
+  const navigationItems = useMemo(() => [{
     id: "dashboard",
     title: "Dashboard",
     icon: LayoutDashboard,
@@ -101,7 +101,7 @@ export function AppSidebar() {
     icon: Settings,
     path: "/settings",
     adminOnly: false,
-  }].filter(item => !item.adminOnly || isAdmin);
+  }].filter(item => !item.adminOnly || isAdmin), [isAdmin]);
 
   const handleLogout = async () => {
     try {

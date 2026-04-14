@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { useToast } from './use-toast';
@@ -26,9 +26,12 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Use JSON.stringify for stable comparison of filters and transform
-  const filtersKey = JSON.stringify(filters);
-  const transformKey = transform?.toString() || 'null';
+  // Stable keys — only recompute when values actually change
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const filtersKey = useMemo(() => JSON.stringify(filters), [JSON.stringify(filters)]);
+  // transformKey: use a ref so changing the function reference doesn't recreate fetchData
+  const transformRef = useRef(transform);
+  transformRef.current = transform;
 
   // Function to fetch data
   const fetchData = useCallback(async () => {
@@ -92,11 +95,10 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
         throw new Error(`Failed to fetch ${table}: ${fetchError.message}`);
       }
 
-      const transformedData = transform 
-        ? transform(fetchedData) 
+      const transformedData = transformRef.current
+        ? transformRef.current(fetchedData)
         : fetchedData;
       setData(transformedData || []);
-      console.log(`Fetched ${table} data:`, transformedData);
     } catch (err) {
       console.error(`Error fetching ${table}:`, err);
       setError(err instanceof Error ? err : new Error('An unknown error occurred'));
@@ -112,7 +114,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     } finally {
       setIsLoading(false);
     }
-  }, [user, table, enabled, toast, filtersKey, transformKey]);
+  }, [user, table, enabled, toast, filtersKey]);
 
   // Initial data fetch
   useEffect(() => {
@@ -121,98 +123,79 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
     }
   }, [fetchData]);
 
-  // Subscribe to real-time changes
+  // Keep a stable ref to fetchData so the realtime subscription never needs to re-subscribe
+  const fetchDataRef = useRef(fetchData);
+  fetchDataRef.current = fetchData;
+
+  // Subscribe to real-time changes — deps intentionally omit fetchData to avoid channel churn
   useEffect(() => {
     if (!user || !enabled) return;
 
-    console.log(`Setting up realtime subscription for ${table}`);
-    
+    const noUserFilter = ['admin_communications', 'test_cases', 'test_suites', 'test_executions',
+      'test_defects', 'test_requirements', 'test_team_members', 'test_automation_configs', 'test_case_requirements'];
+
     const channel = supabase
       .channel(`${table}_changes_${user.id}`)
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
+      .on('postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
           table,
-          filter: !['admin_communications', 'test_cases', 'test_suites', 'test_executions', 'test_defects', 'test_requirements', 'test_team_members', 'test_automation_configs', 'test_case_requirements'].includes(table) ? `user_id=eq.${user.id}` : undefined
+          filter: !noUserFilter.includes(table) ? `user_id=eq.${user.id}` : undefined,
         },
         (payload) => {
-          console.log(`Received real-time update for ${table}:`, payload);
-          
-            // Update data optimistically with error handling
-            try {
-              if (payload.eventType === 'INSERT') {
-                const newItem = transform 
-                  ? transform([payload.new])[0] 
-                  : payload.new as T;
+          try {
+            if (payload.eventType === 'INSERT') {
+              const newItem = transformRef.current
+                ? transformRef.current([payload.new])[0]
+                : payload.new as T;
               setData(current => {
-                // Check if item already exists to prevent duplicates
-                const exists = current.some(item => 
-                  // @ts-ignore - we know id exists on the item
-                  item.id === newItem.id
-                );
+                // @ts-ignore
+                const exists = current.some(item => item.id === newItem.id);
                 return exists ? current : [...current, newItem];
               });
-              } else if (payload.eventType === 'UPDATE') {
-                const updatedItem = transform 
-                  ? transform([payload.new])[0] 
-                  : payload.new as T;
-              setData(current => 
-                current.map(item => 
-                  // @ts-ignore - we know id exists on the item
-                  item.id === updatedItem.id ? updatedItem : item
-                )
+            } else if (payload.eventType === 'UPDATE') {
+              const updatedItem = transformRef.current
+                ? transformRef.current([payload.new])[0]
+                : payload.new as T;
+              setData(current =>
+                // @ts-ignore
+                current.map(item => item.id === updatedItem.id ? updatedItem : item)
               );
             } else if (payload.eventType === 'DELETE') {
               const deletedItem = payload.old as T;
-              setData(current => 
-                current.filter(item => 
-                  // @ts-ignore - we know id exists on the item
-                  item.id !== deletedItem.id
-                )
-              );
+              // @ts-ignore
+              setData(current => current.filter(item => item.id !== deletedItem.id));
             }
-          } catch (error) {
-            console.error(`Error processing realtime update for ${table}:`, error);
-            // Fallback: refetch data if realtime update fails
-            fetchData();
+          } catch {
+            fetchDataRef.current();
           }
         })
-      .subscribe((status) => {
-        console.log(`Realtime subscription status for ${table}:`, status);
-      });
+      .subscribe();
 
-    return () => {
-      console.log(`Cleaning up realtime channel for ${table}`);
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, table, enabled, fetchData]);
+    return () => { supabase.removeChannel(channel); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id, table, enabled]);
 
-  // Listen for external refresh events
+  // Listen for external refresh events — use ref so handlers are always stable
   useEffect(() => {
     const handleSeedData = () => {
-      if (enabled) {
-        console.log(`Handling seed data event for ${table}`);
-        fetchData();
-      }
+      if (enabled) fetchDataRef.current();
     };
-
     const handleRefreshData = (event: Event) => {
-      const customEvent = event as CustomEvent<{table?: string}>;
+      const customEvent = event as CustomEvent<{ table?: string }>;
       if (enabled && (!customEvent.detail?.table || customEvent.detail.table === table)) {
-        console.log(`Handling refresh event for ${table}`);
-        fetchData();
+        fetchDataRef.current();
       }
     };
-
     window.addEventListener('seedDataCompleted', handleSeedData);
     window.addEventListener('refreshData', handleRefreshData as EventListener);
-    
     return () => {
       window.removeEventListener('seedDataCompleted', handleSeedData);
       window.removeEventListener('refreshData', handleRefreshData as EventListener);
     };
-  }, [enabled, table, fetchData]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, table]);
 
   // Simple refetch function
   const refetch = useCallback(() => {

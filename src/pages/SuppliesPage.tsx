@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingBag, Sparkles } from "lucide-react";
@@ -90,19 +90,31 @@ const SuppliesPage = () => {
     enabled: !!user
   });
 
-  // Auto-refresh data on component mount and after actions
-  useEffect(() => {
-    const refreshInterval = setInterval(() => {
-      if (!isProcessing) {
-        refetchSupplies();
-        refetchExpenses();
-        refetchShoppingItems();
-      }
-    }, 30000); // Refresh every 30 seconds
+  // Auto-refresh — use refs so interval never needs to be recreated
+  const isProcessingRef = useRef(isProcessing);
+  isProcessingRef.current = isProcessing;
+  const refetchSuppliesRef = useRef(refetchSupplies);
+  refetchSuppliesRef.current = refetchSupplies;
+  const refetchExpensesRef = useRef(refetchExpenses);
+  refetchExpensesRef.current = refetchExpenses;
+  const refetchShoppingItemsRef = useRef(refetchShoppingItems);
+  refetchShoppingItemsRef.current = refetchShoppingItems;
 
-    return () => clearInterval(refreshInterval);
-  }, [refetchSupplies, refetchExpenses, refetchShoppingItems, isProcessing]);
-  const shoppingListCount = shoppingItems.filter((item: any) => !item.purchased).length;
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (!isProcessingRef.current) {
+        refetchSuppliesRef.current();
+        refetchExpensesRef.current();
+        refetchShoppingItemsRef.current();
+      }
+    }, 30000);
+    return () => clearInterval(id);
+  }, []); // stable — no deps needed
+
+  const shoppingListCount = useMemo(
+    () => shoppingItems.filter((item: any) => !item.purchased).length,
+    [shoppingItems]
+  );
 
   // Handlers
   const handleDeleteSupply = async () => {
@@ -273,23 +285,32 @@ const SuppliesPage = () => {
     setIsHistoryDialogOpen(true);
   };
 
-  // Filter supplies based on search query and low stock filter
-  const filteredSupplies = supplies.filter((item) => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.course.toLowerCase().includes(searchQuery.toLowerCase());
+  const searchLower = useMemo(() => searchQuery.toLowerCase(), [searchQuery]);
+
+  const filteredSupplies = useMemo(() => supplies.filter((item) => {
+    const matchesSearch =
+      item.name.toLowerCase().includes(searchLower) ||
+      item.category.toLowerCase().includes(searchLower) ||
+      item.course.toLowerCase().includes(searchLower);
     const matchesLowStock = showLowStockOnly ? item.current_count <= item.threshold : true;
     return matchesSearch && matchesLowStock;
-  });
+  }), [supplies, searchLower, showLowStockOnly]);
 
-  // Filter expenses based on search query
-  const filteredExpenses = expenses.filter((expense) => expense.description.toLowerCase().includes(searchQuery.toLowerCase()) || expense.category.toLowerCase().includes(searchQuery.toLowerCase()) || expense.course.toLowerCase().includes(searchQuery.toLowerCase()));
+  const filteredExpenses = useMemo(() => expenses.filter((expense) =>
+    expense.description.toLowerCase().includes(searchLower) ||
+    expense.category.toLowerCase().includes(searchLower) ||
+    expense.course.toLowerCase().includes(searchLower)
+  ), [expenses, searchLower]);
 
-  // Calculate warning items (low stock)
-  const warningItems = supplies.filter((item) => item.current_count <= item.threshold);
+  const warningItems = useMemo(
+    () => supplies.filter((item) => item.current_count <= item.threshold),
+    [supplies]
+  );
 
-  // Calculate total expenses
-  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const totalExpenses = useMemo(
+    () => expenses.reduce((sum, expense) => sum + expense.amount, 0),
+    [expenses]
+  );
 
   // Handle bulk add to shopping list
   const handleBulkAddToShoppingList = (items: SupplyItem[]) => {
