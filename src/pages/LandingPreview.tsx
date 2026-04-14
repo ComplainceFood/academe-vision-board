@@ -374,10 +374,10 @@ const LandingPreview = () => {
 
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-3 gap-5 items-center">
+            className="grid grid-cols-1 md:grid-cols-[5fr_7fr_5fr] gap-5 items-center">
 
             {/* ── Col 1: AI feature showcase card ── */}
-            <motion.div variants={fadeInLeft} className="flex self-start">
+            <motion.div variants={fadeInLeft} className="flex">
               <div className="w-full rounded-2xl overflow-hidden flex flex-col"
                 style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`, boxShadow: "0 20px 48px -10px rgba(13,30,65,0.3), 0 0 0 1px rgba(27,122,90,0.22)" }}>
                 <div className="flex items-center justify-between px-4 py-3 border-b"
@@ -480,7 +480,7 @@ const LandingPreview = () => {
             </motion.div>
 
             {/* ── Col 3: Logo only, no background, fills the column ── */}
-            <motion.div variants={fadeInRight} className="flex items-center justify-center p-4">
+            <motion.div variants={fadeInRight} className="flex items-center justify-end pr-2">
               <SmartProfLogo size={320} className="w-full h-auto max-w-full" />
             </motion.div>
 
