@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://www.smart-prof.us/sitemap.xml
+Sitemap: https://smart-prof.us/sitemap.xml
