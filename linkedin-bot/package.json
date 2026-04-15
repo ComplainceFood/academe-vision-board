@@ -1,0 +1,17 @@
+{
+  "name": "smart-prof-linkedin-bot",
+  "version": "1.0.0",
+  "description": "AI-powered LinkedIn post scheduler for Smart-Prof",
+  "type": "module",
+  "scripts": {
+    "get-token": "node get-token.js",
+    "post": "node post.js",
+    "test-post": "node post.js --test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "open": "^10.1.0"
+  }
+}
