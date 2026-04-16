@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ import { PageGuide } from "@/components/common/PageGuide";
 
 const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onViewDetails: (meeting: Meeting) => void;onEdit: (meeting: Meeting) => void;}) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
   const { updateStatus, deleteMeeting } = useMeetings();
 
@@ -117,7 +119,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
               {meeting.reminder_minutes &&
               <Badge variant="outline" className="flex items-center gap-1">
                   <Bell className="h-3 w-3" />
-                  <span>Reminder</span>
+                  <span>{t('meetings.reminder')}</span>
                 </Badge>
               }
             </div>
@@ -177,9 +179,9 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDeleteMeeting} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                      {isDeleting ? "Deleting..." : "Delete"}
+                      {isDeleting ? t('common.deleting') : t('common.delete')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
@@ -251,7 +253,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
       
       {meeting.status === "scheduled" &&
       <CardFooter className="pt-0 flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(meeting)}>Reschedule</Button>
+          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(meeting)}>{t('meetings.reschedule')}</Button>
           <Button size="sm" className="flex-1" onClick={() => onViewDetails(meeting)}>
             View Details
           </Button>
@@ -262,6 +264,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
 };
 
 const MeetingsPage = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("upcoming");
   const [selectedMeeting, setSelectedMeeting] = useState<Meeting | null>(null);
@@ -369,7 +372,7 @@ const MeetingsPage = () => {
                 </div>
                 <div className="min-w-0">
                   <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">Meetings & 1:1s</h1>
-                  <p className="text-primary-foreground/80 text-xs mt-0.5">Schedule and manage your meetings</p>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('meetings.scheduleManage')}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -377,7 +380,7 @@ const MeetingsPage = () => {
                   type="meeting"
                   onQuickAdd={handleQuickAddMeeting}
                   onOpenFullForm={() => setIsCreateOpen(true)}
-                  placeholder="Quick add meeting..." />
+                  placeholder={t('meetings.quickAddMeeting')} />
 
                 <Button
                   onClick={() => setIsCreateOpen(true)}
@@ -392,7 +395,7 @@ const MeetingsPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-4 gap-2 mt-3">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Upcoming</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('meetings.upcoming')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.upcoming}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
@@ -400,7 +403,7 @@ const MeetingsPage = () => {
                 <p className="text-lg sm:text-2xl font-bold">{stats.thisWeek}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Completed</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('meetings.completed')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.past}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
@@ -417,7 +420,7 @@ const MeetingsPage = () => {
             <div className="relative w-full sm:w-72">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search meetings..."
+                placeholder={t('meetings.searchMeetings')}
                 className="pl-9 bg-muted/50 border-muted-foreground/20"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)} />
@@ -426,17 +429,17 @@ const MeetingsPage = () => {
             <TabsList className="p-1 bg-muted/70 backdrop-blur-sm rounded-xl grid grid-cols-3 w-full sm:w-auto">
               <TabsTrigger value="upcoming" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
                 <ArrowUp className="h-3.5 w-3.5 shrink-0" />
-                <span>Upcoming</span>
+                <span>{t('meetings.upcoming')}</span>
                 <Badge variant="secondary" className="ml-0.5 text-[10px] px-1 hidden xs:inline-flex">{stats.upcoming}</Badge>
               </TabsTrigger>
               <TabsTrigger value="past" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
                 <ArrowDown className="h-3.5 w-3.5 shrink-0" />
-                <span>Past</span>
+                <span>{t('meetings.past')}</span>
                 <Badge variant="secondary" className="ml-0.5 text-[10px] px-1 hidden xs:inline-flex">{stats.past}</Badge>
               </TabsTrigger>
               <TabsTrigger value="all" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
                 <Calendar className="h-3.5 w-3.5 shrink-0" />
-                <span>All</span>
+                <span>{t('meetings.all')}</span>
                 <Badge variant="secondary" className="ml-0.5 text-[10px] px-1 hidden xs:inline-flex">{stats.total}</Badge>
               </TabsTrigger>
             </TabsList>
@@ -451,12 +454,12 @@ const MeetingsPage = () => {
             ) :
             <div className="text-center py-12">
                 <CheckCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                <h3 className="text-lg font-medium mb-1">No upcoming meetings</h3>
-                <p className="text-muted-foreground">Schedule a new meeting to get started</p>
+                <h3 className="text-lg font-medium mb-1">{t('meetings.noUpcomingMeetings')}</h3>
+                <p className="text-muted-foreground">{t('meetings.noUpcomingDesc')}</p>
                 <div className="mt-4">
                   <Button onClick={() => setIsCreateOpen(true)}>
                     <Calendar className="h-4 w-4 mr-2" />
-                    Schedule Meeting
+                    {t('meetings.addMeeting')}
                   </Button>
                 </div>
               </div>
@@ -472,8 +475,8 @@ const MeetingsPage = () => {
             ) :
             <div className="text-center py-12">
                 <XCircle className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                <h3 className="text-lg font-medium mb-1">No past meetings</h3>
-                <p className="text-muted-foreground">Past meetings will appear here</p>
+                <h3 className="text-lg font-medium mb-1">{t('meetings.noPastMeetings')}</h3>
+                <p className="text-muted-foreground">{t('meetings.noPastDesc')}</p>
               </div>
             }
           </TabsContent>
@@ -487,8 +490,8 @@ const MeetingsPage = () => {
             ) :
             <div className="text-center py-12">
                 <Calendar className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
-                <h3 className="text-lg font-medium mb-1">No meetings found</h3>
-                <p className="text-muted-foreground">Try adjusting your search</p>
+                <h3 className="text-lg font-medium mb-1">{t('meetings.noMeetingsFound')}</h3>
+                <p className="text-muted-foreground">{t('common.tryAdjusting')}</p>
               </div>
             }
           </TabsContent>

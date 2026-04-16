@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MainLayout } from '@/components/MainLayout';
 import { PageGuide } from '@/components/common/PageGuide';
 import { Button } from '@/components/ui/button';
@@ -67,6 +68,7 @@ const CATEGORIES = [
 ];
 
 const NotesPage = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState<'tasks' | 'notes'>('tasks');
@@ -298,12 +300,12 @@ const NotesPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
               {[
-                { label: "Pending",   value: stats.pendingTasks,   bg: "bg-primary-foreground/15" },
-                { label: "Overdue",   value: stats.overdueTasks,   bg: "bg-amber-500/70" },
+                { label: t('notes.pending'),   value: stats.pendingTasks,   bg: "bg-primary-foreground/15" },
+                { label: t('notes.overdue'),   value: stats.overdueTasks,   bg: "bg-amber-500/70" },
                 { label: "Due Today", value: stats.dueTodayTasks,  bg: "bg-primary-foreground/15" },
-                { label: "Completed", value: stats.completedTasks, bg: "bg-primary-foreground/15" },
-                { label: "Recurring", value: stats.recurringTasks, bg: "bg-primary-foreground/15" },
-                { label: "Notes",     value: stats.totalNotes,     bg: "bg-primary-foreground/15" },
+                { label: t('notes.completed'), value: stats.completedTasks, bg: "bg-primary-foreground/15" },
+                { label: t('notes.recurring'), value: stats.recurringTasks, bg: "bg-primary-foreground/15" },
+                { label: t('nav.notes'),       value: stats.totalNotes,     bg: "bg-primary-foreground/15" },
               ].map(({ label, value, bg }) => (
                 <div key={label} className={`${bg} backdrop-blur-sm rounded-lg px-3 py-1.5 border border-primary-foreground/20 text-center`}>
                   <p className="text-lg sm:text-2xl font-bold">{value}</p>
@@ -332,7 +334,7 @@ const NotesPage = () => {
             <div className="relative w-full md:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={activeTab === 'tasks' ? "Search tasks..." : "Search notes..."}
+                placeholder={activeTab === 'tasks' ? t('notes.searchTasks') : t('notes.searchNotes')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -347,7 +349,7 @@ const NotesPage = () => {
               <div className="lg:w-56 space-y-2">
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium text-muted-foreground">Categories</CardTitle>
+                    <CardTitle className="text-sm font-medium text-muted-foreground">{t('notes.categories')}</CardTitle>
                   </CardHeader>
                   <CardContent className="p-2">
                     <div className="space-y-1">
@@ -415,7 +417,7 @@ const NotesPage = () => {
                     <div className="flex items-center gap-2">
                       <Plus className="h-4 w-4 text-muted-foreground" />
                       <Input
-                        placeholder="Add a task and press Enter..."
+                        placeholder={t('notes.addTaskPlaceholder')}
                         className="border-0 shadow-none focus-visible:ring-0 px-0"
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && e.currentTarget.value.trim()) {
@@ -461,7 +463,7 @@ const NotesPage = () => {
                       <Card>
                         <CardContent className="p-8 text-center">
                           <ListTodo className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
-                          <h3 className="font-medium mb-1">No tasks found</h3>
+                          <h3 className="font-medium mb-1">{t('notes.noTasksFound')}</h3>
                           <p className="text-sm text-muted-foreground">
                             {searchQuery ? 'Try a different search term' : 'Add your first task to get started'}
                           </p>

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,17 +34,18 @@ import { ProGate } from "@/components/common/ProGate";
 
 type TabId = "overview" | "sources" | "expenditures" | "grant-meetings" | "grant-notes" | "ai-narrative";
 
-const NAV_ITEMS: { id: TabId; label: string; icon: React.ElementType; description: string }[] = [
-  { id: "overview",       label: "Overview",       icon: TrendingUp,    description: "Budget summary & charts" },
-  { id: "sources",        label: "Grants",         icon: Wallet,        description: "Funding sources" },
-  { id: "expenditures",   label: "Expenses",       icon: DollarSign,    description: "Track spending" },
-  { id: "grant-meetings", label: "Meetings",       icon: CalendarCheck, description: "Grant-linked meetings" },
-  { id: "grant-notes",    label: "Notes",          icon: StickyNote,    description: "Grant notes & logs" },
-  { id: "ai-narrative",   label: "AI Narrative",   icon: Sparkles,      description: "Generate reports with AI" },
-];
-
 const FundingPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
+
+  const NAV_ITEMS: { id: TabId; label: string; icon: React.ElementType; description: string }[] = [
+    { id: "overview",       label: t('funding.overview'),      icon: TrendingUp,    description: t('funding.budgetSummary') },
+    { id: "sources",        label: t('funding.grants'),        icon: Wallet,        description: t('funding.fundingSources') },
+    { id: "expenditures",   label: t('funding.expenses'),      icon: DollarSign,    description: t('funding.trackSpending') },
+    { id: "grant-meetings", label: t('funding.grantMeetings'), icon: CalendarCheck, description: t('funding.grantLinkedMeetings') },
+    { id: "grant-notes",    label: t('funding.grantNotes'),    icon: StickyNote,    description: t('funding.grantNotesLogs') },
+    { id: "ai-narrative",   label: t('funding.aiNarrative'),   icon: Sparkles,      description: t('funding.aiNarrative') },
+  ];
   const [showSourceDialog, setShowSourceDialog] = useState(false);
   const [showExpenditureDialog, setShowExpenditureDialog] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>("overview");
@@ -243,7 +245,7 @@ const FundingPage = () => {
                 <div className="relative w-full sm:w-64">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder={`Search ${activeTab === 'sources' ? 'grants' : 'expenses'}...`}
+                    placeholder={activeTab === 'sources' ? t('funding.searchGrants') : t('funding.searchExpenses')}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="pl-10 bg-muted/50 border-muted-foreground/20"

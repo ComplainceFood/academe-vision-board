@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 const REMEMBER_ME_KEY = "smartprof_remember_email";
 
 const AuthPage = () => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState(() => localStorage.getItem(REMEMBER_ME_KEY) ?? "");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem(REMEMBER_ME_KEY));
@@ -257,7 +259,7 @@ const AuthPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Reset your password</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('auth.resetYourPassword')}</CardTitle>
             <CardDescription className="text-center">
               Enter your email address and we'll send you a link to reset your password.
             </CardDescription>
@@ -266,13 +268,13 @@ const AuthPage = () => {
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder={t('auth.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
               <Button className="w-full" type="submit" disabled={isLoading}>
-                {isLoading ? "Sending..." : "Send reset link"}
+                {isLoading ? t('common.loading') : t('auth.resetPassword')}
               </Button>
             </form>
             <div className="mt-4 text-center">
@@ -280,7 +282,7 @@ const AuthPage = () => {
                 onClick={() => setIsForgotPassword(false)}
                 className="text-sm text-muted-foreground hover:text-primary"
               >
-                Back to sign in
+                {t('auth.hasAccount')}
               </button>
             </div>
           </CardContent>
@@ -294,7 +296,7 @@ const AuthPage = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center">
-            {isSignUp ? "Create an account" : "Welcome back"}
+            {isSignUp ? t('auth.createAccount') : t('auth.welcomeBack')}
           </CardTitle>
           <CardDescription className="text-center">
             {isSignUp
@@ -309,7 +311,7 @@ const AuthPage = () => {
             <div className="space-y-2">
               <Input
                 type="email"
-                placeholder="Email"
+                placeholder={t('auth.email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -318,7 +320,7 @@ const AuthPage = () => {
             <div className="space-y-2">
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder={t('auth.password')}
                 value={password}
                 onChange={async (e) => {
                   setPassword(e.target.value);
