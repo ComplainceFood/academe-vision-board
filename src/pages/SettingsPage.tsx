@@ -21,6 +21,9 @@ import { NotificationSystem } from "@/components/notifications/NotificationSyste
 import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExportImport";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
 import { ProGate } from "@/components/common/ProGate";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
+import { Globe } from "lucide-react";
 
 const PRO_FEATURES = [
   "AI CV Import & Biosketch Generator",
@@ -57,6 +60,7 @@ function formatPrice(amount: number | null, currency: string): string {
 }
 
 const SettingsPage = () => {
+  const { t } = useTranslation();
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [loadingCheckout, setLoadingCheckout] = useState(false);
   const [loadingPortal, setLoadingPortal] = useState(false);
@@ -447,7 +451,7 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-3 sm:grid-cols-6">
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-3 sm:grid-cols-7">
             <TabsTrigger value="profile" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Profile</span>
@@ -471,6 +475,10 @@ const SettingsPage = () => {
             <TabsTrigger value="security" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Shield className="h-4 w-4" />
               <span className="hidden sm:inline">Security</span>
+            </TabsTrigger>
+            <TabsTrigger value="language" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+              <Globe className="h-4 w-4" />
+              <span className="hidden sm:inline">{t('settings.language')}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -931,6 +939,21 @@ const SettingsPage = () => {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="language" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5" />
+                  {t('settings.language')}
+                </CardTitle>
+                <CardDescription>{t('settings.selectLanguage')}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <LanguageSwitcher showLabel={true} />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

@@ -12,6 +12,8 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export function AppSidebar() {
   const location = useLocation();
@@ -22,86 +24,87 @@ export function AppSidebar() {
   const { isSystemAdmin } = useUserRole();
 
   const isAdmin = isSystemAdmin();
+  const { t } = useTranslation();
 
   const navigationItems = useMemo(() => [{
     id: "dashboard",
-    title: "Dashboard",
+    title: t('nav.dashboard'),
     icon: LayoutDashboard,
     path: "/",
     adminOnly: false,
   }, {
     id: "notes",
-    title: "Notes & Commitments",
+    title: t('nav.notes'),
     icon: BookText,
     path: "/notes",
     adminOnly: false,
   }, {
     id: "meetings",
-    title: "Meetings",
+    title: t('nav.meetings'),
     icon: MessageSquare,
     path: "/meetings",
     adminOnly: false,
   }, {
     id: "supplies",
-    title: "Supplies & Expenses",
+    title: t('nav.supplies'),
     icon: ClipboardList,
     path: "/supplies",
     adminOnly: false,
   }, {
     id: "planning",
-    title: "Semester & Planning",
+    title: t('nav.planning'),
     icon: Calendar,
     path: "/planning",
     adminOnly: false,
   }, {
     id: "funding",
-    title: "Grant Management",
+    title: t('nav.funding'),
     icon: DollarSign,
     path: "/funding",
     adminOnly: false,
   }, {
     id: "achievements",
-    title: "Scholastic Achievements",
+    title: t('nav.achievements'),
     icon: Award,
     path: "/achievements",
     adminOnly: false,
   }, {
     id: "analytics",
-    title: "Analytics",
+    title: t('nav.analytics'),
     icon: BarChart3,
     path: "/analytics",
     adminOnly: false,
   }, {
     id: "testing",
-    title: "Testing Platform",
+    title: t('nav.testing'),
     icon: TestTube,
     path: "/testing",
     adminOnly: true,
   }, {
     id: "admin-users",
-    title: "User Management",
+    title: t('nav.users'),
     icon: Users,
     path: "/admin/users",
     adminOnly: true,
   }, {
     id: "communications",
-    title: "Admin Communications",
+    title: t('nav.communications'),
     icon: Megaphone,
     path: "/communications",
     adminOnly: false,
   }, {
     id: "feedback",
-    title: "Platform Feedback",
+    title: t('nav.feedback'),
     icon: MessageCircle,
     path: "/feedback",
     adminOnly: false,
   }, {
     id: "settings",
-    title: "Settings",
+    title: t('nav.settings'),
     icon: Settings,
     path: "/settings",
     adminOnly: false,
-  }].filter(item => !item.adminOnly || isAdmin), [isAdmin]);
+  }].filter(item => !item.adminOnly || isAdmin), [isAdmin, t]);
 
   const handleLogout = async () => {
     try {
@@ -203,6 +206,9 @@ export function AppSidebar() {
               {profile?.position || "Academic"}
             </span>
           </div>
+        </div>
+        <div className="mb-2">
+          <LanguageSwitcher showLabel={false} />
         </div>
         <div className="flex gap-2">
           <Button
