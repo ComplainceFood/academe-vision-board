@@ -69,6 +69,7 @@ export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete, onEdit,
     : null;
 
   return (
+    <>
     <Card className={cn(
       "group transition-all",
       priorityStyles[task.priority],
@@ -229,5 +230,6 @@ export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete, onEdit,
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+    </>
   );
 }
