@@ -413,7 +413,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
               />
             ) : (
               <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap min-h-[100px]">
-                {meeting.notes || "No meeting notes yet. Click 'Edit Notes' to add some."}
+                {meetingNotes || "No meeting notes yet. Click 'Edit Notes' to add some."}
               </div>
             )}
           </div>
