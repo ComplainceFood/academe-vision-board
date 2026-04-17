@@ -152,6 +152,11 @@ const AuthPage = () => {
             await supabase.functions.invoke('track-login', {
               body: { loginMethod: 'password' }
             });
+
+            // Send welcome email
+            await supabase.functions.invoke('send-welcome-email', {
+              body: { email, name: email.split('@')[0] }
+            });
           } catch (agreementError) {
             console.error('Error recording agreements:', agreementError);
           }
