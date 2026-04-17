@@ -238,7 +238,6 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
           Outlook Calendar Integration
-          <Shield className="h-4 w-4 text-muted-foreground" />
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
