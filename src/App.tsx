@@ -26,7 +26,6 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
 import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
 import LandingPreview from "./pages/LandingPreview";
-import { NotificationManager } from "@/components/notifications/NotificationPopup";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
 // Create a query client with automatic data refresh configuration
 const queryClient = new QueryClient({
@@ -217,7 +216,6 @@ const AppContent = () => {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
-      {user && <NotificationManager />}
     </>
   );
 };
