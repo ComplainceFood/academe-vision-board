@@ -55,9 +55,14 @@ export const OutlookOAuthCallback = () => {
       }
 
       try {
-        // Get current session token to authenticate the edge function call
-        const { data: sessionData } = await supabase.auth.getSession();
-        const accessToken = sessionData.session?.access_token;
+        // Wait for session to be restored after full-page redirect
+        let accessToken: string | undefined;
+        for (let i = 0; i < 5; i++) {
+          const { data: sessionData } = await supabase.auth.getSession();
+          accessToken = sessionData.session?.access_token;
+          if (accessToken) break;
+          await new Promise(r => setTimeout(r, 500));
+        }
 
         if (!accessToken) {
           throw new Error('No active session. Please log in and try again.');
