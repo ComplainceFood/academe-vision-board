@@ -26,11 +26,20 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
     if (!user) return;
 
     const justConnected = sessionStorage.getItem('outlook_oauth_success');
+    const oauthProvider = sessionStorage.getItem('oauth_calendar_connect');
+
     if (justConnected) {
       sessionStorage.removeItem('outlook_oauth_success');
       checkIntegrationStatus().then(() => {
         setIsConnected(true);
         toast.success('Outlook Calendar connected successfully!');
+      });
+    } else if (oauthProvider === 'azure') {
+      sessionStorage.removeItem('oauth_calendar_connect');
+      checkIntegrationStatus().then((data: any) => {
+        if (!data?.is_connected) {
+          toast.info('You signed in with Microsoft. Connect your calendar in Settings → Connections.');
+        }
       });
     } else {
       checkIntegrationStatus();
@@ -47,7 +56,7 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error checking integration status:', error);
-        return;
+        return null;
       }
 
       if (data) {
@@ -56,8 +65,10 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
         setAutoSyncEnabled(data.auto_sync_enabled);
         setTokenExpiry(data.token_expires_at);
       }
+      return data;
     } catch (error) {
       console.error('Error checking integration status:', error);
+      return null;
     }
   };
 

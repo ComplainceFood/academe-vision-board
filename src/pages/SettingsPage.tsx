@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { NotificationSystem } from "@/components/notifications/NotificationSystem";
 import { EnhancedDataExportImport } from "@/components/common/EnhancedDataExportImport";
 import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookIntegrationConsolidated";
+import { GoogleCalendarIntegration } from "@/components/planning/GoogleCalendarIntegration";
 import { ProGate } from "@/components/common/ProGate";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
@@ -663,6 +664,9 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="connections" className="space-y-6">
+            <ProGate featureKey="planning_google_sync" featureLabel="Google Calendar Integration">
+              <GoogleCalendarIntegration />
+            </ProGate>
             <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Integration">
               <OutlookIntegrationConsolidated />
             </ProGate>

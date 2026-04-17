@@ -38,10 +38,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
+      (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Auto-connect calendar on first OAuth sign-in
+        if (event === 'SIGNED_IN' && session) {
+          const provider = session.user.app_metadata?.provider;
+          if (provider === 'google') {
+            // Store flag — GoogleCalendarIntegration will pick this up and trigger connection
+            sessionStorage.setItem('oauth_calendar_connect', 'google');
+          } else if (provider === 'azure') {
+            sessionStorage.setItem('oauth_calendar_connect', 'azure');
+          }
+        }
       }
     );
 

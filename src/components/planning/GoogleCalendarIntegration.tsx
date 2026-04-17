@@ -21,7 +21,17 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+    const flag = sessionStorage.getItem('oauth_calendar_connect');
+    if (flag === 'google') {
+      sessionStorage.removeItem('oauth_calendar_connect');
+      // Already signed in with Google — check if calendar is already connected, if not prompt
+      checkIntegrationStatus().then(() => {
+        if (!isConnected) {
+          toast({ title: "Connect Google Calendar", description: "You signed in with Google. Connect your calendar in Settings → Connections." });
+        }
+      });
+    } else {
       checkIntegrationStatus();
     }
   }, [user]);
