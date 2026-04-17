@@ -50,9 +50,9 @@ serve(async (req) => {
     }
 
     const MICROSOFT_CLIENT_ID = Deno.env.get('MICROSOFT_CLIENT_ID');
-    const MICROSOFT_TENANT_ID = Deno.env.get('MICROSOFT_TENANT_ID');
 
-    if (!MICROSOFT_CLIENT_ID || !MICROSOFT_TENANT_ID) {
+    if (!MICROSOFT_CLIENT_ID) {
+      console.error('Missing MICROSOFT_CLIENT_ID secret');
       return new Response(
         JSON.stringify({ error: 'Microsoft credentials not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

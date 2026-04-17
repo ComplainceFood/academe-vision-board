@@ -68,7 +68,12 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
     
     try {
       // Get OAuth configuration from our edge function
-      const { data: config, error: configError } = await supabase.functions.invoke('outlook-oauth-config');
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData.session?.access_token;
+
+      const { data: config, error: configError } = await supabase.functions.invoke('outlook-oauth-config', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       
       if (configError) {
         throw new Error('Failed to get OAuth configuration: ' + configError.message);
