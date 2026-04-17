@@ -241,7 +241,7 @@ export function OnboardingModal() {
     <Dialog open={open} onOpenChange={(o) => { if (!o) dismiss(); }}>
       <DialogContent className="w-[95vw] sm:max-w-lg p-0 gap-0 overflow-hidden rounded-2xl">
         {/* Header */}
-        <div className="bg-gradient-to-br from-primary to-secondary px-6 pt-6 pb-5 text-primary-foreground">
+        <div className="bg-gradient-to-br from-primary to-secondary px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-5 text-primary-foreground">
           <div className="flex items-center justify-between mb-3">
             <Badge className="bg-white/20 text-white border-0 text-[10px] font-medium">
               Step {step + 1} of {steps.length}
@@ -260,12 +260,12 @@ export function OnboardingModal() {
         </div>
 
         {/* Body */}
-        <div className="px-6 py-5 max-h-[55vh] overflow-y-auto">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 max-h-[50vh] sm:max-h-[55vh] overflow-y-auto">
           {current.content}
         </div>
 
         {/* Footer */}
-        <div className="px-6 pb-5 flex items-center justify-between gap-3 border-t pt-4">
+        <div className="px-4 sm:px-6 pb-4 sm:pb-5 flex items-center justify-between gap-3 border-t pt-3 sm:pt-4">
           <button
             type="button"
             onClick={() => setStep(s => s - 1)}

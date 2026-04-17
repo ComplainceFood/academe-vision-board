@@ -412,7 +412,7 @@ const SuppliesPage = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-4 gap-2 mt-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('common.name')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{supplies.length}</p>

@@ -410,7 +410,7 @@ const PlanningPage = () => {
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-4 gap-2 mt-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
                 <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('analytics.thisWeek')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.thisWeekEvents}</p>

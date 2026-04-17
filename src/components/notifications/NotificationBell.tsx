@@ -156,7 +156,7 @@ export function NotificationBell() {
       {open && (
         <div
           ref={panelRef}
-          className="absolute right-0 top-10 z-50 w-[360px] rounded-xl border bg-background shadow-2xl overflow-hidden"
+          className="absolute right-0 top-10 z-50 w-[calc(100vw-16px)] sm:w-[360px] max-w-[360px] rounded-xl border bg-background shadow-2xl overflow-hidden"
           style={{ maxHeight: "min(520px, calc(100vh - 80px))" }}
         >
           {/* Header */}

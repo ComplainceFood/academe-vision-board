@@ -23,8 +23,9 @@ import { OutlookIntegrationConsolidated } from "@/components/planning/OutlookInt
 import { ProGate } from "@/components/common/ProGate";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
-import { Globe } from "lucide-react";
+import { Globe, HelpCircle } from "lucide-react";
 import { useTheme } from "next-themes";
+import { resetOnboarding } from "@/components/common/OnboardingModal";
 
 const PRO_FEATURES = [
   "AI CV Import & Biosketch Generator",
@@ -635,6 +636,24 @@ const SettingsPage = () => {
                   />
                 </div>
 
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <HelpCircle className="h-5 w-5" />
+                  Getting Started Tour
+                </CardTitle>
+                <CardDescription>Replay the onboarding walkthrough to revisit key features.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  variant="outline"
+                  onClick={() => { resetOnboarding(); window.location.reload(); }}
+                >
+                  Replay Tour
+                </Button>
               </CardContent>
             </Card>
           </TabsContent>
