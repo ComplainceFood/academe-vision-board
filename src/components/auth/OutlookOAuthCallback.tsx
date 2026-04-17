@@ -43,23 +43,30 @@ export const OutlookOAuthCallback = () => {
         return;
       }
 
-      // Validate CSRF state nonce
-      const storedState = sessionStorage.getItem('outlook_oauth_state');
-      if (!storedState || state !== storedState) {
-        if (window.opener) {
+      // Validate CSRF state nonce (only in popup mode — sessionStorage survives popups but not full redirects)
+      if (window.opener) {
+        const storedState = sessionStorage.getItem('outlook_oauth_state');
+        if (!storedState || state !== storedState) {
           window.opener.postMessage({ type: 'OUTLOOK_OAUTH_ERROR', error: 'Invalid OAuth state.' }, allowedOrigin);
+          setTimeout(() => window.close(), 1000);
+          return;
         }
-        toast.error('OAuth authorization failed. Please try again.');
-        setTimeout(() => window.close(), 1000);
-        return;
+        sessionStorage.removeItem('outlook_oauth_state');
       }
-      sessionStorage.removeItem('outlook_oauth_state');
 
       try {
-        
+        // Get current session token to authenticate the edge function call
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+
+        if (!accessToken) {
+          throw new Error('No active session. Please log in and try again.');
+        }
+
         // Exchange code for tokens using our edge function
         const { data, error: exchangeError } = await supabase.functions.invoke('outlook-oauth-exchange', {
-          body: { code, state }
+          body: { code, state },
+          headers: { Authorization: `Bearer ${accessToken}` },
         });
 
         if (exchangeError) {
