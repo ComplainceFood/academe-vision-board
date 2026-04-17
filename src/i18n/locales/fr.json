@@ -93,7 +93,12 @@
     "title": "Semestre et Planification", "addPlan": "Ajouter un Plan",
     "semester": "Semestre", "academicYear": "Année Académique", "goals": "Objectifs",
     "tasks": "Tâches", "calendarSync": "Synchronisation du Calendrier",
-    "googleCalendar": "Google Agenda", "outlookCalendar": "Calendrier Outlook"
+    "googleCalendar": "Google Agenda", "outlookCalendar": "Calendrier Outlook",
+    "calendarView": "Vue Calendrier", "futurePlanning": "Planification Future",
+    "progress": "Progrès", "urgent": "Urgent", "future": "Futur",
+    "loadingCalendar": "Chargement du calendrier...", "loadingTasks": "Chargement des tâches...",
+    "planAndTrack": "Planifiez et suivez les tâches pour les prochains semestres",
+    "highPriority": "Haute Priorité", "mediumPriority": "Priorité Moyenne", "lowPriority": "Basse Priorité"
   },
   "funding": {
     "title": "Gestion des Bourses", "addGrant": "Ajouter une Bourse",

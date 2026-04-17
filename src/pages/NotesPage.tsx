@@ -302,7 +302,7 @@ const NotesPage = () => {
               {[
                 { label: t('notes.pending'),   value: stats.pendingTasks,   bg: "bg-primary-foreground/15" },
                 { label: t('notes.overdue'),   value: stats.overdueTasks,   bg: "bg-amber-500/70" },
-                { label: "Due Today", value: stats.dueTodayTasks,  bg: "bg-primary-foreground/15" },
+                { label: t('notes.dueDate'), value: stats.dueTodayTasks,  bg: "bg-primary-foreground/15" },
                 { label: t('notes.completed'), value: stats.completedTasks, bg: "bg-primary-foreground/15" },
                 { label: t('notes.recurring'), value: stats.recurringTasks, bg: "bg-primary-foreground/15" },
                 { label: t('nav.notes'),       value: stats.totalNotes,     bg: "bg-primary-foreground/15" },
@@ -635,7 +635,7 @@ const NotesPage = () => {
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
               <AlertDialogAction onClick={handleDeleteNote} className="bg-destructive hover:bg-destructive/90">
                 Delete
               </AlertDialogAction>

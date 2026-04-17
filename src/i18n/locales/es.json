@@ -86,7 +86,12 @@
     "title": "Semestre y Planificación", "addPlan": "Agregar Plan", "semester": "Semestre",
     "academicYear": "Año Académico", "goals": "Objetivos", "tasks": "Tareas",
     "calendarSync": "Sincronización de Calendario",
-    "googleCalendar": "Google Calendar", "outlookCalendar": "Outlook Calendar"
+    "googleCalendar": "Google Calendar", "outlookCalendar": "Outlook Calendar",
+    "calendarView": "Vista de Calendario", "futurePlanning": "Planificación Futura",
+    "progress": "Progreso", "urgent": "Urgente", "future": "Futuro",
+    "loadingCalendar": "Cargando calendario...", "loadingTasks": "Cargando tareas...",
+    "planAndTrack": "Planifica y rastrea tareas para próximos semestres",
+    "highPriority": "Alta Prioridad", "mediumPriority": "Prioridad Media", "lowPriority": "Baja Prioridad"
   },
   "funding": {
     "title": "Gestión de Becas", "addGrant": "Agregar Beca", "noGrants": "No se encontraron becas",

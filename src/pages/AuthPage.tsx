@@ -387,7 +387,7 @@ const AuthPage = () => {
                   onClick={() => setIsForgotPassword(true)}
                   className="text-sm text-muted-foreground hover:text-primary"
                 >
-                  Forgot password?
+                  {t('auth.forgotPassword')}
                 </button>
               </div>
             )}
@@ -479,8 +479,8 @@ const AuthPage = () => {
                 className="text-sm text-muted-foreground hover:text-primary"
               >
                 {isSignUp
-                  ? "Already have an account? Sign in"
-                  : "Don't have an account? Sign up"}
+                  ? t('auth.hasAccount')
+                  : t('auth.noAccount')}
               </button>
             ) : (
               !isSignUp && (

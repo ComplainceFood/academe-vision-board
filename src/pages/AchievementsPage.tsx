@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { MainLayout } from "@/components/MainLayout";
 import { PageGuide } from "@/components/common/PageGuide";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -44,6 +45,7 @@ import { ProGate } from "@/components/common/ProGate";
 import type { Achievement } from "@/types/achievements";
 
 const AchievementsPage = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { profile, refetch: refetchProfile } = useProfile();
   const [activeTab, setActiveTab] = useState("publications");
@@ -81,17 +83,17 @@ const AchievementsPage = () => {
   const totalAchievements = Object.values(stats).reduce((a, b) => a + b, 0);
 
   const tabConfig = [
-    { value: "publications", label: "Publications", icon: BookOpen, count: stats.publication },
-    { value: "presentations", label: "Research", icon: Presentation, count: stats.research_presentation },
-    { value: "talks", label: "Talks", icon: Mic, count: stats.invited_talk },
-    { value: "leadership", label: "Leadership", icon: Users, count: stats.leadership_role },
-    { value: "courses", label: "Courses", icon: GraduationCap, count: stats.course_taught },
-    { value: "awards", label: "Awards", icon: Award, count: stats.award_honor },
-    { value: "service", label: "Service", icon: Shield, count: stats.service_review },
-    { value: "supervision", label: "Students", icon: UserCheck, count: stats.student_supervision },
-    { value: "teaching", label: "Teaching", icon: BarChart3, count: stats.teaching_performance },
-    { value: "development", label: "Development", icon: TrendingUp, count: stats.professional_development },
-    { value: "impact", label: "Impact", icon: Globe, count: stats.external_impact },
+    { value: "publications", label: t('achievements.publications'), icon: BookOpen, count: stats.publication },
+    { value: "presentations", label: t('achievements.presentations'), icon: Presentation, count: stats.research_presentation },
+    { value: "talks", label: t('achievements.invitedTalks'), icon: Mic, count: stats.invited_talk },
+    { value: "leadership", label: t('achievements.leadership'), icon: Users, count: stats.leadership_role },
+    { value: "courses", label: t('achievements.courses'), icon: GraduationCap, count: stats.course_taught },
+    { value: "awards", label: t('achievements.awards'), icon: Award, count: stats.award_honor },
+    { value: "service", label: t('achievements.service'), icon: Shield, count: stats.service_review },
+    { value: "supervision", label: t('achievements.supervision'), icon: UserCheck, count: stats.student_supervision },
+    { value: "teaching", label: t('achievements.teachingPerformance'), icon: BarChart3, count: stats.teaching_performance },
+    { value: "development", label: t('achievements.professionalDev'), icon: TrendingUp, count: stats.professional_development },
+    { value: "impact", label: t('achievements.externalImpact'), icon: Globe, count: stats.external_impact },
   ];
 
   const handleRefresh = () => {
@@ -122,19 +124,19 @@ const AchievementsPage = () => {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h1 className="text-base sm:text-xl font-bold tracking-tight">Scholastic Achievements</h1>
+                    <h1 className="text-base sm:text-xl font-bold tracking-tight">{t('achievements.title')}</h1>
                     <Sparkles className="h-4 w-4 text-accent animate-pulse" />
                   </div>
-                  <p className="text-primary-foreground/80 text-xs mt-0.5">Track and showcase your academic portfolio</p>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('achievements.title')}</p>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
                 {/* Stats inline */}
                 {[
-                  { label: "Total", value: totalAchievements },
-                  { label: "Publications", value: stats.publication },
-                  { label: "Awards", value: stats.award_honor },
+                  { label: t('common.total'), value: totalAchievements },
+                  { label: t('achievements.publications'), value: stats.publication },
+                  { label: t('achievements.awards'), value: stats.award_honor },
                 ].map(({ label, value }) => (
                   <div key={label} className="bg-primary-foreground/15 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-primary-foreground/20 text-center min-w-[60px]">
                     <p className="text-primary-foreground/70 text-[10px] uppercase tracking-wider">{label}</p>
@@ -204,7 +206,7 @@ const AchievementsPage = () => {
                   <div className="relative w-full lg:w-72">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
-                      placeholder="Search achievements..."
+                      placeholder={`${t('common.search')} ${t('achievements.title').toLowerCase()}...`}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-10 bg-background/50 border-muted-foreground/20"

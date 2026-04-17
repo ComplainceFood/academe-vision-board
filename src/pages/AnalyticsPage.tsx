@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { MainLayout } from "@/components/MainLayout";
 import { AnalyticsDashboard } from "@/components/analytics/AnalyticsDashboard";
 import { PageGuide } from "@/components/common/PageGuide";
@@ -5,6 +6,7 @@ import { BarChart3, Sparkles, Brain, TrendingUp } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const AnalyticsPage = () => {
+  const { t } = useTranslation();
   return (
     <MainLayout>
       <div className="animate-fade-in space-y-3">
@@ -21,7 +23,7 @@ const AnalyticsPage = () => {
             </div>
             <div className="flex-1">
               <div className="flex flex-wrap items-center gap-2 mb-1">
-                <h1 className="text-lg sm:text-2xl font-bold tracking-tight">Analytics & Insights</h1>
+                <h1 className="text-lg sm:text-2xl font-bold tracking-tight">{t('analytics.title')}</h1>
                 <Badge className="bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 text-xs">
                   <Sparkles className="h-3 w-3 mr-1" />
                   AI Powered

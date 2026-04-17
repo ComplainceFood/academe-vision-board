@@ -77,7 +77,11 @@
     "title": "学期规划", "addPlan": "添加计划", "semester": "学期",
     "academicYear": "学年", "goals": "目标", "tasks": "任务",
     "calendarSync": "日历同步", "googleCalendar": "谷歌日历",
-    "outlookCalendar": "Outlook 日历"
+    "outlookCalendar": "Outlook 日历", "calendarView": "日历视图",
+    "futurePlanning": "未来规划", "progress": "进度", "urgent": "紧急",
+    "future": "未来", "loadingCalendar": "加载日历中...", "loadingTasks": "加载任务中...",
+    "planAndTrack": "规划和跟踪未来学期的任务",
+    "highPriority": "高优先级", "mediumPriority": "中优先级", "lowPriority": "低优先级"
   },
   "funding": {
     "title": "经费管理", "addGrant": "添加经费", "noGrants": "未找到经费",

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { MainLayout } from "@/components/MainLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -133,6 +134,7 @@ function detectFocusMode(position: string | null): FocusMode {
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PlanningPage = () => {
+  const { t } = useTranslation();
   const { toast } = useToast();
   const { profile } = useProfile();
   
@@ -379,7 +381,7 @@ const PlanningPage = () => {
                 </div>
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">Semester Planning</h1>
+                    <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">{t('planning.title')}</h1>
                     <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-accent animate-pulse shrink-0" />
                   </div>
                   <p className="text-primary-foreground/80 text-xs mt-0.5">
@@ -410,19 +412,19 @@ const PlanningPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-4 gap-2 mt-3">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">This Week</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('analytics.thisWeek')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.thisWeekEvents}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Progress</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('planning.progress')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.taskProgress}%</p>
               </div>
               <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Urgent</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('planning.urgent')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{stats.urgentDeadlines}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Future</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('planning.future')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.totalFutureTasks}</p>
               </div>
             </div>
@@ -434,11 +436,11 @@ const PlanningPage = () => {
           <TabsList className="p-1 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full sm:max-w-md grid-cols-2">
             <TabsTrigger value="calendar" className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
               <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-              <span>Calendar View</span>
+              <span>{t('planning.calendarView')}</span>
             </TabsTrigger>
             <TabsTrigger value="future" className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
               <Layers className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
-              <span>Future Planning</span>
+              <span>{t('planning.futurePlanning')}</span>
             </TabsTrigger>
           </TabsList>
           
@@ -486,7 +488,7 @@ const PlanningPage = () => {
                 {eventsLoading ? (
                   <div className="py-12 text-center">
                     <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-                    <p className="text-muted-foreground">Loading calendar...</p>
+                    <p className="text-muted-foreground">{t('planning.loadingCalendar')}</p>
                   </div>
                 ) : (
                   <PlanningCalendar
@@ -565,7 +567,7 @@ const PlanningPage = () => {
                       <GraduationCap className="h-5 w-5 text-primary" />
                       Semester Planning
                     </CardTitle>
-                    <CardDescription>Plan and track tasks for upcoming semesters</CardDescription>
+                    <CardDescription>{t('planning.planAndTrack')}</CardDescription>
                   </div>
                   <Button onClick={() => handleOpenTaskDialog()} className="gap-2">
                     <Plus className="h-4 w-4" />
@@ -637,7 +639,7 @@ const PlanningPage = () => {
                     {tasksLoading ? (
                       <div className="py-12 text-center">
                         <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4" />
-                        <p className="text-muted-foreground">Loading tasks...</p>
+                        <p className="text-muted-foreground">{t('planning.loadingTasks')}</p>
                       </div>
                     ) : filteredTasks.length > 0 ? (
                       <div className="space-y-6">
@@ -646,7 +648,7 @@ const PlanningPage = () => {
                           <div>
                             <div className="flex items-center gap-2 mb-3">
                               <div className="h-2 w-2 rounded-full bg-destructive" />
-                              <h4 className="text-sm font-medium text-muted-foreground">High Priority</h4>
+                              <h4 className="text-sm font-medium text-muted-foreground">{t('planning.highPriority')}</h4>
                             </div>
                             <div className="grid gap-3">
                               {tasksByPriority.high.map(task => (
@@ -665,7 +667,7 @@ const PlanningPage = () => {
                           <div>
                             <div className="flex items-center gap-2 mb-3">
                               <div className="h-2 w-2 rounded-full bg-orange-500" />
-                              <h4 className="text-sm font-medium text-muted-foreground">Medium Priority</h4>
+                              <h4 className="text-sm font-medium text-muted-foreground">{t('planning.mediumPriority')}</h4>
                             </div>
                             <div className="grid gap-3">
                               {tasksByPriority.medium.map(task => (
@@ -684,7 +686,7 @@ const PlanningPage = () => {
                           <div>
                             <div className="flex items-center gap-2 mb-3">
                               <div className="h-2 w-2 rounded-full bg-green-500" />
-                              <h4 className="text-sm font-medium text-muted-foreground">Low Priority</h4>
+                              <h4 className="text-sm font-medium text-muted-foreground">{t('planning.lowPriority')}</h4>
                             </div>
                             <div className="grid gap-3">
                               {tasksByPriority.low.map(task => (

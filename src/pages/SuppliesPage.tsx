@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
 import { Plus, ShoppingBag, Sparkles } from "lucide-react";
@@ -36,6 +37,7 @@ interface Expense {
   receipt?: boolean;
 }
 const SuppliesPage = () => {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [showLowStockOnly, setShowLowStockOnly] = useState(false);
   const [activeTab, setActiveTab] = useState("inventory");
@@ -382,8 +384,8 @@ const SuppliesPage = () => {
                   <ShoppingBag className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">Supplies & Expenses</h1>
-                  <p className="text-primary-foreground/80 text-xs mt-0.5">Track your inventory and lab expenses</p>
+                  <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">{t('supplies.title')}</h1>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('supplies.title')}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -412,11 +414,11 @@ const SuppliesPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-4 gap-2 mt-3">
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">Items</p>
+                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('common.name')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{supplies.length}</p>
               </div>
               <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/80 text-[9px] sm:text-xs uppercase tracking-wider">Low Stock</p>
+                <p className="text-primary-foreground/80 text-[9px] sm:text-xs uppercase tracking-wider">{t('supplies.lowStock')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{warningItems.length}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
@@ -445,11 +447,11 @@ const SuppliesPage = () => {
           <TabsList className="p-1 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full sm:max-w-lg grid-cols-3">
             <TabsTrigger value="inventory" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
               <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
-              <span>Inventory</span>
+              <span>{t('supplies.inventory')}</span>
             </TabsTrigger>
             <TabsTrigger value="expenses" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
               <ShoppingBag className="h-3.5 w-3.5 shrink-0" />
-              <span>Expenses</span>
+              <span>{t('supplies.expenses')}</span>
             </TabsTrigger>
             <TabsTrigger value="ai" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
               <Sparkles className="h-3.5 w-3.5 shrink-0" />

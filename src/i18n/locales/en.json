@@ -87,7 +87,11 @@
     "title": "Semester & Planning", "addPlan": "Add Plan", "semester": "Semester",
     "academicYear": "Academic Year", "goals": "Goals", "tasks": "Tasks",
     "calendarSync": "Calendar Sync", "googleCalendar": "Google Calendar",
-    "outlookCalendar": "Outlook Calendar"
+    "outlookCalendar": "Outlook Calendar", "calendarView": "Calendar View",
+    "futurePlanning": "Future Planning", "progress": "Progress",
+    "urgent": "Urgent", "future": "Future", "loadingCalendar": "Loading calendar...",
+    "loadingTasks": "Loading tasks...", "planAndTrack": "Plan and track tasks for upcoming semesters",
+    "highPriority": "High Priority", "mediumPriority": "Medium Priority", "lowPriority": "Low Priority"
   },
   "funding": {
     "title": "Grant Management", "addGrant": "Add Grant", "noGrants": "No grants found",
