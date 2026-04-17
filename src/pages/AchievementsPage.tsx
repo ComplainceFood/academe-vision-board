@@ -57,7 +57,7 @@ const AchievementsPage = () => {
   });
 
   const stats = useMemo(() => {
-    const categories: Record<string, number> = {
+    const categories: Record<Achievement['category'], number> = {
       publication: 0,
       research_presentation: 0,
       invited_talk: 0,
@@ -72,7 +72,7 @@ const AchievementsPage = () => {
     };
 
     achievements?.forEach(a => {
-      if (categories[a.category] !== undefined) {
+      if (a.category in categories) {
         categories[a.category]++;
       }
     });

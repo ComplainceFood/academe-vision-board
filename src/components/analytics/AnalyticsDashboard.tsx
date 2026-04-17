@@ -137,6 +137,7 @@ export const AnalyticsDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { if (user) fetchAll(); }, [user, timeRange]);
 
   // ── Data Fetching ────────────────────────────────────────────────────────────
@@ -150,7 +151,7 @@ export const AnalyticsDashboard = () => {
       const [
         notesRes, meetingsRes, suppliesRes, expensesRes,
         fundingRes, achievementsRes, tasksRes
-      ] = await Promise.all([
+      ] = await Promise.allSettled([
         supabase.from('notes').select('*').eq('user_id', user!.id),
         supabase.from('meetings').select('*').eq('user_id', user!.id),
         supabase.from('supplies').select('current_count, threshold').eq('user_id', user!.id),
@@ -160,13 +161,13 @@ export const AnalyticsDashboard = () => {
         supabase.from('planning_events').select('*').eq('user_id', user!.id),
       ]);
 
-      const notes = notesRes.data || [];
-      const meetings = meetingsRes.data || [];
-      const supplies = suppliesRes.data || [];
-      const expenses = expensesRes.data || [];
-      const funding = fundingRes.data || [];
-      const achievements = achievementsRes.data || [];
-      const tasks = tasksRes.data || [];
+      const notes = (notesRes.status === 'fulfilled' ? notesRes.value.data : null) || [];
+      const meetings = (meetingsRes.status === 'fulfilled' ? meetingsRes.value.data : null) || [];
+      const supplies = (suppliesRes.status === 'fulfilled' ? suppliesRes.value.data : null) || [];
+      const expenses = (expensesRes.status === 'fulfilled' ? expensesRes.value.data : null) || [];
+      const funding = (fundingRes.status === 'fulfilled' ? fundingRes.value.data : null) || [];
+      const achievements = (achievementsRes.status === 'fulfilled' ? achievementsRes.value.data : null) || [];
+      const tasks = (tasksRes.status === 'fulfilled' ? tasksRes.value.data : null) || [];
 
       // Completion rate
       const taskItems = tasks.filter((t: any) => t.type === 'task');

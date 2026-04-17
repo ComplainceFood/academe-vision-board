@@ -270,12 +270,12 @@ export function BiosketechGenerator({ achievements }: BiosketechGeneratorProps) 
           : {},
       });
 
-      if (error) {
-        // Try to extract the actual error message from the function response
-        const body = await (error as any).context?.json?.().catch(() => null);
-        throw new Error(body?.error || error.message);
+      if (error || data?.error) {
+        throw new Error(data?.error || error?.message || "Generation failed");
       }
-      if (data?.error) throw new Error(data.error);
+      if (!data || !data.sections) {
+        throw new Error("Invalid response from biosketch generator. Please try again.");
+      }
 
       setResult(data);
     } catch (err: any) {

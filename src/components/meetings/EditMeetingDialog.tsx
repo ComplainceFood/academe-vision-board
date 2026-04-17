@@ -83,6 +83,15 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
       return;
     }
 
+    if (startTime >= endTime) {
+      toast({
+        title: "Invalid time range",
+        description: "End time must be after start time.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
 

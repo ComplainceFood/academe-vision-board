@@ -302,12 +302,12 @@ const MeetingsPage = () => {
 
   // Calculate stats
   const stats = {
-    upcoming: (meetings || []).filter((m) => m.status === "scheduled" && new Date(m.start_date) >= new Date()).length,
+    upcoming: (meetings || []).filter((m) => m.status === "scheduled" && new Date(`${m.start_date}T00:00:00`) >= new Date(new Date().toDateString())).length,
     past: (meetings || []).filter((m) => m.status === "completed").length,
     total: (meetings || []).length,
     thisWeek: (meetings || []).filter((m) => {
-      const meetingDate = new Date(m.start_date);
-      const today = new Date();
+      const meetingDate = new Date(`${m.start_date}T00:00:00`);
+      const today = new Date(new Date().toDateString());
       const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
       return meetingDate >= today && meetingDate <= nextWeek && m.status === "scheduled";
     }).length

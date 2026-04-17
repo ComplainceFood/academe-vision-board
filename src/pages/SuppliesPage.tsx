@@ -95,6 +95,10 @@ const SuppliesPage = () => {
   // Auto-refresh — use refs so interval never needs to be recreated
   const isProcessingRef = useRef(isProcessing);
   isProcessingRef.current = isProcessing;
+  const isEditDialogOpenRef = useRef(isEditDialogOpen);
+  isEditDialogOpenRef.current = isEditDialogOpen;
+  const isAddItemDialogOpenRef = useRef(isAddItemDialogOpen);
+  isAddItemDialogOpenRef.current = isAddItemDialogOpen;
   const refetchSuppliesRef = useRef(refetchSupplies);
   refetchSuppliesRef.current = refetchSupplies;
   const refetchExpensesRef = useRef(refetchExpenses);
@@ -104,7 +108,8 @@ const SuppliesPage = () => {
 
   useEffect(() => {
     const id = setInterval(() => {
-      if (!isProcessingRef.current) {
+      // Skip refresh when a dialog is open to avoid overwriting unsaved edits
+      if (!isProcessingRef.current && !isEditDialogOpenRef.current && !isAddItemDialogOpenRef.current) {
         refetchSuppliesRef.current();
         refetchExpensesRef.current();
         refetchShoppingItemsRef.current();

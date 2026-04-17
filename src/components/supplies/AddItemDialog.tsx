@@ -46,7 +46,25 @@ export const AddItemDialog = ({
       });
       return;
     }
-    
+
+    if (totalCount < 0 || currentCount < 0 || threshold < 0) {
+      toast({ title: "Invalid values", description: "Counts and threshold must be 0 or greater.", variant: "destructive" });
+      return;
+    }
+    if (currentCount > totalCount) {
+      toast({ title: "Invalid count", description: "Current count cannot exceed total count.", variant: "destructive" });
+      return;
+    }
+    if (threshold > totalCount) {
+      toast({ title: "Invalid threshold", description: "Low stock threshold cannot exceed total count.", variant: "destructive" });
+      return;
+    }
+    const parsedCost = cost ? parseFloat(cost) : null;
+    if (cost && (isNaN(parsedCost!) || parsedCost! < 0)) {
+      toast({ title: "Invalid cost", description: "Please enter a valid positive cost.", variant: "destructive" });
+      return;
+    }
+
     try {
       const newItem = {
         name: itemName.trim(),
@@ -55,23 +73,15 @@ export const AddItemDialog = ({
         total_count: totalCount,
         current_count: currentCount,
         threshold: threshold,
-        cost: cost ? parseFloat(cost) : null,
+        cost: parsedCost,
         user_id: user.id
       };
       
-      console.log("Inserting new supply item:", newItem);
-      
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('supplies')
-        .insert(newItem)
-        .select();
-      
-      if (error) {
-        console.error("Supabase error:", error);
-        throw error;
-      }
-      
-      console.log("Successfully inserted item:", data);
+        .insert(newItem);
+
+      if (error) throw error;
       
       toast({
         title: "Success",

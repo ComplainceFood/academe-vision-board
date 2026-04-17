@@ -124,6 +124,30 @@ export const ExpenditureDialog = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+
+    const expenseAmount = parseFloat(formData.amount);
+    if (isNaN(expenseAmount) || expenseAmount <= 0) {
+      toast({ title: "Invalid amount", description: "Please enter a valid positive amount.", variant: "destructive" });
+      return;
+    }
+
+    // Validate expenditure doesn't exceed available budget
+    if (formData.funding_source_id) {
+      const selectedSource = fundingSources.find(s => s.id === formData.funding_source_id);
+      if (selectedSource) {
+        const previousAmount = editingExpenditure ? (editingExpenditure.amount ?? 0) : 0;
+        const netNew = expenseAmount - previousAmount;
+        if (netNew > selectedSource.remaining_amount) {
+          toast({
+            title: "Insufficient budget",
+            description: `Only $${selectedSource.remaining_amount.toFixed(2)} remaining in this funding source.`,
+            variant: "destructive",
+          });
+          return;
+        }
+      }
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -135,27 +159,27 @@ export const ExpenditureDialog = ({
         receipt_url = null;
       }
 
-      // Upload new receipt file
+      // Upload new receipt — upload first, only delete old file after success
       if (receiptFile) {
         const ext = receiptFile.name.split(".").pop()?.toLowerCase() || "bin";
         const filePath = `${user.id}/exp_${Date.now()}.${ext}`;
-
-        // Delete the old file if replacing
-        if (existingReceiptPath && !removeReceipt) {
-          await supabase.storage.from("receipts").remove([existingReceiptPath]);
-        }
 
         const { error: uploadError } = await supabase.storage
           .from("receipts")
           .upload(filePath, receiptFile, { upsert: false });
 
         if (uploadError) throw new Error(`Receipt upload failed: ${uploadError.message}`);
+
+        // Only remove old file after new upload succeeds
+        if (existingReceiptPath && !removeReceipt) {
+          await supabase.storage.from("receipts").remove([existingReceiptPath]);
+        }
         receipt_url = filePath;
       }
 
       const submitData = {
         ...formData,
-        amount: parseFloat(formData.amount),
+        amount: expenseAmount,
         user_id: user.id,
         approval_date: formData.approval_date || null,
         receipt_url,
@@ -167,12 +191,40 @@ export const ExpenditureDialog = ({
           .update(submitData)
           .eq("id", editingExpenditure.id);
         if (error) throw error;
+
+        // Adjust remaining_amount by the difference
+        if (formData.funding_source_id) {
+          const previousAmount = editingExpenditure.amount ?? 0;
+          const delta = expenseAmount - previousAmount;
+          if (delta !== 0) {
+            const source = fundingSources.find(s => s.id === formData.funding_source_id);
+            if (source) {
+              await supabase
+                .from("funding_sources")
+                .update({ remaining_amount: Math.max(0, source.remaining_amount - delta) })
+                .eq("id", formData.funding_source_id);
+            }
+          }
+        }
+
         toast({ title: "Success", description: "Expenditure updated successfully" });
       } else {
         const { error } = await supabase
           .from("funding_expenditures")
           .insert([submitData]);
         if (error) throw error;
+
+        // Decrement remaining_amount on the funding source
+        if (formData.funding_source_id) {
+          const source = fundingSources.find(s => s.id === formData.funding_source_id);
+          if (source) {
+            await supabase
+              .from("funding_sources")
+              .update({ remaining_amount: Math.max(0, source.remaining_amount - expenseAmount) })
+              .eq("id", formData.funding_source_id);
+          }
+        }
+
         toast({ title: "Success", description: "Expenditure recorded successfully" });
       }
 

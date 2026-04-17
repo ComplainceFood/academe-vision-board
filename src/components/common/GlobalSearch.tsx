@@ -51,11 +51,11 @@ export const GlobalSearch = () => {
 
     // Search notes
     notes.forEach((note: any) => {
-      if (note.title.toLowerCase().includes(query) || note.content.toLowerCase().includes(query)) {
+      if ((note.title?.toLowerCase() || '').includes(query) || (note.content?.toLowerCase() || '').includes(query)) {
         allResults.push({
           id: note.id,
-          title: note.title,
-          description: `Note - ${note.course}`,
+          title: note.title || '(Untitled)',
+          description: `Note - ${note.course || 'General'}`,
           type: 'note',
           path: '/notes',
           icon: <BookOpen className="h-4 w-4" />
@@ -65,11 +65,11 @@ export const GlobalSearch = () => {
 
     // Search meetings
     meetings.forEach((meeting: any) => {
-      if (meeting.title.toLowerCase().includes(query) || meeting.notes?.toLowerCase().includes(query)) {
+      if ((meeting.title?.toLowerCase() || '').includes(query) || (meeting.notes?.toLowerCase() || '').includes(query)) {
         allResults.push({
           id: meeting.id,
-          title: meeting.title,
-          description: `Meeting - ${meeting.type}`,
+          title: meeting.title || '(Untitled)',
+          description: `Meeting - ${meeting.type || 'meeting'}`,
           type: 'meeting',
           path: '/meetings',
           icon: <Users className="h-4 w-4" />
@@ -79,11 +79,11 @@ export const GlobalSearch = () => {
 
     // Search supplies
     supplies.forEach((supply: any) => {
-      if (supply.name.toLowerCase().includes(query) || supply.course.toLowerCase().includes(query)) {
+      if ((supply.name?.toLowerCase() || '').includes(query) || (supply.course?.toLowerCase() || '').includes(query)) {
         allResults.push({
           id: supply.id,
-          title: supply.name,
-          description: `Supply - ${supply.course}`,
+          title: supply.name || '(Unnamed)',
+          description: `Supply - ${supply.course || 'General'}`,
           type: 'supply',
           path: '/supplies',
           icon: <ShoppingBag className="h-4 w-4" />
@@ -93,11 +93,11 @@ export const GlobalSearch = () => {
 
     // Search events
     events.forEach((event: any) => {
-      if (event.title.toLowerCase().includes(query) || event.description?.toLowerCase().includes(query)) {
+      if ((event.title?.toLowerCase() || '').includes(query) || (event.description?.toLowerCase() || '').includes(query)) {
         allResults.push({
           id: event.id,
-          title: event.title,
-          description: `Event - ${event.type}`,
+          title: event.title || '(Untitled)',
+          description: `Event - ${event.type || 'event'}`,
           type: 'event',
           path: '/planning',
           icon: <Calendar className="h-4 w-4" />
@@ -107,11 +107,11 @@ export const GlobalSearch = () => {
 
     // Search funding sources
     fundingSources.forEach((source: any) => {
-      if (source.name.toLowerCase().includes(query) || source.description?.toLowerCase().includes(query)) {
+      if ((source.name?.toLowerCase() || '').includes(query) || (source.description?.toLowerCase() || '').includes(query)) {
         allResults.push({
           id: source.id,
-          title: source.name,
-          description: `Funding - ${source.type}`,
+          title: source.name || '(Unnamed)',
+          description: `Funding - ${source.type || 'grant'}`,
           type: 'funding',
           path: '/funding',
           icon: <DollarSign className="h-4 w-4" />

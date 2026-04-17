@@ -63,17 +63,22 @@ export const SuppliesAIAnalysis = () => {
   const runAnalysis = async () => {
     if (!user) return;
     setLoading(true);
+    const timeoutId = setTimeout(() => {
+      setLoading(false);
+      toast({ title: "Analysis timed out", description: "The AI analysis took too long. Please try again.", variant: "destructive" });
+    }, 30000);
     try {
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token;
       const { data, error } = await supabase.functions.invoke('ai-supply-analysis', {
         headers: { Authorization: `Bearer ${token}` },
       });
+      clearTimeout(timeoutId);
       if (error) throw error;
       setResult(data);
       toast({ title: "Analysis complete", description: "AI has reviewed your inventory and generated recommendations." });
     } catch (err) {
-      console.error('Supply analysis error:', err);
+      clearTimeout(timeoutId);
       toast({ title: "Error", description: "Failed to run supply analysis. Please try again.", variant: "destructive" });
     } finally {
       setLoading(false);

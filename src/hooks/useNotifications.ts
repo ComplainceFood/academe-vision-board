@@ -57,10 +57,16 @@ export function useNotifications() {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
     );
-    await supabase
+    const { error } = await supabase
       .from("notifications")
       .update({ is_read: true })
       .eq("id", id);
+    if (error) {
+      // Roll back optimistic update
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: false } : n))
+      );
+    }
   }, []);
 
   const markAllRead = useCallback(async () => {
@@ -110,6 +116,23 @@ export function useNotifications() {
             },
             ...prev,
           ]);
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          const n = payload.new as any;
+          setNotifications((prev) =>
+            prev.map((existing) =>
+              existing.id === n.id ? { ...existing, is_read: n.is_read } : existing
+            )
+          );
         }
       )
       .subscribe();

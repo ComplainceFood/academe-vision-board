@@ -3,9 +3,19 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Star, 
-  Trash2, 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Star,
+  Trash2,
   User,
   MoreHorizontal,
   Edit,
@@ -51,6 +61,7 @@ const priorityBadges = {
 export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete, onEdit, onUpdateSubtasks }: TaskItemProps) {
   const isCompleted = task.status === 'completed';
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const hasSubtasks = task.subtasks && task.subtasks.length > 0;
 
   const subtaskProgress = hasSubtasks 
@@ -133,8 +144,8 @@ export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete, onEdit,
                       {task.starred ? 'Remove star' : 'Add star'}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem 
-                      onClick={() => onDelete(task.id)}
+                    <DropdownMenuItem
+                      onClick={() => setShowDeleteConfirm(true)}
                       className="text-destructive"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
@@ -198,5 +209,25 @@ export function TaskItem({ task, onToggleStatus, onToggleStar, onDelete, onEdit,
         </div>
       </CardContent>
     </Card>
+
+    <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete task?</AlertDialogTitle>
+          <AlertDialogDescription>
+            "{task.title}" will be permanently deleted. This cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            onClick={() => { setShowDeleteConfirm(false); onDelete(task.id); }}
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }

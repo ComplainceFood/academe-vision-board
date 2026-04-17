@@ -238,7 +238,7 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
       if (isSystemAdmin()) return true;
 
       const def = FEATURE_DEFINITIONS.find((f) => f.key === key);
-      if (!def) return true; // unknown key - allow by default
+      if (!def) return false; // unknown key - deny by default (unknown features are not accessible)
 
       // Feature is force-enabled for everyone by admin override
       if (flags[key] === true) return true;

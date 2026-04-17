@@ -59,8 +59,15 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
       if (event.origin !== window.location.origin) return;
 
       if (event.data.type === 'GOOGLE_OAUTH_SUCCESS') {
-        const { accessToken, refreshToken } = event.data;
-        handleOAuthSuccess(accessToken, refreshToken);
+        // Tokens are persisted server-side; just refresh our status from DB
+        checkIntegrationStatus().then(() => {
+          setIsConnected(true);
+          toast({
+            title: "Google Calendar connected",
+            description: "Calendar access granted. You can now sync your events.",
+          });
+          setIsLoading(false);
+        });
       } else if (event.data.type === 'GOOGLE_OAUTH_ERROR') {
         toast({
           title: "Connection failed",
@@ -74,41 +81,6 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
   }, [user]);
-
-  const handleOAuthSuccess = async (accessToken: string, refreshToken: string) => {
-    try {
-      const { error } = await supabase
-        .from('google_calendar_integration')
-        .upsert(
-          {
-            user_id: user?.id,
-            access_token: accessToken,
-            refresh_token: refreshToken,
-            is_active: true,
-            updated_at: new Date().toISOString(),
-          },
-          { onConflict: 'user_id' }
-        );
-
-      if (!error) {
-        setIsConnected(true);
-        toast({
-          title: "Google Calendar connected",
-          description: "Calendar access granted. You can now sync your events.",
-        });
-        checkIntegrationStatus();
-      }
-    } catch (e) {
-      console.error('Failed to save Google tokens', e);
-      toast({
-        title: "Connection failed",
-        description: "Failed to save calendar authorization.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleConnectGoogle = async () => {
     if (!user) {
@@ -137,7 +109,12 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
     const clientId = cfg.clientId as string;
     const redirectUri = (cfg.redirectUri as string) || `${window.location.origin}/auth/google/callback`;
     const scope = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
-    
+
+    // Generate cryptographic state nonce for CSRF protection
+    const stateNonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+      .map(b => b.toString(16).padStart(2, '0')).join('');
+    sessionStorage.setItem('google_oauth_state', stateNonce);
+
     const oauthUrl = `https://accounts.google.com/o/oauth2/v2/auth?` +
       `client_id=${encodeURIComponent(clientId)}&` +
       `redirect_uri=${encodeURIComponent(redirectUri)}&` +
@@ -145,7 +122,7 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
       `access_type=offline&` +
       `prompt=consent&` +
       `scope=${encodeURIComponent(scope)}&` +
-      `state=${encodeURIComponent(user.id)}`;
+      `state=${encodeURIComponent(stateNonce)}`;
 
     // Open popup for OAuth
     const width = 500;

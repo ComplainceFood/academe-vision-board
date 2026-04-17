@@ -233,10 +233,11 @@ serve(async (req) => {
       // ── 2. Overdue tasks (daily digest) ───────────────────────────────────
       if (prefs.task_reminders !== false) {
         const { data: tasks } = await supabase
-          .from('task_items')
+          .from('notes')
           .select('*')
           .eq('user_id', profile.user_id)
-          .eq('completed', false)
+          .eq('type', 'task')
+          .neq('status', 'completed')
           .lt('due_date', todayStr)
           .not('due_date', 'is', null)
 
@@ -279,11 +280,13 @@ serve(async (req) => {
 
       // ── 4. Low supply alerts ──────────────────────────────────────────────
       if (prefs.low_supply_alerts !== false) {
-        const { data: supplies } = await supabase
+        // Fetch all supplies then filter client-side since PostgREST can't compare two columns
+        const { data: allSupplies } = await supabase
           .from('supplies')
           .select('*')
           .eq('user_id', profile.user_id)
-          .eq('status', 'low_stock')
+          .gt('threshold', 0)
+        const supplies = (allSupplies || []).filter((s: any) => s.current_count <= s.threshold)
 
         if (supplies?.length) {
           try {

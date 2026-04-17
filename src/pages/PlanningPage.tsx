@@ -56,7 +56,7 @@ import {
   EventFormData,
   FutureTaskFormData
 } from "@/services/planningService";
-import { format, isAfter, isBefore, startOfDay, addDays } from "date-fns";
+import { format, isAfter, isBefore, isSameDay, startOfDay, addDays, parseISO } from "date-fns";
 
 // Dynamically generate semesters based on current date
 const getSemesters = () => {
@@ -185,12 +185,12 @@ const PlanningPage = () => {
     const nextWeek = addDays(today, 7);
     
     const upcomingEvents = events.filter(e => {
-      const eventDate = new Date(`${e.date}T00:00:00`);
-      return isAfter(eventDate, today) || format(eventDate, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd');
+      const eventDate = parseISO(e.date);
+      return isAfter(eventDate, today) || isSameDay(eventDate, today);
     });
-    
+
     const thisWeekEvents = upcomingEvents.filter(e => {
-      const eventDate = new Date(`${e.date}T00:00:00`);
+      const eventDate = parseISO(e.date);
       return isBefore(eventDate, nextWeek);
     });
     

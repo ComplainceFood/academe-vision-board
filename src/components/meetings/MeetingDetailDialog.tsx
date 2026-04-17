@@ -58,7 +58,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       setIsUpdating(true);
       
       const newItem = {
-        id: Date.now().toString(),
+        id: crypto.randomUUID(),
         description: newActionItem.trim(),
         assignee: "",
         due_date: "",
