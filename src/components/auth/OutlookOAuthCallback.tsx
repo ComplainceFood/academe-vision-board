@@ -35,21 +35,27 @@ export const OutlookOAuthCallback = () => {
       }
 
       if (!code || !state) {
-        const errorMsg = 'Missing authorization code or state parameter';
-        console.error('OAuth error:', errorMsg);
         if (window.opener) {
-          window.opener.postMessage({ 
-            type: 'OUTLOOK_OAUTH_ERROR', 
-            error: errorMsg 
-          }, allowedOrigin);
+          window.opener.postMessage({ type: 'OUTLOOK_OAUTH_ERROR', error: 'Missing authorization parameters.' }, allowedOrigin);
         }
-        toast.error(errorMsg);
+        toast.error('OAuth authorization failed. Please try again.');
         setTimeout(() => window.close(), 1000);
         return;
       }
 
+      // Validate CSRF state nonce
+      const storedState = sessionStorage.getItem('outlook_oauth_state');
+      if (!storedState || state !== storedState) {
+        if (window.opener) {
+          window.opener.postMessage({ type: 'OUTLOOK_OAUTH_ERROR', error: 'Invalid OAuth state.' }, allowedOrigin);
+        }
+        toast.error('OAuth authorization failed. Please try again.');
+        setTimeout(() => window.close(), 1000);
+        return;
+      }
+      sessionStorage.removeItem('outlook_oauth_state');
+
       try {
-        console.log('Starting OAuth token exchange...');
         
         // Exchange code for tokens using our edge function
         const { data, error: exchangeError } = await supabase.functions.invoke('outlook-oauth-exchange', {
@@ -75,11 +81,11 @@ export const OutlookOAuthCallback = () => {
           }, allowedOrigin);
           setTimeout(() => window.close(), 1000);
         } else {
-          // Full redirect mode: redirect back to the planning page
+          // Full redirect mode: set flag then redirect back
           const returnUrl = sessionStorage.getItem('outlook_oauth_return_url') || '/planning';
           sessionStorage.removeItem('outlook_oauth_return_url');
-          
-          // Delay redirect to show success message
+          sessionStorage.setItem('outlook_oauth_success', 'true');
+
           setTimeout(() => {
             window.location.href = returnUrl;
           }, 2000);
@@ -88,12 +94,11 @@ export const OutlookOAuthCallback = () => {
       } catch (error) {
         console.error('OAuth callback error:', error);
         const errorMessage = error instanceof Error ? error.message : 'Failed to complete OAuth authorization';
-        
+
         if (window.opener) {
-          // Popup mode: communicate error to parent window with specific origin
-          window.opener.postMessage({ 
-            type: 'OUTLOOK_OAUTH_ERROR', 
-            error: errorMessage 
+          window.opener.postMessage({
+            type: 'OUTLOOK_OAUTH_ERROR',
+            error: 'Outlook connection failed. Please try again.'
           }, allowedOrigin);
           setTimeout(() => window.close(), 1000);
         } else {

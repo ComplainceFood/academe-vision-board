@@ -23,7 +23,16 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
   const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
+    if (!user) return;
+
+    const justConnected = sessionStorage.getItem('outlook_oauth_success');
+    if (justConnected) {
+      sessionStorage.removeItem('outlook_oauth_success');
+      checkIntegrationStatus().then(() => {
+        setIsConnected(true);
+        toast.success('Outlook Calendar connected successfully!');
+      });
+    } else {
       checkIntegrationStatus();
     }
   }, [user]);
@@ -67,14 +76,20 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
       
       // Store the current URL to return to after OAuth
       sessionStorage.setItem('outlook_oauth_return_url', window.location.href);
-      
+
+      // Generate a CSRF nonce and bind user ID into state
+      const nonce = Array.from(crypto.getRandomValues(new Uint8Array(16)))
+        .map(b => b.toString(16).padStart(2, '0')).join('');
+      const stateValue = `${nonce}.${user.id}`;
+      sessionStorage.setItem('outlook_oauth_state', stateValue);
+
       // Build authorization URL
       const params = new URLSearchParams({
         client_id: config.clientId,
         response_type: 'code',
         redirect_uri: config.redirectUri,
         scope: config.scopes.join(' '),
-        state: user.id, // Pass user ID in state for security
+        state: stateValue,
         response_mode: 'query'
       });
       
@@ -125,16 +140,9 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
     setIsSyncing(true);
     
     try {
-      console.log('🔄 Starting Outlook sync process...');
-      
-      // Call the outlook-calendar-sync edge function
-      console.log('📞 Calling outlook-calendar-sync edge function...');
       const { data, error } = await supabase.functions.invoke('outlook-calendar-sync');
-      
-      console.log('📥 Edge function response:', { data, error });
-      
+
       if (error) {
-        console.error('❌ Edge function error:', error);
         
         // Handle specific error types
         if (error.message.includes('Invalid token format')) {
@@ -150,7 +158,6 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
       setLastSync(new Date().toISOString());
       
       const successMessage = data?.message || `Successfully synced! Imported: ${data?.imported || 0}, Exported: ${data?.exported || 0}`;
-      console.log('✅ Sync completed:', successMessage);
       
       toast.success(successMessage);
       
@@ -160,7 +167,7 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
       // Call the optional sync complete callback
       onSyncComplete?.();
     } catch (error) {
-      console.error('💥 Sync error:', error);
+      console.error('Sync error:', error);
       
       // Provide more detailed error messages
       let errorMessage = "Failed to sync with Outlook";
