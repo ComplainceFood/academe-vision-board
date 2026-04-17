@@ -2,9 +2,9 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const ALLOWED_ORIGINS = [
-  'https://smartprof.app',
-  'https://www.smartprof.app',
-  'https://64d94714-e892-42c9-981a-bb6f485a7ae3.lovableproject.com',
+  'https://smart-prof.us',
+  'https://www.smart-prof.us',
+  'http://localhost:5173',
 ];
 
 function getCorsHeaders(origin: string | null): Record<string, string> {
