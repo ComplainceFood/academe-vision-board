@@ -8,6 +8,7 @@ import {
   Trash2,
   Calendar,
   User,
+  Mail,
   MoreVertical,
   Wallet,
   AlertTriangle,
@@ -16,6 +17,12 @@ import {
   BarChart3,
   Handshake,
   DollarSign,
+  Eye,
+  X,
+  FileText,
+  Lock,
+  ClipboardList,
+  TrendingDown,
 } from "lucide-react";
 import { FundingSource } from "@/types/funding";
 import { FundingSourceDialog } from "./FundingSourceDialog";
@@ -35,10 +42,18 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
+import { Separator } from "@/components/ui/separator";
 
 interface FundingSourcesListProps {
   sources: FundingSource[];
@@ -46,8 +61,116 @@ interface FundingSourcesListProps {
   onRefetch: () => void;
 }
 
+const GrantViewDialog = ({ source, onClose }: { source: FundingSource; onClose: () => void }) => {
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 }).format(amount);
+
+  const usagePercentage = Math.round(((source.total_amount - source.remaining_amount) / source.total_amount) * 100);
+  const isHighUsage = usagePercentage > 80;
+
+  const fmtDate = (d?: string) =>
+    d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+
+  return (
+    <Dialog open onOpenChange={() => onClose()}>
+      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-bold leading-snug">{source.name}</DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-5 pt-1">
+          {/* Budget overview */}
+          <div className="rounded-xl bg-muted/50 border p-4 space-y-3">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">Remaining Budget</p>
+                <p className={`text-2xl font-bold tabular-nums ${isHighUsage ? 'text-destructive' : ''}`}>
+                  {formatCurrency(source.remaining_amount)}
+                </p>
+              </div>
+              <div className="text-right text-sm text-muted-foreground">
+                <p>of {formatCurrency(source.total_amount)} total</p>
+                <p className="font-medium">{usagePercentage}% used</p>
+              </div>
+            </div>
+            <Progress value={Math.min(usagePercentage, 100)} className={`h-2 ${isHighUsage ? '[&>div]:bg-destructive' : ''}`} />
+            <div className="flex gap-4 text-xs text-muted-foreground pt-1">
+              <span className="flex items-center gap-1"><TrendingDown className="h-3 w-3" /> Spent: {formatCurrency(source.total_amount - source.remaining_amount)}</span>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Details grid */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Type</p>
+              <p className="font-medium capitalize">{source.type.replace('_', ' ')}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5">Status</p>
+              <p className="font-medium capitalize">{source.status}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1"><Calendar className="h-3 w-3" /> Start Date</p>
+              <p className="font-medium">{fmtDate(source.start_date)}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1"><Calendar className="h-3 w-3" /> End Date</p>
+              <p className="font-medium">{fmtDate(source.end_date)}</p>
+            </div>
+            {source.contact_person && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1"><User className="h-3 w-3" /> Contact</p>
+                <p className="font-medium">{source.contact_person}</p>
+              </div>
+            )}
+            {source.contact_email && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-0.5 flex items-center gap-1"><Mail className="h-3 w-3" /> Email</p>
+                <p className="font-medium break-all">{source.contact_email}</p>
+              </div>
+            )}
+          </div>
+
+          {source.description && (
+            <>
+              <Separator />
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                  <FileText className="h-3 w-3" /> Description
+                </p>
+                <p className="text-sm leading-relaxed">{source.description}</p>
+              </div>
+            </>
+          )}
+
+          {source.restrictions && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                <Lock className="h-3 w-3" /> Restrictions
+              </p>
+              <p className="text-sm leading-relaxed">{source.restrictions}</p>
+            </div>
+          )}
+
+          {source.reporting_requirements && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 flex items-center gap-1">
+                <ClipboardList className="h-3 w-3" /> Reporting Requirements
+              </p>
+              <p className="text-sm leading-relaxed">{source.reporting_requirements}</p>
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSourcesListProps) => {
   const [editingSource, setEditingSource] = useState<FundingSource | null>(null);
+  const [viewingSource, setViewingSource] = useState<FundingSource | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [sourceToDelete, setSourceToDelete] = useState<FundingSource | null>(null);
@@ -173,6 +296,10 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
 
   return (
     <>
+      {viewingSource && (
+        <GrantViewDialog source={viewingSource} onClose={() => setViewingSource(null)} />
+      )}
+
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-2xl font-bold">All Grants</h2>
@@ -183,28 +310,44 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
           Add Grant
         </Button>
       </div>
-      
+
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {sources.map((source) => {
           const usagePercentage = calculateUsagePercentage(source.total_amount, source.remaining_amount);
-          const statusConfig = getStatusConfig(source.status);
+          const statusCfg = getStatusConfig(source.status);
           const typeConfig = getTypeConfig(source.type);
           const daysUntilExpiry = getDaysUntilExpiry(source.end_date);
           const isExpiringSoon = daysUntilExpiry !== null && daysUntilExpiry <= 30 && daysUntilExpiry > 0;
           const isHighUsage = usagePercentage > 80;
           const { Icon: TypeIcon } = typeConfig;
 
+          // Color accent per status
+          const accentColor = {
+            active: "from-emerald-500/20 to-teal-500/10 border-emerald-500/20",
+            pending: "from-amber-500/15 to-yellow-500/10 border-amber-500/20",
+            expired: "from-muted/40 to-muted/20 border-border",
+            depleted: "from-destructive/10 to-destructive/5 border-destructive/20",
+          }[source.status] ?? "from-muted/30 to-muted/10 border-border";
+
+          const iconBg = {
+            active: "bg-emerald-500/15 text-emerald-600",
+            pending: "bg-amber-500/15 text-amber-600",
+            expired: "bg-muted text-muted-foreground",
+            depleted: "bg-destructive/10 text-destructive",
+          }[source.status] ?? "bg-muted text-muted-foreground";
+
           return (
             <Card
               key={source.id}
-              className="group hover:shadow-md transition-shadow duration-200 overflow-hidden"
+              className={`group relative overflow-hidden border bg-gradient-to-br ${accentColor} hover:shadow-lg transition-all duration-200 cursor-pointer`}
+              onClick={() => setViewingSource(source)}
             >
               <CardContent className="p-5 space-y-4">
-                {/* Header row */}
+                {/* Header */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-start gap-3 min-w-0 flex-1">
-                    <div className="mt-0.5 rounded-md bg-muted p-2 shrink-0">
-                      <TypeIcon className="h-4 w-4 text-muted-foreground" />
+                    <div className={`rounded-xl p-2.5 shrink-0 ${iconBg}`}>
+                      <TypeIcon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">
                       <h3 className="font-semibold text-base leading-snug line-clamp-2">{source.name}</h3>
@@ -212,9 +355,9 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Badge variant="outline" className={`text-xs ${statusConfig.className}`}>
-                      {statusConfig.label}
+                  <div className="flex items-center gap-1 shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <Badge variant="outline" className={`text-xs ${statusCfg.className}`}>
+                      {statusCfg.label}
                     </Badge>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -223,6 +366,11 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setViewingSource(source)}>
+                          <Eye className="h-4 w-4 mr-2" />
+                          View Details
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem onClick={() => {
                           setEditingSource(source);
                           setIsEditDialogOpen(true);
@@ -242,34 +390,34 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
                   </div>
                 </div>
 
-                {/* Budget amounts */}
+                {/* Budget ring / amounts */}
                 <div className="flex items-end justify-between">
                   <div>
                     <p className="text-xs text-muted-foreground mb-0.5">Remaining</p>
-                    <p className={`text-xl font-semibold tabular-nums ${isHighUsage ? 'text-destructive' : ''}`}>
+                    <p className={`text-2xl font-bold tabular-nums ${isHighUsage ? 'text-destructive' : ''}`}>
                       {formatCurrency(source.remaining_amount)}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs text-muted-foreground mb-0.5">of {formatCurrency(source.total_amount)}</p>
-                    <p className="text-sm text-muted-foreground tabular-nums">{usagePercentage}% used</p>
+                  <div className="text-right text-sm text-muted-foreground">
+                    <p>of {formatCurrency(source.total_amount)}</p>
+                    <p className={`font-semibold text-sm ${isHighUsage ? 'text-destructive' : ''}`}>{usagePercentage}% used</p>
                   </div>
                 </div>
 
                 {/* Progress bar */}
                 <Progress
                   value={Math.min(usagePercentage, 100)}
-                  className={`h-1.5 ${isHighUsage ? '[&>div]:bg-destructive' : ''}`}
+                  className={`h-2 ${isHighUsage ? '[&>div]:bg-destructive' : source.status === 'active' ? '[&>div]:bg-emerald-500' : ''}`}
                 />
 
                 {/* Footer */}
-                <div className="flex flex-wrap items-center justify-between gap-y-1 pt-1 border-t text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center justify-between gap-y-1 pt-1 border-t border-border/50 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <Calendar className="h-3 w-3" />
                     <span>
                       {new Date(source.start_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
                       {source.end_date && (
-                        <> &ndash; {new Date(source.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
+                        <> – {new Date(source.end_date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}</>
                       )}
                     </span>
                   </div>
@@ -287,6 +435,13 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
                       </span>
                     )}
                   </div>
+                </div>
+
+                {/* View hint on hover */}
+                <div className="absolute bottom-3 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                    <Eye className="h-3 w-3" /> Click to view
+                  </span>
                 </div>
               </CardContent>
             </Card>

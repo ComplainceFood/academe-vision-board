@@ -2,12 +2,13 @@ import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { MainLayout } from "@/components/MainLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Calendar,
   Clock,
   User,
+  Users,
   Search,
   ArrowDown,
   ArrowUp,
@@ -20,6 +21,7 @@ import {
   Repeat,
   Check,
   Edit,
+  Eye,
   Trash2 } from
 "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -38,19 +40,21 @@ import { useMeetings } from "@/hooks/useMeetings";
 import { useAuth } from "@/hooks/useAuth";
 import { PageGuide } from "@/components/common/PageGuide";
 
+const statusConfig: Record<string, { label: string; dot: string; badge: string }> = {
+  scheduled:   { label: "Scheduled",   dot: "bg-primary",     badge: "bg-primary/10 text-primary border-primary/20" },
+  in_progress: { label: "In Progress", dot: "bg-amber-500",   badge: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  completed:   { label: "Completed",   dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
+  cancelled:   { label: "Cancelled",   dot: "bg-destructive", badge: "bg-destructive/10 text-destructive border-destructive/20" },
+  postponed:   { label: "Postponed",   dot: "bg-muted-foreground", badge: "bg-muted text-muted-foreground border-border" },
+};
+
 const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onViewDetails: (meeting: Meeting) => void;onEdit: (meeting: Meeting) => void;}) => {
   const { toast } = useToast();
   const { t } = useTranslation();
   const [isDeleting, setIsDeleting] = useState(false);
   const { updateStatus, deleteMeeting } = useMeetings();
 
-  const statusColors = {
-    scheduled: "bg-primary/15 text-primary",
-    in_progress: "bg-accent/15 text-accent-foreground dark:text-accent",
-    completed: "bg-secondary/15 text-secondary-foreground dark:text-secondary",
-    cancelled: "bg-destructive/15 text-destructive",
-    postponed: "bg-muted text-muted-foreground"
-  };
+  const cfg = statusConfig[meeting.status] ?? statusConfig.scheduled;
 
   const formatDate = (dateString: string) => {
     try {
@@ -82,185 +86,206 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
     }
   };
 
-  const getParticipantStatuses = () => {
-    if (!meeting.attendees || !Array.isArray(meeting.attendees)) return { confirmed: 0, declined: 0, pending: 0 };
-
-    return meeting.attendees.reduce(
-      (acc, attendee) => {
-        if (attendee.status === 'accepted') acc.confirmed++;else
-        if (attendee.status === 'declined') acc.declined++;else
-        acc.pending++;
-        return acc;
-      },
-      { confirmed: 0, declined: 0, pending: 0 }
-    );
-  };
-
-  const statuses = getParticipantStatuses();
+  const confirmed = meeting.attendees?.filter(a => a.status === 'accepted').length ?? 0;
+  const total = meeting.attendees?.length ?? 0;
 
   return (
-    <Card className="mb-4 glassmorphism">
-      <CardHeader className="pb-2">
-        <div className="flex justify-between items-start">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <span className={`px-2 py-1 rounded-full text-xs ${statusColors[meeting.status]}`}>
-                {meeting.status}
-              </span>
-              <Badge variant="outline">{meeting.type}</Badge>
-              
-              {meeting.is_recurring &&
-              <Badge variant="outline" className="flex items-center gap-1">
-                  <Repeat className="h-3 w-3" />
-                  <span>{meeting.recurring_pattern}</span>
-                </Badge>
-              }
-              
-              {meeting.reminder_minutes &&
-              <Badge variant="outline" className="flex items-center gap-1">
-                  <Bell className="h-3 w-3" />
-                  <span>{t('meetings.reminder')}</span>
-                </Badge>
-              }
-            </div>
-            <CardTitle className="text-lg">{meeting.title}</CardTitle>
-          </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[180px] sm:w-[200px]">
-              <DropdownMenuItem onClick={() => onViewDetails(meeting)}>
-                <FileText className="h-4 w-4 mr-2" /> View Details
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => onEdit(meeting)}>
-                <Edit className="h-4 w-4 mr-2" /> Edit Meeting
-              </DropdownMenuItem>
-              
-              <DropdownMenuSeparator />
-              
-              {meeting.status !== "completed" &&
-              <DropdownMenuItem onClick={() => handleStatusChange("completed")}>
-                  <CheckCircle className="h-4 w-4 mr-2 text-green-500" /> Mark Complete
-                </DropdownMenuItem>
-              }
-              {meeting.status === "completed" &&
-              <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
-                  <ArrowUp className="h-4 w-4 mr-2 text-blue-500" /> Mark Incomplete
-                </DropdownMenuItem>
-              }
-              {meeting.status !== "cancelled" &&
-              <DropdownMenuItem onClick={() => handleStatusChange("cancelled")}>
-                  <XCircle className="h-4 w-4 mr-2 text-yellow-500" /> Cancel Meeting
-                </DropdownMenuItem>
-              }
-              {meeting.status === "cancelled" &&
-              <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
-                  <Calendar className="h-4 w-4 mr-2 text-blue-500" /> Reschedule
-                </DropdownMenuItem>
-              }
-              
-              <DropdownMenuSeparator />
-              
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                    <Trash2 className="h-4 w-4 mr-2" /> Delete Meeting
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete the meeting "{meeting.title}" and all associated data.
-                      This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteMeeting} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
-                      {isDeleting ? t('common.deleting') : t('common.delete')}
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span>{formatDate(meeting.start_date)}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock className="h-4 w-4 text-muted-foreground" />
-            <span>{meeting.start_time} - {meeting.end_time}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm truncate max-w-[120px] sm:max-w-[200px]">{meeting.location}</span>
-          </div>
-        </div>
-        
-        <div className="mt-2 flex items-center gap-2">
-          <User className="h-4 w-4 text-muted-foreground" />
-          <div className="flex items-center gap-1">
-            <span className="text-sm">{meeting.attendees?.length || 0} attendees</span>
-            {(statuses.confirmed > 0 || statuses.declined > 0) &&
-            <span className="text-xs text-muted-foreground">
-                ({statuses.confirmed} confirmed, {statuses.declined} declined)
-              </span>
-            }
-          </div>
-        </div>
-        
-        {meeting.agenda &&
-        <div className="mt-4 p-3 bg-muted/50 rounded-md">
-            <p className="text-sm mb-2 font-medium flex items-center gap-2">
-              <FileText className="h-4 w-4" />
-              Agenda:
-            </p>
-            <p className="text-sm text-muted-foreground line-clamp-2">{meeting.agenda}</p>
-          </div>
-        }
-        
-        {meeting.action_items && Array.isArray(meeting.action_items) && meeting.action_items.length > 0 &&
-        <div className="mt-3">
-            <p className="text-sm font-medium mb-1">Action Items:</p>
-            <ul className="text-sm">
-              {meeting.action_items.slice(0, 2).map((item, index) =>
-            <li key={index} className="flex items-start gap-2 mb-1">
-                  <Check className="h-4 w-4 text-secondary mt-0.5" />
-                  <span className="line-clamp-1">
-                    {typeof item === 'string' ? item : item.description}
-                  </span>
-                </li>
-            )}
-              {meeting.action_items.length > 2 &&
-            <li className="text-xs text-muted-foreground">
-                  +{meeting.action_items.length - 2} more items
-                </li>
-            }
-            </ul>
-          </div>
-        }
-      </CardContent>
-      
-      {meeting.status === "scheduled" &&
-      <CardFooter className="pt-0 flex gap-2">
-          <Button variant="outline" size="sm" className="flex-1" onClick={() => onEdit(meeting)}>{t('meetings.reschedule')}</Button>
-          <Button size="sm" className="flex-1" onClick={() => onViewDetails(meeting)}>
-            View Details
-          </Button>
-        </CardFooter>
-      }
-    </Card>);
+    <Card className="group relative overflow-hidden border border-border/60 hover:border-primary/30 hover:shadow-md transition-all duration-200 mb-3">
+      {/* Left accent stripe */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1 ${cfg.dot}`} />
 
+      <CardContent className="pl-5 pr-4 py-4">
+        <div className="flex items-start gap-3">
+          {/* Date chip */}
+          <div className="hidden sm:flex flex-col items-center justify-center rounded-xl bg-muted/60 border border-border/50 px-3 py-2 min-w-[52px] text-center shrink-0">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground leading-none">
+              {formatDate(meeting.start_date).split(',')[0]}
+            </span>
+            <span className="text-xl font-bold leading-tight tabular-nums">
+              {new Date(meeting.start_date).getDate()}
+            </span>
+            <span className="text-[10px] text-muted-foreground leading-none">
+              {formatDate(meeting.start_date).replace(/^[A-Za-z]+,\s*/, '').replace(/\s+\d+$/, '')}
+            </span>
+          </div>
+
+          {/* Main content */}
+          <div className="flex-1 min-w-0">
+            {/* Top row: status badge + badges + menu */}
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${cfg.badge}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
+                  {cfg.label}
+                </span>
+                <Badge variant="outline" className="text-[11px] px-2 py-0.5 capitalize">
+                  {meeting.type.replace('_', ' ')}
+                </Badge>
+                {meeting.is_recurring && (
+                  <Badge variant="outline" className="text-[11px] px-2 py-0.5 flex items-center gap-1">
+                    <Repeat className="h-2.5 w-2.5" />
+                    {meeting.recurring_pattern}
+                  </Badge>
+                )}
+                {meeting.reminder_minutes && (
+                  <Badge variant="outline" className="text-[11px] px-2 py-0.5 flex items-center gap-1">
+                    <Bell className="h-2.5 w-2.5" />
+                    {t('meetings.reminder')}
+                  </Badge>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1 shrink-0">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => onViewDetails(meeting)}
+                  title="View details"
+                >
+                  <Eye className="h-3.5 w-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => onEdit(meeting)}
+                  title="Edit meeting"
+                >
+                  <Edit className="h-3.5 w-3.5" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-[190px]">
+                    <DropdownMenuItem onClick={() => onViewDetails(meeting)}>
+                      <Eye className="h-4 w-4 mr-2" /> View Details
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(meeting)}>
+                      <Edit className="h-4 w-4 mr-2" /> Edit Meeting
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {meeting.status !== "completed" && (
+                      <DropdownMenuItem onClick={() => handleStatusChange("completed")}>
+                        <CheckCircle className="h-4 w-4 mr-2 text-emerald-500" /> Mark Complete
+                      </DropdownMenuItem>
+                    )}
+                    {meeting.status === "completed" && (
+                      <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
+                        <ArrowUp className="h-4 w-4 mr-2 text-blue-500" /> Mark Incomplete
+                      </DropdownMenuItem>
+                    )}
+                    {meeting.status !== "cancelled" && (
+                      <DropdownMenuItem onClick={() => handleStatusChange("cancelled")}>
+                        <XCircle className="h-4 w-4 mr-2 text-amber-500" /> Cancel Meeting
+                      </DropdownMenuItem>
+                    )}
+                    {meeting.status === "cancelled" && (
+                      <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
+                        <Calendar className="h-4 w-4 mr-2 text-blue-500" /> Reschedule
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuSeparator />
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
+                          <Trash2 className="h-4 w-4 mr-2" /> Delete Meeting
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete "{meeting.title}" and all its data. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteMeeting} disabled={isDeleting} className="bg-destructive hover:bg-destructive/90">
+                            {isDeleting ? t('common.deleting') : t('common.delete')}
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            {/* Title */}
+            <h3 className="font-semibold text-base leading-snug line-clamp-1 mb-2">{meeting.title}</h3>
+
+            {/* Meta row */}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+              <span className="sm:hidden flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {formatDate(meeting.start_date)}
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock className="h-3 w-3" />
+                {meeting.start_time} – {meeting.end_time}
+              </span>
+              {meeting.location && (
+                <span className="flex items-center gap-1 max-w-[160px] truncate">
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  {meeting.location}
+                </span>
+              )}
+              <span className="flex items-center gap-1">
+                <Users className="h-3 w-3" />
+                {total} attendee{total !== 1 ? 's' : ''}
+                {confirmed > 0 && <span className="text-emerald-600 font-medium">· {confirmed} confirmed</span>}
+              </span>
+            </div>
+
+            {/* Agenda preview */}
+            {meeting.agenda && (
+              <div className="mt-2.5 flex items-start gap-1.5 text-xs text-muted-foreground">
+                <FileText className="h-3 w-3 shrink-0 mt-0.5" />
+                <span className="line-clamp-1">{meeting.agenda}</span>
+              </div>
+            )}
+
+            {/* Action items preview */}
+            {meeting.action_items && Array.isArray(meeting.action_items) && meeting.action_items.length > 0 && (
+              <div className="mt-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+                <span>
+                  {meeting.action_items.length} action item{meeting.action_items.length !== 1 ? 's' : ''}
+                  {meeting.action_items.length > 0 && (
+                    <span className="ml-1 opacity-70">
+                      — {typeof meeting.action_items[0] === 'string' ? meeting.action_items[0] : (meeting.action_items[0] as any).description}
+                    </span>
+                  )}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom CTA row — always visible */}
+        <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between gap-2">
+          <span className="text-xs text-muted-foreground hidden sm:block">
+            {meeting.notes ? "Notes added" : "No notes yet"}
+          </span>
+          <div className="flex gap-2 ml-auto">
+            <Button variant="outline" size="sm" className="h-7 text-xs px-3" onClick={() => onEdit(meeting)}>
+              <Edit className="h-3 w-3 mr-1" />
+              {t('meetings.reschedule')}
+            </Button>
+            <Button size="sm" className="h-7 text-xs px-3" onClick={() => onViewDetails(meeting)}>
+              <Eye className="h-3 w-3 mr-1" />
+              View
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 };
 
 const MeetingsPage = () => {
