@@ -71,7 +71,7 @@ serve(async (req) => {
     }
 
     const body = await req.json();
-    const { code, redirectUri } = body;
+    const { code } = body;
 
     if (!code) {
       return new Response(
@@ -80,12 +80,9 @@ serve(async (req) => {
       );
     }
 
-    // Validate redirectUri against allowlist - never trust arbitrary client-supplied origins
-    const origin = req.headers.get('origin') || '';
-    const expectedRedirectUri = `${origin}/auth/outlook/callback`;
-    const safeRedirectUri = ALLOWED_ORIGINS.some(o => redirectUri?.startsWith(o))
-      ? redirectUri
-      : expectedRedirectUri;
+    // Always use the fixed production redirect URI — must exactly match Azure registration
+    const safeRedirectUri = 'https://smart-prof.us/auth/outlook/callback';
+    console.log('Using redirect_uri:', safeRedirectUri);
 
     const tokenParams = new URLSearchParams({
       client_id: MICROSOFT_CLIENT_ID,
@@ -103,8 +100,8 @@ serve(async (req) => {
     });
 
     if (!tokenResponse.ok) {
-      // Do not expose Microsoft's error response to the client
-      console.error('Token exchange failed with status:', tokenResponse.status);
+      const errBody = await tokenResponse.text();
+      console.error('Token exchange failed:', tokenResponse.status, errBody);
       return new Response(
         JSON.stringify({ error: 'Failed to exchange authorization code' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
