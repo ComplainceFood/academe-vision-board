@@ -141,8 +141,7 @@ export function NotificationBell() {
       <button
         ref={buttonRef}
         onClick={() => setOpen((v) => !v)}
-        className="relative flex items-center justify-center h-8 w-8 rounded-lg transition-colors hover:bg-white/10"
-        style={{ color: "rgba(255,255,255,0.8)" }}
+        className="relative flex items-center justify-center h-8 w-8 rounded-lg transition-colors hover:bg-white/10 text-white/80"
         title="Notifications"
       >
         <Bell className="h-4 w-4" />

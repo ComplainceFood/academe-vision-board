@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Settings, User, Bell, Shield, Camera, Key, Trash2, Link, Save, Database, Mail, CreditCard, Star, CheckCircle2, Zap } from "lucide-react";
+import { Settings, User, Bell, Shield, Camera, Key, Trash2, Link, Save, Database, Mail, CreditCard, Star, CheckCircle2, Zap, Sun, Moon, Monitor } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
@@ -24,6 +24,7 @@ import { ProGate } from "@/components/common/ProGate";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useTranslation } from "react-i18next";
 import { Globe } from "lucide-react";
+import { useTheme } from "next-themes";
 
 const PRO_FEATURES = [
   "AI CV Import & Biosketch Generator",
@@ -68,6 +69,7 @@ const SettingsPage = () => {
   const [prices, setPrices] = useState<PricesData | null>(null);
   const [pricesLoading, setPricesLoading] = useState(true);
   const { subscription, isPro, isTrial } = useSubscription();
+  const { theme, setTheme } = useTheme();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -451,7 +453,7 @@ const SettingsPage = () => {
         </div>
 
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-3 sm:grid-cols-7">
+          <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-4 sm:grid-cols-8">
             <TabsTrigger value="profile" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <User className="h-4 w-4" />
               <span className="hidden sm:inline">Profile</span>
@@ -479,6 +481,10 @@ const SettingsPage = () => {
             <TabsTrigger value="language" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Globe className="h-4 w-4" />
               <span className="hidden sm:inline">{t('settings.language')}</span>
+            </TabsTrigger>
+            <TabsTrigger value="appearance" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
+              <Sun className="h-4 w-4" />
+              <span className="hidden sm:inline">Appearance</span>
             </TabsTrigger>
           </TabsList>
 
@@ -952,6 +958,56 @@ const SettingsPage = () => {
               </CardHeader>
               <CardContent>
                 <LanguageSwitcher showLabel={true} />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="appearance" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Sun className="h-5 w-5" />
+                  Appearance
+                </CardTitle>
+                <CardDescription>Customize how Smart-Prof looks on your device.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div>
+                  <p className="text-sm font-medium mb-3">Theme</p>
+                  <div className="grid grid-cols-3 gap-3">
+                    {([
+                      { value: "light", label: "Light", icon: Sun },
+                      { value: "dark",  label: "Dark",  icon: Moon },
+                      { value: "system", label: "System", icon: Monitor },
+                    ] as const).map(({ value, label, icon: Icon }) => (
+                      <button
+                        key={value}
+                        type="button"
+                        onClick={() => setTheme(value)}
+                        className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                          theme === value
+                            ? "border-primary bg-primary/5"
+                            : "border-border hover:border-primary/40 hover:bg-muted/50"
+                        }`}
+                      >
+                        <Icon className={`h-6 w-6 ${theme === value ? "text-primary" : "text-muted-foreground"}`} />
+                        <span className={`text-sm font-medium ${theme === value ? "text-primary" : "text-muted-foreground"}`}>
+                          {label}
+                        </span>
+                        {theme === value && (
+                          <CheckCircle2 className="h-4 w-4 text-primary" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3">
+                    {theme === "system"
+                      ? "Automatically matches your device's dark/light mode preference."
+                      : theme === "dark"
+                      ? "Dark mode is active — easier on the eyes in low-light environments."
+                      : "Light mode is active."}
+                  </p>
+                </div>
               </CardContent>
             </Card>
           </TabsContent>

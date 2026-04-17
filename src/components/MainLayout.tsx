@@ -1,5 +1,4 @@
 
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -11,27 +10,22 @@ import { useToast } from "@/hooks/use-toast";
 import { GlobalSearch } from "@/components/common/GlobalSearch";
 import { SmartProfLogoWide } from "@/components/Logo";
 import { OnboardingModal } from "@/components/common/OnboardingModal";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { useTheme } from "next-themes";
 
 interface MainLayoutProps {
   children: React.ReactNode;
 }
 
 export function MainLayout({ children }: MainLayoutProps) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const isDarkMode = theme === "dark";
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [isDarkMode]);
-
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
+    setTheme(isDarkMode ? "light" : "dark");
   };
 
   const handleLogout = async () => {
@@ -60,6 +54,7 @@ export function MainLayout({ children }: MainLayoutProps) {
              </div>
             <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
               <GlobalSearch />
+              <NotificationBell />
               <Button variant="ghost" size="icon" onClick={toggleDarkMode} className="h-8 w-8 sm:h-9 sm:w-9 text-white/70 hover:text-white hover:bg-white/10">
                 {isDarkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
               </Button>

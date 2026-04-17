@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarTrigger } from "@/components/ui/sidebar";
 import { LayoutDashboard, MessageSquare, BookText, ClipboardList, Calendar, DollarSign, Settings, LogOut, BarChart3, MessageCircle, Megaphone, Award, TestTube, Users } from "lucide-react";
-import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { SmartProfLogoWide } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -151,9 +150,8 @@ export function AppSidebar() {
     <Sidebar style={{ background: "linear-gradient(180deg, #0D1E41 0%, #0A3028 60%, #1B7A5A 100%)" }}>
       {/* Header */}
       <SidebarHeader className="p-4 py-3 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-        <div className="flex items-center justify-between px-2 py-1">
+        <div className="flex items-center px-2 py-1">
           <SmartProfLogoWide height={78} className="rounded-2xl" />
-          <NotificationBell />
         </div>
       </SidebarHeader>
 
