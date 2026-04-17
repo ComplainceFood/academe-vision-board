@@ -309,7 +309,7 @@ export const AnalyticsDashboard = () => {
     },
     {
       label: 'Total Expenses', value: formatCurrency(data.overview.totalExpenses),
-      sub: 'Across all grants',
+      sub: 'Across all categories',
       icon: DollarSign, gradient: 'bg-gradient-to-br from-pink-500 to-rose-600', iconBg: 'bg-white/20',
     },
     {
