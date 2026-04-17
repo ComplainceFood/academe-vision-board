@@ -283,77 +283,51 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
   };
 
   return (
-    <Card className="w-full">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
           Google Calendar Integration
         </CardTitle>
-        <CardDescription>
-          Connect your Google Calendar for two-way synchronization
-        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="font-medium">Connection Status</p>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant={isConnected ? "default" : "secondary"}>
-                {isConnected ? (
-                  <>
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Connected
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle className="h-3 w-3 mr-1" />
-                    Not Connected
-                  </>
-                )}
-              </Badge>
-              {lastSync && (
-                <Badge variant="outline" className="text-xs">
-                  <Clock className="h-3 w-3 mr-1" />
-                  Last sync: {new Date(lastSync).toLocaleString()}
-                </Badge>
-              )}
-            </div>
-          </div>
-          <div className="flex gap-2">
-            {isConnected ? (
-              <Button variant="outline" onClick={handleDisconnectGoogle} disabled={isLoading || isSyncing}>
-                Disconnect
-              </Button>
-            ) : (
-              <Button onClick={handleConnectGoogle} disabled={isLoading}>
-                {isLoading ? "Connecting..." : "Connect Google"}
-              </Button>
-            )}
-          </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant={isConnected ? "default" : "secondary"}>
+            {isConnected ? <><CheckCircle className="h-3 w-3 mr-1" />Connected</> : <><AlertCircle className="h-3 w-3 mr-1" />Not Connected</>}
+          </Badge>
+          {lastSync && (
+            <span className="text-sm text-muted-foreground">
+              Last sync: {new Date(lastSync).toLocaleString()}
+            </span>
+          )}
         </div>
 
-        <div className="rounded-md bg-muted/50 p-4 text-sm text-muted-foreground">
-          {isConnected 
-            ? "Your Google Calendar is connected. Click 'Sync now' to synchronize events."
-            : "Click 'Connect Google' to authorize calendar access without changing your account."
-          }
+        <div className="flex gap-2 flex-wrap">
+          {!isConnected ? (
+            <Button onClick={handleConnectGoogle} disabled={isLoading} className="flex items-center gap-2">
+              <Calendar className="h-4 w-4" />
+              {isLoading ? "Connecting..." : "Connect Google"}
+            </Button>
+          ) : (
+            <>
+              <Button onClick={syncWithGoogleCalendar} disabled={isSyncing} className="flex items-center gap-2">
+                <Clock className={`h-4 w-4 ${isSyncing ? 'animate-spin' : ''}`} />
+                {isSyncing ? "Syncing..." : "Sync Now"}
+              </Button>
+              <Button variant="outline" onClick={handleDisconnectGoogle} disabled={isLoading} className="flex items-center gap-2">
+                Disconnect
+              </Button>
+            </>
+          )}
         </div>
 
         {isConnected && (
-          <div className="space-y-4">
-            <Button 
-              onClick={syncWithGoogleCalendar} 
-              disabled={isSyncing || isLoading}
-              className="w-full"
-            >
-              {isSyncing ? "Syncing..." : "Sync now"}
-            </Button>
+          <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
+            <p>• Two-way sync with Google Calendar</p>
+            <p>• Events import and export automatically</p>
+            <p>• Calendar access only — sign-in is unchanged</p>
           </div>
         )}
-
-        <div className="text-xs text-muted-foreground mt-4">
-          <p><strong>Note:</strong> This only authorizes calendar access and won't change your current sign-in status.</p>
-        </div>
       </CardContent>
     </Card>
   );

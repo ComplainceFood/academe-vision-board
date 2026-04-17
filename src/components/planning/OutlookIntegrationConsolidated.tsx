@@ -277,14 +277,6 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
           )}
         </div>
 
-        {!isConnected && (
-          <Alert>
-            <Shield className="h-4 w-4" />
-            <AlertDescription>
-              Connect your Microsoft account using secure OAuth 2.0 authentication for seamless calendar synchronization.
-            </AlertDescription>
-          </Alert>
-        )}
 
         {isConnected && isTokenExpiringSoon && (
           <Alert variant="destructive">
@@ -339,30 +331,10 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
         </div>
 
         {isConnected && (
-          <Alert>
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription>
-              🎉 Your Microsoft account is securely connected! Events will sync {autoSyncEnabled ? 'automatically every 15 minutes' : 'manually when you click sync'}.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <Shield className="h-3 w-3" />
-              <strong>Secure OAuth 2.0 Integration</strong>
-            </div>
-            <p>• Uses Microsoft's official OAuth 2.0 for secure authentication</p>
-            <p>• Your credentials are never stored - only secure, encrypted tokens</p>
+          <div className="text-xs text-muted-foreground bg-muted p-3 rounded">
+            <p>• Two-way sync with Outlook Calendar</p>
+            <p>• Events sync {autoSyncEnabled ? 'automatically every 15 minutes' : 'manually when you click sync'}</p>
             <p>• Tokens are automatically refreshed as needed</p>
-            <p>• Full two-way sync: import from Outlook, export to Outlook</p>
-          </div>
-        </div>
-
-        {tokenExpiry && (
-          <div className="text-xs text-muted-foreground">
-            Token expires: {new Date(tokenExpiry).toLocaleString()}
           </div>
         )}
       </CardContent>

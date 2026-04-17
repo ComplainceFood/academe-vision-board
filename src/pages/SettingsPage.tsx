@@ -664,12 +664,14 @@ const SettingsPage = () => {
           </TabsContent>
 
           <TabsContent value="connections" className="space-y-6">
-            <ProGate featureKey="planning_google_sync" featureLabel="Google Calendar Integration">
-              <GoogleCalendarIntegration />
-            </ProGate>
-            <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Integration">
-              <OutlookIntegrationConsolidated />
-            </ProGate>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <ProGate featureKey="planning_google_sync" featureLabel="Google Calendar Integration">
+                <GoogleCalendarIntegration />
+              </ProGate>
+              <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Integration">
+                <OutlookIntegrationConsolidated />
+              </ProGate>
+            </div>
           </TabsContent>
 
           <TabsContent value="data" className="space-y-6">
