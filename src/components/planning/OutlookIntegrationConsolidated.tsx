@@ -219,7 +219,7 @@ export const OutlookIntegrationConsolidated = ({ onSyncComplete }: OutlookIntegr
   };
 
   // Check if token is expiring soon (within 1 day)
-  const isTokenExpiringSoon = tokenExpiry && new Date(tokenExpiry).getTime() - Date.now() < 24 * 60 * 60 * 1000;
+  const isTokenExpiringSoon = tokenExpiry && new Date(tokenExpiry).getTime() - Date.now() < 15 * 60 * 1000;
 
   return (
     <Card>

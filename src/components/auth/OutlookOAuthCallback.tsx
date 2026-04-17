@@ -55,14 +55,22 @@ export const OutlookOAuthCallback = () => {
       }
 
       try {
-        // Wait for session to be restored after full-page redirect
-        let accessToken: string | undefined;
-        for (let i = 0; i < 5; i++) {
-          const { data: sessionData } = await supabase.auth.getSession();
-          accessToken = sessionData.session?.access_token;
-          if (accessToken) break;
-          await new Promise(r => setTimeout(r, 500));
-        }
+        // Wait up to 5s for Supabase to restore session from localStorage
+        const accessToken = await new Promise<string | null>((resolve) => {
+          supabase.auth.getSession().then(({ data }) => {
+            if (data.session?.access_token) {
+              resolve(data.session.access_token);
+              return;
+            }
+            const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+              if (session?.access_token) {
+                subscription.unsubscribe();
+                resolve(session.access_token);
+              }
+            });
+            setTimeout(() => { subscription.unsubscribe(); resolve(null); }, 5000);
+          });
+        });
 
         if (!accessToken) {
           throw new Error('No active session. Please log in and try again.');

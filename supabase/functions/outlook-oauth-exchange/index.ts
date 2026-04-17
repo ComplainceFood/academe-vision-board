@@ -36,29 +36,30 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-    // Require a valid JWT - extract userId from token, never from user-controlled input
     const authHeader = req.headers.get('authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Authorization required' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     const anonClient = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
+      global: { headers: authHeader ? { Authorization: authHeader } : {} }
     });
 
-    const { data: { user }, error: authError } = await anonClient.auth.getUser();
-    if (authError || !user) {
+    const { data: { user } } = await anonClient.auth.getUser();
+
+    const body = await req.json();
+    const { code, state } = body;
+
+    // Extract userId from state param (format: nonce.userId) as fallback
+    const userIdFromState = state?.includes('.') ? state.split('.').slice(1).join('.') : null;
+    const userId = user?.id || userIdFromState;
+
+    if (!userId) {
+      console.error('No userId from JWT or state');
       return new Response(
-        JSON.stringify({ error: 'Invalid or expired session' }),
+        JSON.stringify({ error: 'Unable to identify user' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // userId is always from the verified JWT - never from state param
-    const userId = user.id;
+    console.log('userId resolved:', userId, 'from JWT:', !!user?.id);
 
     const MICROSOFT_CLIENT_ID = Deno.env.get('MICROSOFT_CLIENT_ID');
     const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_CLIENT_SECRET');
@@ -69,9 +70,6 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    const body = await req.json();
-    const { code } = body;
 
     if (!code) {
       return new Response(

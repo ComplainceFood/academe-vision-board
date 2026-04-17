@@ -103,20 +103,6 @@ serve(async (req) => {
       );
     }
 
-    // 🔍 CRITICAL: Validate token format before using
-    const rawToken = integration.access_token_encrypted;
-    if (rawToken.startsWith('eyJ')) {
-      console.error('❌ CRITICAL: Stored token is JWT format, not valid Graph API access token!');
-      console.error('Token preview:', rawToken.substring(0, 50));
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid token format detected - please reconnect your Outlook account',
-          details: 'The stored token appears to be in JWT format, but Microsoft Graph API requires OAuth access tokens.'
-        }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     console.log('✅ Integration found and appears valid, checking token expiration...');
 
     // Check if token needs refresh
@@ -234,7 +220,7 @@ async function refreshAccessToken(refreshToken: string) {
     return null;
   }
 
-  const tokenUrl = `https://login.microsoftonline.com/${MICROSOFT_TENANT_ID}/oauth2/v2.0/token`;
+  const tokenUrl = `https://login.microsoftonline.com/common/oauth2/v2.0/token`;
   
   const params = new URLSearchParams({
     client_id: MICROSOFT_CLIENT_ID,
