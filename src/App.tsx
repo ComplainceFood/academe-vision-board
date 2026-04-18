@@ -28,6 +28,8 @@ import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
 import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
 import LandingPreview from "./pages/LandingPreview";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
+import PrivacyPolicy from "./components/legal/PrivacyPolicy";
+import TermsOfService from "./components/legal/TermsOfService";
 // Create a query client with automatic data refresh configuration
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -111,6 +113,8 @@ const AppContent = () => {
         <Route path="/landing" element={<LandingPreview />} />
         <Route path="/auth/google/callback" element={<GoogleOAuthCallback />} />
         <Route path="/auth/outlook/callback" element={<OutlookOAuthCallbackPage />} />
+        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
         
         {/* Protected routes - authentication required */}
         <Route
