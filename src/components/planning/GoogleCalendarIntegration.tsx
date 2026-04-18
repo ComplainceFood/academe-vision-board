@@ -209,8 +209,11 @@ export const GoogleCalendarIntegration: React.FC<GoogleCalendarIntegrationProps>
 
     setIsSyncing(true);
     try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
       const { data, error } = await supabase.functions.invoke('google-calendar-sync', {
-        body: {}
+        body: {},
+        headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : undefined,
       });
 
       if (error) {
