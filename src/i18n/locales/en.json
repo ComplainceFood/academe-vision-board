@@ -83,7 +83,14 @@
     "addQuickNote": "Add a quick note above to get started",
     "deleteNote": "Delete Note", "deleteNoteConfirm": "Are you sure you want to delete this note?",
     "catAll": "All Tasks", "catTeaching": "Teaching", "catStudents": "Students",
-    "catAdmin": "Admin", "catMeetings": "Meetings", "catGrading": "Grading"
+    "catAdmin": "Admin", "catMeetings": "Meetings", "catGrading": "Grading",
+    "noteStarred": "Note starred", "noteUnstarred": "Note unstarred",
+    "noteDeleted": "Note deleted", "noteDeletedDesc": "has been deleted.",
+    "noteUpdatedDesc": "has been updated.",
+    "commitmentComplete": "Commitment marked as complete",
+    "commitmentIncomplete": "Commitment marked as incomplete",
+    "failedUpdateNote": "Failed to update note",
+    "failedDeleteNote": "Failed to delete note"
   },
   "meetings": {
     "title": "Meetings", "addMeeting": "Add Meeting", "quickAddMeeting": "Quick add meeting...",
@@ -168,7 +175,10 @@
     "restrictions": "Restrictions",
     "reportingRequirements": "Reporting Requirements",
     "newGrant": "New Grant",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "expandNav": "Expand navigation",
+    "collapseNav": "Collapse navigation",
+    "subtitle": "Track research grants, funding sources & expenditures"
   },
   "achievements": {
     "title": "Scholastic Achievements", "addAchievement": "Add Achievement",
@@ -177,7 +187,8 @@
     "leadership": "Leadership", "exportCV": "Export CV", "invitedTalks": "Invited Talks",
     "professionalDev": "Professional Development", "externalImpact": "External Impact",
     "teachingPerformance": "Teaching Performance",
-    "awardHonor": "Awards & Honors"
+    "awardHonor": "Awards & Honors",
+    "subtitle": "Track publications, awards, and academic milestones"
   },
   "analytics": {
     "title": "Analytics", "productivity": "Productivity", "trends": "Trends",

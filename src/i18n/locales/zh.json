@@ -74,7 +74,14 @@
     "addQuickNote": "在上方添加快速笔记以开始",
     "deleteNote": "删除笔记", "deleteNoteConfirm": "您确定要删除此笔记吗？",
     "catAll": "全部任务", "catTeaching": "教学", "catStudents": "学生",
-    "catAdmin": "行政", "catMeetings": "会议", "catGrading": "评分"
+    "catAdmin": "行政", "catMeetings": "会议", "catGrading": "评分",
+    "noteStarred": "笔记已收藏", "noteUnstarred": "已取消收藏",
+    "noteDeleted": "笔记已删除", "noteDeletedDesc": "已被删除。",
+    "noteUpdatedDesc": "已更新。",
+    "commitmentComplete": "承诺已标记为完成",
+    "commitmentIncomplete": "承诺已标记为未完成",
+    "failedUpdateNote": "更新笔记失败",
+    "failedDeleteNote": "删除笔记失败"
   },
   "meetings": {
     "title": "会议", "addMeeting": "添加会议", "quickAddMeeting": "快速添加会议...",
@@ -158,7 +165,10 @@
     "restrictions": "限制",
     "reportingRequirements": "报告要求",
     "newGrant": "新建经费",
-    "navigation": "导航"
+    "navigation": "导航",
+    "expandNav": "展开导航",
+    "collapseNav": "收起导航",
+    "subtitle": "追踪科研经费、资金来源和支出"
   },
   "achievements": {
     "title": "学术成就", "addAchievement": "添加成就", "publications": "发表论文",
@@ -167,7 +177,8 @@
     "exportCV": "导出简历", "invitedTalks": "受邀演讲",
     "professionalDev": "专业发展", "externalImpact": "外部影响",
     "teachingPerformance": "教学绩效",
-    "awardHonor": "奖项与荣誉"
+    "awardHonor": "奖项与荣誉",
+    "subtitle": "追踪发表论文、奖项和学术里程碑"
   },
   "analytics": {
     "title": "数据分析", "productivity": "生产力", "trends": "趋势",

@@ -83,7 +83,14 @@
     "addQuickNote": "Ajoutez une note rapide ci-dessus pour commencer",
     "deleteNote": "Supprimer la Note", "deleteNoteConfirm": "Êtes-vous sûr de vouloir supprimer cette note ?",
     "catAll": "Toutes les Tâches", "catTeaching": "Enseignement", "catStudents": "Étudiants",
-    "catAdmin": "Administration", "catMeetings": "Réunions", "catGrading": "Notation"
+    "catAdmin": "Administration", "catMeetings": "Réunions", "catGrading": "Notation",
+    "noteStarred": "Note mise en favori", "noteUnstarred": "Note retirée des favoris",
+    "noteDeleted": "Note supprimée", "noteDeletedDesc": "a été supprimée.",
+    "noteUpdatedDesc": "a été mise à jour.",
+    "commitmentComplete": "Engagement marqué comme terminé",
+    "commitmentIncomplete": "Engagement marqué comme incomplet",
+    "failedUpdateNote": "Échec de la mise à jour de la note",
+    "failedDeleteNote": "Échec de la suppression de la note"
   },
   "meetings": {
     "title": "Réunions", "addMeeting": "Ajouter une Réunion",
@@ -178,7 +185,10 @@
     "restrictions": "Restrictions",
     "reportingRequirements": "Exigences de Rapport",
     "newGrant": "Nouvelle Bourse",
-    "navigation": "Navigation"
+    "navigation": "Navigation",
+    "expandNav": "Développer la navigation",
+    "collapseNav": "Réduire la navigation",
+    "subtitle": "Suivez vos bourses, sources de financement et dépenses"
   },
   "achievements": {
     "title": "Réalisations Académiques", "addAchievement": "Ajouter une Réalisation",
@@ -187,7 +197,8 @@
     "service": "Service", "leadership": "Leadership", "exportCV": "Exporter CV",
     "invitedTalks": "Conférences Invitées", "professionalDev": "Développement Professionnel",
     "externalImpact": "Impact Externe", "teachingPerformance": "Performance Pédagogique",
-    "awardHonor": "Prix et Distinctions"
+    "awardHonor": "Prix et Distinctions",
+    "subtitle": "Suivez vos publications, prix et jalons académiques"
   },
   "analytics": {
     "title": "Analyses", "productivity": "Productivité", "trends": "Tendances",

@@ -127,7 +127,7 @@ const AchievementsPage = () => {
                     <h1 className="text-base sm:text-xl font-bold tracking-tight">{t('achievements.title')}</h1>
                     <Sparkles className="h-4 w-4 text-accent animate-pulse" />
                   </div>
-                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('achievements.title')}</p>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('achievements.subtitle')}</p>
                 </div>
               </div>
 

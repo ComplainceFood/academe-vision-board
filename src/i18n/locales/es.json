@@ -79,7 +79,14 @@
     "addQuickNote": "Agrega una nota rápida arriba para comenzar",
     "deleteNote": "Eliminar Nota", "deleteNoteConfirm": "¿Estás seguro de que deseas eliminar esta nota?",
     "catAll": "Todas las Tareas", "catTeaching": "Docencia", "catStudents": "Estudiantes",
-    "catAdmin": "Administración", "catMeetings": "Reuniones", "catGrading": "Calificaciones"
+    "catAdmin": "Administración", "catMeetings": "Reuniones", "catGrading": "Calificaciones",
+    "noteStarred": "Nota destacada", "noteUnstarred": "Nota sin destacar",
+    "noteDeleted": "Nota eliminada", "noteDeletedDesc": "ha sido eliminada.",
+    "noteUpdatedDesc": "ha sido actualizada.",
+    "commitmentComplete": "Compromiso marcado como completado",
+    "commitmentIncomplete": "Compromiso marcado como incompleto",
+    "failedUpdateNote": "Error al actualizar la nota",
+    "failedDeleteNote": "Error al eliminar la nota"
   },
   "meetings": {
     "title": "Reuniones", "addMeeting": "Agregar Reunión",
@@ -170,7 +177,10 @@
     "restrictions": "Restricciones",
     "reportingRequirements": "Requisitos de Reporte",
     "newGrant": "Nueva Beca",
-    "navigation": "Navegación"
+    "navigation": "Navegación",
+    "expandNav": "Expandir navegación",
+    "collapseNav": "Contraer navegación",
+    "subtitle": "Rastrea becas, fuentes de financiamiento y gastos"
   },
   "achievements": {
     "title": "Logros Académicos", "addAchievement": "Agregar Logro",
@@ -179,7 +189,8 @@
     "service": "Servicio", "leadership": "Liderazgo", "exportCV": "Exportar CV",
     "invitedTalks": "Charlas Invitadas", "professionalDev": "Desarrollo Profesional",
     "externalImpact": "Impacto Externo", "teachingPerformance": "Desempeño Docente",
-    "awardHonor": "Premios y Reconocimientos"
+    "awardHonor": "Premios y Reconocimientos",
+    "subtitle": "Rastrea publicaciones, premios e hitos académicos"
   },
   "analytics": {
     "title": "Análisis", "productivity": "Productividad", "trends": "Tendencias",

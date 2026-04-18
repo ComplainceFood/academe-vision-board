@@ -11,6 +11,7 @@ import {
 import { Star, MoreVertical, Calendar as CalendarIcon, User as UserIcon, Copy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import type { Database } from "@/integrations/supabase/types";
 
 type Note = Database['public']['Tables']['notes']['Row'];
@@ -28,6 +29,7 @@ interface NoteCardProps {
 
 export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatus, onDuplicate, className = "", compact = false }: NoteCardProps) => {
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleStarToggle = async () => {
     try {
@@ -42,8 +44,8 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
         if (error) throw error;
 
         toast({
-          title: note.starred ? "Note unstarred" : "Note starred",
-          description: `"${note.title}" has been ${note.starred ? "unstarred" : "starred"}.`,
+          title: note.starred ? t('notes.noteUnstarred') : t('notes.noteStarred'),
+          description: `"${note.title}" has been ${note.starred ? t('common.unstar').toLowerCase() : t('common.star').toLowerCase()}.`,
         });
 
         onUpdate();
@@ -51,8 +53,8 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
     } catch (error) {
       console.error("Error toggling star:", error);
       toast({
-        title: "Error",
-        description: "Failed to update note",
+        title: t('common.error'),
+        description: t('notes.failedUpdateNote'),
         variant: "destructive",
       });
     }
@@ -71,8 +73,8 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
         if (error) throw error;
 
         toast({
-          title: "Note deleted",
-          description: `"${note.title}" has been deleted.`,
+          title: t('notes.noteDeleted'),
+          description: `"${note.title}" ${t('notes.noteDeletedDesc')}`,
         });
 
         onUpdate();
@@ -80,8 +82,8 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
     } catch (error) {
       console.error("Error deleting note:", error);
       toast({
-        title: "Error",
-        description: "Failed to delete note",
+        title: t('common.error'),
+        description: t('notes.failedDeleteNote'),
         variant: "destructive",
       });
     }
@@ -116,8 +118,8 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
         const isCompleted = updatedTags.includes("completed");
         
         toast({
-          title: isCompleted ? "Commitment marked as complete" : "Commitment marked as incomplete",
-          description: `"${note.title}" has been updated.`,
+          title: isCompleted ? t('notes.commitmentComplete') : t('notes.commitmentIncomplete'),
+          description: `"${note.title}" ${t('notes.noteUpdatedDesc')}`,
         });
 
         onUpdate();
@@ -125,8 +127,8 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
     } catch (error) {
       console.error("Error updating note:", error);
       toast({
-        title: "Error",
-        description: "Failed to update note",
+        title: t('common.error'),
+        description: t('notes.failedUpdateNote'),
         variant: "destructive",
       });
     }
@@ -158,7 +160,7 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
                   {note.starred && <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" />}
                   {isCompleted && (
                     <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
-                      Completed
+                      {t('notes.completed')}
                     </span>
                   )}
                 </div>
@@ -173,20 +175,20 @@ export const NoteCard = ({ note, onUpdate, onDelete, onToggleStar, onToggleStatu
                 <DropdownMenuContent align="end">
                   {note.type === "commitment" && (
                     <DropdownMenuItem onClick={handleComplete}>
-                      {isCompleted ? "Mark as Incomplete" : "Mark as Complete"}
+                      {isCompleted ? t('common.markIncomplete') : t('common.markComplete')}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem onClick={handleStarToggle}>
-                    {note.starred ? "Unstar" : "Star"}
+                    {note.starred ? t('common.unstar') : t('common.star')}
                   </DropdownMenuItem>
                   {onDuplicate && (
                     <DropdownMenuItem onClick={onDuplicate}>
                       <Copy className="h-4 w-4 mr-2" />
-                      Duplicate
+                      {t('common.duplicate')}
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">Delete</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDelete} className="text-destructive">{t('common.delete')}</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>

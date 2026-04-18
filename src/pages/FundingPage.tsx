@@ -99,11 +99,11 @@ const FundingPage = () => {
               </div>
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight">Grant Management</h1>
+                  <h1 className="text-xl sm:text-3xl font-bold tracking-tight leading-tight">{t('funding.title')}</h1>
                   <Sparkles className="h-4 w-4 sm:h-6 sm:w-6 text-yellow-300 animate-pulse shrink-0" />
                 </div>
                 <p className="text-primary-foreground/80 text-xs sm:text-base mt-0.5">
-                  Track research grants, funding sources &amp; expenditures
+                  {t('funding.subtitle')}
                 </p>
               </div>
             </div>
@@ -116,7 +116,7 @@ const FundingPage = () => {
                 className="bg-white text-primary hover:bg-white/90 font-semibold shadow-lg transition-all hover:scale-105 sm:size-lg"
               >
                 <Plus className="h-4 w-4 mr-1.5" />
-                New Grant
+                {t('funding.newGrant')}
               </Button>
               <Button
                 onClick={() => setShowExpenditureDialog(true)}
@@ -125,7 +125,7 @@ const FundingPage = () => {
                 className="border-white/60 text-white hover:bg-white/15 font-semibold shadow-lg transition-all hover:scale-105 bg-white/10 backdrop-blur-sm sm:size-lg"
               >
                 <Receipt className="h-4 w-4 mr-1.5" />
-                Record Expense
+                {t('funding.recordExpense')}
               </Button>
             </div>
           </div>
@@ -173,7 +173,7 @@ const FundingPage = () => {
               <div className="flex items-center justify-between px-3 py-3 border-b bg-muted/40">
                 {!navCollapsed && (
                   <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider pl-1">
-                    Navigation
+                    {t('funding.navigation')}
                   </span>
                 )}
                 <Button
@@ -181,7 +181,7 @@ const FundingPage = () => {
                   size="icon"
                   className={cn("h-7 w-7 rounded-lg hover:bg-primary/10", navCollapsed && "mx-auto")}
                   onClick={() => setNavCollapsed(prev => !prev)}
-                  title={navCollapsed ? "Expand navigation" : "Collapse navigation"}
+                  title={navCollapsed ? t('funding.expandNav') : t('funding.collapseNav')}
                 >
                   {navCollapsed
                     ? <ChevronRight className="h-4 w-4 text-muted-foreground" />
