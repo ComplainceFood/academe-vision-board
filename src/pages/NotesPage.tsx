@@ -57,18 +57,19 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-// Academic categories for teachers
-const CATEGORIES = [
-  { id: 'all', label: 'All Tasks', icon: ListTodo },
-  { id: 'teaching', label: 'Teaching', icon: GraduationCap },
-  { id: 'students', label: 'Students', icon: Users },
-  { id: 'admin', label: 'Admin', icon: FileText },
-  { id: 'meetings', label: 'Meetings', icon: Calendar },
-  { id: 'grading', label: 'Grading', icon: Clock },
+// Academic categories for teachers (labels resolved via t() inside component)
+const CATEGORY_DEFS = [
+  { id: 'all', labelKey: 'notes.catAll', icon: ListTodo },
+  { id: 'teaching', labelKey: 'notes.catTeaching', icon: GraduationCap },
+  { id: 'students', labelKey: 'notes.catStudents', icon: Users },
+  { id: 'admin', labelKey: 'notes.catAdmin', icon: FileText },
+  { id: 'meetings', labelKey: 'notes.catMeetings', icon: Calendar },
+  { id: 'grading', labelKey: 'notes.catGrading', icon: Clock },
 ];
 
 const NotesPage = () => {
   const { t } = useTranslation();
+  const CATEGORIES = CATEGORY_DEFS.map(c => ({ ...c, label: t(c.labelKey) }));
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [activeTab, setActiveTab] = useState<'tasks' | 'notes'>('tasks');
@@ -282,8 +283,8 @@ const NotesPage = () => {
                   <ListTodo className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div>
-                  <h1 className="text-base sm:text-xl font-bold">Academic Workspace</h1>
-                  <p className="text-primary-foreground/80 text-xs mt-0.5">Manage tasks, track deadlines, and organize your notes</p>
+                  <h1 className="text-base sm:text-xl font-bold">{t('notes.academicWorkspace')}</h1>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('notes.manageTasksDeadlines')}</p>
                 </div>
               </div>
               <Button
@@ -293,7 +294,7 @@ const NotesPage = () => {
                 variant="outline"
               >
                 <Plus className="h-3.5 w-3.5 mr-1.5" />
-                New Task
+                {t('notes.newTask')}
               </Button>
             </div>
 
@@ -322,11 +323,11 @@ const NotesPage = () => {
             <TabsList className="bg-muted/50">
               <TabsTrigger value="tasks" className="gap-2">
                 <ListTodo className="h-4 w-4" />
-                Tasks
+                {t('notes.tasks')}
               </TabsTrigger>
               <TabsTrigger value="notes" className="gap-2">
                 <StickyNote className="h-4 w-4" />
-                Notebooks
+                {t('notes.notebooks')}
               </TabsTrigger>
             </TabsList>
 
@@ -396,14 +397,14 @@ const NotesPage = () => {
                         checked={showCompleted} 
                         onCheckedChange={(checked) => setShowCompleted(checked as boolean)} 
                       />
-                      Show completed
+                      {t('notes.showCompleted')}
                     </label>
                     <label className="flex items-center gap-2 text-sm cursor-pointer">
                       <Checkbox 
                         checked={groupByDeadline} 
                         onCheckedChange={(checked) => setGroupByDeadline(checked as boolean)} 
                       />
-                      Group by deadline
+                      {t('notes.groupByDeadline')}
                     </label>
                   </CardContent>
                 </Card>
@@ -465,7 +466,7 @@ const NotesPage = () => {
                           <ListTodo className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                           <h3 className="font-medium mb-1">{t('notes.noTasksFound')}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {searchQuery ? 'Try a different search term' : 'Add your first task to get started'}
+                            {searchQuery ? t('notes.tryDifferentSearch') : t('notes.addFirstTask')}
                           </p>
                         </CardContent>
                       </Card>
@@ -516,10 +517,10 @@ const NotesPage = () => {
                     <CardContent className="p-8 text-center">
                       <FolderOpen className="h-12 w-12 mx-auto text-muted-foreground/50 mb-4" />
                       <h3 className="font-medium mb-1">
-                        {selectedFolderId ? 'No notes in this folder' : 'No notes yet'}
+                        {selectedFolderId ? t('notes.noNotesInFolder') : t('notes.noNotes')}
                       </h3>
                       <p className="text-sm text-muted-foreground">
-                        Add a quick note above to get started
+                        {t('notes.addQuickNote')}
                       </p>
                     </CardContent>
                   </Card>
@@ -629,15 +630,15 @@ const NotesPage = () => {
         <AlertDialog open={isDeleteNoteOpen} onOpenChange={setIsDeleteNoteOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete Note</AlertDialogTitle>
+              <AlertDialogTitle>{t('notes.deleteNote')}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to delete "{selectedNote?.title}"? This action cannot be undone.
+                {t('notes.deleteNoteConfirm')}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
               <AlertDialogAction onClick={handleDeleteNote} className="bg-destructive hover:bg-destructive/90">
-                Delete
+                {t('common.delete')}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

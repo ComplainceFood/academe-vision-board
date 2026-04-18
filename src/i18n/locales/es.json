@@ -20,7 +20,15 @@
     "pro": "Pro", "free": "Gratis", "deleting": "Eliminando...", "reschedule": "Reprogramar",
     "reminder": "Recordatorio", "upcoming": "Próximas", "past": "Pasadas", "all": "Todas",
     "overdue": "Vencido", "noResults": "No se encontraron resultados",
-    "tryAdjusting": "Intenta ajustar tu búsqueda"
+    "tryAdjusting": "Intenta ajustar tu búsqueda",
+    "receipt": "Recibo", "grant": "Beca", "record": "Registrar", "addFirst": "Agregar el primero",
+    "cannotUndo": "Esta acción no se puede deshacer.", "areYouSure": "¿Estás seguro?",
+    "viewDetails": "Ver Detalles", "markComplete": "Marcar como Completado", "markIncomplete": "Marcar como Incompleto",
+    "duplicate": "Duplicar", "star": "Destacar", "unstar": "Quitar Destacado",
+    "noNotesYet": "Sin notas todavía", "editNotes": "Editar Notas",
+    "created": "Creado", "due": "Vence", "student": "Estudiante",
+    "noActionItems": "No hay elementos de acción aún", "addActionItem": "Agregar nuevo elemento de acción...",
+    "enterNotes": "Ingresa notas aquí...", "saveChanges": "Guardar Cambios"
   },
   "settings": {
     "title": "Configuración", "profile": "Perfil", "notifications": "Notificaciones",
@@ -37,7 +45,8 @@
     "proFeatures": "Funciones Pro", "upgradeTitle": "Actualizar a Smart-Prof Pro",
     "monthly": "Mensual", "annual": "Anual", "savePercent": "Ahorra 20%",
     "upgradeNow": "Actualizar Ahora", "manageSubscription": "Gestionar Suscripción",
-    "connections": "Conexiones", "plan": "Plan"
+    "connections": "Conexiones", "plan": "Plan",
+    "appearance": "Apariencia", "replayTour": "Repetir Tour", "gettingStarted": "Tour de Inicio"
   },
   "auth": {
     "signIn": "Iniciar Sesión", "signUp": "Registrarse", "signOut": "Cerrar Sesión",
@@ -59,7 +68,18 @@
     "pending": "Pendiente", "recurring": "Recurrente", "overdue": "Vencido",
     "categories": "Categorías", "searchTasks": "Buscar tareas...",
     "searchNotes": "Buscar notas...", "addTaskPlaceholder": "Agrega una tarea y presiona Enter...",
-    "tasks": "Tareas", "subtasks": "Subtareas"
+    "tasks": "Tareas", "subtasks": "Subtareas",
+    "academicWorkspace": "Espacio de Trabajo Académico",
+    "manageTasksDeadlines": "Gestiona tareas, rastrea fechas límite y organiza tus notas",
+    "newTask": "Nueva Tarea", "notebooks": "Cuadernos",
+    "showCompleted": "Mostrar completados", "groupByDeadline": "Agrupar por fecha límite",
+    "addFirstTask": "Agrega tu primera tarea para comenzar",
+    "tryDifferentSearch": "Prueba un término de búsqueda diferente",
+    "noNotesInFolder": "No hay notas en esta carpeta",
+    "addQuickNote": "Agrega una nota rápida arriba para comenzar",
+    "deleteNote": "Eliminar Nota", "deleteNoteConfirm": "¿Estás seguro de que deseas eliminar esta nota?",
+    "catAll": "Todas las Tareas", "catTeaching": "Docencia", "catStudents": "Estudiantes",
+    "catAdmin": "Administración", "catMeetings": "Reuniones", "catGrading": "Calificaciones"
   },
   "meetings": {
     "title": "Reuniones", "addMeeting": "Agregar Reunión",
@@ -73,7 +93,30 @@
     "completed": "Completado", "cancelled": "Cancelado", "upcoming": "Próximas",
     "past": "Pasadas", "all": "Todas",
     "scheduleManage": "Programa y gestiona tus reuniones",
-    "reschedule": "Reprogramar", "reminder": "Recordatorio", "deleting": "Eliminando..."
+    "reschedule": "Reprogramar", "reminder": "Recordatorio", "deleting": "Eliminando...",
+    "inProgress": "En Progreso", "postponed": "Pospuesto",
+    "meetingsTitle": "Reuniones y 1:1",
+    "schedule": "Programar",
+    "thisWeek": "Esta Semana",
+    "viewDetails": "Ver Detalles",
+    "editMeeting": "Editar Reunión",
+    "cancelMeeting": "Cancelar Reunión",
+    "deleteMeeting": "Eliminar Reunión",
+    "deleteConfirmTitle": "¿Estás absolutamente seguro?",
+    "deleteConfirmDesc": "Esto eliminará permanentemente esta reunión y todos sus datos.",
+    "loadingMeetings": "Cargando reuniones...",
+    "notesAdded": "Notas agregadas",
+    "participants": "Participantes",
+    "actionItems": "Elementos de Acción",
+    "addActionItemSuccess": "Elemento de acción agregado correctamente",
+    "addActionItemError": "Error al agregar elemento de acción",
+    "removeActionItemSuccess": "Elemento de acción eliminado",
+    "removeActionItemError": "Error al eliminar elemento de acción",
+    "participantStatusUpdated": "Estado del participante actualizado",
+    "participantStatusError": "Error al actualizar el estado del participante",
+    "notesSaved": "Notas de reunión guardadas",
+    "notesSaveError": "Error al guardar las notas de la reunión",
+    "noMeetingNotesYet": "No hay notas de reunión aún. Haz clic en 'Editar Notas' para agregar."
   },
   "supplies": {
     "title": "Suministros y Gastos", "inventory": "Inventario",
@@ -105,7 +148,29 @@
     "fundingSources": "Fuentes de financiamiento", "trackSpending": "Rastrear gastos",
     "grantLinkedMeetings": "Reuniones vinculadas a becas",
     "grantNotesLogs": "Notas y registros de becas",
-    "searchGrants": "Buscar becas...", "searchExpenses": "Buscar gastos..."
+    "searchGrants": "Buscar becas...", "searchExpenses": "Buscar gastos...",
+    "allGrants": "Todas las Becas",
+    "noFundingSources": "No hay fuentes de financiamiento aún",
+    "noFundingSourcesDesc": "Agrega tu primera fuente de financiamiento para comenzar a rastrear tus becas y presupuestos.",
+    "addFundingSource": "Agregar Fuente de Financiamiento",
+    "recordExpense": "Registrar Gasto",
+    "recordFirstExpense": "Registrar Primer Gasto",
+    "noExpenses": "No hay gastos registrados",
+    "noExpensesDesc": "Comienza a rastrear tus gastos de becas para monitorear tu presupuesto.",
+    "allExpenses": "Todos los Gastos",
+    "deleteGrant": "Eliminar Fuente de Financiamiento",
+    "deleteGrantConfirm": "¿Estás seguro de que deseas eliminar esta fuente? Esta acción no se puede deshacer.",
+    "deleteExpense": "Eliminar Gasto",
+    "deleteExpenseConfirm": "¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.",
+    "viewGrant": "Ver Detalles",
+    "remainingBudget": "Presupuesto Restante",
+    "startDate": "Fecha de Inicio",
+    "endDate": "Fecha de Fin",
+    "contact": "Contacto",
+    "restrictions": "Restricciones",
+    "reportingRequirements": "Requisitos de Reporte",
+    "newGrant": "Nueva Beca",
+    "navigation": "Navegación"
   },
   "achievements": {
     "title": "Logros Académicos", "addAchievement": "Agregar Logro",
@@ -113,7 +178,8 @@
     "courses": "Cursos Impartidos", "supervision": "Supervisión de Estudiantes",
     "service": "Servicio", "leadership": "Liderazgo", "exportCV": "Exportar CV",
     "invitedTalks": "Charlas Invitadas", "professionalDev": "Desarrollo Profesional",
-    "externalImpact": "Impacto Externo", "teachingPerformance": "Desempeño Docente"
+    "externalImpact": "Impacto Externo", "teachingPerformance": "Desempeño Docente",
+    "awardHonor": "Premios y Reconocimientos"
   },
   "analytics": {
     "title": "Análisis", "productivity": "Productividad", "trends": "Tendencias",

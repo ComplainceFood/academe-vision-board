@@ -27,7 +27,15 @@
     "upload": "Upload", "required": "Required", "optional": "Optional",
     "pro": "Pro", "free": "Free", "deleting": "Deleting...", "reschedule": "Reschedule",
     "reminder": "Reminder", "upcoming": "Upcoming", "past": "Past", "all": "All",
-    "overdue": "Overdue", "noResults": "No results found", "tryAdjusting": "Try adjusting your search"
+    "overdue": "Overdue", "noResults": "No results found", "tryAdjusting": "Try adjusting your search",
+    "receipt": "Receipt", "grant": "Grant", "record": "Record", "addFirst": "Add your first",
+    "cannotUndo": "This action cannot be undone.", "areYouSure": "Are you sure?",
+    "viewDetails": "View Details", "markComplete": "Mark Complete", "markIncomplete": "Mark Incomplete",
+    "duplicate": "Duplicate", "star": "Star", "unstar": "Unstar",
+    "noNotesYet": "No notes yet", "editNotes": "Edit Notes",
+    "created": "Created", "due": "Due", "student": "Student",
+    "noActionItems": "No action items yet", "addActionItem": "Add new action item...",
+    "enterNotes": "Enter notes here...", "saveChanges": "Save Changes"
   },
   "settings": {
     "title": "Settings", "profile": "Profile", "notifications": "Notifications",
@@ -43,7 +51,8 @@
     "deleteAccount": "Delete Account", "proFeatures": "Pro Features",
     "upgradeTitle": "Upgrade to Smart-Prof Pro", "monthly": "Monthly", "annual": "Annual",
     "savePercent": "Save 20%", "upgradeNow": "Upgrade Now",
-    "manageSubscription": "Manage Subscription", "connections": "Connections", "plan": "Plan"
+    "manageSubscription": "Manage Subscription", "connections": "Connections", "plan": "Plan",
+    "appearance": "Appearance", "replayTour": "Replay Tour", "gettingStarted": "Getting Started Tour"
   },
   "auth": {
     "signIn": "Sign In", "signUp": "Sign Up", "signOut": "Sign Out",
@@ -63,7 +72,18 @@
     "recurring": "Recurring", "overdue": "Overdue", "categories": "Categories",
     "searchTasks": "Search tasks...", "searchNotes": "Search notes...",
     "addTaskPlaceholder": "Add a task and press Enter...",
-    "tasks": "Tasks", "subtasks": "Subtasks"
+    "tasks": "Tasks", "subtasks": "Subtasks",
+    "academicWorkspace": "Academic Workspace",
+    "manageTasksDeadlines": "Manage tasks, track deadlines, and organize your notes",
+    "newTask": "New Task", "notebooks": "Notebooks",
+    "showCompleted": "Show completed", "groupByDeadline": "Group by deadline",
+    "addFirstTask": "Add your first task to get started",
+    "tryDifferentSearch": "Try a different search term",
+    "noNotesInFolder": "No notes in this folder",
+    "addQuickNote": "Add a quick note above to get started",
+    "deleteNote": "Delete Note", "deleteNoteConfirm": "Are you sure you want to delete this note?",
+    "catAll": "All Tasks", "catTeaching": "Teaching", "catStudents": "Students",
+    "catAdmin": "Admin", "catMeetings": "Meetings", "catGrading": "Grading"
   },
   "meetings": {
     "title": "Meetings", "addMeeting": "Add Meeting", "quickAddMeeting": "Quick add meeting...",
@@ -74,7 +94,30 @@
     "agenda": "Agenda", "scheduled": "Scheduled", "completed": "Completed",
     "cancelled": "Cancelled", "upcoming": "Upcoming", "past": "Past", "all": "All",
     "scheduleManage": "Schedule and manage your meetings",
-    "reschedule": "Reschedule", "reminder": "Reminder", "deleting": "Deleting..."
+    "reschedule": "Reschedule", "reminder": "Reminder", "deleting": "Deleting...",
+    "inProgress": "In Progress", "postponed": "Postponed",
+    "meetingsTitle": "Meetings & 1:1s",
+    "schedule": "Schedule",
+    "thisWeek": "This Week",
+    "viewDetails": "View Details",
+    "editMeeting": "Edit Meeting",
+    "cancelMeeting": "Cancel Meeting",
+    "deleteMeeting": "Delete Meeting",
+    "deleteConfirmTitle": "Are you absolutely sure?",
+    "deleteConfirmDesc": "This will permanently delete this meeting and all its data.",
+    "loadingMeetings": "Loading meetings...",
+    "notesAdded": "Notes added",
+    "participants": "Participants",
+    "actionItems": "Action Items",
+    "addActionItemSuccess": "Action item added successfully",
+    "addActionItemError": "Failed to add action item",
+    "removeActionItemSuccess": "Action item removed",
+    "removeActionItemError": "Failed to remove action item",
+    "participantStatusUpdated": "Participant status updated",
+    "participantStatusError": "Failed to update participant status",
+    "notesSaved": "Meeting notes saved",
+    "notesSaveError": "Failed to save meeting notes",
+    "noMeetingNotesYet": "No meeting notes yet. Click 'Edit Notes' to add some."
   },
   "supplies": {
     "title": "Supplies & Expenses", "inventory": "Inventory", "shoppingList": "Shopping List",
@@ -103,7 +146,29 @@
     "budgetSummary": "Budget summary & charts", "fundingSources": "Funding sources",
     "trackSpending": "Track spending", "grantLinkedMeetings": "Grant-linked meetings",
     "grantNotesLogs": "Grant notes & logs", "searchGrants": "Search grants...",
-    "searchExpenses": "Search expenses..."
+    "searchExpenses": "Search expenses...",
+    "allGrants": "All Grants",
+    "noFundingSources": "No funding sources yet",
+    "noFundingSourcesDesc": "Add your first funding source to start tracking your grants and budgets effectively.",
+    "addFundingSource": "Add Funding Source",
+    "recordExpense": "Record Expense",
+    "recordFirstExpense": "Record First Expense",
+    "noExpenses": "No expenses recorded",
+    "noExpensesDesc": "Start tracking your grant expenditures to monitor your spending and stay within budget.",
+    "allExpenses": "All Expenses",
+    "deleteGrant": "Delete Funding Source",
+    "deleteGrantConfirm": "Are you sure you want to delete this funding source? This action cannot be undone.",
+    "deleteExpense": "Delete Expenditure",
+    "deleteExpenseConfirm": "Are you sure you want to delete this expenditure record? This action cannot be undone.",
+    "viewGrant": "View Details",
+    "remainingBudget": "Remaining Budget",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "contact": "Contact",
+    "restrictions": "Restrictions",
+    "reportingRequirements": "Reporting Requirements",
+    "newGrant": "New Grant",
+    "navigation": "Navigation"
   },
   "achievements": {
     "title": "Scholastic Achievements", "addAchievement": "Add Achievement",
@@ -111,7 +176,8 @@
     "courses": "Courses Taught", "supervision": "Student Supervision", "service": "Service",
     "leadership": "Leadership", "exportCV": "Export CV", "invitedTalks": "Invited Talks",
     "professionalDev": "Professional Development", "externalImpact": "External Impact",
-    "teachingPerformance": "Teaching Performance"
+    "teachingPerformance": "Teaching Performance",
+    "awardHonor": "Awards & Honors"
   },
   "analytics": {
     "title": "Analytics", "productivity": "Productivity", "trends": "Trends",

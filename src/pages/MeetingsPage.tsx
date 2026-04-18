@@ -40,12 +40,12 @@ import { useMeetings } from "@/hooks/useMeetings";
 import { useAuth } from "@/hooks/useAuth";
 import { PageGuide } from "@/components/common/PageGuide";
 
-const statusConfig: Record<string, { label: string; dot: string; badge: string }> = {
-  scheduled:   { label: "Scheduled",   dot: "bg-primary",     badge: "bg-primary/10 text-primary border-primary/20" },
-  in_progress: { label: "In Progress", dot: "bg-amber-500",   badge: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
-  completed:   { label: "Completed",   dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
-  cancelled:   { label: "Cancelled",   dot: "bg-destructive", badge: "bg-destructive/10 text-destructive border-destructive/20" },
-  postponed:   { label: "Postponed",   dot: "bg-muted-foreground", badge: "bg-muted text-muted-foreground border-border" },
+const statusConfig: Record<string, { labelKey: string; dot: string; badge: string }> = {
+  scheduled:   { labelKey: "meetings.scheduled",   dot: "bg-primary",     badge: "bg-primary/10 text-primary border-primary/20" },
+  in_progress: { labelKey: "meetings.inProgress",  dot: "bg-amber-500",   badge: "bg-amber-500/10 text-amber-600 border-amber-500/20" },
+  completed:   { labelKey: "meetings.completed",   dot: "bg-emerald-500", badge: "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" },
+  cancelled:   { labelKey: "meetings.cancelled",   dot: "bg-destructive", badge: "bg-destructive/10 text-destructive border-destructive/20" },
+  postponed:   { labelKey: "meetings.postponed",   dot: "bg-muted-foreground", badge: "bg-muted text-muted-foreground border-border" },
 };
 
 const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onViewDetails: (meeting: Meeting) => void;onEdit: (meeting: Meeting) => void;}) => {
@@ -116,7 +116,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
               <div className="flex items-center gap-1.5 flex-wrap">
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium border ${cfg.badge}`}>
                   <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot}`} />
-                  {cfg.label}
+                  {t(cfg.labelKey)}
                 </span>
                 <Badge variant="outline" className="text-[11px] px-2 py-0.5 capitalize">
                   {meeting.type.replace('_', ' ')}
@@ -163,44 +163,44 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-[190px]">
                     <DropdownMenuItem onClick={() => onViewDetails(meeting)}>
-                      <Eye className="h-4 w-4 mr-2" /> View Details
+                      <Eye className="h-4 w-4 mr-2" /> {t('meetings.viewDetails')}
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => onEdit(meeting)}>
-                      <Edit className="h-4 w-4 mr-2" /> Edit Meeting
+                      <Edit className="h-4 w-4 mr-2" /> {t('meetings.editMeeting')}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     {meeting.status !== "completed" && (
                       <DropdownMenuItem onClick={() => handleStatusChange("completed")}>
-                        <CheckCircle className="h-4 w-4 mr-2 text-emerald-500" /> Mark Complete
+                        <CheckCircle className="h-4 w-4 mr-2 text-emerald-500" /> {t('common.markComplete')}
                       </DropdownMenuItem>
                     )}
                     {meeting.status === "completed" && (
                       <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
-                        <ArrowUp className="h-4 w-4 mr-2 text-blue-500" /> Mark Incomplete
+                        <ArrowUp className="h-4 w-4 mr-2 text-blue-500" /> {t('common.markIncomplete')}
                       </DropdownMenuItem>
                     )}
                     {meeting.status !== "cancelled" && (
                       <DropdownMenuItem onClick={() => handleStatusChange("cancelled")}>
-                        <XCircle className="h-4 w-4 mr-2 text-amber-500" /> Cancel Meeting
+                        <XCircle className="h-4 w-4 mr-2 text-amber-500" /> {t('meetings.cancelMeeting')}
                       </DropdownMenuItem>
                     )}
                     {meeting.status === "cancelled" && (
                       <DropdownMenuItem onClick={() => handleStatusChange("scheduled")}>
-                        <Calendar className="h-4 w-4 mr-2 text-blue-500" /> Reschedule
+                        <Calendar className="h-4 w-4 mr-2 text-blue-500" /> {t('common.reschedule')}
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuSeparator />
                     <AlertDialog>
                       <AlertDialogTrigger asChild>
                         <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:text-destructive">
-                          <Trash2 className="h-4 w-4 mr-2" /> Delete Meeting
+                          <Trash2 className="h-4 w-4 mr-2" /> {t('meetings.deleteMeeting')}
                         </DropdownMenuItem>
                       </AlertDialogTrigger>
                       <AlertDialogContent>
                         <AlertDialogHeader>
-                          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                          <AlertDialogTitle>{t('meetings.deleteConfirmTitle')}</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will permanently delete "{meeting.title}" and all its data. This action cannot be undone.
+                            {t('meetings.deleteConfirmDesc')}
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -389,7 +389,7 @@ const MeetingsPage = () => {
                   <Calendar className="h-5 w-5 sm:h-6 sm:w-6" />
                 </div>
                 <div className="min-w-0">
-                  <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">Meetings & 1:1s</h1>
+                  <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">{t('meetings.meetingsTitle')}</h1>
                   <p className="text-primary-foreground/80 text-xs mt-0.5">{t('meetings.scheduleManage')}</p>
                 </div>
               </div>
@@ -405,7 +405,7 @@ const MeetingsPage = () => {
                   size="sm"
                   className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105 sm:size-lg">
                   <Calendar className="h-4 w-4 mr-1.5" />
-                  Schedule
+                  {t('meetings.schedule')}
                 </Button>
               </div>
             </div>
@@ -417,7 +417,7 @@ const MeetingsPage = () => {
                 <p className="text-lg sm:text-2xl font-bold">{stats.upcoming}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">This Week</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('meetings.thisWeek')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.thisWeek}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
@@ -425,7 +425,7 @@ const MeetingsPage = () => {
                 <p className="text-lg sm:text-2xl font-bold">{stats.past}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">Total</p>
+                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('common.total')}</p>
                 <p className="text-lg sm:text-2xl font-bold">{stats.total}</p>
               </div>
             </div>

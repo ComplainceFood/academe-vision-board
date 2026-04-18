@@ -28,6 +28,7 @@ import { FundingSource } from "@/types/funding";
 import { FundingSourceDialog } from "./FundingSourceDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -175,6 +176,7 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [sourceToDelete, setSourceToDelete] = useState<FundingSource | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleDelete = async () => {
     if (!sourceToDelete) return;
@@ -281,13 +283,13 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
               <Wallet className="h-12 w-12 text-emerald-600" />
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-2">No funding sources yet</h3>
+          <h3 className="text-2xl font-bold mb-2">{t('funding.noFundingSources')}</h3>
           <p className="text-muted-foreground text-center max-w-md mb-8">
-            Add your first funding source to start tracking your grants and budgets effectively.
+            {t('funding.noFundingSourcesDesc')}
           </p>
           <Button onClick={() => setIsAddDialogOpen(true)} size="lg" className="gap-2">
             <Plus className="h-5 w-5" />
-            Add Funding Source
+            {t('funding.addFundingSource')}
           </Button>
         </CardContent>
       </Card>
@@ -302,12 +304,12 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-bold">All Grants</h2>
+          <h2 className="text-2xl font-bold">{t('funding.allGrants')}</h2>
           <p className="text-sm text-muted-foreground mt-1">{sources.length} funding source{sources.length !== 1 ? 's' : ''}</p>
         </div>
         <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Add Grant
+          {t('funding.addGrant')}
         </Button>
       </div>
 
@@ -472,15 +474,15 @@ export const FundingSourcesList = ({ sources, isLoading, onRefetch }: FundingSou
       <AlertDialog open={!!sourceToDelete} onOpenChange={(open: boolean) => !open && setSourceToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Funding Source</AlertDialogTitle>
+            <AlertDialogTitle>{t('funding.deleteGrant')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{sourceToDelete?.name}"? This action cannot be undone and will also delete all associated expenditures.
+              {t('funding.deleteGrantConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

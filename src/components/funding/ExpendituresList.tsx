@@ -16,6 +16,7 @@ import { FundingExpenditure } from "@/types/funding";
 import { ExpenditureDialog } from "./ExpenditureDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useTranslation } from "react-i18next";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,6 +49,7 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [expenditureToDelete, setExpenditureToDelete] = useState<FundingExpenditure | null>(null);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleDelete = async () => {
     if (!expenditureToDelete) return;
@@ -147,13 +149,13 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
               <Receipt className="h-12 w-12 text-orange-600" />
             </div>
           </div>
-          <h3 className="text-2xl font-bold mb-2">No expenses recorded</h3>
+          <h3 className="text-2xl font-bold mb-2">{t('funding.noExpenses')}</h3>
           <p className="text-muted-foreground text-center max-w-md mb-8">
-            Start tracking your grant expenditures to monitor your spending and stay within budget.
+            {t('funding.noExpensesDesc')}
           </p>
           <Button onClick={() => setIsAddDialogOpen(true)} size="lg" className="gap-2">
             <Plus className="h-5 w-5" />
-            Record First Expense
+            {t('funding.recordFirstExpense')}
           </Button>
         </CardContent>
       </Card>
@@ -164,7 +166,7 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
     <>
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
-          <h2 className="text-2xl font-bold">All Expenses</h2>
+          <h2 className="text-2xl font-bold">{t('funding.allExpenses')}</h2>
           <div className="flex items-center gap-3 mt-1">
             <p className="text-sm text-muted-foreground">
               {expenditures.length} transaction{expenditures.length !== 1 ? 's' : ''}
@@ -177,7 +179,7 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
         </div>
         <Button onClick={() => setIsAddDialogOpen(true)} className="gap-2">
           <Plus className="h-4 w-4" />
-          Record Expense
+          {t('funding.recordExpense')}
         </Button>
       </div>
       
@@ -187,12 +189,12 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
             <Table>
               <TableHeader>
                 <TableRow className="bg-muted/50 hover:bg-muted/50">
-                  <TableHead className="font-semibold">Description</TableHead>
-                  <TableHead className="font-semibold">Grant</TableHead>
-                  <TableHead className="font-semibold">Category</TableHead>
-                  <TableHead className="font-semibold">Date</TableHead>
-                  <TableHead className="font-semibold">Receipt</TableHead>
-                  <TableHead className="text-right font-semibold">Amount</TableHead>
+                  <TableHead className="font-semibold">{t('common.description')}</TableHead>
+                  <TableHead className="font-semibold">{t('common.grant')}</TableHead>
+                  <TableHead className="font-semibold">{t('common.category')}</TableHead>
+                  <TableHead className="font-semibold">{t('common.date')}</TableHead>
+                  <TableHead className="font-semibold">{t('common.receipt')}</TableHead>
+                  <TableHead className="text-right font-semibold">{t('common.amount')}</TableHead>
                   <TableHead className="w-[50px]"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -306,15 +308,15 @@ export const ExpendituresList = ({ expenditures, isLoading, onRefetch }: Expendi
       <AlertDialog open={!!expenditureToDelete} onOpenChange={(open) => !open && setExpenditureToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Expenditure</AlertDialogTitle>
+            <AlertDialogTitle>{t('funding.deleteExpense')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete this expenditure record? This action cannot be undone.
+              {t('funding.deleteExpenseConfirm')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground">
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

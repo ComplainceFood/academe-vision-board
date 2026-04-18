@@ -18,7 +18,15 @@
     "upload": "上传", "required": "必填", "optional": "选填",
     "pro": "专业版", "free": "免费", "deleting": "删除中...", "reschedule": "重新安排",
     "reminder": "提醒", "upcoming": "即将到来", "past": "过去", "all": "全部",
-    "overdue": "已逾期", "noResults": "未找到结果", "tryAdjusting": "尝试调整您的搜索"
+    "overdue": "已逾期", "noResults": "未找到结果", "tryAdjusting": "尝试调整您的搜索",
+    "receipt": "收据", "grant": "经费", "record": "记录", "addFirst": "添加第一个",
+    "cannotUndo": "此操作无法撤销。", "areYouSure": "您确定吗？",
+    "viewDetails": "查看详情", "markComplete": "标记为完成", "markIncomplete": "标记为未完成",
+    "duplicate": "复制", "star": "收藏", "unstar": "取消收藏",
+    "noNotesYet": "暂无备注", "editNotes": "编辑备注",
+    "created": "创建于", "due": "截止", "student": "学生",
+    "noActionItems": "暂无行动项", "addActionItem": "添加新行动项...",
+    "enterNotes": "在此输入备注...", "saveChanges": "保存更改"
   },
   "settings": {
     "title": "设置", "profile": "个人资料", "notifications": "通知",
@@ -34,7 +42,8 @@
     "deleteAccount": "删除账户", "proFeatures": "专业功能",
     "upgradeTitle": "升级到 Smart-Prof 专业版", "monthly": "每月", "annual": "每年",
     "savePercent": "节省20%", "upgradeNow": "立即升级",
-    "manageSubscription": "管理订阅", "connections": "连接", "plan": "计划"
+    "manageSubscription": "管理订阅", "connections": "连接", "plan": "计划",
+    "appearance": "外观", "replayTour": "重播引导", "gettingStarted": "入门引导"
   },
   "auth": {
     "signIn": "登录", "signUp": "注册", "signOut": "退出登录",
@@ -54,7 +63,18 @@
     "recurring": "重复", "overdue": "已逾期", "categories": "类别",
     "searchTasks": "搜索任务...", "searchNotes": "搜索笔记...",
     "addTaskPlaceholder": "添加任务并按回车键...",
-    "tasks": "任务", "subtasks": "子任务"
+    "tasks": "任务", "subtasks": "子任务",
+    "academicWorkspace": "学术工作空间",
+    "manageTasksDeadlines": "管理任务、追踪截止日期、整理笔记",
+    "newTask": "新建任务", "notebooks": "笔记本",
+    "showCompleted": "显示已完成", "groupByDeadline": "按截止日期分组",
+    "addFirstTask": "添加您的第一个任务以开始",
+    "tryDifferentSearch": "尝试不同的搜索词",
+    "noNotesInFolder": "此文件夹中没有笔记",
+    "addQuickNote": "在上方添加快速笔记以开始",
+    "deleteNote": "删除笔记", "deleteNoteConfirm": "您确定要删除此笔记吗？",
+    "catAll": "全部任务", "catTeaching": "教学", "catStudents": "学生",
+    "catAdmin": "行政", "catMeetings": "会议", "catGrading": "评分"
   },
   "meetings": {
     "title": "会议", "addMeeting": "添加会议", "quickAddMeeting": "快速添加会议...",
@@ -65,7 +85,30 @@
     "scheduled": "已安排", "completed": "已完成", "cancelled": "已取消",
     "upcoming": "即将到来", "past": "过去", "all": "全部",
     "scheduleManage": "安排和管理您的会议",
-    "reschedule": "重新安排", "reminder": "提醒", "deleting": "删除中..."
+    "reschedule": "重新安排", "reminder": "提醒", "deleting": "删除中...",
+    "inProgress": "进行中", "postponed": "已推迟",
+    "meetingsTitle": "会议与一对一",
+    "schedule": "安排",
+    "thisWeek": "本周",
+    "viewDetails": "查看详情",
+    "editMeeting": "编辑会议",
+    "cancelMeeting": "取消会议",
+    "deleteMeeting": "删除会议",
+    "deleteConfirmTitle": "您确定吗？",
+    "deleteConfirmDesc": "这将永久删除此会议及其所有数据。",
+    "loadingMeetings": "加载会议中...",
+    "notesAdded": "已添加备注",
+    "participants": "参与者",
+    "actionItems": "行动项",
+    "addActionItemSuccess": "行动项添加成功",
+    "addActionItemError": "添加行动项失败",
+    "removeActionItemSuccess": "行动项已删除",
+    "removeActionItemError": "删除行动项失败",
+    "participantStatusUpdated": "参与者状态已更新",
+    "participantStatusError": "更新参与者状态失败",
+    "notesSaved": "会议备注已保存",
+    "notesSaveError": "保存会议备注失败",
+    "noMeetingNotesYet": "暂无会议备注。点击"编辑备注"添加。"
   },
   "supplies": {
     "title": "物资与费用", "inventory": "库存", "shoppingList": "购物清单",
@@ -93,7 +136,29 @@
     "budgetSummary": "预算摘要和图表", "fundingSources": "资金来源",
     "trackSpending": "跟踪支出", "grantLinkedMeetings": "与经费相关的会议",
     "grantNotesLogs": "经费笔记和日志",
-    "searchGrants": "搜索经费...", "searchExpenses": "搜索费用..."
+    "searchGrants": "搜索经费...", "searchExpenses": "搜索费用...",
+    "allGrants": "全部经费",
+    "noFundingSources": "暂无资金来源",
+    "noFundingSourcesDesc": "添加您的第一个资金来源，开始追踪经费和预算。",
+    "addFundingSource": "添加资金来源",
+    "recordExpense": "记录费用",
+    "recordFirstExpense": "记录第一笔费用",
+    "noExpenses": "暂无费用记录",
+    "noExpensesDesc": "开始追踪经费支出以监控预算。",
+    "allExpenses": "全部费用",
+    "deleteGrant": "删除资金来源",
+    "deleteGrantConfirm": "确定要删除此资金来源吗？此操作无法撤销。",
+    "deleteExpense": "删除支出",
+    "deleteExpenseConfirm": "确定要删除此支出记录吗？此操作无法撤销。",
+    "viewGrant": "查看详情",
+    "remainingBudget": "剩余预算",
+    "startDate": "开始日期",
+    "endDate": "结束日期",
+    "contact": "联系人",
+    "restrictions": "限制",
+    "reportingRequirements": "报告要求",
+    "newGrant": "新建经费",
+    "navigation": "导航"
   },
   "achievements": {
     "title": "学术成就", "addAchievement": "添加成就", "publications": "发表论文",
@@ -101,7 +166,8 @@
     "supervision": "学生指导", "service": "服务", "leadership": "领导力",
     "exportCV": "导出简历", "invitedTalks": "受邀演讲",
     "professionalDev": "专业发展", "externalImpact": "外部影响",
-    "teachingPerformance": "教学绩效"
+    "teachingPerformance": "教学绩效",
+    "awardHonor": "奖项与荣誉"
   },
   "analytics": {
     "title": "数据分析", "productivity": "生产力", "trends": "趋势",

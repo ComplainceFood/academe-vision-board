@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { useRefreshContext } from "@/App";
 import { Meeting, AttendeeInfo } from "@/types/meetings";
+import { useTranslation } from "react-i18next";
 
 interface MeetingDetailDialogProps {
   meeting: Meeting | null;
@@ -21,6 +22,7 @@ interface MeetingDetailDialogProps {
 
 export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDetailDialogProps) {
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isUpdating, setIsUpdating] = useState(false);
   const [newActionItem, setNewActionItem] = useState("");
   const [meetingNotes, setMeetingNotes] = useState("");
@@ -76,17 +78,17 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       if (error) throw error;
       
       toast({
-        title: "Success",
-        description: "Action item added successfully",
+        title: t('common.success'),
+        description: t('meetings.addActionItemSuccess'),
       });
-      
+
       setNewActionItem("");
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error adding action item:", error);
       toast({
-        title: "Error",
-        description: "Failed to add action item",
+        title: t('common.error'),
+        description: t('meetings.addActionItemError'),
         variant: "destructive",
       });
     } finally {
@@ -109,16 +111,16 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       if (error) throw error;
       
       toast({
-        title: "Success",
-        description: "Action item removed",
+        title: t('common.success'),
+        description: t('meetings.removeActionItemSuccess'),
       });
-      
+
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error removing action item:", error);
       toast({
-        title: "Error",
-        description: "Failed to remove action item",
+        title: t('common.error'),
+        description: t('meetings.removeActionItemError'),
         variant: "destructive",
       });
     } finally {
@@ -144,16 +146,16 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       if (error) throw error;
       
       toast({
-        title: "Success",
-        description: `Participant status updated`,
+        title: t('common.success'),
+        description: t('meetings.participantStatusUpdated'),
       });
-      
+
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error updating participant status:", error);
       toast({
-        title: "Error",
-        description: "Failed to update participant status",
+        title: t('common.error'),
+        description: t('meetings.participantStatusError'),
         variant: "destructive",
       });
     } finally {
@@ -173,17 +175,17 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
       if (error) throw error;
       
       toast({
-        title: "Success",
-        description: "Meeting notes saved",
+        title: t('common.success'),
+        description: t('meetings.notesSaved'),
       });
-      
+
       setIsEditingNotes(false);
       triggerRefresh('meetings');
     } catch (error) {
       console.error("Error saving meeting notes:", error);
       toast({
-        title: "Error",
-        description: "Failed to save meeting notes",
+        title: t('common.error'),
+        description: t('meetings.notesSaveError'),
         variant: "destructive",
       });
     } finally {
@@ -260,7 +262,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
             <div>
               <h3 className="text-md font-semibold mb-2 flex items-center gap-2">
                 <FileText className="h-4 w-4" />
-                Agenda
+                {t('meetings.agenda')}
               </h3>
               <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap">
                 {meeting.agenda}
@@ -269,13 +271,13 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
           )}
           
           <div>
-            <h3 className="text-md font-semibold mb-2">Participants</h3>
+            <h3 className="text-md font-semibold mb-2">{t('meetings.participants')}</h3>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>{t('common.name')}</TableHead>
+                  <TableHead>{t('common.status')}</TableHead>
+                  <TableHead className="text-right">{t('common.actions')}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -326,7 +328,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
           </ProGate>
 
           <div>
-            <h3 className="text-md font-semibold mb-2">Action Items</h3>
+            <h3 className="text-md font-semibold mb-2">{t('meetings.actionItems')}</h3>
             {meeting.action_items && meeting.action_items.length > 0 ? (
               <ul className="space-y-2">
                 {meeting.action_items.map((item, index) => (
@@ -346,13 +348,13 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">No action items yet</p>
+              <p className="text-sm text-muted-foreground">{t('common.noActionItems')}</p>
             )}
             
             <div className="mt-3 flex gap-2">
               <input
                 className="flex-1 px-3 py-2 text-sm border rounded-md"
-                placeholder="Add new action item"
+                placeholder={t('common.addActionItem')}
                 value={newActionItem}
                 onChange={(e) => setNewActionItem(e.target.value)}
                 disabled={isUpdating}
@@ -362,14 +364,14 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
                 disabled={!newActionItem.trim() || isUpdating} 
                 size="sm"
               >
-                Add
+                {t('common.add')}
               </Button>
             </div>
           </div>
           
           <div>
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-md font-semibold">Meeting Notes</h3>
+              <h3 className="text-md font-semibold">{t('common.notes')}</h3>
               {!isEditingNotes ? (
                 <Button 
                   variant="outline" 
@@ -378,7 +380,7 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
                   className="flex items-center gap-1"
                 >
                   <Edit className="h-3 w-3" />
-                  Edit Notes
+                  {t('common.editNotes')}
                 </Button>
               ) : (
                 <div className="flex gap-2">
@@ -390,14 +392,14 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
                       setIsEditingNotes(false);
                     }}
                   >
-                    Cancel
+                    {t('common.cancel')}
                   </Button>
-                  <Button 
-                    size="sm" 
+                  <Button
+                    size="sm"
                     onClick={handleSaveNotes}
                     disabled={isUpdating}
                   >
-                    Save
+                    {t('common.save')}
                   </Button>
                 </div>
               )}
@@ -407,13 +409,13 @@ export function MeetingDetailDialog({ meeting, isOpen, onOpenChange }: MeetingDe
               <Textarea
                 value={meetingNotes}
                 onChange={(e) => setMeetingNotes(e.target.value)}
-                placeholder="Enter meeting notes here..."
+                placeholder={t('common.enterNotes')}
                 className="min-h-[150px]"
                 disabled={isUpdating}
               />
             ) : (
               <div className="bg-muted/50 p-3 rounded-md text-sm whitespace-pre-wrap min-h-[100px]">
-                {meetingNotes || "No meeting notes yet. Click 'Edit Notes' to add some."}
+                {meetingNotes || t('meetings.noMeetingNotesYet')}
               </div>
             )}
           </div>
