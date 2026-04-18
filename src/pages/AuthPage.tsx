@@ -16,6 +16,7 @@ import { PrivacyPolicy } from "@/components/legal/PrivacyPolicy";
 import { TermsOfService } from "@/components/legal/TermsOfService";
 import { useAuth } from "@/hooks/useAuth";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff } from "lucide-react";
 
 const REMEMBER_ME_KEY = "smartprof_remember_email";
 
@@ -28,6 +29,7 @@ const AuthPage = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<any>(null);
+  const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
   const [showLegalAgreement, setShowLegalAgreement] = useState(false);
@@ -323,26 +325,37 @@ const AuthPage = () => {
               />
             </div>
             <div className="space-y-2">
-              <Input
-                type="password"
-                placeholder={t('auth.password')}
-                value={password}
-                onChange={async (e) => {
-                  setPassword(e.target.value);
-                  if (isSignUp && e.target.value) {
-                    try {
-                      const strength = await validatePasswordStrength(e.target.value);
-                      setPasswordStrength(strength);
-                    } catch {
-                      const strength = clientPasswordValidation(e.target.value);
-                      setPasswordStrength(strength);
+              <div className="relative">
+                <Input
+                  type={showPassword ? "text" : "password"}
+                  placeholder={t('auth.password')}
+                  value={password}
+                  onChange={async (e) => {
+                    setPassword(e.target.value);
+                    if (isSignUp && e.target.value) {
+                      try {
+                        const strength = await validatePasswordStrength(e.target.value);
+                        setPasswordStrength(strength);
+                      } catch {
+                        const strength = clientPasswordValidation(e.target.value);
+                        setPasswordStrength(strength);
+                      }
+                    } else {
+                      setPasswordStrength(null);
                     }
-                  } else {
-                    setPasswordStrength(null);
-                  }
-                }}
-                required
-              />
+                  }}
+                  required
+                  className="pr-10"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(v => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
               
               {isSignUp && passwordStrength && password && (
                 <div className="space-y-2">
