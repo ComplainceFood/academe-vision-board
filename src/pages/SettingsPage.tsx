@@ -424,7 +424,7 @@ const SettingsPage = () => {
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading settings...</p>
+            <p className="text-muted-foreground">{t('settings.loadingSettings')}</p>
           </div>
         </div>
       </MainLayout>
@@ -447,8 +447,8 @@ const SettingsPage = () => {
                 <Settings className="h-10 w-10" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">Settings</h1>
-                <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">Manage your account settings and preferences</p>
+                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight">{t('settings.title')}</h1>
+                <p className="text-primary-foreground/80 text-sm sm:text-lg mt-1">{t('settings.manageSettings')}</p>
               </div>
             </div>
           </div>
@@ -458,27 +458,27 @@ const SettingsPage = () => {
           <TabsList className="p-1.5 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full grid-cols-4 sm:grid-cols-8">
             <TabsTrigger value="profile" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <User className="h-4 w-4" />
-              <span className="hidden sm:inline">Profile</span>
+              <span className="hidden sm:inline">{t('settings.profile')}</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Bell className="h-4 w-4" />
-              <span className="hidden sm:inline">Notifications</span>
+              <span className="hidden sm:inline">{t('settings.notifications')}</span>
             </TabsTrigger>
             <TabsTrigger value="connections" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Link className="h-4 w-4" />
-              <span className="hidden sm:inline">Connections</span>
+              <span className="hidden sm:inline">{t('settings.connections')}</span>
             </TabsTrigger>
             <TabsTrigger value="data" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Database className="h-4 w-4" />
-              <span className="hidden sm:inline">Data</span>
+              <span className="hidden sm:inline">{t('settings.data')}</span>
             </TabsTrigger>
             <TabsTrigger value="subscription" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <CreditCard className="h-4 w-4" />
-              <span className="hidden sm:inline">Plan</span>
+              <span className="hidden sm:inline">{t('settings.plan')}</span>
             </TabsTrigger>
             <TabsTrigger value="security" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">Security</span>
+              <span className="hidden sm:inline">{t('settings.security')}</span>
             </TabsTrigger>
             <TabsTrigger value="language" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Globe className="h-4 w-4" />
@@ -486,7 +486,7 @@ const SettingsPage = () => {
             </TabsTrigger>
             <TabsTrigger value="appearance" className="flex items-center gap-2 px-3 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all">
               <Sun className="h-4 w-4" />
-              <span className="hidden sm:inline">Appearance</span>
+              <span className="hidden sm:inline">{t('settings.appearance')}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -494,24 +494,24 @@ const SettingsPage = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  Profile Information
+                  {t('settings.profileInformation')}
                   <div className="flex items-center gap-2">
                     {hasUnsavedChanges && (
-                      <span className="text-sm text-muted-foreground">Unsaved changes</span>
+                      <span className="text-sm text-muted-foreground">{t('settings.unsavedChanges')}</span>
                     )}
-                    <Button 
+                    <Button
                       onClick={handleSaveProfile}
                       disabled={!hasUnsavedChanges || saving}
                       size="sm"
                       className="flex items-center gap-2"
                     >
                       <Save className="h-4 w-4" />
-                      {saving ? "Saving..." : "Save Changes"}
+                      {saving ? t('common.saving') : t('common.saveChanges')}
                     </Button>
                   </div>
                 </CardTitle>
                 <CardDescription>
-                  Update your personal information and how others see you.
+                  {t('settings.updatePersonalInfo')}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -540,10 +540,10 @@ const SettingsPage = () => {
                       disabled={uploadingAvatar}
                     >
                       <Camera className="h-4 w-4" />
-                      {uploadingAvatar ? "Uploading..." : "Change Avatar"}
+                      {uploadingAvatar ? t('common.uploading') : t('settings.changeAvatar')}
                     </Button>
                     <p className="text-sm text-muted-foreground">
-                      JPG, GIF or PNG. 1MB max.
+                      {t('settings.avatarFormats')}
                     </p>
                   </div>
                 </div>
@@ -551,16 +551,16 @@ const SettingsPage = () => {
                 {/* Basic Information */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="displayName">Display Name</Label>
+                    <Label htmlFor="displayName">{t('settings.displayName')}</Label>
                     <Input
                       id="displayName"
                       value={displayName}
                       onChange={(e) => handleDisplayNameChange(e.target.value)}
-                      placeholder="How you'd like to be addressed"
+                      placeholder={t('settings.displayNamePlaceholder')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email <span className="text-xs text-muted-foreground">(change in Security tab)</span></Label>
+                    <Label htmlFor="email">{t('settings.email')} <span className="text-xs text-muted-foreground">{t('settings.changeInSecurity')}</span></Label>
                     <Input
                       id="email"
                       type="email"
@@ -570,25 +570,25 @@ const SettingsPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="firstName">{t('settings.firstName')}</Label>
                     <Input
                       id="firstName"
                       value={firstName}
                       onChange={(e) => handleFirstNameChange(e.target.value)}
-                      placeholder="First name"
+                      placeholder={t('settings.firstName')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">Last Name</Label>
+                    <Label htmlFor="lastName">{t('settings.lastName')}</Label>
                     <Input
                       id="lastName"
                       value={lastName}
                       onChange={(e) => handleLastNameChange(e.target.value)}
-                      placeholder="Last name"
+                      placeholder={t('settings.lastName')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone</Label>
+                    <Label htmlFor="phone">{t('settings.phone')}</Label>
                     <Input
                       id="phone"
                       value={phone}
@@ -597,42 +597,42 @@ const SettingsPage = () => {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="position">Position</Label>
+                    <Label htmlFor="position">{t('settings.position')}</Label>
                     <Input
                       id="position"
                       value={position}
                       onChange={(e) => handlePositionChange(e.target.value)}
-                      placeholder="Assistant Professor"
+                      placeholder={t('settings.positionPlaceholder')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
+                    <Label htmlFor="department">{t('settings.department')}</Label>
                     <Input
                       id="department"
                       value={department}
                       onChange={(e) => handleDepartmentChange(e.target.value)}
-                      placeholder="Computer Science"
+                      placeholder={t('settings.departmentPlaceholder')}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="officeLocation">Office Location</Label>
+                    <Label htmlFor="officeLocation">{t('settings.officeLocation')}</Label>
                     <Input
                       id="officeLocation"
                       value={officeLocation}
                       onChange={(e) => handleOfficeLocationChange(e.target.value)}
-                      placeholder="Building A, Room 123"
+                      placeholder={t('settings.officePlaceholder')}
                     />
                   </div>
                 </div>
 
                 {/* Bio */}
                 <div className="space-y-2">
-                  <Label htmlFor="bio">Bio</Label>
+                  <Label htmlFor="bio">{t('settings.bio')}</Label>
                   <Textarea
                     id="bio"
                     value={bio}
                     onChange={(e) => handleBioChange(e.target.value)}
-                    placeholder="Tell us a bit about yourself..."
+                    placeholder={t('settings.bioPlaceholder')}
                     rows={4}
                   />
                 </div>
@@ -644,16 +644,16 @@ const SettingsPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <HelpCircle className="h-5 w-5" />
-                  Getting Started Tour
+                  {t('settings.gettingStarted')}
                 </CardTitle>
-                <CardDescription>Replay the onboarding walkthrough to revisit key features.</CardDescription>
+                <CardDescription>{t('settings.gettingStartedDesc')}</CardDescription>
               </CardHeader>
               <CardContent>
                 <Button
                   variant="outline"
                   onClick={() => { resetOnboarding(); window.location.reload(); }}
                 >
-                  Replay Tour
+                  {t('settings.replayTour')}
                 </Button>
               </CardContent>
             </Card>
@@ -684,27 +684,25 @@ const SettingsPage = () => {
             {/* Password & Security Section */}
             <Card>
               <CardHeader>
-                <CardTitle>Password & Security</CardTitle>
-                <CardDescription>
-                  Manage your account credentials and security settings
-                </CardDescription>
+                <CardTitle>{t('settings.passwordSecurity')}</CardTitle>
+                <CardDescription>{t('settings.manageCredentials')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Change Email */}
                 <div className="space-y-4">
                   <h4 className="font-medium flex items-center gap-2">
                     <Mail className="h-4 w-4" />
-                    Change Email
+                    {t('settings.changeEmail')}
                   </h4>
                   <p className="text-sm text-muted-foreground">
-                    Current email: <span className="font-medium text-foreground">{user?.email}</span>
+                    {t('settings.currentEmail')} <span className="font-medium text-foreground">{user?.email}</span>
                   </p>
                   <div className="flex flex-col sm:flex-row gap-3 max-w-md">
                     <Input
                       type="email"
                       value={newEmail}
                       onChange={(e) => setNewEmail(e.target.value)}
-                      placeholder="New email address"
+                      placeholder={t('settings.newEmailPlaceholder')}
                     />
                     <Button
                       onClick={handleEmailUpdate}
@@ -712,48 +710,48 @@ const SettingsPage = () => {
                       variant="outline"
                       className="shrink-0"
                     >
-                      {updatingEmail ? "Sending..." : "Update Email"}
+                      {updatingEmail ? t('common.sending') : t('settings.updateEmail')}
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    A confirmation link will be sent to your new email address.
+                    {t('settings.emailConfirmation')}
                   </p>
                 </div>
 
                 <div className="border-t pt-6 space-y-4">
                   <h4 className="font-medium flex items-center gap-2">
                     <Key className="h-4 w-4" />
-                    Change Password
+                    {t('settings.changePassword')}
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="currentPassword">Current Password</Label>
+                      <Label htmlFor="currentPassword">{t('settings.currentPassword')}</Label>
                       <Input
                         id="currentPassword"
                         type="password"
                         value={currentPassword}
                         onChange={(e) => setCurrentPassword(e.target.value)}
-                        placeholder="Current password"
+                        placeholder={t('settings.currentPasswordPlaceholder')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="newPassword">New Password</Label>
+                      <Label htmlFor="newPassword">{t('settings.newPassword')}</Label>
                       <Input
                         id="newPassword"
                         type="password"
                         value={newPassword}
                         onChange={(e) => setNewPassword(e.target.value)}
-                        placeholder="New password"
+                        placeholder={t('settings.newPasswordPlaceholder')}
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                      <Label htmlFor="confirmPassword">{t('settings.confirmNewPassword')}</Label>
                       <Input
                         id="confirmPassword"
                         type="password"
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm new password"
+                        placeholder={t('settings.confirmPasswordPlaceholder')}
                       />
                     </div>
                   </div>
@@ -762,38 +760,38 @@ const SettingsPage = () => {
                     disabled={!currentPassword || !newPassword || !confirmPassword}
                     variant="outline"
                   >
-                    Update Password
+                    {t('settings.updatePassword')}
                   </Button>
                 </div>
 
                 <div className="border-t pt-6">
                   <h4 className="font-medium text-destructive flex items-center gap-2 mb-4">
                     <Trash2 className="h-4 w-4" />
-                    Danger Zone
+                    {t('settings.dangerZone')}
                   </h4>
                   <div className="space-y-4">
                     <div className="rounded-lg border border-destructive/20 p-4">
-                      <h5 className="font-medium mb-2">Request Account Deletion</h5>
+                      <h5 className="font-medium mb-2">{t('settings.requestAccountDeletion')}</h5>
                       <p className="text-sm text-muted-foreground mb-4">
-                        This will sign you out and submit a deletion request. Our team will permanently remove your account and all associated data within 30 days. This action cannot be undone.
+                        {t('settings.requestDeletionDesc')}
                       </p>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="destructive" size="sm">
-                            Request Deletion
+                            {t('settings.requestDeletion')}
                           </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Request account deletion?</AlertDialogTitle>
+                            <AlertDialogTitle>{t('settings.requestDeletionConfirm')}</AlertDialogTitle>
                             <AlertDialogDescription>
-                              You will be signed out immediately. Our support team will permanently delete your account and all data within 30 days. You can cancel this request by contacting support before then.
+                              {t('settings.requestDeletionConfirmDesc')}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
                             <AlertDialogAction onClick={handleAccountDeletion}>
-                              Yes, request deletion
+                              {t('settings.yesDeletion')}
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
@@ -811,9 +809,9 @@ const SettingsPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <CreditCard className="h-5 w-5" />
-                  Current Plan
+                  {t('settings.currentPlan')}
                 </CardTitle>
-                <CardDescription>Your active subscription and billing details</CardDescription>
+                <CardDescription>{t('settings.activeBillingDetails')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-4 rounded-xl border bg-muted/30">
@@ -841,13 +839,13 @@ const SettingsPage = () => {
                         </p>
                       )}
                       {!subscription.expires_at && !isPro && (
-                        <p className="text-sm text-muted-foreground mt-0.5">No active subscription</p>
+                        <p className="text-sm text-muted-foreground mt-0.5">{t('settings.noActiveSubscription')}</p>
                       )}
                     </div>
                   </div>
                   {isPro ? (
                     <Button variant="outline" onClick={handleManageBilling} disabled={loadingPortal}>
-                      {loadingPortal ? "Opening..." : "Manage Billing"}
+                      {loadingPortal ? t('settings.openingPortal') : t('settings.manageBilling')}
                     </Button>
                   ) : (
                     <Button onClick={() => handleUpgradeToPro(billingInterval)} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
@@ -859,7 +857,7 @@ const SettingsPage = () => {
                 {/* Billing interval toggle - shown inside card so it's clearly linked to the upgrade button */}
                 {!isPro && (
                   <div className="flex items-center justify-center gap-3 py-1">
-                    <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>Monthly</span>
+                    <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>{t('settings.monthly')}</span>
                     <button
                       type="button"
                       role="switch"
@@ -871,7 +869,7 @@ const SettingsPage = () => {
                       <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${billingInterval === "annual" ? "translate-x-6" : "translate-x-1"}`} />
                     </button>
                     <span className={`text-sm font-medium ${billingInterval === "annual" ? "text-foreground" : "text-muted-foreground"}`}>
-                      Annual
+                      {t('settings.annual')}
                       {prices?.annual?.unit_amount && prices?.monthly?.unit_amount && (
                         <span className="ml-1.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded-full font-semibold">
                           Save {Math.round((1 - (prices.annual.unit_amount / 12) / prices.monthly.unit_amount) * 100)}%
@@ -951,7 +949,7 @@ const SettingsPage = () => {
                   )}
                 </CardHeader>
                 <CardContent className="space-y-2">
-                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">Everything in Free, plus:</p>
+                  <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-2">{t('settings.everythingInFree')}</p>
                   {PRO_FEATURES.map((f) => (
                     <div key={f} className="flex items-center gap-2 text-sm">
                       <Zap className="h-4 w-4 text-amber-500 shrink-0" />
@@ -992,19 +990,19 @@ const SettingsPage = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Sun className="h-5 w-5" />
-                  Appearance
+                  {t('settings.appearance')}
                 </CardTitle>
-                <CardDescription>Customize how Smart-Prof looks on your device.</CardDescription>
+                <CardDescription>{t('settings.appearanceDesc')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <p className="text-sm font-medium mb-3">Theme</p>
+                  <p className="text-sm font-medium mb-3">{t('settings.theme')}</p>
                   <div className="grid grid-cols-3 gap-3">
                     {([
-                      { value: "light", label: "Light", icon: Sun },
-                      { value: "dark",  label: "Dark",  icon: Moon },
-                      { value: "system", label: "System", icon: Monitor },
-                    ] as const).map(({ value, label, icon: Icon }) => (
+                      { value: "light", labelKey: "settings.themeLight", icon: Sun },
+                      { value: "dark",  labelKey: "settings.themeDark",  icon: Moon },
+                      { value: "system", labelKey: "settings.themeSystem", icon: Monitor },
+                    ] as const).map(({ value, labelKey, icon: Icon }) => (
                       <button
                         key={value}
                         type="button"
@@ -1017,7 +1015,7 @@ const SettingsPage = () => {
                       >
                         <Icon className={`h-6 w-6 ${theme === value ? "text-primary" : "text-muted-foreground"}`} />
                         <span className={`text-sm font-medium ${theme === value ? "text-primary" : "text-muted-foreground"}`}>
-                          {label}
+                          {t(labelKey)}
                         </span>
                         {theme === value && (
                           <CheckCircle2 className="h-4 w-4 text-primary" />
@@ -1027,10 +1025,10 @@ const SettingsPage = () => {
                   </div>
                   <p className="text-xs text-muted-foreground mt-3">
                     {theme === "system"
-                      ? "Automatically matches your device's dark/light mode preference."
+                      ? t('settings.themeDescSystem')
                       : theme === "dark"
-                      ? "Dark mode is active — easier on the eyes in low-light environments."
-                      : "Light mode is active."}
+                      ? t('settings.themeDescDark')
+                      : t('settings.themeDescLight')}
                   </p>
                 </div>
               </CardContent>

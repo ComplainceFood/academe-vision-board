@@ -235,24 +235,24 @@ const PlanningPage = () => {
     try {
       if (currentEvent?.id) {
         await updatePlanningEvent({ id: currentEvent.id, updates: eventData });
-        toast({ title: "Event updated", description: "Your changes have been saved" });
+        toast({ title: t('planning.eventUpdated'), description: t('planning.eventUpdatedDesc') });
       } else {
         await createPlanningEvent(eventData);
-        toast({ title: "Event created", description: "Added to your calendar" });
+        toast({ title: t('planning.eventCreated'), description: t('planning.eventCreatedDesc') });
       }
       eventsQuery.refetch();
     } catch (error) {
-      toast({ title: "Error", description: "Failed to save event", variant: "destructive" });
+      toast({ title: t('common.error'), description: t('planning.eventSaveError'), variant: "destructive" });
     }
   };
 
   const handleTaskSave = async (taskData: FutureTaskFormData) => {
     if (currentTask?.id) {
       await updateFutureTask({ id: currentTask.id, updates: taskData });
-      toast({ title: "Task updated" });
+      toast({ title: t('planning.taskUpdated') });
     } else {
       await createFutureTask({...taskData, semester: activeFutureTab});
-      toast({ title: "Task added" });
+      toast({ title: t('planning.taskAdded') });
     }
   };
 
@@ -264,12 +264,12 @@ const PlanningPage = () => {
 
   const handleDeleteEvent = async (id: string) => {
     await deletePlanningEvent(id);
-    toast({ title: "Event deleted" });
+    toast({ title: t('planning.eventDeleted') });
   };
 
   const handleDeleteTask = async (id: string) => {
     await deleteFutureTask(id);
-    toast({ title: "Task deleted" });
+    toast({ title: t('planning.taskDeleted') });
   };
 
   // Group tasks by priority for better visualization
@@ -336,7 +336,7 @@ const PlanningPage = () => {
       setCurrentEvent(prefilledEvent as PlanningEvent);
       setIsEventDialogOpen(true);
       setAIInput("");
-      toast({ title: "Event parsed", description: "Review the pre-filled form and save." });
+      toast({ title: t('planning.eventParsed'), description: t('planning.eventParsedDesc') });
     } catch (err) {
       console.error("AI planning error:", err);
       openFallbackDialog();
@@ -360,7 +360,7 @@ const PlanningPage = () => {
     } as any);
     setIsEventDialogOpen(true);
     setAIInput("");
-    toast({ title: "AI unavailable", description: "Form pre-filled - adjust details and save.", variant: "default" });
+    toast({ title: t('planning.aiUnavailable'), description: t('planning.aiUnavailableDesc'), variant: "default" });
   };
 
   return (
@@ -385,7 +385,7 @@ const PlanningPage = () => {
                     <Sparkles className="h-4 w-4 sm:h-5 sm:w-5 text-accent animate-pulse shrink-0" />
                   </div>
                   <p className="text-primary-foreground/80 text-xs mt-0.5">
-                    Organize your academic calendar and plan future semesters
+                    {t('planning.subtitle')}
                   </p>
                 </div>
               </div>
@@ -396,7 +396,7 @@ const PlanningPage = () => {
                   onClick={() => handleOpenEventDialog()}
                 >
                   <Plus className="h-4 w-4 mr-1.5" />
-                  New Event
+                  {t('planning.newEvent')}
                 </Button>
                 <Button
                   size="sm"
@@ -404,7 +404,7 @@ const PlanningPage = () => {
                   onClick={() => handleOpenTaskDialog()}
                 >
                   <ListTodo className="h-4 w-4 mr-1.5" />
-                  Plan Task
+                  {t('planning.planTask')}
                 </Button>
               </div>
             </div>
@@ -450,13 +450,13 @@ const PlanningPage = () => {
               <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold text-primary">AI Smart Planner</span>
+                  <span className="text-sm font-semibold text-primary">{t('planning.aiSmartPlanner')}</span>
                   <Badge variant="secondary" className="text-xs">Beta</Badge>
-                  <span className="text-xs text-muted-foreground ml-1">Type in plain language - AI will parse the event for you</span>
+                  <span className="text-xs text-muted-foreground ml-1">{t('planning.aiSmartPlannerHint')}</span>
                 </div>
                 <div className="flex flex-col xs:flex-row gap-2">
                   <Input
-                    placeholder='e.g. "Midterm grading due this Friday"'
+                    placeholder={t('planning.aiInputPlaceholder')}
                     value={aiInput}
                     onChange={(e) => setAIInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') handleAISmartAdd(); }}
@@ -470,7 +470,7 @@ const PlanningPage = () => {
                   >
                     {isAIPlanning
                       ? <Loader2 className="h-4 w-4 animate-spin" />
-                      : <><Wand2 className="h-4 w-4 mr-1" />Add</>}
+                      : <><Wand2 className="h-4 w-4 mr-1" />{t('planning.aiAdd')}</>}
                   </Button>
                 </div>
                 {aiConflictWarning && (
@@ -506,13 +506,13 @@ const PlanningPage = () => {
               <ProGate featureKey="planning_outlook_sync" featureLabel="Outlook Calendar Sync">
                 <OutlookIntegrationConsolidated onSyncComplete={() => {
                   eventsQuery.refetch();
-                  toast({ title: "Outlook synced" });
+                  toast({ title: t('planning.outlookSynced') });
                 }} />
               </ProGate>
               <ProGate featureKey="planning_google_sync" featureLabel="Google Calendar Sync">
                 <GoogleCalendarIntegration onSyncComplete={() => {
                   eventsQuery.refetch();
-                  toast({ title: "Google Calendar synced" });
+                  toast({ title: t('planning.googleSynced') });
                 }} />
               </ProGate>
             </div>
@@ -527,7 +527,7 @@ const PlanningPage = () => {
                     <AlertCircle className="h-6 w-6 text-destructive" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">High Priority</p>
+                    <p className="text-sm text-muted-foreground">{t('planning.highPriority')}</p>
                     <p className="text-2xl font-bold">{stats.highPriorityTasks}</p>
                   </div>
                 </CardContent>
@@ -539,7 +539,7 @@ const PlanningPage = () => {
                     <Clock className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Est. Hours</p>
+                    <p className="text-sm text-muted-foreground">{t('planning.estHours')}</p>
                     <p className="text-2xl font-bold">{stats.totalEstimatedHours}h</p>
                   </div>
                 </CardContent>
@@ -551,7 +551,7 @@ const PlanningPage = () => {
                     <CheckCircle2 className="h-6 w-6 text-secondary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Total Tasks</p>
+                    <p className="text-sm text-muted-foreground">{t('planning.totalTasks')}</p>
                     <p className="text-2xl font-bold">{stats.totalFutureTasks}</p>
                   </div>
                 </CardContent>
@@ -565,13 +565,13 @@ const PlanningPage = () => {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       <GraduationCap className="h-5 w-5 text-primary" />
-                      Semester Planning
+                      {t('planning.semesterPlanning')}
                     </CardTitle>
                     <CardDescription>{t('planning.planAndTrack')}</CardDescription>
                   </div>
                   <Button onClick={() => handleOpenTaskDialog()} className="gap-2">
                     <Plus className="h-4 w-4" />
-                    Add Task
+                    {t('planning.addTask')}
                   </Button>
                 </div>
               </CardHeader>
@@ -607,7 +607,7 @@ const PlanningPage = () => {
                         className="gap-2 px-4 text-muted-foreground"
                       >
                         <Clock className="h-4 w-4" />
-                        Past Semesters
+                        {t('planning.pastSemesters')}
                       </TabsTrigger>
                     )}
                   </TabsList>
@@ -706,13 +706,13 @@ const PlanningPage = () => {
                         <div className="h-16 w-16 rounded-2xl bg-muted/50 flex items-center justify-center mx-auto mb-4">
                           <ListTodo className="h-8 w-8 text-muted-foreground" />
                         </div>
-                        <h3 className="text-lg font-semibold mb-2">No tasks for {activeFutureTab}</h3>
+                        <h3 className="text-lg font-semibold mb-2">{t('planning.noTasksFor')} {activeFutureTab}</h3>
                         <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
-                          Start planning ahead by adding tasks and goals for this semester.
+                          {t('planning.startPlanningAhead')}
                         </p>
                         <Button onClick={() => handleOpenTaskDialog()} className="gap-2">
                           <Plus className="h-4 w-4" />
-                          Add First Task
+                          {t('planning.addFirstTask')}
                         </Button>
                       </div>
                     )}
@@ -728,12 +728,12 @@ const PlanningPage = () => {
                   <div>
                     <CardTitle className="flex items-center gap-2 text-base">
                       <Target className="h-5 w-5 text-primary" />
-                      Semester Focus Plan
+                      {t('planning.semesterFocusPlan')}
                     </CardTitle>
                     <CardDescription className="mt-0.5">
-                      {activeFocus === 'teaching' && 'Teaching-focused priorities for this semester'}
-                      {activeFocus === 'research' && 'Research-focused priorities for this semester'}
-                      {activeFocus === 'both' && 'Teaching & research priorities for this semester'}
+                      {activeFocus === 'teaching' && t('planning.teachingFocusDesc')}
+                      {activeFocus === 'research' && t('planning.researchFocusDesc')}
+                      {activeFocus === 'both' && t('planning.bothFocusDesc')}
                     </CardDescription>
                   </div>
                   {/* Role toggle */}
@@ -749,7 +749,7 @@ const PlanningPage = () => {
                             : 'text-muted-foreground hover:text-foreground'
                         }`}
                       >
-                        {mode === 'both' ? 'Both' : mode === 'teaching' ? 'Teaching' : 'Research'}
+                        {mode === 'both' ? t('planning.focusBoth') : mode === 'teaching' ? t('planning.focusTeaching') : t('planning.focusResearch')}
                       </button>
                     ))}
                   </div>
@@ -758,7 +758,7 @@ const PlanningPage = () => {
                 {/* Progress bar */}
                 <div className="mt-3 space-y-1.5">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{checkedItems.size} of {focusItems.length} completed</span>
+                    <span>{checkedItems.size} {t('planning.focusOf')} {focusItems.length} {t('planning.focusCompleted')}</span>
                     <span className="font-medium text-foreground">{focusProgress}%</span>
                   </div>
                   <Progress value={focusProgress} className="h-1.5" />
@@ -829,7 +829,7 @@ const PlanningPage = () => {
                   <div className="mt-4 flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 p-3">
                     <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
                     <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                      All focus items complete - great semester!
+                      {t('planning.allFocusComplete')}
                     </p>
                   </div>
                 )}
@@ -844,7 +844,7 @@ const PlanningPage = () => {
           onOpenChange={setIsEventDialogOpen}
           onSave={handleEventSave}
           event={currentEvent}
-          title={currentEvent ? "Edit Event" : "Create New Event"}
+          title={currentEvent ? t('planning.editEvent') : t('planning.createNewEvent')}
         />
         
         <FutureTaskDialog
@@ -852,7 +852,7 @@ const PlanningPage = () => {
           onOpenChange={setIsTaskDialogOpen}
           onSave={handleTaskSave}
           task={currentTask}
-          title={currentTask ? "Edit Task" : "Add Future Task"}
+          title={currentTask ? t('planning.editTask') : t('planning.addFutureTask')}
           semester={activeFutureTab}
         />
       </div>

@@ -379,7 +379,7 @@ const SuppliesPage = () => {
                 </div>
                 <div className="min-w-0">
                   <h1 className="text-base sm:text-xl font-bold tracking-tight leading-tight">{t('supplies.title')}</h1>
-                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('supplies.title')}</p>
+                  <p className="text-primary-foreground/80 text-xs mt-0.5">{t('supplies.subtitle')}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-2 sm:gap-3">
@@ -390,7 +390,7 @@ const SuppliesPage = () => {
                 size="sm"
                 className="bg-primary-foreground/15 hover:bg-primary-foreground/25 text-primary-foreground border border-primary-foreground/20 backdrop-blur-sm shadow-lg transition-all hover:scale-105">
                   <Plus className="h-4 w-4 mr-1.5" />
-                  Add Item
+                  {t('supplies.addItem')}
                 </Button>
                 <Button
                 variant="outline"
@@ -399,7 +399,7 @@ const SuppliesPage = () => {
                 size="sm"
                 className="bg-background text-primary hover:bg-background/90 shadow-lg transition-all hover:scale-105">
                   <ShoppingBag className="h-4 w-4 mr-1.5" />
-                  Shopping
+                  {t('supplies.shopping')}
                   {shoppingListCount > 0 && <Badge variant="secondary" className="ml-1.5 text-[10px] px-1">{shoppingListCount}</Badge>}
                 </Button>
               </div>
@@ -416,11 +416,11 @@ const SuppliesPage = () => {
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{warningItems.length}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">Expenses</p>
+                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('supplies.expenses')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground truncate">${totalExpenses.toLocaleString()}</p>
               </div>
               <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">Shopping</p>
+                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('supplies.shopping')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{shoppingListCount}</p>
               </div>
             </div>
@@ -495,15 +495,15 @@ const SuppliesPage = () => {
       <AlertDialog open={!!itemToDelete} onOpenChange={(open) => !open && setItemToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this item from your inventory.
+              {t('common.deleteItemDesc')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isProcessing}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteSupply} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
-              {isProcessing ? 'Deleting...' : 'Delete'}
+              {isProcessing ? t('common.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -512,15 +512,15 @@ const SuppliesPage = () => {
       <AlertDialog open={!!expenseToDelete} onOpenChange={(open) => !open && setExpenseToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete this expense record.
+              {t('common.deleteExpenseItem')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isProcessing}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteExpense} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
-              {isProcessing ? 'Deleting...' : 'Delete'}
+              {isProcessing ? t('common.deleting') : t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -530,15 +530,15 @@ const SuppliesPage = () => {
       <AlertDialog open={bulkDeleteItems.length > 0} onOpenChange={(open) => !open && setBulkDeleteItems([])}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Multiple Items</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.deleteMultipleItems')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {bulkDeleteItems.length} selected items? This action cannot be undone.
+              {t('common.deleteMultipleDesc', { count: bulkDeleteItems.length })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isProcessing}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmBulkDelete} className="bg-destructive text-destructive-foreground" disabled={isProcessing}>
-              {isProcessing ? 'Deleting...' : `Delete ${bulkDeleteItems.length} Items`}
+              {isProcessing ? t('common.deleting') : t('common.deleteMultipleAction', { count: bulkDeleteItems.length })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -548,15 +548,15 @@ const SuppliesPage = () => {
       <AlertDialog open={bulkShoppingListItems.length > 0} onOpenChange={(open) => !open && setBulkShoppingListItems([])}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Add Items to Shopping List</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.addToShoppingList')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Add {bulkShoppingListItems.length} selected items to your shopping list? Quantities will be calculated based on threshold levels.
+              {t('common.addToShoppingListDesc', { count: bulkShoppingListItems.length })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isProcessing}>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmBulkAddToShoppingList} disabled={isProcessing}>
-              {isProcessing ? 'Adding...' : `Add ${bulkShoppingListItems.length} Items`}
+              {isProcessing ? t('common.adding') : t('common.addToShoppingListAction', { count: bulkShoppingListItems.length })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -565,14 +565,14 @@ const SuppliesPage = () => {
       <Dialog open={!!editingItem} onOpenChange={(open) => !open && setEditingItem(null)}>
         <DialogContent className="w-[95vw] sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>Update Stock</DialogTitle>
+            <DialogTitle>{t('common.updateStock')}</DialogTitle>
             <DialogDescription>
-              Update the current stock level for {editingItem?.name}
+              {t('common.updateStockDesc')} {editingItem?.name}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-2 py-2">
             <div className="grid grid-cols-1 sm:grid-cols-3 items-center gap-4">
-              <label htmlFor="current">Current Count:</label>
+              <label htmlFor="current">{t('common.currentCount')}</label>
               <Input
               id="current"
               type="number"
@@ -588,10 +588,10 @@ const SuppliesPage = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setEditingItem(null)} disabled={isProcessing}>
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleUpdateStock} disabled={isProcessing || Number.isNaN(updatedCount)}>
-              {isProcessing ? 'Saving...' : 'Save Changes'}
+              {isProcessing ? t('common.saving2') : t('common.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>

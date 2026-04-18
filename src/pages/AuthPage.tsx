@@ -268,7 +268,7 @@ const AuthPage = () => {
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl text-center">{t('auth.resetYourPassword')}</CardTitle>
             <CardDescription className="text-center">
-              Enter your email address and we'll send you a link to reset your password.
+              {t('auth.resetLinkDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -308,9 +308,9 @@ const AuthPage = () => {
           <CardDescription className="text-center">
             {isSignUp
               ? SIGNUPS_ENABLED
-                ? "Enter your email and password to create your account"
-                : "New registrations are temporarily closed"
-              : "Enter your email and password to sign in"}
+                ? t('auth.signUpDesc')
+                : t('auth.signUpsDisabled')
+              : t('auth.signInDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -360,7 +360,7 @@ const AuthPage = () => {
               {isSignUp && passwordStrength && password && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs">Password Strength:</span>
+                    <span className="text-xs">{t('common.passwordStrength')}</span>
                     <Badge 
                       variant={passwordStrength.strength === 'strong' ? 'default' : 
                               passwordStrength.strength === 'medium' ? 'secondary' : 'destructive'}
@@ -397,7 +397,7 @@ const AuthPage = () => {
                     htmlFor="remember-me"
                     className="text-sm text-muted-foreground cursor-pointer select-none"
                   >
-                    Remember me
+                    {t('common.rememberMe')}
                   </label>
                 </div>
                 <button
@@ -421,13 +421,13 @@ const AuthPage = () => {
                     className="mt-1"
                   />
                   <label htmlFor="terms-signup" className="text-sm leading-5 text-muted-foreground">
-                    I agree to the{" "}
+                    {t('auth.agreeToTerms')}{" "}
                     <button
                       type="button"
                       onClick={() => setShowTermsDialog(true)}
                       className="text-primary underline hover:no-underline font-medium"
                     >
-                      Terms of Service
+                      {t('auth.termsOfService')}
                     </button>
                   </label>
                 </div>
@@ -440,13 +440,13 @@ const AuthPage = () => {
                     className="mt-1"
                   />
                   <label htmlFor="privacy-signup" className="text-sm leading-5 text-muted-foreground">
-                    I agree to the{" "}
+                    {t('auth.agreeToTerms')}{" "}
                     <button
                       type="button"
                       onClick={() => setShowPrivacyDialog(true)}
                       className="text-primary underline hover:no-underline font-medium"
                     >
-                      Privacy Policy
+                      {t('auth.privacyPolicy')}
                     </button>
                   </label>
                 </div>
@@ -457,12 +457,12 @@ const AuthPage = () => {
             <Dialog open={showTermsDialog} onOpenChange={setShowTermsDialog}>
               <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
                 <DialogHeader>
-                  <DialogTitle>Terms of Service</DialogTitle>
-                  <DialogDescription>Please review our Terms of Service.</DialogDescription>
+                  <DialogTitle>{t('auth.termsOfService')}</DialogTitle>
+                  <DialogDescription>{t('auth.reviewTerms')}</DialogDescription>
                 </DialogHeader>
                 <TermsOfService />
                 <div className="flex justify-end mt-4">
-                  <Button type="button" onClick={() => setShowTermsDialog(false)} variant="outline">Close</Button>
+                  <Button type="button" onClick={() => setShowTermsDialog(false)} variant="outline">{t('common.close')}</Button>
                 </div>
               </DialogContent>
             </Dialog>
@@ -471,22 +471,22 @@ const AuthPage = () => {
             <Dialog open={showPrivacyDialog} onOpenChange={setShowPrivacyDialog}>
               <DialogContent className="max-w-4xl max-h-[80vh] overflow-auto">
                 <DialogHeader>
-                  <DialogTitle>Privacy Policy</DialogTitle>
-                  <DialogDescription>Please review our Privacy Policy.</DialogDescription>
+                  <DialogTitle>{t('auth.privacyPolicy')}</DialogTitle>
+                  <DialogDescription>{t('auth.reviewPrivacy')}</DialogDescription>
                 </DialogHeader>
                 <PrivacyPolicy />
                 <div className="flex justify-end mt-4">
-                  <Button type="button" onClick={() => setShowPrivacyDialog(false)} variant="outline">Close</Button>
+                  <Button type="button" onClick={() => setShowPrivacyDialog(false)} variant="outline">{t('common.close')}</Button>
                 </div>
               </DialogContent>
             </Dialog>
 
             <Button className="w-full" type="submit" disabled={isLoading || (isSignUp && (!agreedToTerms || !agreedToPrivacy))}>
               {isLoading
-                ? "Loading..."
+                ? t('common.loading')
                 : isSignUp
-                ? "Create account"
-                : "Sign in"}
+                ? t('auth.createAccountBtn')
+                : t('auth.signInBtn')}
             </Button>
           </form>
 
@@ -495,7 +495,7 @@ const AuthPage = () => {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              <span className="bg-background px-2 text-muted-foreground">{t('common.orContinueWith')}</span>
             </div>
           </div>
 

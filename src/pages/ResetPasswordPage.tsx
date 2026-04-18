@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 const ResetPasswordPage = () => {
+  const { t } = useTranslation();
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -40,7 +42,7 @@ const ResetPasswordPage = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      toast.error("Passwords do not match.");
+      toast.error(t('auth.passwordsNoMatch'));
       return;
     }
 
@@ -48,13 +50,13 @@ const ResetPasswordPage = () => {
     try {
       const { error } = await supabase.auth.updateUser({ password });
       if (error) throw error;
-      toast.success("Password updated successfully! Redirecting to sign in...");
+      toast.success(t('auth.passwordUpdated'));
       await supabase.auth.signOut();
       setTimeout(() => navigate("/auth"), 2000);
     } catch (error: any) {
-      let message = "Failed to update password. The reset link may have expired.";
+      let message = t('auth.passwordUpdateFailed');
       if (error.message?.includes("Password should be at least")) {
-        message = "Password must be at least 6 characters long.";
+        message = t('auth.passwordTooShort');
       }
       toast.error(message);
     } finally {
@@ -67,14 +69,14 @@ const ResetPasswordPage = () => {
       <div className="min-h-screen flex items-center justify-center bg-background p-4">
         <Card className="w-full max-w-md">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center">Invalid or expired link</CardTitle>
+            <CardTitle className="text-2xl text-center">{t('auth.invalidLink')}</CardTitle>
             <CardDescription className="text-center">
-              This password reset link is invalid or has already been used.
+              {t('auth.invalidLinkDesc')}
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
             <Button variant="outline" onClick={() => navigate("/auth")}>
-              Back to sign in
+              {t('auth.backToSignIn')}
             </Button>
           </CardContent>
         </Card>
@@ -86,9 +88,9 @@ const ResetPasswordPage = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl text-center">Set new password</CardTitle>
+          <CardTitle className="text-2xl text-center">{t('auth.setNewPassword')}</CardTitle>
           <CardDescription className="text-center">
-            Enter and confirm your new password below.
+            {t('auth.setNewPasswordDesc')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -96,7 +98,7 @@ const ResetPasswordPage = () => {
             <div className="space-y-2">
               <Input
                 type="password"
-                placeholder="New password"
+                placeholder={t('auth.newPasswordPlaceholder')}
                 value={password}
                 onChange={async (e) => {
                   setPassword(e.target.value);
@@ -117,7 +119,7 @@ const ResetPasswordPage = () => {
               {passwordStrength && password && (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs">Password Strength:</span>
+                    <span className="text-xs">{t('common.passwordStrength')}</span>
                     <Badge
                       variant={
                         passwordStrength.strength === "strong"
@@ -147,13 +149,13 @@ const ResetPasswordPage = () => {
             </div>
             <Input
               type="password"
-              placeholder="Confirm new password"
+              placeholder={t('auth.confirmNewPasswordPlaceholder')}
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
             />
             <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading ? "Updating..." : "Update password"}
+              {isLoading ? t('auth.updatingPassword') : t('auth.updatePasswordBtn')}
             </Button>
           </form>
         </CardContent>

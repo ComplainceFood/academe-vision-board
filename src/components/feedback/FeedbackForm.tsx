@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -25,6 +26,7 @@ const feedbackFormSchema = z.object({
 });
 
 export function FeedbackForm() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,8 +43,8 @@ export function FeedbackForm() {
   const onSubmit = async (data: FeedbackFormData) => {
     if (!user) {
       toast({
-        title: 'Authentication required',
-        description: 'You must be logged in to submit feedback.',
+        title: t('feedback.authRequired'),
+        description: t('feedback.authRequiredDesc'),
         variant: 'destructive'
       });
       return;
@@ -64,16 +66,16 @@ export function FeedbackForm() {
       if (error) throw error;
 
       toast({
-        title: 'Feedback submitted successfully!',
-        description: 'Thank you for your feedback. We\'ll review it and get back to you soon.'
+        title: t('feedback.successTitle'),
+        description: t('feedback.successDesc')
       });
 
       form.reset();
     } catch (error) {
       console.error('Error submitting feedback:', error);
       toast({
-        title: 'Error submitting feedback',
-        description: 'Please try again later.',
+        title: t('feedback.errorTitle'),
+        description: t('feedback.errorDesc'),
         variant: 'destructive'
       });
     } finally {
@@ -89,9 +91,9 @@ export function FeedbackForm() {
             <MessageSquarePlus className="h-8 w-8 text-primary" />
           </div>
         </div>
-        <CardTitle className="text-2xl">Submit Feedback</CardTitle>
+        <CardTitle className="text-2xl">{t('feedback.submitFeedback')}</CardTitle>
         <CardDescription>
-          Help us improve the platform by sharing your suggestions, reporting bugs, or requesting new features.
+          {t('feedback.submitFeedbackDesc')}
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -103,11 +105,11 @@ export function FeedbackForm() {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>{t('feedback.category')}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a category" />
+                          <SelectValue placeholder={t('feedback.selectCategory')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -128,11 +130,11 @@ export function FeedbackForm() {
                 name="priority"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Priority Level</FormLabel>
+                    <FormLabel>{t('feedback.priorityLevel')}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select priority" />
+                          <SelectValue placeholder={t('feedback.selectPriority')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -158,10 +160,10 @@ export function FeedbackForm() {
               name="subject"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Subject</FormLabel>
+                  <FormLabel>{t('feedback.subject')}</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="Brief summary of your feedback"
+                    <Input
+                      placeholder={t('feedback.subjectPlaceholder')}
                       {...field}
                     />
                   </FormControl>
@@ -175,10 +177,10 @@ export function FeedbackForm() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>{t('feedback.description')}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Provide detailed information about your feedback, suggestion, or issue..."
+                      placeholder={t('feedback.descriptionPlaceholder')}
                       className="min-h-[120px]"
                       {...field}
                     />
@@ -194,11 +196,11 @@ export function FeedbackForm() {
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                'Submitting...'
+                t('feedback.submitting')
               ) : (
                 <>
                   <Send className="mr-2 h-4 w-4" />
-                  Submit Feedback
+                  {t('feedback.submitFeedback')}
                 </>
               )}
             </Button>
