@@ -28,8 +28,8 @@ import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
 import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
 import LandingPreview from "./pages/LandingPreview";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
-import PrivacyPolicy from "./components/legal/PrivacyPolicy";
-import TermsOfService from "./components/legal/TermsOfService";
+import { PrivacyPolicy } from "./components/legal/PrivacyPolicy";
+import { TermsOfService } from "./components/legal/TermsOfService";
 // Create a query client with automatic data refresh configuration
 const queryClient = new QueryClient({
   defaultOptions: {
