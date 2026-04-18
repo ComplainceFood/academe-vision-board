@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useMemo } from "react";
 import { MainLayout } from "@/components/MainLayout";
 import { useUserRole } from "@/hooks/useUserRole";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
@@ -83,21 +83,24 @@ const Index = () => {
     return <LandingPreview />;
   }
 
-  // Calculate stats
-  const promiseCount = notes.filter((note: any) => note.type === 'commitment').length;
-  const upcomingMeetings = meetings.filter((meeting: any) =>
-    meeting.status === 'scheduled' && new Date(meeting.start_date) > new Date()
-  ).length;
-  const lowSuppliesCount = supplies.filter((supply: any) =>
-    supply.current_count <= supply.threshold
-  ).length;
-  const shoppingItemsCount = shoppingItems.filter((item: any) => !item.purchased).length;
-  const todoTasks = events.filter((event: any) =>
-    event.type === 'task' && !event.completed
-  ).length;
-  const upcomingDeadlines = events.filter((event: any) =>
-    event.type === 'deadline' && new Date(event.date) > new Date()
-  ).length;
+  // Calculate stats — memoized so they don't recompute on unrelated re-renders
+  const { promiseCount, upcomingMeetings, lowSuppliesCount, shoppingItemsCount, todoTasks, upcomingDeadlines } = useMemo(() => {
+    const now = new Date();
+    return {
+      promiseCount: notes.filter((note: any) => note.type === 'commitment').length,
+      upcomingMeetings: meetings.filter((meeting: any) =>
+        meeting.status === 'scheduled' && new Date(meeting.start_date) > now
+      ).length,
+      lowSuppliesCount: supplies.filter((supply: any) =>
+        supply.current_count <= supply.threshold
+      ).length,
+      shoppingItemsCount: shoppingItems.filter((item: any) => !item.purchased).length,
+      todoTasks: events.filter((event: any) => event.type === 'task' && !event.completed).length,
+      upcomingDeadlines: events.filter((event: any) =>
+        event.type === 'deadline' && new Date(event.date) > now
+      ).length,
+    };
+  }, [notes, meetings, supplies, shoppingItems, events]);
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 

@@ -7,36 +7,40 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
-import { createContext, useContext } from "react";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import NotesPage from "./pages/NotesPage";
-import MeetingsPage from "./pages/MeetingsPage";
-import SuppliesPage from "./pages/SuppliesPage";
-import PlanningPage from "./pages/PlanningPage";
-import FundingPage from "./pages/FundingPage";
-import AchievementsPage from "./pages/AchievementsPage";
-import AnalyticsPage from "./pages/AnalyticsPage";
-import TestingPage from "./pages/TestingPage";
-import SettingsPage from "./pages/SettingsPage";
-import FeedbackPage from "./pages/FeedbackPage";
-import CommunicationsPage from "./pages/CommunicationsPage";
-import AdminUsersPage from "./pages/AdminUsersPage";
+import { createContext, useContext, lazy, Suspense } from "react";
+import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
+
+// Eagerly loaded — needed immediately on any page load
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
 import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
 import LandingPreview from "./pages/LandingPreview";
-import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
-import { PrivacyPolicy } from "./components/legal/PrivacyPolicy";
-import { TermsOfService } from "./components/legal/TermsOfService";
-// Create a query client with automatic data refresh configuration
+import NotFound from "./pages/NotFound";
+
+// Lazy loaded — only fetched when the user navigates to that route
+const Index = lazy(() => import("./pages/Index"));
+const NotesPage = lazy(() => import("./pages/NotesPage"));
+const MeetingsPage = lazy(() => import("./pages/MeetingsPage"));
+const SuppliesPage = lazy(() => import("./pages/SuppliesPage"));
+const PlanningPage = lazy(() => import("./pages/PlanningPage"));
+const FundingPage = lazy(() => import("./pages/FundingPage"));
+const AchievementsPage = lazy(() => import("./pages/AchievementsPage"));
+const AnalyticsPage = lazy(() => import("./pages/AnalyticsPage"));
+const TestingPage = lazy(() => import("./pages/TestingPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const FeedbackPage = lazy(() => import("./pages/FeedbackPage"));
+const CommunicationsPage = lazy(() => import("./pages/CommunicationsPage"));
+const AdminUsersPage = lazy(() => import("./pages/AdminUsersPage"));
+const PrivacyPolicy = lazy(() => import("./components/legal/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
+const TermsOfService = lazy(() => import("./components/legal/TermsOfService").then(m => ({ default: m.TermsOfService })));
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false,
       refetchOnReconnect: true,
-      staleTime: 60000, // 1 minute
+      staleTime: 5 * 60 * 1000, // 5 minutes
     },
   },
 });
@@ -97,8 +101,6 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 const AppContent = () => {
   const { user, loading } = useAuth();
   
-  console.log('AppContent - user:', user?.id, 'loading:', loading);
-  
   if (loading) {
     return <div>Loading...</div>;
   }
@@ -106,6 +108,7 @@ const AppContent = () => {
   return (
     <>
       <OAuthTokenCapture />
+      <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
       <Routes>
         {/* Public routes - no authentication required */}
         <Route path="/auth" element={<AuthPage />} />
@@ -221,6 +224,7 @@ const AppContent = () => {
         />
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </>
   );
 };

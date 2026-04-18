@@ -313,13 +313,6 @@ const MeetingsPage = () => {
     }).length
   };
 
-  // Auto-refresh every 30 seconds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      window.dispatchEvent(new CustomEvent('refreshData'));
-    }, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const handleViewDetails = (meeting: Meeting) => {
     setSelectedMeeting(meeting);

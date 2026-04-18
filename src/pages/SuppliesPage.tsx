@@ -106,17 +106,6 @@ const SuppliesPage = () => {
   const refetchShoppingItemsRef = useRef(refetchShoppingItems);
   refetchShoppingItemsRef.current = refetchShoppingItems;
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      // Skip refresh when a dialog is open to avoid overwriting unsaved edits
-      if (!isProcessingRef.current && !isEditDialogOpenRef.current && !isAddItemDialogOpenRef.current) {
-        refetchSuppliesRef.current();
-        refetchExpensesRef.current();
-        refetchShoppingItemsRef.current();
-      }
-    }, 30000);
-    return () => clearInterval(id);
-  }, []); // stable — no deps needed
 
   const shoppingListCount = useMemo(
     () => shoppingItems.filter((item: any) => !item.purchased).length,
