@@ -1,16 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const PrivacyPolicy = () => {
   return (
+    <div className="min-h-screen bg-background py-12 px-4">
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
         <CardTitle>Privacy Policy</CardTitle>
         <p className="text-sm text-muted-foreground">Last updated: March 29, 2026</p>
       </CardHeader>
       <CardContent>
-        <ScrollArea className="h-96 w-full">
-          <div className="space-y-6 pr-4">
+          <div className="space-y-6">
             <section>
               <h3 className="text-lg font-semibold mb-2">1. Information We Collect</h3>
               <p className="text-sm leading-6">
@@ -95,8 +94,8 @@ export const PrivacyPolicy = () => {
               </p>
             </section>
           </div>
-        </ScrollArea>
       </CardContent>
     </Card>
+    </div>
   );
 };
