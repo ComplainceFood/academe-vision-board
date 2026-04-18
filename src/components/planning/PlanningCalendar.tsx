@@ -32,8 +32,10 @@ export function PlanningCalendar({
   const sortedEvents = [...events].sort((a, b) => a.date.localeCompare(b.date));
 
   const upcomingEvents = sortedEvents.filter(event => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
     const eventDate = new Date(`${event.date}T00:00:00`);
-    return eventDate >= new Date();
+    return eventDate >= today;
   }).slice(0, 5);
 
   const selectedDateEvents = selectedDate
@@ -215,7 +217,7 @@ export function PlanningCalendar({
                 <Calendar className="h-3.5 w-3.5 text-primary" />
                 Upcoming Events
               </h4>
-              <p className="text-xs text-muted-foreground">Next on your schedule</p>
+              <p className="text-xs text-muted-foreground">Next 5 upcoming events</p>
             </div>
             <div className="space-y-2">
               {upcomingEvents.length > 0 ? (
