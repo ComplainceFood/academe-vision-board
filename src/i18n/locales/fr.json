@@ -99,6 +99,7 @@
     "themeDescSystem": "Correspond automatiquement à la préférence mode sombre/clair de votre appareil.",
     "themeDescDark": "Le mode sombre est actif — plus reposant pour les yeux dans les environnements peu éclairés.",
     "themeDescLight": "Le mode clair est actif."
+  },
   "auth": {
     "signIn": "Se Connecter", "signUp": "S'inscrire", "signOut": "Se Déconnecter",
     "email": "Adresse E-mail", "password": "Mot de Passe",

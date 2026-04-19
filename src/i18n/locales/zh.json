@@ -93,6 +93,7 @@
     "themeDescSystem": "自动匹配您设备的深色/浅色模式偏好。",
     "themeDescDark": "深色模式已激活 — 在低光环境下更护眼。",
     "themeDescLight": "浅色模式已激活。"
+  },
   "auth": {
     "signIn": "登录", "signUp": "注册", "signOut": "退出登录",
     "email": "电子邮件", "password": "密码", "forgotPassword": "忘记密码？",
@@ -181,7 +182,7 @@
     "participantStatusError": "更新参与者状态失败",
     "notesSaved": "会议备注已保存",
     "notesSaveError": "保存会议备注失败",
-    "noMeetingNotesYet": "暂无会议备注。点击"编辑备注"添加。"
+    "noMeetingNotesYet": "暂无会议备注。点击「编辑备注」添加。"
   },
   "supplies": {
     "title": "物资与费用", "inventory": "库存", "shoppingList": "购物清单",
