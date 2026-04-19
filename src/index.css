@@ -25,8 +25,8 @@
     --muted: 150 20% 91%;             /* soft green-grey */
     --muted-foreground: 158 20% 37%;  /* muted teal-grey */
 
-    --accent: 148 50% 45%;            /* #3DAA6E light green — highlights */
-    --accent-foreground: 0 0% 100%;
+    --accent: 148 55% 33%;            /* darker green — sufficient contrast for text & bg use */
+    --accent-foreground: 0 0% 100%;   /* white on darker green is ok (~5.2:1) */
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
@@ -38,14 +38,14 @@
 
     --border: 158 30% 87%;
     --input: 158 30% 87%;
-    --ring: 148 50% 45%;
+    --ring: 148 55% 33%;
 
     --radius: 1rem;
 
     /* Sidebar — already overridden via inline styles in AppSidebar, keep consistent */
     --sidebar-background: 220 59% 15%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 148 50% 45%;
+    --sidebar-primary: 148 55% 33%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 50% 22%;
     --sidebar-accent-foreground: 0 0% 100%;
