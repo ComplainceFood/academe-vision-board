@@ -208,7 +208,7 @@ export function AppSidebar() {
           </div>
         </div>
         <div className="mb-2">
-          <LanguageSwitcher showLabel={false} />
+          <LanguageSwitcher showLabel={false} variant="sidebar" />
         </div>
         <div className="flex gap-2">
           <Button

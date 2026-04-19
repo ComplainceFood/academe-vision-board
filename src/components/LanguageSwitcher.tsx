@@ -5,14 +5,19 @@ import { Globe } from 'lucide-react';
 
 interface LanguageSwitcherProps {
   showLabel?: boolean;
+  variant?: 'default' | 'sidebar';
 }
 
-export function LanguageSwitcher({ showLabel = true }: LanguageSwitcherProps) {
+export function LanguageSwitcher({ showLabel = true, variant = 'default' }: LanguageSwitcherProps) {
   const { i18n, t } = useTranslation();
 
   const handleChange = (code: string) => {
     i18n.changeLanguage(code);
   };
+
+  const triggerClass = variant === 'sidebar'
+    ? "w-[140px] bg-white/10 border-white/20 text-white hover:bg-white/15 focus:ring-white/30"
+    : "w-[140px]";
 
   return (
     <div className="flex items-center gap-2">
@@ -23,7 +28,7 @@ export function LanguageSwitcher({ showLabel = true }: LanguageSwitcherProps) {
         </div>
       )}
       <Select value={i18n.language?.split('-')[0] || 'en'} onValueChange={handleChange}>
-        <SelectTrigger className="w-[140px]">
+        <SelectTrigger className={triggerClass}>
           <SelectValue />
         </SelectTrigger>
         <SelectContent>

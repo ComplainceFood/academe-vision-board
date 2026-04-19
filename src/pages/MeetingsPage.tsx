@@ -398,7 +398,8 @@ const MeetingsPage = () => {
                   type="meeting"
                   onQuickAdd={handleQuickAddMeeting}
                   onOpenFullForm={() => setIsCreateOpen(true)}
-                  placeholder={t('meetings.quickAddMeeting')} />
+                  placeholder={t('meetings.quickAddMeeting')}
+                  className="border-white/30 text-white hover:bg-white/10 bg-white/10" />
 
                 <Button
                   onClick={() => setIsCreateOpen(true)}
