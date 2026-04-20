@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { Globe, HelpCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { resetOnboarding } from "@/components/common/OnboardingModal";
+import { usePromoMode } from "@/hooks/useFeatureFlags";
 
 const PRO_FEATURES = [
   "AI CV Import & Biosketch Generator",
@@ -71,6 +72,7 @@ const SettingsPage = () => {
   const [prices, setPrices] = useState<PricesData | null>(null);
   const [pricesLoading, setPricesLoading] = useState(true);
   const { subscription, isPro, isTrial } = useSubscription();
+  const { promoActive } = usePromoMode();
   const { theme, setTheme } = useTheme();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -847,6 +849,10 @@ const SettingsPage = () => {
                     <Button variant="outline" onClick={handleManageBilling} disabled={loadingPortal}>
                       {loadingPortal ? t('settings.openingPortal') : t('settings.manageBilling')}
                     </Button>
+                  ) : promoActive ? (
+                    <Badge className="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5">
+                      Free — Limited Availability
+                    </Badge>
                   ) : (
                     <Button onClick={() => handleUpgradeToPro(billingInterval)} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
                       {loadingCheckout ? "Loading..." : `Upgrade to Pro · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
@@ -921,8 +927,19 @@ const SettingsPage = () => {
                     <CardTitle className="text-base">Pro</CardTitle>
                     {isPro && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Current</Badge>}
                   </div>
-                  {/* Dynamic price pulled live from Stripe - never hardcoded */}
-                  {pricesLoading ? (
+                  {promoActive ? (
+                    <div>
+                      <CardDescription className="text-2xl font-bold text-foreground flex items-baseline gap-2">
+                        {!pricesLoading && (prices?.monthly?.unit_amount != null) && (
+                          <span className="line-through text-muted-foreground text-lg">
+                            {formatPrice(prices.monthly.unit_amount, prices.monthly.currency)}/mo
+                          </span>
+                        )}
+                        <span className="text-green-600 dark:text-green-400">Free</span>
+                      </CardDescription>
+                      <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-0.5">Limited time promotion</p>
+                    </div>
+                  ) : pricesLoading ? (
                     <div className="h-8 w-28 bg-muted animate-pulse rounded mt-1" />
                   ) : billingInterval === "annual" ? (
                     <div>
@@ -957,13 +974,20 @@ const SettingsPage = () => {
                     </div>
                   ))}
                   {!isPro && (
-                    <Button
-                      className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white"
-                      onClick={() => handleUpgradeToPro(billingInterval)}
-                      disabled={loadingCheckout}
-                    >
-                      {loadingCheckout ? "Loading..." : `Start 14-day Free Trial · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
-                    </Button>
+                    promoActive ? (
+                      <div className="w-full mt-4 rounded-lg border border-green-300 bg-green-50 dark:bg-green-950/30 dark:border-green-800 px-4 py-3 text-center">
+                        <p className="text-sm font-semibold text-green-700 dark:text-green-400">Currently Free</p>
+                        <p className="text-xs text-green-600 dark:text-green-500 mt-0.5">Pro is available at no cost — limited availability promotion</p>
+                      </div>
+                    ) : (
+                      <Button
+                        className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white"
+                        onClick={() => handleUpgradeToPro(billingInterval)}
+                        disabled={loadingCheckout}
+                      >
+                        {loadingCheckout ? "Loading..." : `Start 14-day Free Trial · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
+                      </Button>
+                    )
                   )}
                 </CardContent>
               </Card>

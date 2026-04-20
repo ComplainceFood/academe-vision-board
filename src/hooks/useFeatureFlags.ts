@@ -31,6 +31,9 @@ export interface FeatureFlag {
   globallyEnabled: boolean;
 }
 
+// ── Promo flag key (exported for use in UI components) ────────────────────────
+export const PROMO_FLAG_KEY = "pro_free_promo";
+
 // Canonical list of gated features.
 // minTier = 'free' means everyone can use it.
 // minTier = 'pro'  means Pro + Enterprise only (unless globally enabled by admin).
@@ -276,4 +279,39 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
   );
 
   return { flags, userTier, canUse, toggleFlag, loading, refresh };
+}
+
+// ── usePromoMode ──────────────────────────────────────────────────────────────
+// Reads the pro_free_promo flag using the anon key so it works on the public
+// landing page without requiring the user to be logged in.
+export function usePromoMode(): { promoActive: boolean; loading: boolean } {
+  const [promoActive, setPromoActive] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    supabase
+      .from("feature_flags" as any)
+      .select("enabled")
+      .eq("key", PROMO_FLAG_KEY)
+      .maybeSingle()
+      .then(({ data }) => {
+        setPromoActive((data as any)?.enabled ?? false);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+
+    // Realtime: update instantly when admin toggles the flag
+    const channel = supabase
+      .channel("promo-flag-public")
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "feature_flags", filter: `key=eq.${PROMO_FLAG_KEY}` },
+        (payload) => setPromoActive((payload.new as any).enabled ?? false)
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  return { promoActive, loading };
 }

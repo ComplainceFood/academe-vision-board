@@ -32,6 +32,7 @@ import {
   Shield,
 } from "lucide-react";
 import { SmartProfLogo, SmartProfLogoWide } from "@/components/Logo";
+import { usePromoMode } from "@/hooks/useFeatureFlags";
 
 // Import preview images
 import notesPreview from "@/assets/landing/notes-preview.png";
@@ -135,6 +136,7 @@ const LandingPreview = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [prices, setPrices] = useState<{ monthly: PriceData; annual: PriceData } | null>(null);
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("monthly");
+  const { promoActive } = usePromoMode();
 
   // Fetch live prices from Stripe. Falls back to known amounts if Stripe isn't
   // configured in this environment - update FALLBACK_PRICES when you change
@@ -734,23 +736,47 @@ const LandingPreview = () => {
                 </span>
                 <CardContent className="p-6 flex flex-col h-full">
                   <div className="mb-4">
-                    <h3 className="text-2xl font-bold mb-1" style={{ color: "#F0F7F4" }}>Pro</h3>
-                    <p className="text-sm mb-4" style={{ color: C.mutedLight }}>For faculty and lab leads who want AI to draft and organize for them.</p>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-5xl font-black" style={{ color: "#F0F7F4" }}>
-                        {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
-                      </span>
-                      <span className="text-base font-medium" style={{ color: C.mutedLight }}>
-                        {billingInterval === "annual" ? "/ year" : "/ month"}
-                      </span>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="text-2xl font-bold" style={{ color: "#F0F7F4" }}>Pro</h3>
+                      {promoActive && (
+                        <span className="inline-flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full"
+                          style={{ background: "rgba(251,191,36,0.25)", border: "1px solid rgba(251,191,36,0.5)", color: "#fbbf24" }}>
+                          Limited availability
+                        </span>
+                      )}
                     </div>
-                    {billingInterval === "annual" && savingsPerMonth != null && savingsPerMonth > 0 ? (
-                      <p className="text-sm mt-1.5 font-medium" style={{ color: C.tealLight }}>
-                        {formatPrice(Math.round(shownPrice.unit_amount / 12), shownPrice.currency)}/mo · saves {formatPrice(savingsPerMonth, shownPrice.currency)}/mo vs monthly
-                      </p>
-                    ) : billingInterval === "monthly" ? (
-                      <p className="text-sm mt-1.5 font-medium" style={{ color: C.mutedLight }}>Switch to annual to save ~20%</p>
-                    ) : null}
+                    <p className="text-sm mb-4" style={{ color: C.mutedLight }}>For faculty and lab leads who want AI to draft and organize for them.</p>
+                    {promoActive ? (
+                      <div>
+                        <div className="flex items-baseline gap-3">
+                          <span className="text-4xl font-black line-through opacity-50" style={{ color: "#F0F7F4" }}>
+                            {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
+                          </span>
+                          <span className="text-5xl font-black" style={{ color: "#4ade80" }}>Free</span>
+                        </div>
+                        <p className="text-sm mt-1.5 font-medium" style={{ color: "#4ade80" }}>
+                          Limited time offer — full Pro access at no cost
+                        </p>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-5xl font-black" style={{ color: "#F0F7F4" }}>
+                            {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
+                          </span>
+                          <span className="text-base font-medium" style={{ color: C.mutedLight }}>
+                            {billingInterval === "annual" ? "/ year" : "/ month"}
+                          </span>
+                        </div>
+                        {billingInterval === "annual" && savingsPerMonth != null && savingsPerMonth > 0 ? (
+                          <p className="text-sm mt-1.5 font-medium" style={{ color: C.tealLight }}>
+                            {formatPrice(Math.round(shownPrice.unit_amount / 12), shownPrice.currency)}/mo · saves {formatPrice(savingsPerMonth, shownPrice.currency)}/mo vs monthly
+                          </p>
+                        ) : billingInterval === "monthly" ? (
+                          <p className="text-sm mt-1.5 font-medium" style={{ color: C.mutedLight }}>Switch to annual to save ~20%</p>
+                        ) : null}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-3 flex-1">
                     {[
@@ -767,10 +793,17 @@ const LandingPreview = () => {
                       </div>
                     ))}
                   </div>
-                  <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
-                    style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealLight} 100%)`, color: "#fff", border: "none" }}>
-                    <Link to="/auth?plan=pro">Start Pro trial</Link>
-                  </Button>
+                  {promoActive ? (
+                    <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
+                      style={{ background: "linear-gradient(135deg, #16a34a 0%, #4ade80 100%)", color: "#fff", border: "none" }}>
+                      <Link to="/auth">Get Pro free — limited availability</Link>
+                    </Button>
+                  ) : (
+                    <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
+                      style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealLight} 100%)`, color: "#fff", border: "none" }}>
+                      <Link to="/auth?plan=pro">Start Pro trial</Link>
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </motion.div>

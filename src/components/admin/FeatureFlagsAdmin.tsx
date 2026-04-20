@@ -5,8 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Sparkles, Lock, Unlock, RotateCcw, Save, Info, Globe } from "lucide-react";
-import { FEATURE_DEFINITIONS, useFeatureFlags, type SubscriptionTier } from "@/hooks/useFeatureFlags";
+import { Sparkles, Lock, Unlock, RotateCcw, Save, Info, Globe, Tag, Zap } from "lucide-react";
+import { FEATURE_DEFINITIONS, PROMO_FLAG_KEY, useFeatureFlags, usePromoMode, type SubscriptionTier } from "@/hooks/useFeatureFlags";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
@@ -23,6 +23,8 @@ const TIER_LABELS: Record<SubscriptionTier, string> = {
 
 export function FeatureFlagsAdmin() {
   const { flags, toggleFlag, loading } = useFeatureFlags();
+  const { promoActive } = usePromoMode();
+  const [promoSaving, setPromoSaving] = useState(false);
   const [localFlags, setLocalFlags] = useState<Record<string, boolean>>({});
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -103,6 +105,49 @@ export function FeatureFlagsAdmin() {
   return (
     <TooltipProvider>
       <div className="space-y-4">
+        {/* ── Pro Free Promo toggle ── */}
+        <Card className={`border-2 ${promoActive ? "border-amber-400 bg-amber-50/60 dark:bg-amber-950/20" : "border-border"}`}>
+          <CardContent className="py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div className="flex items-start gap-3">
+                <div className={`p-2 rounded-lg shrink-0 mt-0.5 ${promoActive ? "bg-amber-100 text-amber-600" : "bg-muted text-muted-foreground"}`}>
+                  <Tag className="h-4 w-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-semibold">Pro Free Promotion Mode</p>
+                    {promoActive && (
+                      <span className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 rounded-full bg-amber-500 text-white">
+                        <Zap className="h-3 w-3" /> ACTIVE
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-snug max-w-sm">
+                    When on: strikes out the Pro price on the landing page, shows "Free — Limited availability",
+                    and disables the Stripe checkout button for all visitors.
+                  </p>
+                </div>
+              </div>
+              <Switch
+                checked={promoActive}
+                disabled={promoSaving}
+                onCheckedChange={async (val) => {
+                  setPromoSaving(true);
+                  try {
+                    await toggleFlag(PROMO_FLAG_KEY, val);
+                    toast.success(val ? "Promo mode activated — Stripe checkout hidden, price shown as free." : "Promo mode deactivated — normal pricing restored.");
+                  } catch (err: any) {
+                    toast.error(err?.message || "Failed to update promo flag");
+                  } finally {
+                    setPromoSaving(false);
+                  }
+                }}
+                className="data-[state=checked]:bg-amber-500 shrink-0"
+              />
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Summary bar */}
         <Card className="border-primary/20 bg-primary/5">
           <CardContent className="py-4">
