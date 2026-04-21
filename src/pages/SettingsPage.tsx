@@ -27,7 +27,6 @@ import { useTranslation } from "react-i18next";
 import { Globe, HelpCircle } from "lucide-react";
 import { useTheme } from "next-themes";
 import { resetOnboarding } from "@/components/common/OnboardingModal";
-import { usePromoMode } from "@/hooks/useFeatureFlags";
 
 const PRO_FEATURES = [
   "AI CV Import & Biosketch Generator",
@@ -71,8 +70,7 @@ const SettingsPage = () => {
   const [billingInterval, setBillingInterval] = useState<"monthly" | "annual">("monthly");
   const [prices, setPrices] = useState<PricesData | null>(null);
   const [pricesLoading, setPricesLoading] = useState(true);
-  const { subscription, isPro, isTrial } = useSubscription();
-  const { promoActive } = usePromoMode();
+  const { subscription, isPro, isTrial, isPromo } = useSubscription();
   const { theme, setTheme } = useTheme();
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -845,13 +843,13 @@ const SettingsPage = () => {
                       )}
                     </div>
                   </div>
-                  {isPro ? (
+                  {isPro && !isPromo ? (
                     <Button variant="outline" onClick={handleManageBilling} disabled={loadingPortal}>
                       {loadingPortal ? t('settings.openingPortal') : t('settings.manageBilling')}
                     </Button>
-                  ) : promoActive ? (
+                  ) : isPromo ? (
                     <Badge className="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5">
-                      Free - Limited Availability
+                      Free Promo
                     </Badge>
                   ) : (
                     <Button onClick={() => handleUpgradeToPro(billingInterval)} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
@@ -860,30 +858,28 @@ const SettingsPage = () => {
                   )}
                 </div>
 
-                {/* Billing interval toggle - shown inside card so it's clearly linked to the upgrade button */}
-                {!isPro && (
-                  <div className="flex items-center justify-center gap-3 py-1">
-                    <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>{t('settings.monthly')}</span>
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={billingInterval === "annual" ? "true" : "false"}
-                      aria-label="Toggle billing interval between monthly and annual"
-                      onClick={() => setBillingInterval(b => b === "monthly" ? "annual" : "monthly")}
-                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${billingInterval === "annual" ? "bg-amber-500" : "bg-muted-foreground/30"}`}
-                    >
-                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${billingInterval === "annual" ? "translate-x-6" : "translate-x-1"}`} />
-                    </button>
-                    <span className={`text-sm font-medium ${billingInterval === "annual" ? "text-foreground" : "text-muted-foreground"}`}>
-                      {t('settings.annual')}
-                      {prices?.annual?.unit_amount && prices?.monthly?.unit_amount && (
-                        <span className="ml-1.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded-full font-semibold">
-                          Save {Math.round((1 - (prices.annual.unit_amount / 12) / prices.monthly.unit_amount) * 100)}%
-                        </span>
-                      )}
-                    </span>
-                  </div>
-                )}
+                {/* Billing interval toggle - shown for all users */}
+                <div className="flex items-center justify-center gap-3 py-1">
+                  <span className={`text-sm font-medium ${billingInterval === "monthly" ? "text-foreground" : "text-muted-foreground"}`}>{t('settings.monthly')}</span>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={billingInterval === "annual"}
+                    aria-label="Toggle billing interval between monthly and annual"
+                    onClick={() => setBillingInterval(b => b === "monthly" ? "annual" : "monthly")}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${billingInterval === "annual" ? "bg-amber-500" : "bg-muted-foreground/30"}`}
+                  >
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${billingInterval === "annual" ? "translate-x-6" : "translate-x-1"}`} />
+                  </button>
+                  <span className={`text-sm font-medium ${billingInterval === "annual" ? "text-foreground" : "text-muted-foreground"}`}>
+                    {t('settings.annual')}
+                    {prices?.annual?.unit_amount && prices?.monthly?.unit_amount && (
+                      <span className="ml-1.5 text-xs bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400 px-1.5 py-0.5 rounded-full font-semibold">
+                        Save {Math.round((1 - (prices.annual.unit_amount / 12) / prices.monthly.unit_amount) * 100)}%
+                      </span>
+                    )}
+                  </span>
+                </div>
 
                 {subscription.stripe_subscription_id && (
                   <p className="text-xs text-muted-foreground">
@@ -927,19 +923,7 @@ const SettingsPage = () => {
                     <CardTitle className="text-base">Pro</CardTitle>
                     {isPro && <Badge className="text-xs bg-amber-500 hover:bg-amber-600">Current</Badge>}
                   </div>
-                  {promoActive ? (
-                    <div>
-                      <CardDescription className="text-2xl font-bold text-foreground flex items-baseline gap-2">
-                        {!pricesLoading && (prices?.monthly?.unit_amount != null) && (
-                          <span className="line-through text-muted-foreground text-lg">
-                            {formatPrice(prices.monthly.unit_amount, prices.monthly.currency)}/mo
-                          </span>
-                        )}
-                        <span className="text-green-600 dark:text-green-400">Free</span>
-                      </CardDescription>
-                      <p className="text-xs text-green-600 dark:text-green-400 font-medium mt-0.5">Limited time promotion</p>
-                    </div>
-                  ) : pricesLoading ? (
+                  {pricesLoading ? (
                     <div className="h-8 w-28 bg-muted animate-pulse rounded mt-1" />
                   ) : billingInterval === "annual" ? (
                     <div>
@@ -974,20 +958,13 @@ const SettingsPage = () => {
                     </div>
                   ))}
                   {!isPro && (
-                    promoActive ? (
-                      <div className="w-full mt-4 rounded-lg border border-green-300 bg-green-50 dark:bg-green-950/30 dark:border-green-800 px-4 py-3 text-center">
-                        <p className="text-sm font-semibold text-green-700 dark:text-green-400">Currently Free</p>
-                        <p className="text-xs text-green-600 dark:text-green-500 mt-0.5">Pro is available at no cost - limited availability promotion</p>
-                      </div>
-                    ) : (
-                      <Button
-                        className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white"
-                        onClick={() => handleUpgradeToPro(billingInterval)}
-                        disabled={loadingCheckout}
-                      >
-                        {loadingCheckout ? "Loading..." : `Start 14-day Free Trial · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
-                      </Button>
-                    )
+                    <Button
+                      className="w-full mt-4 bg-amber-500 hover:bg-amber-600 text-white"
+                      onClick={() => handleUpgradeToPro(billingInterval)}
+                      disabled={loadingCheckout}
+                    >
+                      {loadingCheckout ? "Loading..." : `Start 14-day Free Trial · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
+                    </Button>
                   )}
                 </CardContent>
               </Card>

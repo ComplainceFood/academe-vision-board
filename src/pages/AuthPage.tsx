@@ -17,6 +17,8 @@ import { TermsOfService } from "@/components/legal/TermsOfService";
 import { useAuth } from "@/hooks/useAuth";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
+import { usePromoMode } from "@/hooks/useFeatureFlags";
 
 const REMEMBER_ME_KEY = "smartprof_remember_email";
 
@@ -37,6 +39,11 @@ const AuthPage = () => {
   const [showPrivacyDialog, setShowPrivacyDialog] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const { promoActive } = usePromoMode();
+  const planParam = searchParams.get("plan");
+
+  const PROMO_PENDING_KEY = "academe_promo_pending";
 
   // Sign-ups re-enabled
   const SIGNUPS_ENABLED = true;
@@ -160,9 +167,10 @@ const AuthPage = () => {
               body: { email, name: email.split('@')[0] }
             });
 
-            // Grant Pro tier server-side when user signed up via promo landing page CTA
+            // Mark promo grant pending - will execute on first successful sign-in
+            // (email confirmation may be required before a valid session exists)
             if (planParam === 'pro' && promoActive) {
-              await supabase.functions.invoke('grant-promo-pro');
+              localStorage.setItem(PROMO_PENDING_KEY, '1');
             }
           } catch (agreementError) {
             console.error('Error recording agreements:', agreementError);
@@ -201,6 +209,16 @@ const AuthPage = () => {
           if (!hasAgreements) {
             setShowLegalAgreement(true);
             return;
+          }
+        }
+
+        // Execute pending promo grant - user just confirmed email and signed in for first time
+        if (localStorage.getItem(PROMO_PENDING_KEY) && promoActive && data.user) {
+          localStorage.removeItem(PROMO_PENDING_KEY);
+          try {
+            await supabase.functions.invoke('grant-promo-pro');
+          } catch (e) {
+            console.error('Promo grant failed:', e);
           }
         }
 
