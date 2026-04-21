@@ -47,10 +47,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' && session) {
           const provider = session.user.app_metadata?.provider;
           if (provider === 'google') {
-            // Store flag - GoogleCalendarIntegration will pick this up and trigger connection
             sessionStorage.setItem('oauth_calendar_connect', 'google');
           } else if (provider === 'azure') {
             sessionStorage.setItem('oauth_calendar_connect', 'azure');
+          }
+
+          // Grant promo Pro if signup happened during an active promo
+          // This runs after email confirmation redirect lands back in the app
+          const PROMO_PENDING_KEY = 'academe_promo_pending';
+          if (localStorage.getItem(PROMO_PENDING_KEY)) {
+            localStorage.removeItem(PROMO_PENDING_KEY);
+            supabase.functions.invoke('grant-promo-pro').catch((e) =>
+              console.error('Promo grant failed:', e)
+            );
           }
         }
       }

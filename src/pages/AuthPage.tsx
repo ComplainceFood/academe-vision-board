@@ -212,16 +212,6 @@ const AuthPage = () => {
           }
         }
 
-        // Execute pending promo grant - user just confirmed email and signed in for first time
-        if (localStorage.getItem(PROMO_PENDING_KEY) && promoActive && data.user) {
-          localStorage.removeItem(PROMO_PENDING_KEY);
-          try {
-            await supabase.functions.invoke('grant-promo-pro');
-          } catch (e) {
-            console.error('Promo grant failed:', e);
-          }
-        }
-
         // Existing user clicked "Start Pro trial" from landing page (promo off) - send to Stripe
         if (planParam === 'pro' && !promoActive && data.user) {
           const { data: checkoutData } = await supabase.functions.invoke('create-checkout-session', {

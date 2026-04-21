@@ -72,9 +72,10 @@ const SUBSCRIPTION_TIERS = [
 
 const SUBSCRIPTION_STATUSES = [
   { value: 'active', label: 'Active', color: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' },
+  { value: 'promo', label: 'Promo', color: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' },
+  { value: 'trial', label: 'Trial', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
   { value: 'suspended', label: 'Suspended', color: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' },
   { value: 'expired', label: 'Expired', color: 'bg-muted text-muted-foreground' },
-  { value: 'trial', label: 'Trial', color: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400' },
 ];
 
 const TIER_BADGE: Record<string, string> = {
@@ -172,7 +173,8 @@ export default function AdminUsersPage() {
     total: profiles.length,
     active: subscriptions.filter(s => s.status === 'active').length,
     suspended: subscriptions.filter(s => s.status === 'suspended').length,
-    pro: subscriptions.filter(s => s.tier === 'pro' || s.tier === 'enterprise').length,
+    pro: subscriptions.filter(s => (s.tier === 'pro' || s.tier === 'enterprise') && s.status !== 'promo').length,
+    promo: subscriptions.filter(s => s.status === 'promo').length,
   };
 
   const openEditDialog = (userId: string) => {
@@ -291,12 +293,13 @@ export default function AdminUsersPage() {
 
           {/* ── Overview ───────────────────────────────────────────────────── */}
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
               {[
                 { label: 'Total Users', value: stats.total, color: '' },
                 { label: 'Active', value: stats.active, color: 'text-green-600' },
-                { label: 'Suspended', value: stats.suspended, color: 'text-red-600' },
+                { label: 'Promo Pro', value: stats.promo, color: 'text-emerald-600' },
                 { label: 'Pro / Enterprise', value: stats.pro, color: 'text-purple-600' },
+                { label: 'Suspended', value: stats.suspended, color: 'text-red-600' },
               ].map(s => (
                 <Card key={s.label}>
                   <CardHeader className="pb-1 pt-4 px-4">
