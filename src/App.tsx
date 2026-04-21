@@ -10,7 +10,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { createContext, useContext, lazy, Suspense } from "react";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
 
-// Eagerly loaded — needed immediately on any page load
+// Eagerly loaded - needed immediately on any page load
 import AuthPage from "./pages/AuthPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import { default as GoogleOAuthCallback } from "./pages/GoogleOAuthCallback";
@@ -18,7 +18,7 @@ import OutlookOAuthCallbackPage from "./pages/OutlookOAuthCallbackPage";
 import LandingPreview from "./pages/LandingPreview";
 import NotFound from "./pages/NotFound";
 
-// Lazy loaded — only fetched when the user navigates to that route
+// Lazy loaded - only fetched when the user navigates to that route
 const Index = lazy(() => import("./pages/Index"));
 const NotesPage = lazy(() => import("./pages/NotesPage"));
 const MeetingsPage = lazy(() => import("./pages/MeetingsPage"));

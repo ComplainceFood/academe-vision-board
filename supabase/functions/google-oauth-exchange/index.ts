@@ -51,7 +51,7 @@ serve(async (req) => {
     const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
     if (!clientId || !clientSecret) throw new Error('Google OAuth credentials not configured');
 
-    // Hardcode redirect URI — must match exactly what was sent in the auth request
+    // Hardcode redirect URI - must match exactly what was sent in the auth request
     const redirectUri = 'https://smart-prof.us/auth/google/callback';
 
     const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {

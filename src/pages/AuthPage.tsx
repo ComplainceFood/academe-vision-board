@@ -204,7 +204,7 @@ const AuthPage = () => {
           }
         }
 
-        // Existing user clicked "Start Pro trial" from landing page (promo off) — send to Stripe
+        // Existing user clicked "Start Pro trial" from landing page (promo off) - send to Stripe
         if (planParam === 'pro' && !promoActive && data.user) {
           const { data: checkoutData } = await supabase.functions.invoke('create-checkout-session', {
             body: { successUrl: `${window.location.origin}/settings?tab=subscription&upgraded=1` },

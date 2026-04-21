@@ -51,7 +51,7 @@ async function postToLinkedIn(text, authorUrn) {
 
 async function main() {
   if (!ACCESS_TOKEN) {
-    console.error('❌ Missing LINKEDIN_ACCESS_TOKEN in .env — run: npm run get-token');
+    console.error('❌ Missing LINKEDIN_ACCESS_TOKEN in .env - run: npm run get-token');
     process.exit(1);
   }
 
@@ -66,7 +66,7 @@ async function main() {
   console.log(`Length: ${text.length} characters`);
 
   if (TEST_MODE) {
-    console.log('\n✅ TEST MODE — post not submitted to LinkedIn.');
+    console.log('\n✅ TEST MODE - post not submitted to LinkedIn.');
     return;
   }
 

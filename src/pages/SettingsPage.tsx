@@ -851,7 +851,7 @@ const SettingsPage = () => {
                     </Button>
                   ) : promoActive ? (
                     <Badge className="bg-green-500 hover:bg-green-600 text-white text-sm px-3 py-1.5">
-                      Free — Limited Availability
+                      Free - Limited Availability
                     </Badge>
                   ) : (
                     <Button onClick={() => handleUpgradeToPro(billingInterval)} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
@@ -977,7 +977,7 @@ const SettingsPage = () => {
                     promoActive ? (
                       <div className="w-full mt-4 rounded-lg border border-green-300 bg-green-50 dark:bg-green-950/30 dark:border-green-800 px-4 py-3 text-center">
                         <p className="text-sm font-semibold text-green-700 dark:text-green-400">Currently Free</p>
-                        <p className="text-xs text-green-600 dark:text-green-500 mt-0.5">Pro is available at no cost — limited availability promotion</p>
+                        <p className="text-xs text-green-600 dark:text-green-500 mt-0.5">Pro is available at no cost - limited availability promotion</p>
                       </div>
                     ) : (
                       <Button

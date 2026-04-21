@@ -258,7 +258,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
                   {meeting.action_items.length} action item{meeting.action_items.length !== 1 ? 's' : ''}
                   {meeting.action_items.length > 0 && (
                     <span className="ml-1 opacity-70">
-                      — {typeof meeting.action_items[0] === 'string' ? meeting.action_items[0] : (meeting.action_items[0] as any).description}
+                      - {typeof meeting.action_items[0] === 'string' ? meeting.action_items[0] : (meeting.action_items[0] as any).description}
                     </span>
                   )}
                 </span>
@@ -267,7 +267,7 @@ const MeetingCard = ({ meeting, onViewDetails, onEdit }: {meeting: Meeting;onVie
           </div>
         </div>
 
-        {/* Bottom CTA row — always visible */}
+        {/* Bottom CTA row - always visible */}
         <div className="mt-3 pt-3 border-t border-border/40 flex items-center justify-between gap-2">
           <span className="text-xs text-muted-foreground hidden sm:block">
             {meeting.notes ? "Notes added" : "No notes yet"}

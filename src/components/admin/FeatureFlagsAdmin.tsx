@@ -124,7 +124,7 @@ export function FeatureFlagsAdmin() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground leading-snug max-w-sm">
-                    When on: strikes out the Pro price on the landing page, shows "Free — Limited availability",
+                    When on: strikes out the Pro price on the landing page, shows "Free - Limited availability",
                     and disables the Stripe checkout button for all visitors.
                     When turned off, existing promo users get a 15-day grace period to upgrade before reverting to free.
                   </p>
@@ -138,7 +138,7 @@ export function FeatureFlagsAdmin() {
                   try {
                     await toggleFlag(PROMO_FLAG_KEY, val);
                     if (!val) {
-                      // Promo turned OFF — give existing promo users 15 days grace
+                      // Promo turned OFF - give existing promo users 15 days grace
                       const { data, error } = await supabase.functions.invoke('expire-promo-users', {
                         body: { grace_days: 15 },
                       });
@@ -147,10 +147,10 @@ export function FeatureFlagsAdmin() {
                       toast.success(
                         affected > 0
                           ? `Promo closed. ${affected} user${affected !== 1 ? 's' : ''} given 15 days to upgrade before reverting to free.`
-                          : "Promo mode deactivated — no promo users to expire."
+                          : "Promo mode deactivated - no promo users to expire."
                       );
                     } else {
-                      toast.success("Promo mode activated — Stripe checkout hidden, price shown as free.");
+                      toast.success("Promo mode activated - Stripe checkout hidden, price shown as free.");
                     }
                   } catch (err: any) {
                     toast.error(err?.message || "Failed to update promo flag");

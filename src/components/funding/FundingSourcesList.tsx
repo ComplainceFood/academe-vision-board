@@ -70,7 +70,7 @@ const GrantViewDialog = ({ source, onClose }: { source: FundingSource; onClose: 
   const isHighUsage = usagePercentage > 80;
 
   const fmtDate = (d?: string) =>
-    d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '—';
+    d ? new Date(d).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '-';
 
   return (
     <Dialog open onOpenChange={() => onClose()}>

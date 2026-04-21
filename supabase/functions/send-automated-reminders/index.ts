@@ -245,7 +245,7 @@ serve(async (req) => {
           try {
             await sendEmail(
               profile.email,
-              `⚠️ You have ${tasks.length} overdue task${tasks.length !== 1 ? 's' : ''} — Smart-Prof`,
+              `⚠️ You have ${tasks.length} overdue task${tasks.length !== 1 ? 's' : ''} - Smart-Prof`,
               overdueEmail(tasks)
             )
             stats.overdue++
@@ -270,7 +270,7 @@ serve(async (req) => {
           try {
             await sendEmail(
               profile.email,
-              `💰 ${grants.length} grant deadline${grants.length !== 1 ? 's' : ''} within 14 days — Smart-Prof`,
+              `💰 ${grants.length} grant deadline${grants.length !== 1 ? 's' : ''} within 14 days - Smart-Prof`,
               grantDeadlineEmail(grants)
             )
             stats.grants++
@@ -292,7 +292,7 @@ serve(async (req) => {
           try {
             await sendEmail(
               profile.email,
-              `📦 ${supplies.length} supply item${supplies.length !== 1 ? 's are' : ' is'} low on stock — Smart-Prof`,
+              `📦 ${supplies.length} supply item${supplies.length !== 1 ? 's are' : ' is'} low on stock - Smart-Prof`,
               lowSupplyEmail(supplies)
             )
             stats.supplies++

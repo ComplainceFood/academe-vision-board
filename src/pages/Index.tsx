@@ -83,7 +83,7 @@ const Index = () => {
     return <LandingPreview />;
   }
 
-  // Calculate stats — memoized so they don't recompute on unrelated re-renders
+  // Calculate stats - memoized so they don't recompute on unrelated re-renders
   const { promiseCount, upcomingMeetings, lowSuppliesCount, shoppingItemsCount, todoTasks, upcomingDeadlines } = useMemo(() => {
     const now = new Date();
     return {

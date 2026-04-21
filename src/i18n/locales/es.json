@@ -94,7 +94,7 @@
     "appearanceDesc": "Personaliza cómo se ve Smart-Prof en tu dispositivo.",
     "theme": "Tema", "themeLight": "Claro", "themeDark": "Oscuro", "themeSystem": "Sistema",
     "themeDescSystem": "Coincide automáticamente con la preferencia de modo oscuro/claro de tu dispositivo.",
-    "themeDescDark": "El modo oscuro está activo — más fácil para los ojos en entornos de poca luz.",
+    "themeDescDark": "El modo oscuro está activo - más fácil para los ojos en entornos de poca luz.",
     "themeDescLight": "El modo claro está activo."
   },
   "auth": {

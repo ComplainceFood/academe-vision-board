@@ -50,7 +50,7 @@ function welcomeTemplate(name: string, email: string) {
         <tr><td style="padding:36px 40px;">
           <p style="margin:0 0 16px;color:#0D1E41;font-size:18px;font-weight:700;">Hi ${name},</p>
           <p style="margin:0 0 20px;color:#4a5568;font-size:15px;line-height:1.7;">
-            Your Smart-Prof account is ready. You now have everything you need to manage your academic work efficiently — from meetings and grants to publications and supplies.
+            Your Smart-Prof account is ready. You now have everything you need to manage your academic work efficiently - from meetings and grants to publications and supplies.
           </p>
 
           <!-- Feature highlights -->
@@ -110,7 +110,7 @@ function welcomeTemplate(name: string, email: string) {
 
           <p style="margin:0;color:#6b7280;font-size:13px;line-height:1.6;">
             Signed up with: <strong>${email}</strong><br/>
-            Questions? Simply reply to this email — we're happy to help.
+            Questions? Simply reply to this email - we're happy to help.
           </p>
         </td></tr>
 
@@ -124,7 +124,7 @@ function welcomeTemplate(name: string, email: string) {
         <!-- Footer -->
         <tr><td style="background:#f8fafc;padding:20px 40px;border-top:1px solid #e5e7eb;text-align:center;">
           <p style="margin:0;color:#9ca3af;font-size:12px;line-height:1.6;">
-            Smart-Prof — Academic Management Platform<br/>
+            Smart-Prof - Academic Management Platform<br/>
             <a href="https://smart-prof.us/settings" style="color:#1B7A5A;text-decoration:none;">Manage notification preferences</a>
           </p>
         </td></tr>

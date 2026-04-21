@@ -53,7 +53,7 @@ const GoogleOAuthCallback = () => {
       if (error) throw error;
 
       if (data?.success) {
-        // Signal success only — tokens are persisted server-side, never sent via postMessage
+        // Signal success only - tokens are persisted server-side, never sent via postMessage
         if (window.opener) {
           window.opener.postMessage({ type: 'GOOGLE_OAUTH_SUCCESS' }, window.location.origin);
           window.close();

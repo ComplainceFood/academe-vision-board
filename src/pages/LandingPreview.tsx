@@ -363,7 +363,7 @@ const LandingPreview = () => {
         )}
       </motion.nav>
 
-      {/* ══ 1. HERO — 3-col cards: AI left · text center · logo right ═══════════ */}
+      {/* ══ 1. HERO - 3-col cards: AI left · text center · logo right ═══════════ */}
       <section className="relative py-10 md:py-14 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div animate={{ y: [0, -20, 0], opacity: [0.15, 0.28, 0.15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
@@ -447,7 +447,7 @@ const LandingPreview = () => {
                 </h1>
                 <p className="text-base md:text-lg mb-7 leading-relaxed" style={{ color: C.muted }}>
                   Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
-                  organized system — so you can focus on research and teaching.
+                  organized system - so you can focus on research and teaching.
                 </p>
                 <div className="flex flex-col gap-3 w-full max-w-xs">
                   <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
@@ -664,7 +664,7 @@ const LandingPreview = () => {
               Start free. Upgrade when you're ready.
             </h2>
             <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
-              No credit card required to start. Both plans give you permanent access — not a trial.
+              No credit card required to start. Both plans give you permanent access - not a trial.
             </p>
 
             {/* Billing toggle */}
@@ -729,7 +729,7 @@ const LandingPreview = () => {
             <motion.div variants={fadeInRight} whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300, damping: 20 }} className="flex">
               <Card className="w-full flex flex-col relative"
                 style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 60%, #1B4A3A 100%)`, border: `2px solid ${C.teal}`, boxShadow: `0 8px 40px rgba(27,122,90,0.35)` }}>
-                {/* Badge — absolute top-right, inside card, no overflow issue since no overflow-hidden */}
+                {/* Badge - absolute top-right, inside card, no overflow issue since no overflow-hidden */}
                 <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold z-10"
                   style={{ background: `linear-gradient(135deg, ${C.teal}, ${C.tealLight})`, color: "#fff", boxShadow: "0 4px 12px rgba(27,122,90,0.4)" }}>
                   <Sparkles className="h-3 w-3" /> Most popular
@@ -755,7 +755,7 @@ const LandingPreview = () => {
                           <span className="text-5xl font-black" style={{ color: "#4ade80" }}>Free</span>
                         </div>
                         <p className="text-sm mt-1.5 font-medium" style={{ color: "#4ade80" }}>
-                          Limited time offer — full Pro access at no cost
+                          Limited time offer - full Pro access at no cost
                         </p>
                       </div>
                     ) : (
@@ -796,7 +796,7 @@ const LandingPreview = () => {
                   {promoActive ? (
                     <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
                       style={{ background: "linear-gradient(135deg, #16a34a 0%, #4ade80 100%)", color: "#fff", border: "none" }}>
-                      <Link to="/auth">Get Pro free — limited availability</Link>
+                      <Link to="/auth">Get Pro free - limited availability</Link>
                     </Button>
                   ) : (
                     <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"

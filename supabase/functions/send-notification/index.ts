@@ -75,7 +75,7 @@ function welcomeTemplate(name: string) {
   const body = `
     <h2 style="margin:0 0 12px;color:#0D1E41;font-size:22px;font-weight:700;">Welcome to Smart-Prof, ${name}! 🎉</h2>
     <p style="margin:0 0 20px;color:#4a5568;font-size:15px;line-height:1.7;">
-      Your account is ready. Smart-Prof helps you manage your academic life — meetings, grants, publications, tasks, supplies, and more — all in one place.
+      Your account is ready. Smart-Prof helps you manage your academic life - meetings, grants, publications, tasks, supplies, and more - all in one place.
     </p>
     <table cellpadding="0" cellspacing="0" style="background:#f0fdf4;border-radius:8px;padding:16px 20px;width:100%;margin-bottom:24px;">
       <tr><td>
@@ -88,7 +88,7 @@ function welcomeTemplate(name: string) {
       </td></tr>
     </table>
     <p style="margin:0;color:#6b7280;font-size:13px;">
-      Questions? Reply to this email — we're happy to help.
+      Questions? Reply to this email - we're happy to help.
     </p>`
   return layout('#3DAA6E', '🎓', 'Welcome to Smart-Prof', body)
 }
@@ -141,7 +141,7 @@ function grantDeadlineTemplate(title: string, message: string, data: Record<stri
     </table>
     <div style="background:#fef2f2;border-left:4px solid ${urgentColor};border-radius:4px;padding:12px 16px;">
       <p style="margin:0;color:${urgentColor};font-size:13px;font-weight:600;">
-        ⚡ Action required — ensure all expenditures are recorded before the deadline.
+        ⚡ Action required - ensure all expenditures are recorded before the deadline.
       </p>
     </div>`
   return layout(urgentColor, '💰', title, body)

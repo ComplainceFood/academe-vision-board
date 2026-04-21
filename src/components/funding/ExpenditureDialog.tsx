@@ -159,7 +159,7 @@ export const ExpenditureDialog = ({
         receipt_url = null;
       }
 
-      // Upload new receipt — upload first, only delete old file after success
+      // Upload new receipt - upload first, only delete old file after success
       if (receiptFile) {
         const ext = receiptFile.name.split(".").pop()?.toLowerCase() || "bin";
         const filePath = `${user.id}/exp_${Date.now()}.${ext}`;

@@ -55,7 +55,7 @@ function broadcastTemplate(title: string, content: string, author: string, prior
 
         <!-- Priority banner -->
         <tr><td style="${banner}padding:8px 40px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">
-          📢 ${priority.toUpperCase()} — Platform Communication
+          📢 ${priority.toUpperCase()} - Platform Communication
         </td></tr>
 
         <!-- Body -->
@@ -167,7 +167,7 @@ serve(async (req) => {
       if (prefMap.has(profile.user_id) && prefMap.get(profile.user_id) === false) continue
       if (!profile.email) continue
       try {
-        await sendEmail(profile.email, `${title} — Smart-Prof`, html)
+        await sendEmail(profile.email, `${title} - Smart-Prof`, html)
         emailsSent++
       } catch (err) {
         console.error(`Failed to email ${profile.email}:`, err)

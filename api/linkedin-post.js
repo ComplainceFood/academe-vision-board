@@ -1,5 +1,5 @@
 /**
- * Vercel Serverless Function — triggered by cron job
+ * Vercel Serverless Function - triggered by cron job
  * Runs Monday, Wednesday, Friday at 9am CT
  */
 
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
     const authorUrn = `urn:li:person:${profile.sub}`;
     const result = await postToLinkedIn(text, authorUrn, token);
 
-    console.log(`✅ Posted to LinkedIn — topic: ${topic}, id: ${result.id}`);
+    console.log(`✅ Posted to LinkedIn - topic: ${topic}, id: ${result.id}`);
     return res.status(200).json({ success: true, postId: result.id, topic });
   } catch (err) {
     console.error('❌ LinkedIn post failed:', err.message);

@@ -78,7 +78,7 @@ serve(async (req) => {
       );
     }
 
-    // Always use the fixed production redirect URI — must exactly match Azure registration
+    // Always use the fixed production redirect URI - must exactly match Azure registration
     const safeRedirectUri = 'https://smart-prof.us/auth/outlook/callback';
     console.log('Using redirect_uri:', safeRedirectUri);
 

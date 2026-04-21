@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
 
     const { grace_days = 15 } = await req.json().catch(() => ({}));
 
-    // Use service role — the RPC itself checks system_admin role via the caller's JWT
+    // Use service role - the RPC itself checks system_admin role via the caller's JWT
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,

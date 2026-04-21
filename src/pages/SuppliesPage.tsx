@@ -92,7 +92,7 @@ const SuppliesPage = () => {
     enabled: !!user
   });
 
-  // Auto-refresh — use refs so interval never needs to be recreated
+  // Auto-refresh - use refs so interval never needs to be recreated
   const isProcessingRef = useRef(isProcessing);
   isProcessingRef.current = isProcessing;
   const isEditDialogOpenRef = useRef(isEditDialogOpen);

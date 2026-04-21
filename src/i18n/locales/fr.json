@@ -97,7 +97,7 @@
     "appearanceDesc": "Personnalisez l'apparence de Smart-Prof sur votre appareil.",
     "theme": "Thème", "themeLight": "Clair", "themeDark": "Sombre", "themeSystem": "Système",
     "themeDescSystem": "Correspond automatiquement à la préférence mode sombre/clair de votre appareil.",
-    "themeDescDark": "Le mode sombre est actif — plus reposant pour les yeux dans les environnements peu éclairés.",
+    "themeDescDark": "Le mode sombre est actif - plus reposant pour les yeux dans les environnements peu éclairés.",
     "themeDescLight": "Le mode clair est actif."
   },
   "auth": {

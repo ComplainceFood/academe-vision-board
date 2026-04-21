@@ -91,7 +91,7 @@
     "appearanceDesc": "自定义 Smart-Prof 在您设备上的外观。",
     "theme": "主题", "themeLight": "浅色", "themeDark": "深色", "themeSystem": "系统",
     "themeDescSystem": "自动匹配您设备的深色/浅色模式偏好。",
-    "themeDescDark": "深色模式已激活 — 在低光环境下更护眼。",
+    "themeDescDark": "深色模式已激活 - 在低光环境下更护眼。",
     "themeDescLight": "浅色模式已激活。"
   },
   "auth": {
@@ -214,7 +214,7 @@
     "bothFocusDesc": "本学期教学与研究的优先事项",
     "focusBoth": "两者", "focusTeaching": "教学", "focusResearch": "研究",
     "focusCompleted": "已完成", "focusOf": "共",
-    "allFocusComplete": "所有重点项目已完成——学期表现出色！",
+    "allFocusComplete": "所有重点项目已完成--学期表现出色！",
     "editEvent": "编辑事件", "createNewEvent": "创建新事件",
     "editTask": "编辑任务", "addFutureTask": "添加未来任务",
     "aiSmartPlanner": "AI 智能规划器", "aiSmartPlannerHint": "用自然语言输入 - AI 将为您解析事件",

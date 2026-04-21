@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (event === 'SIGNED_IN' && session) {
           const provider = session.user.app_metadata?.provider;
           if (provider === 'google') {
-            // Store flag — GoogleCalendarIntegration will pick this up and trigger connection
+            // Store flag - GoogleCalendarIntegration will pick this up and trigger connection
             sessionStorage.setItem('oauth_calendar_connect', 'google');
           } else if (provider === 'azure') {
             sessionStorage.setItem('oauth_calendar_connect', 'azure');

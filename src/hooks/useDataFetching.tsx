@@ -26,7 +26,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const { user } = useAuth();
   const { toast } = useToast();
   
-  // Stable keys — only recompute when values actually change
+  // Stable keys - only recompute when values actually change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filtersKey = useMemo(() => JSON.stringify(filters), [JSON.stringify(filters)]);
   // transformKey: use a ref so changing the function reference doesn't recreate fetchData
@@ -127,7 +127,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   const fetchDataRef = useRef(fetchData);
   fetchDataRef.current = fetchData;
 
-  // Subscribe to real-time changes — deps intentionally omit fetchData to avoid channel churn
+  // Subscribe to real-time changes - deps intentionally omit fetchData to avoid channel churn
   useEffect(() => {
     if (!user || !enabled) return;
 
@@ -177,7 +177,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id, table, enabled]);
 
-  // Listen for external refresh events — use ref so handlers are always stable
+  // Listen for external refresh events - use ref so handlers are always stable
   useEffect(() => {
     const handleSeedData = () => {
       if (enabled) fetchDataRef.current();

@@ -7,7 +7,7 @@
   :root {
     font-size: 14px;
     /* Brand palette: Navy #0D1E41 | Teal #1B7A5A | Light green #3DAA6E | Bg #F0F7F4 */
-    --background: 150 33% 95%;        /* #F0F7F4 — landing page bg */
+    --background: 150 33% 95%;        /* #F0F7F4 - landing page bg */
     --foreground: 220 59% 15%;        /* #0D1E41 navy */
 
     --card: 0 0% 100%;
@@ -16,7 +16,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 220 59% 15%;
 
-    --primary: 220 59% 15%;           /* #0D1E41 navy — main CTA, banners */
+    --primary: 220 59% 15%;           /* #0D1E41 navy - main CTA, banners */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 158 63% 28%;         /* #1B7A5A teal */
@@ -25,7 +25,7 @@
     --muted: 150 20% 91%;             /* soft green-grey */
     --muted-foreground: 158 20% 37%;  /* muted teal-grey */
 
-    --accent: 148 55% 33%;            /* darker green — sufficient contrast for text & bg use */
+    --accent: 148 55% 33%;            /* darker green - sufficient contrast for text & bg use */
     --accent-foreground: 0 0% 100%;   /* white on darker green is ok (~5.2:1) */
 
     --destructive: 0 84.2% 60.2%;
@@ -42,7 +42,7 @@
 
     --radius: 1rem;
 
-    /* Sidebar — already overridden via inline styles in AppSidebar, keep consistent */
+    /* Sidebar - already overridden via inline styles in AppSidebar, keep consistent */
     --sidebar-background: 220 59% 15%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 148 55% 33%;

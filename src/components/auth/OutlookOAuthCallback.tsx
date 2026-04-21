@@ -43,7 +43,7 @@ export const OutlookOAuthCallback = () => {
         return;
       }
 
-      // Validate CSRF state nonce (only in popup mode — sessionStorage survives popups but not full redirects)
+      // Validate CSRF state nonce (only in popup mode - sessionStorage survives popups but not full redirects)
       if (window.opener) {
         const storedState = sessionStorage.getItem('outlook_oauth_state');
         if (!storedState || state !== storedState) {
