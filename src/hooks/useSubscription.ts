@@ -111,6 +111,7 @@ export function useSubscription() {
   const isPro = subscription.tier === "pro" || subscription.tier === "enterprise";
   const isEnterprise = subscription.tier === "enterprise";
   const isTrial = subscription.status === "trial";
+  const isPromo = subscription.status === "promo";
 
-  return { subscription, loading, isPro, isEnterprise, isTrial, refresh: fetchSubscription };
+  return { subscription, loading, isPro, isEnterprise, isTrial, isPromo, refresh: fetchSubscription };
 }

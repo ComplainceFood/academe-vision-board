@@ -5,8 +5,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { Sparkles, Lock, Unlock, RotateCcw, Save, Info, Globe, Tag, Zap } from "lucide-react";
+import { Sparkles, Lock, Unlock, RotateCcw, Save, Info, Globe, Tag, Zap, Clock } from "lucide-react";
 import { FEATURE_DEFINITIONS, PROMO_FLAG_KEY, useFeatureFlags, usePromoMode, type SubscriptionTier } from "@/hooks/useFeatureFlags";
+import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const TIER_COLORS: Record<SubscriptionTier, string> = {
@@ -125,6 +126,7 @@ export function FeatureFlagsAdmin() {
                   <p className="text-xs text-muted-foreground leading-snug max-w-sm">
                     When on: strikes out the Pro price on the landing page, shows "Free — Limited availability",
                     and disables the Stripe checkout button for all visitors.
+                    When turned off, existing promo users get a 15-day grace period to upgrade before reverting to free.
                   </p>
                 </div>
               </div>
@@ -135,7 +137,21 @@ export function FeatureFlagsAdmin() {
                   setPromoSaving(true);
                   try {
                     await toggleFlag(PROMO_FLAG_KEY, val);
-                    toast.success(val ? "Promo mode activated — Stripe checkout hidden, price shown as free." : "Promo mode deactivated — normal pricing restored.");
+                    if (!val) {
+                      // Promo turned OFF — give existing promo users 15 days grace
+                      const { data, error } = await supabase.functions.invoke('expire-promo-users', {
+                        body: { grace_days: 15 },
+                      });
+                      if (error) throw error;
+                      const affected = (data as any)?.affected ?? 0;
+                      toast.success(
+                        affected > 0
+                          ? `Promo closed. ${affected} user${affected !== 1 ? 's' : ''} given 15 days to upgrade before reverting to free.`
+                          : "Promo mode deactivated — no promo users to expire."
+                      );
+                    } else {
+                      toast.success("Promo mode activated — Stripe checkout hidden, price shown as free.");
+                    }
                   } catch (err: any) {
                     toast.error(err?.message || "Failed to update promo flag");
                   } finally {

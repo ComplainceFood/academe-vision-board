@@ -11,6 +11,7 @@ import { GlobalSearch } from "@/components/common/GlobalSearch";
 import { SmartProfLogoWide } from "@/components/Logo";
 import { OnboardingModal } from "@/components/common/OnboardingModal";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { PromoBanner } from "@/components/common/PromoBanner";
 import { useTheme } from "next-themes";
 
 interface MainLayoutProps {
@@ -46,6 +47,7 @@ export function MainLayout({ children }: MainLayoutProps) {
       <div className="min-h-screen w-full flex">
         <AppSidebar />
         <div className="flex-1 flex flex-col">
+          <PromoBanner />
           <header className="h-14 px-3 sm:px-5 flex items-center justify-between shrink-0 gap-2" style={{ background: "linear-gradient(90deg, #0D1E41 0%, #0A3028 100%)", borderBottom: "1px solid rgba(61,170,110,0.25)" }}>
              <div className="flex items-center gap-2 min-w-0 flex-1">
                <SidebarTrigger className="shrink-0 text-white/70 hover:text-white" />

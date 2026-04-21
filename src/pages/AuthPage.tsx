@@ -159,11 +159,16 @@ const AuthPage = () => {
             await supabase.functions.invoke('send-welcome-email', {
               body: { email, name: email.split('@')[0] }
             });
+
+            // Grant Pro tier server-side when user signed up via promo landing page CTA
+            if (planParam === 'pro' && promoActive) {
+              await supabase.functions.invoke('grant-promo-pro');
+            }
           } catch (agreementError) {
             console.error('Error recording agreements:', agreementError);
           }
         }
-        
+
         toast.success("Check your email to confirm your account!");
       } else {
         const { data, error } = await supabase.auth.signInWithPassword({
@@ -195,6 +200,17 @@ const AuthPage = () => {
           const hasAgreements = await checkExistingAgreements(data.user.id);
           if (!hasAgreements) {
             setShowLegalAgreement(true);
+            return;
+          }
+        }
+
+        // Existing user clicked "Start Pro trial" from landing page (promo off) — send to Stripe
+        if (planParam === 'pro' && !promoActive && data.user) {
+          const { data: checkoutData } = await supabase.functions.invoke('create-checkout-session', {
+            body: { successUrl: `${window.location.origin}/settings?tab=subscription&upgraded=1` },
+          });
+          if (checkoutData?.url) {
+            window.location.href = checkoutData.url;
             return;
           }
         }
