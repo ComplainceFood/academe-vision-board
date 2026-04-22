@@ -3,17 +3,21 @@ import { MainLayout } from '@/components/MainLayout';
 import { SystemHealthRunner } from '@/components/testing/SystemHealthRunner';
 import { SecurityScanner } from '@/components/testing/SecurityScanner';
 import { SeedTestCases } from '@/components/testing/SeedTestCases';
-import { ShieldCheck, Activity, FlaskConical } from 'lucide-react';
+import { TestProjectsDashboard } from '@/components/testing/TestProjectsDashboard';
+import { TestProjectView } from '@/components/testing/TestProjectView';
+import { ShieldCheck, Activity, FlaskConical, FolderOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const TABS = [
+  { id: 'projects', label: 'Test Projects', icon: FolderOpen },
   { id: 'health', label: 'System Health', icon: Activity },
   { id: 'security', label: 'Security Scan', icon: ShieldCheck },
   { id: 'seed', label: 'Seed Test Cases', icon: FlaskConical },
 ];
 
 export default function TestingPage() {
-  const [activeTab, setActiveTab] = useState('health');
+  const [activeTab, setActiveTab] = useState('projects');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
 
   return (
     <MainLayout>
@@ -44,7 +48,7 @@ export default function TestingPage() {
               <button
                 key={tab.id}
                 type="button"
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => { setActiveTab(tab.id); if (tab.id !== 'projects') setSelectedProjectId(null); }}
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150",
                   activeTab === tab.id
@@ -60,6 +64,11 @@ export default function TestingPage() {
         </div>
 
         {/* Tab content */}
+        {activeTab === 'projects' && (
+          selectedProjectId
+            ? <TestProjectView projectId={selectedProjectId} onBack={() => setSelectedProjectId(null)} />
+            : <TestProjectsDashboard onSelectProject={(id) => setSelectedProjectId(id)} />
+        )}
         {activeTab === 'health' && <SystemHealthRunner />}
         {activeTab === 'security' && <SecurityScanner />}
         {activeTab === 'seed' && <SeedTestCases />}
