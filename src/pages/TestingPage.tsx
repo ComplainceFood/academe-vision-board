@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { MainLayout } from '@/components/MainLayout';
 import { SystemHealthRunner } from '@/components/testing/SystemHealthRunner';
 import { SecurityScanner } from '@/components/testing/SecurityScanner';
-import { ShieldCheck, Activity } from 'lucide-react';
+import { SeedTestCases } from '@/components/testing/SeedTestCases';
+import { ShieldCheck, Activity, FlaskConical } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const TABS = [
   { id: 'health', label: 'System Health', icon: Activity },
   { id: 'security', label: 'Security Scan', icon: ShieldCheck },
+  { id: 'seed', label: 'Seed Test Cases', icon: FlaskConical },
 ];
 
 export default function TestingPage() {
@@ -60,6 +62,7 @@ export default function TestingPage() {
         {/* Tab content */}
         {activeTab === 'health' && <SystemHealthRunner />}
         {activeTab === 'security' && <SecurityScanner />}
+        {activeTab === 'seed' && <SeedTestCases />}
       </div>
     </MainLayout>
   );

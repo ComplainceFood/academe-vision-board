@@ -1,4 +1,5 @@
 
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppSidebar } from "./AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -12,6 +13,7 @@ import { SmartProfLogoWide } from "@/components/Logo";
 import { OnboardingModal } from "@/components/common/OnboardingModal";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { PromoBanner } from "@/components/common/PromoBanner";
+import { LegalAgreement } from "@/components/legal/LegalAgreement";
 import { useTheme } from "next-themes";
 
 interface MainLayoutProps {
@@ -24,6 +26,14 @@ export function MainLayout({ children }: MainLayoutProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const [showOAuthAgreement, setShowOAuthAgreement] = useState(false);
+
+  useEffect(() => {
+    if (sessionStorage.getItem('show_legal_agreement')) {
+      sessionStorage.removeItem('show_legal_agreement');
+      setShowOAuthAgreement(true);
+    }
+  }, []);
 
   const toggleDarkMode = () => {
     setTheme(isDarkMode ? "light" : "dark");
@@ -40,6 +50,17 @@ export function MainLayout({ children }: MainLayoutProps) {
       navigate("/auth");
     }
   };
+
+  if (showOAuthAgreement) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <LegalAgreement
+          onAgreementComplete={() => setShowOAuthAgreement(false)}
+          showDialog={true}
+        />
+      </div>
+    );
+  }
 
   return (
     <SidebarProvider defaultOpen={true}>

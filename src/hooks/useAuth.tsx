@@ -52,6 +52,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             sessionStorage.setItem('oauth_calendar_connect', 'azure');
           }
 
+          // Check legal agreements for OAuth users — password users are handled in AuthPage
+          if (provider === 'google' || provider === 'azure') {
+            supabase
+              .from('user_agreements')
+              .select('agreement_type')
+              .eq('user_id', session.user.id)
+              .then(({ data }) => {
+                const types = data?.map((a: any) => a.agreement_type) ?? [];
+                if (!types.includes('terms_of_service') || !types.includes('privacy_policy')) {
+                  sessionStorage.setItem('show_legal_agreement', '1');
+                }
+              });
+          }
+
           // Grant promo Pro if signup happened during an active promo
           // This runs after email confirmation redirect lands back in the app
           const PROMO_PENDING_KEY = 'academe_promo_pending';
