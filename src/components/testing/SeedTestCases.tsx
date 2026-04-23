@@ -978,6 +978,613 @@ const PROJECTS: Project[] = [
       },
     ],
   },
+
+  // ── 13. Feedback ─────────────────────────────────────────────────────────
+  {
+    name: 'Feedback',
+    description: 'User feedback submission, admin review, and feedback analytics.',
+    suites: [
+      {
+        name: 'Feedback Submission',
+        description: 'Users can submit feedback; validation and persistence.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Submit feedback with all fields',
+            description: 'User submits feedback with a category, rating, and message.',
+            preconditions: 'User is authenticated and on /feedback.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /feedback', expected_result: 'Feedback page loads with submission form' },
+              { step: 2, action: 'Select a category (e.g. "Bug Report"), set rating to 3 stars, and enter a message', expected_result: 'All fields accept input' },
+              { step: 3, action: 'Click Submit', expected_result: 'Success toast shown; form resets' },
+              { step: 4, action: 'Check the feedback list below the form', expected_result: 'New submission appears in the list' },
+            ],
+            expected_result: 'Feedback submitted and visible in the list.',
+            priority: 'high', type: 'manual', tags: ['feedback', 'submit', 'crud'], estimated_time: 5,
+          },
+          {
+            title: 'Submit feedback blocked without required fields',
+            description: 'Form cannot be submitted if message is empty.',
+            preconditions: 'User on /feedback.',
+            test_steps: [
+              { step: 1, action: 'Leave the message field empty and click Submit', expected_result: 'Validation error shown; form not submitted' },
+            ],
+            expected_result: 'Empty feedback message is rejected.',
+            priority: 'medium', type: 'manual', tags: ['feedback', 'validation'], estimated_time: 3,
+          },
+        ],
+      },
+      {
+        name: 'Admin Feedback Management',
+        description: 'Admins can view, filter, and action all user feedback.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Admin can view all submitted feedback',
+            description: 'System admin sees all feedback from all users in the admin panel.',
+            preconditions: 'Logged in as system_admin. At least one feedback submission exists.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /feedback as an admin', expected_result: 'Admin feedback management panel visible' },
+              { step: 2, action: 'Verify feedback from all users is listed (not just the admin\'s own)', expected_result: 'Multi-user feedback visible' },
+            ],
+            expected_result: 'Admin sees all platform feedback.',
+            priority: 'high', type: 'manual', tags: ['feedback', 'admin'], estimated_time: 5,
+          },
+          {
+            title: 'Admin can change feedback status',
+            description: 'Admin marks a feedback item as reviewed or resolved.',
+            preconditions: 'Logged in as admin. Feedback item exists with status "pending".',
+            test_steps: [
+              { step: 1, action: 'Open a feedback item in the admin panel', expected_result: 'Detail view or action menu visible' },
+              { step: 2, action: 'Change status to "reviewed" or "resolved"', expected_result: 'Status badge updates; change persists on reload' },
+            ],
+            expected_result: 'Feedback status updated and saved.',
+            priority: 'medium', type: 'manual', tags: ['feedback', 'admin', 'status'], estimated_time: 5,
+          },
+          {
+            title: 'Non-admin cannot access admin feedback management',
+            description: 'Regular users only see their own feedback, not the admin management UI.',
+            preconditions: 'Logged in as primary_user.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /feedback', expected_result: 'Only the feedback submission form and own submissions are visible — no admin panel' },
+            ],
+            expected_result: 'Admin feedback management hidden from non-admins.',
+            priority: 'high', type: 'security', tags: ['feedback', 'access-control'], estimated_time: 3,
+          },
+        ],
+      },
+      {
+        name: 'Regression — Feedback',
+        description: 'Regression tests for feedback after permission and subscription changes.',
+        type: 'regression',
+        cases: [
+          {
+            title: 'Feedback accessible on free tier',
+            description: 'Feedback is not a Pro feature and should be available to all users.',
+            preconditions: 'Free tier user.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /feedback as a free user', expected_result: 'Full feedback form visible — no ProGate overlay' },
+            ],
+            expected_result: 'Feedback available on free tier.',
+            priority: 'medium', type: 'manual', tags: ['feedback', 'free-tier', 'regression'], estimated_time: 2,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── 14. Notifications ────────────────────────────────────────────────────
+  {
+    name: 'Notifications',
+    description: 'In-app notification bell, notification preferences, and real-time delivery.',
+    suites: [
+      {
+        name: 'Notification Bell & Inbox',
+        description: 'Bell icon, unread count, and notification list behaviour.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Notification bell shows unread count',
+            description: 'When unread notifications exist, the bell displays a count badge.',
+            preconditions: 'At least one unread notification exists for the user.',
+            test_steps: [
+              { step: 1, action: 'Look at the notification bell in the top header', expected_result: 'Red badge with unread count is visible' },
+              { step: 2, action: 'Click the bell icon', expected_result: 'Notification popup opens listing unread notifications' },
+            ],
+            expected_result: 'Unread count badge is accurate and popup opens correctly.',
+            priority: 'high', type: 'manual', tags: ['notifications', 'bell', 'unread'], estimated_time: 5,
+          },
+          {
+            title: 'Marking notification as read removes it from unread count',
+            description: 'Clicking or dismissing a notification marks it read and decrements the badge.',
+            preconditions: 'At least one unread notification exists.',
+            test_steps: [
+              { step: 1, action: 'Open the notification popup and note the unread count', expected_result: 'Count shown (e.g. 3)' },
+              { step: 2, action: 'Click on a notification to mark it as read', expected_result: 'Notification marked read; badge count decreases by 1' },
+              { step: 3, action: 'Close and reopen the popup', expected_result: 'The read notification is no longer in the unread section' },
+            ],
+            expected_result: 'Read state persists and badge count is accurate.',
+            priority: 'high', type: 'manual', tags: ['notifications', 'read-state'], estimated_time: 5,
+          },
+          {
+            title: 'Mark all notifications as read',
+            description: '"Mark all read" clears the badge entirely.',
+            preconditions: 'Multiple unread notifications exist.',
+            test_steps: [
+              { step: 1, action: 'Open notification popup and click "Mark all as read"', expected_result: 'All notifications marked read; badge disappears from bell icon' },
+              { step: 2, action: 'Reload the page', expected_result: 'Bell has no badge; all notifications remain in history as read' },
+            ],
+            expected_result: 'All notifications marked read with badge cleared.',
+            priority: 'medium', type: 'manual', tags: ['notifications', 'mark-all-read'], estimated_time: 4,
+          },
+        ],
+      },
+      {
+        name: 'Notification Preferences',
+        description: 'Users can configure which notification types they receive.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'User can toggle notification types on/off',
+            description: 'Notification preferences in Settings are saved and respected.',
+            preconditions: 'User on /settings → Notifications tab.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /settings → Notifications tab', expected_result: 'Notification preference toggles shown' },
+              { step: 2, action: 'Toggle off a notification type (e.g. "Task reminders")', expected_result: 'Toggle switches to off state' },
+              { step: 3, action: 'Save and reload the page', expected_result: 'Toggle remains off after reload' },
+              { step: 4, action: 'Trigger an event for the disabled notification type', expected_result: 'No notification generated for that type' },
+            ],
+            expected_result: 'Notification preferences saved and enforced.',
+            priority: 'medium', type: 'manual', tags: ['notifications', 'preferences', 'settings'], estimated_time: 8,
+          },
+        ],
+      },
+      {
+        name: 'Real-time Delivery',
+        description: 'Notifications appear in real-time without page reload.',
+        type: 'integration',
+        cases: [
+          {
+            title: 'Notification appears in real-time when triggered',
+            description: 'When an admin sends a platform communication, affected users see it in the bell without refreshing.',
+            preconditions: 'Two browser sessions open: one as admin, one as a regular user.',
+            test_steps: [
+              { step: 1, action: 'In the admin session, send a platform-wide communication from /communications', expected_result: 'Communication sent successfully' },
+              { step: 2, action: 'In the user session (without refreshing), check the notification bell', expected_result: 'Bell badge increments; new notification visible in popup within a few seconds' },
+            ],
+            expected_result: 'Real-time notification delivery via Supabase Realtime.',
+            priority: 'high', type: 'manual', tags: ['notifications', 'realtime', 'integration'], estimated_time: 10,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── 15. Data Export & Import ──────────────────────────────────────────────
+  {
+    name: 'Data Export & Import',
+    description: 'Advanced data export (CSV, JSON, PDF) and import across all modules — Pro feature.',
+    suites: [
+      {
+        name: 'Export — Pro Gate',
+        description: 'Data export is a Pro-only feature.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Data export blocked for free users',
+            description: 'Free users see a Pro gate on the Advanced Data Export/Import panel.',
+            preconditions: 'Free subscription. User on /settings → Data tab.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /settings → Data tab', expected_result: 'ProGate overlay shown over the export/import panel' },
+              { step: 2, action: 'Verify no export buttons are accessible', expected_result: 'Only upgrade prompt visible' },
+            ],
+            expected_result: 'Data export correctly gated for free users.',
+            priority: 'high', type: 'manual', tags: ['export', 'pro-gate', 'data'], estimated_time: 3,
+          },
+        ],
+      },
+      {
+        name: 'CSV Export',
+        description: 'Pro users can export module data as CSV files.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Export notes as CSV',
+            description: 'Pro user exports their notes list as a downloadable CSV.',
+            preconditions: 'Pro subscription. At least 3 notes exist.',
+            test_steps: [
+              { step: 1, action: 'Go to /settings → Data tab and open the Export panel', expected_result: 'Export options visible' },
+              { step: 2, action: 'Select "Notes" and choose CSV format, then click Export', expected_result: 'CSV file downloaded' },
+              { step: 3, action: 'Open the CSV in a spreadsheet application', expected_result: 'Rows match the user\'s notes with correct columns (title, content, date, etc.)' },
+            ],
+            expected_result: 'Notes exported to CSV with correct data.',
+            priority: 'high', type: 'manual', tags: ['export', 'csv', 'notes', 'pro'], estimated_time: 8,
+          },
+          {
+            title: 'Export supplies inventory as CSV',
+            description: 'Inventory data exported correctly including all fields.',
+            preconditions: 'Pro subscription. Inventory items exist.',
+            test_steps: [
+              { step: 1, action: 'Export supplies/inventory as CSV', expected_result: 'CSV file downloaded' },
+              { step: 2, action: 'Verify columns: item name, quantity, category, unit, reorder level', expected_result: 'All expected columns present' },
+              { step: 3, action: 'Verify row count matches inventory list in the app', expected_result: 'Counts match' },
+            ],
+            expected_result: 'Inventory CSV export accurate and complete.',
+            priority: 'medium', type: 'manual', tags: ['export', 'csv', 'supplies', 'pro'], estimated_time: 8,
+          },
+        ],
+      },
+      {
+        name: 'CSV Import',
+        description: 'Pro users can import data from CSV files.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Import supplies from CSV',
+            description: 'User uploads a valid CSV and items are created in the inventory.',
+            preconditions: 'Pro subscription. Valid CSV file prepared with correct column headers.',
+            test_steps: [
+              { step: 1, action: 'Go to Data Import and select Supplies / Inventory', expected_result: 'Import panel visible with file upload area' },
+              { step: 2, action: 'Upload the prepared CSV file', expected_result: 'Preview of rows shown for confirmation' },
+              { step: 3, action: 'Confirm import', expected_result: 'Items created in inventory; success toast with count' },
+              { step: 4, action: 'Navigate to /supplies and verify new items', expected_result: 'Imported items visible in inventory list' },
+            ],
+            expected_result: 'CSV import creates correct inventory items.',
+            priority: 'high', type: 'manual', tags: ['import', 'csv', 'supplies', 'pro'], estimated_time: 10,
+          },
+          {
+            title: 'Import rejected for malformed CSV',
+            description: 'CSV with missing required columns or wrong format is rejected with a clear error.',
+            preconditions: 'Pro subscription. Malformed CSV prepared (missing required headers).',
+            test_steps: [
+              { step: 1, action: 'Upload the malformed CSV file', expected_result: 'Error message shown describing the issue (e.g. "Missing required column: name")' },
+              { step: 2, action: 'Verify no partial imports occurred', expected_result: 'Inventory unchanged' },
+            ],
+            expected_result: 'Malformed CSV rejected cleanly without partial data corruption.',
+            priority: 'high', type: 'manual', tags: ['import', 'csv', 'validation', 'error-handling'], estimated_time: 6,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── 16. Landing Page & Public Routes ─────────────────────────────────────
+  {
+    name: 'Landing Page & Public Routes',
+    description: 'Public-facing landing page, pricing display, CTA flows, legal pages, and unauthenticated access.',
+    suites: [
+      {
+        name: 'Landing Page Content',
+        description: 'Landing page renders correctly for unauthenticated visitors.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Landing page loads for unauthenticated visitors',
+            description: 'The /landing route is fully accessible without authentication.',
+            preconditions: 'User is not authenticated (incognito/private tab).',
+            test_steps: [
+              { step: 1, action: 'Navigate to /landing in an incognito browser tab', expected_result: 'Landing page loads without redirect to /auth' },
+              { step: 2, action: 'Verify hero section, feature list, and pricing cards are visible', expected_result: 'All sections render' },
+              { step: 3, action: 'Check for console errors', expected_result: 'No JavaScript errors in the console' },
+            ],
+            expected_result: 'Landing page fully accessible and error-free for unauthenticated users.',
+            priority: 'critical', type: 'manual', tags: ['landing', 'public', 'smoke'], estimated_time: 5,
+          },
+          {
+            title: 'Free plan CTA navigates to /auth',
+            description: 'Clicking the Free plan sign-up button takes the visitor to the auth page.',
+            preconditions: 'On /landing, unauthenticated.',
+            test_steps: [
+              { step: 1, action: 'Click the Free plan CTA button', expected_result: 'Navigated to /auth (sign-up mode)' },
+            ],
+            expected_result: 'Free CTA correctly routes to auth.',
+            priority: 'high', type: 'manual', tags: ['landing', 'cta', 'free'], estimated_time: 2,
+          },
+          {
+            title: 'Pro plan CTA navigates to /auth?plan=pro when promo is OFF',
+            description: 'When promo flag is OFF, "Start Pro trial" links to /auth?plan=pro for Stripe checkout after sign-in.',
+            preconditions: 'Promo flag is OFF. On /landing, unauthenticated.',
+            test_steps: [
+              { step: 1, action: 'Click "Start Pro trial" on the Pro pricing card', expected_result: 'Navigated to /auth?plan=pro' },
+              { step: 2, action: 'Sign in with an existing account', expected_result: 'Stripe Checkout session opens after sign-in' },
+            ],
+            expected_result: 'Pro CTA routes to Stripe checkout via /auth?plan=pro.',
+            priority: 'high', type: 'manual', tags: ['landing', 'cta', 'pro', 'stripe'], estimated_time: 5,
+          },
+          {
+            title: 'Language switcher on landing page works',
+            description: 'Visitor can change the landing page language.',
+            preconditions: 'On /landing.',
+            test_steps: [
+              { step: 1, action: 'Find the language switcher and select French (FR)', expected_result: 'Landing page text updates to French' },
+              { step: 2, action: 'Switch back to English (EN)', expected_result: 'Text reverts to English' },
+            ],
+            expected_result: 'Language switching works on the public landing page.',
+            priority: 'medium', type: 'manual', tags: ['landing', 'i18n', 'language'], estimated_time: 4,
+          },
+        ],
+      },
+      {
+        name: 'Legal Pages',
+        description: 'Terms of Service and Privacy Policy pages are publicly accessible.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Terms of Service page accessible at /terms',
+            description: '/terms renders the full Terms of Service without authentication.',
+            preconditions: 'Unauthenticated user.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /terms', expected_result: 'Terms of Service page renders with full content' },
+              { step: 2, action: 'Verify content is readable and correctly formatted', expected_result: 'No layout issues or missing sections' },
+            ],
+            expected_result: 'Terms of Service page publicly accessible.',
+            priority: 'high', type: 'manual', tags: ['legal', 'terms', 'public'], estimated_time: 3,
+          },
+          {
+            title: 'Privacy Policy page accessible at /privacy',
+            description: '/privacy renders the full Privacy Policy without authentication.',
+            preconditions: 'Unauthenticated user.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /privacy', expected_result: 'Privacy Policy page renders with full content' },
+            ],
+            expected_result: 'Privacy Policy page publicly accessible.',
+            priority: 'high', type: 'manual', tags: ['legal', 'privacy', 'public'], estimated_time: 3,
+          },
+        ],
+      },
+      {
+        name: 'Protected Route Guards',
+        description: 'Unauthenticated users are redirected from protected routes.',
+        type: 'security',
+        cases: [
+          {
+            title: 'Protected routes redirect to /auth when unauthenticated',
+            description: 'Visiting any protected route without a session redirects to /auth.',
+            preconditions: 'User is not authenticated.',
+            test_steps: [
+              { step: 1, action: 'Navigate directly to /notes', expected_result: 'Redirected to /auth' },
+              { step: 2, action: 'Navigate directly to /funding', expected_result: 'Redirected to /auth' },
+              { step: 3, action: 'Navigate directly to /settings', expected_result: 'Redirected to /auth' },
+              { step: 4, action: 'Navigate directly to /admin/users', expected_result: 'Redirected to /auth or Access Denied' },
+            ],
+            expected_result: 'All protected routes correctly redirect unauthenticated users.',
+            priority: 'critical', type: 'security', tags: ['routing', 'auth-guard', 'security'], estimated_time: 8,
+          },
+          {
+            title: '404 page shown for unknown routes',
+            description: 'Navigating to a non-existent route shows the Not Found page.',
+            preconditions: 'Any authentication state.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /this-does-not-exist', expected_result: '404 / Not Found page is shown' },
+              { step: 2, action: 'Verify a "Go home" or "Return to dashboard" link exists', expected_result: 'Navigation back to app is available' },
+            ],
+            expected_result: '404 page rendered for unknown routes.',
+            priority: 'medium', type: 'manual', tags: ['routing', '404', 'navigation'], estimated_time: 3,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── 17. Cross-Browser & Responsive UI ────────────────────────────────────
+  {
+    name: 'Cross-Browser & Responsive UI',
+    description: 'Layout integrity across screen sizes and major browsers; mobile usability.',
+    suites: [
+      {
+        name: 'Responsive Layout',
+        description: 'Key pages adapt correctly from mobile (320px) to desktop (1440px).',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Dashboard responsive at 375px (mobile)',
+            description: 'Dashboard layout is usable and not broken at iPhone-size viewport.',
+            preconditions: 'Authenticated. Browser DevTools set to 375px width.',
+            test_steps: [
+              { step: 1, action: 'Open DevTools, set viewport to 375×812 (iPhone)', expected_result: 'No horizontal scroll bar appears' },
+              { step: 2, action: 'Navigate to / (dashboard)', expected_result: 'Sidebar collapses; content is readable; no overlapping elements' },
+              { step: 3, action: 'Tap the sidebar hamburger/trigger', expected_result: 'Sidebar opens as overlay; usable on mobile' },
+            ],
+            expected_result: 'Dashboard layout intact and usable at 375px.',
+            priority: 'high', type: 'ui', tags: ['responsive', 'mobile', 'layout'], estimated_time: 10,
+          },
+          {
+            title: 'Settings page tab bar usable on mobile',
+            description: 'All 8 settings tabs are accessible on a small screen.',
+            preconditions: 'Viewport set to 375px.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /settings at 375px width', expected_result: 'Tab bar renders — icons visible even if labels are hidden' },
+              { step: 2, action: 'Tap each tab icon', expected_result: 'Tab content loads for every tab without layout breaking' },
+            ],
+            expected_result: 'All settings tabs accessible on mobile.',
+            priority: 'high', type: 'ui', tags: ['responsive', 'mobile', 'settings'], estimated_time: 8,
+          },
+          {
+            title: 'Tables scroll horizontally on small screens',
+            description: 'Data tables (admin users, funding, supplies) allow horizontal scrolling rather than overflowing the viewport.',
+            preconditions: 'Viewport at 375px. Tables have data.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /admin/users at 375px', expected_result: 'Users table can be scrolled horizontally; no content clipped outside viewport' },
+              { step: 2, action: 'Check /supplies inventory table at 375px', expected_result: 'Same — horizontal scroll available' },
+            ],
+            expected_result: 'All data tables are horizontally scrollable on mobile.',
+            priority: 'medium', type: 'ui', tags: ['responsive', 'mobile', 'tables'], estimated_time: 8,
+          },
+          {
+            title: 'Landing page responsive at 375px',
+            description: 'Landing page pricing cards and hero stack vertically on mobile.',
+            preconditions: 'Unauthenticated. Viewport 375px.',
+            test_steps: [
+              { step: 1, action: 'Visit /landing at 375px', expected_result: 'Pricing cards stack vertically; all CTAs visible and tappable' },
+              { step: 2, action: 'Verify no text is truncated or overflows container', expected_result: 'All pricing text readable' },
+            ],
+            expected_result: 'Landing page fully usable on mobile.',
+            priority: 'high', type: 'ui', tags: ['responsive', 'mobile', 'landing'], estimated_time: 6,
+          },
+        ],
+      },
+      {
+        name: 'Cross-Browser Compatibility',
+        description: 'Core flows work in Chrome, Firefox, Safari, and Edge.',
+        type: 'functional',
+        cases: [
+          {
+            title: 'Sign-in and dashboard load in Firefox',
+            description: 'Auth and dashboard are functional in Mozilla Firefox.',
+            preconditions: 'Firefox installed.',
+            test_steps: [
+              { step: 1, action: 'Open the app in Firefox and sign in', expected_result: 'Auth works; redirect to dashboard' },
+              { step: 2, action: 'Navigate through Notes, Meetings, and Settings', expected_result: 'All pages render correctly — no CSS or JS errors' },
+            ],
+            expected_result: 'Core flows work in Firefox.',
+            priority: 'high', type: 'manual', tags: ['browser', 'firefox', 'compatibility'], estimated_time: 10,
+          },
+          {
+            title: 'Sign-in and dashboard load in Safari',
+            description: 'Auth and dashboard are functional in Safari (macOS/iOS).',
+            preconditions: 'Safari available.',
+            test_steps: [
+              { step: 1, action: 'Open the app in Safari and sign in', expected_result: 'Auth succeeds; dashboard loads' },
+              { step: 2, action: 'Test date picker inputs in Planning and Funding pages', expected_result: 'Date inputs functional in Safari (known Safari quirk)' },
+            ],
+            expected_result: 'Core flows and date inputs work in Safari.',
+            priority: 'high', type: 'manual', tags: ['browser', 'safari', 'compatibility'], estimated_time: 10,
+          },
+          {
+            title: 'Dark mode renders correctly in all browsers',
+            description: 'Dark theme applies consistently without white flashes or unthemed elements.',
+            preconditions: 'Dark theme enabled.',
+            test_steps: [
+              { step: 1, action: 'Enable dark mode in Settings → Appearance', expected_result: 'Theme switches to dark' },
+              { step: 2, action: 'Reload the page', expected_result: 'Dark theme persists — no white flash on load' },
+              { step: 3, action: 'Navigate to several pages', expected_result: 'All UI components use dark theme — no unthemed white elements' },
+            ],
+            expected_result: 'Dark mode consistent and flash-free across navigation.',
+            priority: 'medium', type: 'ui', tags: ['dark-mode', 'theme', 'cross-browser'], estimated_time: 8,
+          },
+        ],
+      },
+    ],
+  },
+
+  // ── 18. Performance & Load ────────────────────────────────────────────────
+  {
+    name: 'Performance & Load',
+    description: 'Page load times, lazy loading, bundle size checks, and large data set handling.',
+    suites: [
+      {
+        name: 'Page Load Performance',
+        description: 'Critical pages load within acceptable time thresholds.',
+        type: 'performance',
+        cases: [
+          {
+            title: 'Dashboard loads within 3 seconds on first visit',
+            description: 'Initial dashboard load (cold cache) completes within 3 seconds on a standard connection.',
+            preconditions: 'Authenticated user. Browser cache cleared.',
+            test_steps: [
+              { step: 1, action: 'Open DevTools → Network tab, clear cache, and navigate to /', expected_result: 'Network requests logged' },
+              { step: 2, action: 'Record time from navigation start to all data visible (DOMContentLoaded + data fetched)', expected_result: 'Total time under 3 seconds on a standard connection' },
+            ],
+            expected_result: 'Dashboard fully loaded within 3 seconds.',
+            priority: 'high', type: 'performance', tags: ['performance', 'load-time', 'dashboard'], estimated_time: 10,
+          },
+          {
+            title: 'Lazy-loaded pages load without visible delay',
+            description: 'Navigating to a lazy-loaded page (e.g. Achievements) shows a loading state then content, not a blank screen.',
+            preconditions: 'Authenticated user.',
+            test_steps: [
+              { step: 1, action: 'Navigate from the dashboard to /achievements for the first time', expected_result: 'Loading spinner or skeleton shown briefly, then full page content appears' },
+              { step: 2, action: 'Navigate away and back to /achievements', expected_result: 'Page loads faster (chunk cached); no spinner needed' },
+            ],
+            expected_result: 'Lazy loading shows graceful loading state and caches correctly.',
+            priority: 'medium', type: 'performance', tags: ['performance', 'lazy-loading', 'chunks'], estimated_time: 8,
+          },
+          {
+            title: 'Analytics page renders charts within 5 seconds with 100+ data points',
+            description: 'Analytics charts handle a moderate data set without freezing the UI.',
+            preconditions: 'Pro user with at least 100 notes/tasks/meetings seeded.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /analytics', expected_result: 'Page starts rendering immediately' },
+              { step: 2, action: 'Measure time until all charts are fully rendered', expected_result: 'All charts rendered within 5 seconds' },
+              { step: 3, action: 'Interact with chart filters or date ranges', expected_result: 'UI remains responsive — no freezing or janky scrolling' },
+            ],
+            expected_result: 'Analytics renders and remains interactive with 100+ data points.',
+            priority: 'medium', type: 'performance', tags: ['performance', 'analytics', 'charts'], estimated_time: 10,
+          },
+        ],
+      },
+      {
+        name: 'Large Data Handling',
+        description: 'App remains usable when modules have large amounts of data.',
+        type: 'performance',
+        cases: [
+          {
+            title: 'Notes list scrolls smoothly with 200+ notes',
+            description: 'The notes list virtualises or paginates to stay performant at scale.',
+            preconditions: '200+ notes exist in the database (use seed data).',
+            test_steps: [
+              { step: 1, action: 'Navigate to /notes', expected_result: 'Page loads within 5 seconds' },
+              { step: 2, action: 'Scroll through the notes list rapidly', expected_result: 'Smooth scrolling — no visible lag or dropped frames' },
+              { step: 3, action: 'Search/filter the notes', expected_result: 'Search results update within 1 second' },
+            ],
+            expected_result: 'Notes list performant with 200+ items.',
+            priority: 'medium', type: 'performance', tags: ['performance', 'notes', 'large-data'], estimated_time: 12,
+          },
+          {
+            title: 'Supplies inventory loads and filters with 500+ items',
+            description: 'Inventory table remains responsive with a large item count.',
+            preconditions: '500+ inventory items exist.',
+            test_steps: [
+              { step: 1, action: 'Navigate to /supplies', expected_result: 'Page loads within 5 seconds' },
+              { step: 2, action: 'Use the search and category filter', expected_result: 'Filter results update within 1 second' },
+              { step: 3, action: 'Sort by quantity ascending/descending', expected_result: 'Sort applies without page freeze' },
+            ],
+            expected_result: 'Supplies inventory remains usable with 500+ items.',
+            priority: 'medium', type: 'performance', tags: ['performance', 'supplies', 'large-data'], estimated_time: 12,
+          },
+        ],
+      },
+      {
+        name: 'Session & Token Management',
+        description: 'Auth session expiry, token refresh, and multi-tab behaviour.',
+        type: 'integration',
+        cases: [
+          {
+            title: 'Expired session redirects to /auth',
+            description: 'When the Supabase JWT expires and cannot be refreshed, the user is redirected to sign in.',
+            preconditions: 'Authenticated user. Test by manually expiring the token.',
+            test_steps: [
+              { step: 1, action: 'In browser DevTools Application tab, delete all Supabase auth keys from localStorage', expected_result: 'Auth tokens removed' },
+              { step: 2, action: 'Attempt to navigate to a protected page (e.g. /notes)', expected_result: 'Redirected to /auth' },
+            ],
+            expected_result: 'Expired/missing session correctly redirects to auth.',
+            priority: 'high', type: 'manual', tags: ['session', 'auth', 'token-expiry'], estimated_time: 8,
+          },
+          {
+            title: 'Session persists across page reload',
+            description: 'Authenticated user reloading the page stays logged in.',
+            preconditions: 'User is authenticated.',
+            test_steps: [
+              { step: 1, action: 'Hard reload the page (Ctrl+Shift+R)', expected_result: 'User remains authenticated; dashboard loads without redirect to /auth' },
+            ],
+            expected_result: 'Session persists on reload.',
+            priority: 'critical', type: 'manual', tags: ['session', 'auth', 'persistence'], estimated_time: 3,
+          },
+          {
+            title: 'Multi-tab logout: all tabs redirect to /auth',
+            description: 'Signing out in one tab also invalidates the session in other open tabs.',
+            preconditions: 'User is authenticated in two browser tabs.',
+            test_steps: [
+              { step: 1, action: 'In Tab A, click the logout button', expected_result: 'Tab A redirects to /auth' },
+              { step: 2, action: 'In Tab B, attempt to navigate to /notes', expected_result: 'Tab B also redirects to /auth (global signOut clears session)' },
+            ],
+            expected_result: 'Global sign-out invalidates session across all tabs.',
+            priority: 'high', type: 'manual', tags: ['session', 'logout', 'multi-tab'], estimated_time: 6,
+          },
+        ],
+      },
+    ],
+  },
 ];
 
 // ─── Component ───────────────────────────────────────────────────────────────
