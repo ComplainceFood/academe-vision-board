@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MainLayout } from '@/components/MainLayout';
 import { useUserRole } from '@/hooks/useUserRole';
 import { useAuth } from '@/hooks/useAuth';
@@ -85,6 +86,7 @@ const TIER_BADGE: Record<string, string> = {
 };
 
 export default function AdminUsersPage() {
+  const { t } = useTranslation();
   const { isSystemAdmin, loading: roleLoading } = useUserRole();
   const { user } = useAuth();
   const { toast } = useToast();
@@ -519,7 +521,7 @@ export default function AdminUsersPage() {
                       Cancel
                     </Button>
                     <Button onClick={handleSaveUser} disabled={saving} className="flex-1 h-8 text-sm">
-                      {saving ? 'Saving...' : 'Save Changes'}
+                      {saving ? t('common.saving') : t('common.saveChanges')}
                     </Button>
                   </div>
                 </div>

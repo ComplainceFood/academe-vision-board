@@ -49,7 +49,11 @@
     "addToShoppingListDesc": "Add {{count}} selected items to your shopping list? Quantities will be calculated based on threshold levels.",
     "addToShoppingListAction": "Add {{count}} Items",
     "updateStock": "Update Stock", "updateStockDesc": "Update the current stock level for",
-    "currentCount": "Current Count:", "saving2": "Saving..."
+    "currentCount": "Current Count:", "saving2": "Saving...",
+    "create": "Create", "update": "Update",
+    "saveNote": "Save Note", "savePreferences": "Save Preferences",
+    "editExpenditure": "Edit Expenditure", "recordNewExpenditure": "Record New Expenditure",
+    "upgradeToPro": "Upgrade to Pro", "startFreeTrial": "Start 14-day Free Trial"
   },
   "settings": {
     "title": "Settings", "profile": "Profile", "notifications": "Notifications",

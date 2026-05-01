@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -44,6 +45,7 @@ interface FeedbackWithSender extends Feedback {
 }
 
 export function AdminFeedbackManagement() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { isSystemAdmin, loading: roleLoading } = useUserRole();
   const [selectedStatus, setSelectedStatus] = useState<string>('all');
@@ -122,7 +124,7 @@ export function AdminFeedbackManagement() {
   }, [roleLoading]);
 
   if (roleLoading) {
-    return <div className="p-8 text-center">Loading...</div>;
+    return <div className="p-8 text-center">{t('common.loading')}</div>;
   }
 
   if (!isSystemAdmin()) {
@@ -235,7 +237,7 @@ export function AdminFeedbackManagement() {
   };
 
   if (isLoading) {
-    return <div className="p-8 text-center">Loading feedback...</div>;
+    return <div className="p-8 text-center">{t('common.loading')}</div>;
   }
 
   return (

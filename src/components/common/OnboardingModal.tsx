@@ -95,8 +95,8 @@ export function OnboardingModal() {
             <div className="flex items-center gap-3 bg-primary/8 rounded-2xl px-5 py-4 border border-primary/15">
               <SmartProfLogo size={44} />
               <div>
-                <p className="text-base font-bold">Smart<span className="text-primary">-Prof</span></p>
-                <p className="text-xs text-muted-foreground">Teaching Smarter</p>
+                <p className="text-base font-bold tracking-tight">Smart<span className="text-primary">-Prof</span></p>
+                <p className="text-sm text-muted-foreground">Teaching Smarter</p>
               </div>
             </div>
           </div>
@@ -112,11 +112,11 @@ export function OnboardingModal() {
               { icon: Calendar, label: "Semester Aware", desc: "Plans adapt to your schedule" },
               { icon: CheckCircle2, label: "Role Adaptive", desc: "Tailored to teaching or research" },
             ].map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="flex items-start gap-2.5 rounded-xl bg-muted/40 p-3">
+              <div key={label} className="flex items-start gap-3 rounded-xl bg-muted/40 p-3.5">
                 <Icon className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div>
-                  <p className="text-xs font-semibold">{label}</p>
-                  <p className="text-[11px] text-muted-foreground">{desc}</p>
+                  <p className="text-sm font-semibold">{label}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{desc}</p>
                 </div>
               </div>
             ))}
@@ -134,21 +134,21 @@ export function OnboardingModal() {
           </p>
           <div className="space-y-2">
             {PROFILE_TIPS.map(({ field, example, why }) => (
-              <div key={field} className="rounded-xl border bg-card p-3 flex gap-3 items-start">
+              <div key={field} className="rounded-xl border bg-card p-3.5 flex gap-3 items-start">
                 <UserCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-xs font-semibold">{field}</span>
-                    <span className="text-[10px] text-muted-foreground italic">{example}</span>
+                    <span className="text-sm font-semibold">{field}</span>
+                    <span className="text-xs text-muted-foreground italic">{example}</span>
                   </div>
-                  <p className="text-[11px] text-primary/80 mt-0.5">↳ {why}</p>
+                  <p className="text-xs text-primary/80 mt-1">↳ {why}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3 flex gap-2.5 items-start">
+          <div className="rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-3.5 flex gap-2.5 items-start">
             <Sparkles className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
-            <p className="text-xs text-amber-700 dark:text-amber-400">
+            <p className="text-sm text-amber-700 dark:text-amber-400">
               <strong>Tip:</strong> Setting your <em>Position</em> (e.g. "Research Professor") automatically
               tailors your Semester Focus Plan with relevant priorities.
             </p>
@@ -166,18 +166,18 @@ export function OnboardingModal() {
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {MODULE_CARDS.map(({ icon: Icon, label, desc, color }) => (
-              <div key={label} className="flex items-start gap-3 rounded-xl border bg-card p-3">
+              <div key={label} className="flex items-start gap-3 rounded-xl border bg-card p-3.5">
                 <div className={`p-1.5 rounded-lg shrink-0 ${color}`}>
                   <Icon className="h-4 w-4" />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold leading-tight">{label}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{desc}</p>
+                  <p className="text-sm font-semibold leading-tight">{label}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-snug">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
-          <p className="text-[11px] text-muted-foreground text-center">
+          <p className="text-xs text-muted-foreground text-center">
             You can always revisit this guide from the <strong>?</strong> icon on any page.
           </p>
         </div>
@@ -211,21 +211,21 @@ export function OnboardingModal() {
                 detail: "Position and Department unlock personalised guidance across the entire app.",
               },
             ].map(({ icon: Icon, tip, detail }, i) => (
-              <div key={i} className="flex gap-3 items-start rounded-xl bg-muted/40 p-3">
+              <div key={i} className="flex gap-3 items-start rounded-xl bg-muted/40 p-3.5">
                 <div className="bg-primary/10 rounded-lg p-1.5 shrink-0 mt-0.5">
-                  <Icon className="h-3.5 w-3.5 text-primary" />
+                  <Icon className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-xs font-semibold">{tip}</p>
-                  <p className="text-[11px] text-muted-foreground mt-0.5 leading-snug">{detail}</p>
+                  <p className="text-sm font-semibold">{tip}</p>
+                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{detail}</p>
                 </div>
               </div>
             ))}
           </div>
-          <div className="rounded-xl bg-primary/8 border border-primary/15 p-3 flex gap-2.5 items-center">
+          <div className="rounded-xl bg-primary/8 border border-primary/15 p-3.5 flex gap-2.5 items-center">
             <CheckCircle2 className="h-5 w-5 text-primary shrink-0" />
-            <p className="text-xs text-primary font-medium">
-              Need help later? Look for the <ChevronRight className="inline h-3 w-3" /> guide icon on any page.
+            <p className="text-sm text-primary font-medium">
+              Need help later? Look for the <ChevronRight className="inline h-3.5 w-3.5" /> guide icon on any page.
             </p>
           </div>
         </div>
@@ -243,19 +243,19 @@ export function OnboardingModal() {
         {/* Header */}
         <div className="bg-gradient-to-br from-primary to-secondary px-4 sm:px-6 pt-4 sm:pt-6 pb-3 sm:pb-5 text-primary-foreground">
           <div className="flex items-center justify-between mb-3">
-            <Badge className="bg-white/20 text-white border-0 text-[10px] font-medium">
+            <Badge className="bg-white/20 text-white border-0 text-xs font-medium px-2.5 py-0.5">
               Step {step + 1} of {steps.length}
             </Badge>
             <button
               type="button"
               onClick={dismiss}
-              className="text-white/60 hover:text-white text-xs transition-colors"
+              className="text-white/60 hover:text-white text-sm transition-colors"
             >
               Skip tour
             </button>
           </div>
-          <h2 className="text-lg font-bold leading-tight">{current.title}</h2>
-          <p className="text-primary-foreground/75 text-sm mt-1">{current.subtitle}</p>
+          <h2 className="text-xl font-bold leading-tight tracking-tight">{current.title}</h2>
+          <p className="text-primary-foreground/80 text-sm mt-1.5 leading-relaxed">{current.subtitle}</p>
           <Progress value={progress} className="mt-4 h-1 bg-white/20 [&>div]:bg-white" />
         </div>
 

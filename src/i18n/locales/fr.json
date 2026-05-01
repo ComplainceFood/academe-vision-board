@@ -44,7 +44,11 @@
     "addToShoppingListDesc": "Ajouter {{count}} articles sélectionnés à votre liste de courses ? Les quantités seront calculées selon les niveaux de seuil.",
     "addToShoppingListAction": "Ajouter {{count}} articles",
     "updateStock": "Mettre à jour le stock", "updateStockDesc": "Mettre à jour le niveau de stock actuel pour",
-    "currentCount": "Quantité actuelle :", "saving2": "Enregistrement..."
+    "currentCount": "Quantité actuelle :", "saving2": "Enregistrement...",
+    "create": "Créer", "update": "Mettre à jour",
+    "saveNote": "Enregistrer la Note", "savePreferences": "Enregistrer les Préférences",
+    "editExpenditure": "Modifier la Dépense", "recordNewExpenditure": "Enregistrer une Nouvelle Dépense",
+    "upgradeToPro": "Passer à Pro", "startFreeTrial": "Commencer l'essai de 14 jours"
   },
   "settings": {
     "title": "Paramètres", "profile": "Profil", "notifications": "Notifications",
@@ -92,6 +96,7 @@
     "manageBilling": "Gérer la Facturation", "openingPortal": "Ouverture...",
     "upgradeToProBilling": "Passer à Pro",
     "monthly": "Mensuel", "annual": "Annuel",
+    "freePlanFeatures": "Objectifs et planification semestrielle,Suivi de financement,Notes de réunion,Inventaire des fournitures,Analyses de base",
     "everythingInFree": "Tout dans Gratuit, plus :",
     "active": "Actif", "recommended": "Recommandé",
     "appearanceDesc": "Personnalisez l'apparence de Smart-Prof sur votre appareil.",

@@ -853,7 +853,7 @@ const SettingsPage = () => {
                     </Badge>
                   ) : (
                     <Button onClick={() => handleUpgradeToPro(billingInterval)} disabled={loadingCheckout} className="bg-amber-500 hover:bg-amber-600 text-white">
-                      {loadingCheckout ? "Loading..." : `Upgrade to Pro · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
+                      {loadingCheckout ? t('common.loading') : `${t('common.upgradeToPro')} · ${billingInterval === "annual" ? t('settings.annual') : t('settings.monthly')}`}
                     </Button>
                   )}
                 </div>
@@ -963,7 +963,7 @@ const SettingsPage = () => {
                       onClick={() => handleUpgradeToPro(billingInterval)}
                       disabled={loadingCheckout}
                     >
-                      {loadingCheckout ? "Loading..." : `Start 14-day Free Trial · ${billingInterval === "annual" ? "Annual" : "Monthly"}`}
+                      {loadingCheckout ? t('common.loading') : `${t('common.startFreeTrial')} · ${billingInterval === "annual" ? t('settings.annual') : t('settings.monthly')}`}
                     </Button>
                   )}
                 </CardContent>

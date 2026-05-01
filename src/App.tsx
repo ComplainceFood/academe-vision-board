@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth, AuthProvider } from "@/hooks/useAuth";
 import { useUserRole } from "@/hooks/useUserRole";
 import { createContext, useContext, lazy, Suspense } from "react";
+import { useTranslation } from "react-i18next";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
 
 // Eagerly loaded - needed immediately on any page load
@@ -67,9 +68,10 @@ const triggerRefresh = (table?: string) => {
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
+  const { t } = useTranslation();
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   if (!user) {
@@ -82,9 +84,10 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AdminRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading } = useAuth();
   const { isSystemAdmin, loading: roleLoading } = useUserRole();
+  const { t } = useTranslation();
 
   if (loading || roleLoading) {
-    return <div>Loading...</div>;
+    return <div>{t('common.loading')}</div>;
   }
 
   if (!user) {
@@ -100,9 +103,10 @@ const AdminRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppContent = () => {
   const { user, loading } = useAuth();
-  
+  const { t } = useTranslation();
+
   if (loading) {
-    return <div>Loading...</div>;
+    return <div>{t('common.loading')}</div>;
   }
   
   return (

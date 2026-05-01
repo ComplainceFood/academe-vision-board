@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,6 +16,7 @@ interface EditNoteDialogProps {
 }
 
 export function EditNoteDialog({ note, open, onOpenChange }: EditNoteDialogProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [course, setCourse] = useState("");
@@ -118,7 +120,7 @@ export function EditNoteDialog({ note, open, onOpenChange }: EditNoteDialogProps
               Cancel
             </Button>
             <Button type="submit" disabled={isSubmitting || !title.trim()}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
+              {isSubmitting ? t('common.saving') : t('common.saveChanges')}
             </Button>
           </div>
         </form>

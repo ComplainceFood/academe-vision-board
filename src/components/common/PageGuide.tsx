@@ -197,7 +197,6 @@ export function PageGuide({ page }: PageGuideProps) {
   };
 
   if (dismissed) {
-    // Show a small "?" restore button
     return (
       <button
         type="button"
@@ -206,10 +205,10 @@ export function PageGuide({ page }: PageGuideProps) {
           setDismissed(false);
           setExpanded(true);
         }}
-        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors mb-2"
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-primary transition-colors mb-2"
         title="Show page guide"
       >
-        <HelpCircle className="h-3.5 w-3.5" />
+        <HelpCircle className="h-4 w-4" />
         Show guide
       </button>
     );
@@ -221,11 +220,11 @@ export function PageGuide({ page }: PageGuideProps) {
     <div className="rounded-2xl border border-primary/20 bg-primary/5 dark:bg-primary/8 mb-4 overflow-hidden">
       {/* Header row - always visible */}
       <div className="flex items-start justify-between gap-3 px-4 py-3">
-        <div className="flex items-start gap-2.5 min-w-0">
-          <HelpCircle className="h-4 w-4 text-primary mt-0.5 shrink-0" />
+        <div className="flex items-start gap-3 min-w-0">
+          <HelpCircle className="h-5 w-5 text-primary mt-0.5 shrink-0" />
           <div className="min-w-0">
             <p className="text-sm font-semibold text-primary leading-tight">{guide.title}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{guide.summary}</p>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{guide.summary}</p>
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
@@ -253,36 +252,36 @@ export function PageGuide({ page }: PageGuideProps) {
       {/* Expandable field hints */}
       {expanded && (
         <div className="px-4 pb-4 space-y-3 border-t border-primary/10 pt-3">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             {guide.fields.map(({ field, hint, example, optional }) => (
-              <div key={field} className="rounded-xl bg-background/70 border border-border/50 px-3 py-2.5">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="text-xs font-semibold text-foreground">{field}</span>
+              <div key={field} className="rounded-xl bg-background/70 border border-border/50 px-3.5 py-3">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="text-sm font-semibold text-foreground">{field}</span>
                   {optional && (
-                    <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 font-normal text-muted-foreground">
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 font-normal text-muted-foreground">
                       optional
                     </Badge>
                   )}
                 </div>
-                <p className="text-[11px] text-muted-foreground leading-snug">{hint}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{hint}</p>
                 {example && (
-                  <p className="text-[10px] text-primary/70 mt-0.5 italic">{example}</p>
+                  <p className="text-xs text-primary/70 mt-1 italic">{example}</p>
                 )}
               </div>
             ))}
           </div>
 
           {guide.tip && (
-            <div className="flex items-start gap-2 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2.5">
-              <span className="text-amber-500 text-sm shrink-0">💡</span>
-              <p className="text-[11px] text-amber-700 dark:text-amber-400 leading-snug">
+            <div className="flex items-start gap-2.5 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3.5 py-3">
+              <span className="text-amber-500 text-base shrink-0">💡</span>
+              <p className="text-sm text-amber-700 dark:text-amber-400 leading-relaxed">
                 <strong>Pro tip:</strong> {guide.tip}
               </p>
             </div>
           )}
 
           <div className="flex justify-end">
-            <Button variant="ghost" size="sm" onClick={dismiss} className="text-xs text-muted-foreground h-7">
+            <Button variant="ghost" size="sm" onClick={dismiss} className="text-sm text-muted-foreground h-8">
               Got it - don't show again
             </Button>
           </div>

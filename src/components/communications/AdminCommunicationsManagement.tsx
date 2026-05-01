@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -36,6 +37,7 @@ const communicationFormSchema = z.object({
 type CommunicationFormData = z.infer<typeof communicationFormSchema>;
 
 export function AdminCommunicationsManagement() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { isSystemAdmin, loading: roleLoading } = useUserRole();
   const [editingCommunication, setEditingCommunication] = useState<AdminCommunication | null>(null);
@@ -69,7 +71,7 @@ export function AdminCommunicationsManagement() {
 
   // Security check - only system admins can access this component
   if (roleLoading) {
-    return <div className="p-8 text-center">Loading...</div>;
+    return <div className="p-8 text-center">{t('common.loading')}</div>;
   }
 
   if (!isSystemAdmin()) {

@@ -42,7 +42,11 @@
     "addToShoppingListDesc": "¿Agregar {{count}} artículos seleccionados a tu lista de compras? Las cantidades se calcularán según los niveles de umbral.",
     "addToShoppingListAction": "Agregar {{count}} Artículos",
     "updateStock": "Actualizar Stock", "updateStockDesc": "Actualizar el nivel de stock actual para",
-    "currentCount": "Conteo Actual:", "saving2": "Guardando..."
+    "currentCount": "Conteo Actual:", "saving2": "Guardando...",
+    "create": "Crear", "update": "Actualizar",
+    "saveNote": "Guardar Nota", "savePreferences": "Guardar Preferencias",
+    "editExpenditure": "Editar Gasto", "recordNewExpenditure": "Registrar Nuevo Gasto",
+    "upgradeToPro": "Actualizar a Pro", "startFreeTrial": "Iniciar Prueba de 14 días"
   },
   "settings": {
     "title": "Configuración", "profile": "Perfil", "notifications": "Notificaciones",
@@ -89,6 +93,7 @@
     "manageBilling": "Gestionar Facturación", "openingPortal": "Abriendo...",
     "upgradeToProBilling": "Actualizar a Pro",
     "monthly": "Mensual", "annual": "Anual",
+    "freePlanFeatures": "Objetivos y planificación semestral,Rastreador de financiamiento,Notas de reuniones,Inventario de suministros,Análisis básico",
     "everythingInFree": "Todo en Gratuito, más:",
     "active": "Activo", "recommended": "Recomendado",
     "appearanceDesc": "Personaliza cómo se ve Smart-Prof en tu dispositivo.",

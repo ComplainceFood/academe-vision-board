@@ -108,28 +108,28 @@ export const FeatureGuide = ({ activeTab }: FeatureGuideProps) => {
   return (
     <Card className="mb-6 border-primary/20 bg-primary/5">
       <CardContent className="pt-6">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-5">
           <HelpCircle className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-primary">Feature Guide</h3>
+          <h3 className="font-semibold text-base text-primary">Feature Guide</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           {currentGuide.map((item, index) => {
             const IconComponent = item.icon;
             return (
               <div key={index} className="flex gap-3">
-                <div className="flex-shrink-0 mt-1">
-                  <IconComponent className="h-4 w-4 text-primary" />
+                <div className="flex-shrink-0 mt-0.5">
+                  <IconComponent className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <h4 className="font-medium text-sm">{item.title}</h4>
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <h4 className="font-semibold text-sm">{item.title}</h4>
                     {item.badge && (
                       <Badge variant="secondary" className="text-xs">
                         {item.badge}
                       </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {item.description}
                   </p>
                 </div>

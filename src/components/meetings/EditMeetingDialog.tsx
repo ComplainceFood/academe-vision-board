@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ interface EditMeetingDialogProps {
 }
 
 export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDialogProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [type, setType] = useState<"one_on_one" | "group">("one_on_one");
   const [date, setDate] = useState<Date>();
@@ -288,7 +290,7 @@ export function EditMeetingDialog({ meeting, open, onOpenChange }: EditMeetingDi
               Cancel
             </Button>
             <Button type="submit" disabled={isLoading}>
-              {isLoading ? "Saving..." : "Save Changes"}
+              {isLoading ? t('common.saving') : t('common.saveChanges')}
             </Button>
           </div>
         </form>

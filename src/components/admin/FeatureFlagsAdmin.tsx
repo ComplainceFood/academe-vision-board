@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +24,7 @@ const TIER_LABELS: Record<SubscriptionTier, string> = {
 };
 
 export function FeatureFlagsAdmin() {
+  const { t } = useTranslation();
   const { flags, toggleFlag, loading } = useFeatureFlags();
   const { promoActive } = usePromoMode();
   const [promoSaving, setPromoSaving] = useState(false);
@@ -218,7 +220,7 @@ export function FeatureFlagsAdmin() {
                       className="text-xs gap-1"
                     >
                       <Save className="h-3.5 w-3.5" />
-                      {saving ? "Saving..." : "Save Changes"}
+                      {saving ? t('common.saving') : t('common.saveChanges')}
                     </Button>
                   </>
                 )}
@@ -313,7 +315,7 @@ export function FeatureFlagsAdmin() {
               </Button>
               <Button size="sm" onClick={handleSaveAll} disabled={saving} className="gap-1">
                 <Save className="h-3.5 w-3.5" />
-                {saving ? "Saving..." : "Save"}
+                {saving ? t('common.saving') : t('common.save')}
               </Button>
             </div>
           </div>

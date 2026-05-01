@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ interface QuickNoteInputProps {
 }
 
 export function QuickNoteInput({ onSave }: QuickNoteInputProps) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -94,7 +96,7 @@ export function QuickNoteInput({ onSave }: QuickNoteInputProps) {
             disabled={isSaving || (!title.trim() && !content.trim())}
           >
             <Send className="h-4 w-4 mr-1" />
-            {isSaving ? 'Saving...' : 'Save Note'}
+            {isSaving ? t('common.saving') : t('common.saveNote')}
           </Button>
         </div>
       </CardContent>

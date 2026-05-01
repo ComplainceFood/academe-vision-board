@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export const ExpenditureDialog = ({
   editingExpenditure,
   onSuccess,
 }: ExpenditureDialogProps) => {
+  const { t } = useTranslation();
   const [fundingSources, setFundingSources] = useState<FundingSource[]>([]);
   const [formData, setFormData] = useState({
     funding_source_id: "",
@@ -247,7 +249,7 @@ export const ExpenditureDialog = ({
       <DialogContent className="w-[95vw] sm:max-w-[500px] max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader className="flex-shrink-0">
           <DialogTitle>
-            {editingExpenditure ? "Edit Expenditure" : "Record New Expenditure"}
+            {editingExpenditure ? t('common.editExpenditure') : t('common.recordNewExpenditure')}
           </DialogTitle>
         </DialogHeader>
         <div className="overflow-y-auto flex-1 px-1">
@@ -433,7 +435,7 @@ export const ExpenditureDialog = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : editingExpenditure ? "Update" : "Record"}
+                {isSubmitting ? t('common.saving') : editingExpenditure ? t('common.update') : t('common.record')}
               </Button>
             </div>
           </form>

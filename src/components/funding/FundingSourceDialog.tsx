@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ export const FundingSourceDialog = ({
   editingSource, 
   onSuccess 
 }: FundingSourceDialogProps) => {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     name: "",
     type: "grant" as 'grant' | 'donation' | 'budget_allocation' | 'fundraising' | 'other',
@@ -257,7 +259,7 @@ export const FundingSourceDialog = ({
                 Cancel
               </Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Saving..." : editingSource ? "Update" : "Create"}
+                {isSubmitting ? t('common.saving') : editingSource ? t('common.update') : t('common.create')}
               </Button>
             </div>
           </form>

@@ -40,7 +40,11 @@
     "addToShoppingListDesc": "将 {{count}} 个选定项目添加到您的购物清单？数量将根据阈值水平计算。",
     "addToShoppingListAction": "添加 {{count}} 个项目",
     "updateStock": "更新库存", "updateStockDesc": "更新当前库存水平，商品：",
-    "currentCount": "当前数量：", "saving2": "保存中..."
+    "currentCount": "当前数量：", "saving2": "保存中...",
+    "create": "创建", "update": "更新",
+    "saveNote": "保存笔记", "savePreferences": "保存偏好设置",
+    "editExpenditure": "编辑支出", "recordNewExpenditure": "记录新支出",
+    "upgradeToPro": "升级到专业版", "startFreeTrial": "开始14天免费试用"
   },
   "settings": {
     "title": "设置", "profile": "个人资料", "notifications": "通知",
@@ -86,6 +90,7 @@
     "manageBilling": "管理账单", "openingPortal": "打开中...",
     "upgradeToProBilling": "升级到专业版",
     "monthly": "每月", "annual": "每年",
+    "freePlanFeatures": "目标与学期规划,经费追踪,会议记录,物资库存,基础数据分析",
     "everythingInFree": "免费版所有功能，加上：",
     "active": "活跃", "recommended": "推荐",
     "appearanceDesc": "自定义 Smart-Prof 在您设备上的外观。",
