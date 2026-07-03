@@ -1,6 +1,6 @@
 {
   "nav": {
-    "dashboard": "仪表板", "notes": "笔记与承诺", "meetings": "会议",
+    "dashboard": "仪表板", "notes": "任务与笔记", "meetings": "会议",
     "supplies": "物资与费用", "planning": "学期规划", "funding": "经费管理",
     "achievements": "学术成就", "analytics": "数据分析", "testing": "测试平台",
     "communications": "通讯", "feedback": "反馈", "users": "用户管理",
@@ -136,7 +136,7 @@
     "searchTasks": "搜索任务...", "searchNotes": "搜索笔记...",
     "addTaskPlaceholder": "添加任务并按回车键...",
     "tasks": "任务", "subtasks": "子任务",
-    "academicWorkspace": "学术工作空间",
+    "academicWorkspace": "任务与笔记",
     "manageTasksDeadlines": "管理任务、追踪截止日期、整理笔记",
     "newTask": "新建任务", "notebooks": "笔记本",
     "showCompleted": "显示已完成", "groupByDeadline": "按截止日期分组",

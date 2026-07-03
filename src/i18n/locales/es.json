@@ -1,6 +1,6 @@
 {
   "nav": {
-    "dashboard": "Panel Principal", "notes": "Notas y Compromisos", "meetings": "Reuniones",
+    "dashboard": "Panel Principal", "notes": "Tareas y Notas", "meetings": "Reuniones",
     "supplies": "Suministros y Gastos", "planning": "Semestre y Planificación",
     "funding": "Gestión de Becas", "achievements": "Logros Académicos",
     "analytics": "Análisis", "testing": "Plataforma de Pruebas",
@@ -141,7 +141,7 @@
     "categories": "Categorías", "searchTasks": "Buscar tareas...",
     "searchNotes": "Buscar notas...", "addTaskPlaceholder": "Agrega una tarea y presiona Enter...",
     "tasks": "Tareas", "subtasks": "Subtareas",
-    "academicWorkspace": "Espacio de Trabajo Académico",
+    "academicWorkspace": "Tareas y Notas",
     "manageTasksDeadlines": "Gestiona tareas, rastrea fechas límite y organiza tus notas",
     "newTask": "Nueva Tarea", "notebooks": "Cuadernos",
     "showCompleted": "Mostrar completados", "groupByDeadline": "Agrupar por fecha límite",

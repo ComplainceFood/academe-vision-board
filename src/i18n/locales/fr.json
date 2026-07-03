@@ -1,6 +1,6 @@
 {
   "nav": {
-    "dashboard": "Tableau de Bord", "notes": "Notes et Engagements", "meetings": "Réunions",
+    "dashboard": "Tableau de Bord", "notes": "Tâches et Notes", "meetings": "Réunions",
     "supplies": "Fournitures et Dépenses", "planning": "Semestre et Planification",
     "funding": "Gestion des Bourses", "achievements": "Réalisations Académiques",
     "analytics": "Analyses", "testing": "Plateforme de Test",
@@ -145,7 +145,7 @@
     "searchTasks": "Rechercher des tâches...", "searchNotes": "Rechercher des notes...",
     "addTaskPlaceholder": "Ajoutez une tâche et appuyez sur Entrée...",
     "tasks": "Tâches", "subtasks": "Sous-tâches",
-    "academicWorkspace": "Espace de Travail Académique",
+    "academicWorkspace": "Tâches et Notes",
     "manageTasksDeadlines": "Gérez les tâches, suivez les échéances et organisez vos notes",
     "newTask": "Nouvelle Tâche", "notebooks": "Carnets",
     "showCompleted": "Afficher les terminés", "groupByDeadline": "Grouper par échéance",

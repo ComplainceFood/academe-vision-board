@@ -1,7 +1,7 @@
 {
   "nav": {
     "dashboard": "Dashboard",
-    "notes": "Notes & Commitments",
+    "notes": "Tasks & Notes",
     "meetings": "Meetings",
     "supplies": "Supplies & Expenses",
     "planning": "Semester & Planning",
@@ -145,7 +145,7 @@
     "searchTasks": "Search tasks...", "searchNotes": "Search notes...",
     "addTaskPlaceholder": "Add a task and press Enter...",
     "tasks": "Tasks", "subtasks": "Subtasks",
-    "academicWorkspace": "Academic Workspace",
+    "academicWorkspace": "Tasks & Notes",
     "manageTasksDeadlines": "Manage tasks, track deadlines, and organize your notes",
     "newTask": "New Task", "notebooks": "Notebooks",
     "showCompleted": "Show completed", "groupByDeadline": "Group by deadline",
