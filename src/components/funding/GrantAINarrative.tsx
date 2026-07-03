@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Sparkles, Loader2, Copy, Check, ChevronDown, ChevronUp,
-  AlertTriangle, CheckCircle2, ArrowRight, FileText
+  AlertTriangle, CheckCircle2, ArrowRight, FileText, Upload, X
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -42,6 +42,54 @@ export function GrantAINarrative({ sources }: GrantAINarrativeProps) {
   const [result, setResult] = useState<NarrativeResult | null>(null);
   const [expanded, setExpanded] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [templateText, setTemplateText] = useState<string>("");
+  const [templateFileName, setTemplateFileName] = useState<string>("");
+  const [isParsingTemplate, setIsParsingTemplate] = useState(false);
+  const templateInputRef = useRef<HTMLInputElement>(null);
+
+  const MAX_TEMPLATE_CHARS = 20000;
+
+  const handleTemplateFile = async (file: File | null) => {
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Templates must be under 5 MB.", variant: "destructive" });
+      return;
+    }
+    setIsParsingTemplate(true);
+    try {
+      let text = "";
+      if (file.name.toLowerCase().endsWith(".docx")) {
+        const mammoth = await import("mammoth");
+        const { value } = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+        text = value;
+      } else {
+        text = await file.text();
+      }
+      text = text.trim();
+      if (!text) throw new Error("The file appears to be empty");
+      if (text.length > MAX_TEMPLATE_CHARS) {
+        text = text.slice(0, MAX_TEMPLATE_CHARS);
+        toast({ title: "Template truncated", description: `Only the first ${MAX_TEMPLATE_CHARS.toLocaleString()} characters will be used.` });
+      }
+      setTemplateText(text);
+      setTemplateFileName(file.name);
+    } catch (err) {
+      console.error("Template parse error:", err);
+      toast({
+        title: "Could not read template",
+        description: "Use a .docx, .txt, or .md file.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsParsingTemplate(false);
+      if (templateInputRef.current) templateInputRef.current.value = "";
+    }
+  };
+
+  const clearTemplate = () => {
+    setTemplateText("");
+    setTemplateFileName("");
+  };
 
   const { data: expenditures } = useDataFetching<FundingExpenditure>({
     table: "funding_expenditures",
@@ -80,6 +128,7 @@ export function GrantAINarrative({ sources }: GrantAINarrativeProps) {
           meetings: grantMeetings || [],
           notes: grantNotes || [],
           narrative_type: narrativeType,
+          template: templateText || undefined,
         },
       });
 
@@ -171,6 +220,56 @@ export function GrantAINarrative({ sources }: GrantAINarrativeProps) {
               </SelectContent>
             </Select>
           </div>
+        </div>
+
+        {/* Funder reporting template (optional) */}
+        <div className="space-y-1.5">
+          <label className="text-xs font-medium text-muted-foreground">
+            Funder Reporting Template <span className="font-normal">(optional — different funders use different formats)</span>
+          </label>
+          {templateFileName ? (
+            <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/40">
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm truncate">{templateFileName}</p>
+                <p className="text-xs text-muted-foreground">
+                  The {selectedType?.label.toLowerCase() || "narrative"} will follow this template's structure
+                </p>
+              </div>
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-destructive hover:text-destructive shrink-0"
+                onClick={clearTemplate}
+                title="Remove template"
+              >
+                <X className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          ) : (
+            <label className="flex items-center gap-3 p-3 rounded-lg border-2 border-dashed border-border hover:border-primary/50 hover:bg-muted/30 transition-colors cursor-pointer">
+              {isParsingTemplate
+                ? <Loader2 className="h-4 w-4 text-muted-foreground animate-spin shrink-0" />
+                : <Upload className="h-4 w-4 text-muted-foreground shrink-0" />}
+              <div>
+                <p className="text-sm font-medium">
+                  {isParsingTemplate ? "Reading template…" : "Upload the funder's report template"}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  DOCX, TXT, or MD · AI will structure the narrative to match its sections
+                </p>
+              </div>
+              <input
+                ref={templateInputRef}
+                type="file"
+                className="hidden"
+                accept=".docx,.txt,.md"
+                disabled={isParsingTemplate}
+                onChange={(e) => handleTemplateFile(e.target.files?.[0] || null)}
+              />
+            </label>
+          )}
         </div>
 
         {selectedGrant && (
