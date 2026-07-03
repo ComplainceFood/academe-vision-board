@@ -217,7 +217,9 @@ export function useFeatureFlags(): UseFeatureFlagsReturn {
     if (!user) return;
 
     const channel = supabase
-      .channel("feature-flags-global")
+      // Unique suffix: supabase.channel(name) reuses an existing channel with the same
+      // name, and adding callbacks to an already-subscribed channel throws.
+      .channel(`feature-flags-${Math.random().toString(36).slice(2, 10)}`)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "feature_flags" },
@@ -302,7 +304,7 @@ export function usePromoMode(): { promoActive: boolean; loading: boolean } {
 
     // Realtime: update instantly when admin toggles the flag
     const channel = supabase
-      .channel("promo-flag-public")
+      .channel(`promo-flag-public-${Math.random().toString(36).slice(2, 10)}`)
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "feature_flags", filter: `key=eq.${PROMO_FLAG_KEY}` },

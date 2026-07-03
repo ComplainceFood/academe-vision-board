@@ -32,6 +32,10 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
   // transformKey: use a ref so changing the function reference doesn't recreate fetchData
   const transformRef = useRef(transform);
   transformRef.current = transform;
+  // Unique per hook instance: supabase.channel(name) returns an existing channel with the
+  // same name, so two components watching the same table would try to add postgres_changes
+  // callbacks to an already-subscribed channel, which throws.
+  const channelIdRef = useRef(Math.random().toString(36).slice(2, 10));
 
   // Function to fetch data
   const fetchData = useCallback(async () => {
@@ -135,7 +139,7 @@ export function useDataFetching<T>({ table, transform, enabled = true, filters =
       'test_defects', 'test_requirements', 'test_team_members', 'test_automation_configs', 'test_case_requirements'];
 
     const channel = supabase
-      .channel(`${table}_changes_${user.id}`)
+      .channel(`${table}_changes_${user.id}_${channelIdRef.current}`)
       .on('postgres_changes',
         {
           event: '*',

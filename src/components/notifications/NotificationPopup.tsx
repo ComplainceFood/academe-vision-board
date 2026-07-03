@@ -140,7 +140,7 @@ export const NotificationManager: React.FC = () => {
 
     // Subscribe to real-time notifications
     const channel = supabase
-      .channel('notifications')
+      .channel(`notifications-popup-${user.id}-${Math.random().toString(36).slice(2, 10)}`)
       .on(
         'postgres_changes',
         {

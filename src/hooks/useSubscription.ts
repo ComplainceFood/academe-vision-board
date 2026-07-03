@@ -90,7 +90,9 @@ export function useSubscription() {
     if (!user) return;
 
     const channel = supabase
-      .channel(`subscription-${user.id}`)
+      // Unique suffix: supabase.channel(name) reuses an existing channel with the same
+      // name, and adding callbacks to an already-subscribed channel throws.
+      .channel(`subscription-${user.id}-${Math.random().toString(36).slice(2, 10)}`)
       .on(
         "postgres_changes",
         {
