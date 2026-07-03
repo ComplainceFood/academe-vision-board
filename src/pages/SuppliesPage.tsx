@@ -405,24 +405,49 @@ const SuppliesPage = () => {
               </div>
             </div>
 
-            {/* Quick Stats */}
+            {/* Quick Stats - click to jump to the matching view */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('common.name')}</p>
+              <button
+                type="button"
+                onClick={() => setActiveTab("inventory")}
+                title="View inventory"
+                className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20 text-left cursor-pointer hover:bg-primary-foreground/25 transition-colors"
+              >
+                <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('supplies.inventory')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{supplies.length}</p>
-              </div>
-              <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveTab("inventory");
+                  setShowLowStockOnly(prev => !prev);
+                }}
+                title="Show only low-stock items"
+                className={`bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-1.5 border text-left cursor-pointer hover:bg-amber-500/90 transition-colors ${
+                  showLowStockOnly ? 'border-primary-foreground ring-1 ring-primary-foreground/60' : 'border-primary-foreground/20'
+                }`}
+              >
                 <p className="text-primary-foreground/80 text-[9px] sm:text-xs uppercase tracking-wider">{t('supplies.lowStock')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{warningItems.length}</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("expenses")}
+                title="View expenses"
+                className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20 text-left cursor-pointer hover:bg-primary-foreground/25 transition-colors"
+              >
                 <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('supplies.expenses')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground truncate">${totalExpenses.toLocaleString()}</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsShoppingListOpen(true)}
+                title="Open shopping list"
+                className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20 text-left cursor-pointer hover:bg-primary-foreground/25 transition-colors"
+              >
                 <p className="text-[9px] sm:text-xs uppercase tracking-wider text-primary-foreground/80">{t('supplies.shopping')}</p>
                 <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{shoppingListCount}</p>
-              </div>
+              </button>
             </div>
           </div>
         </div>
@@ -437,7 +462,7 @@ const SuppliesPage = () => {
 
         
         {/* Tab Navigation */}
-        <Tabs defaultValue="inventory" onValueChange={handleTabChange}>
+        <Tabs value={activeTab} onValueChange={handleTabChange}>
           <TabsList className="p-1 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full sm:max-w-lg grid-cols-3">
             <TabsTrigger value="inventory" className="flex items-center justify-center gap-1.5 px-2 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
               <ShoppingBag className="h-3.5 w-3.5 shrink-0" />

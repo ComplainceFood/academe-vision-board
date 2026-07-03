@@ -411,24 +411,25 @@ const MeetingsPage = () => {
               </div>
             </div>
 
-            {/* Quick Stats */}
+            {/* Quick Stats - click to jump to the matching tab */}
             <div className="grid grid-cols-4 gap-2 mt-3">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('meetings.upcoming')}</p>
-                <p className="text-lg sm:text-2xl font-bold">{stats.upcoming}</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('meetings.thisWeek')}</p>
-                <p className="text-lg sm:text-2xl font-bold">{stats.thisWeek}</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('meetings.completed')}</p>
-                <p className="text-lg sm:text-2xl font-bold">{stats.past}</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('common.total')}</p>
-                <p className="text-lg sm:text-2xl font-bold">{stats.total}</p>
-              </div>
+              {[
+                { label: t('meetings.upcoming'), value: stats.upcoming, tab: "upcoming" },
+                { label: t('meetings.thisWeek'), value: stats.thisWeek, tab: "upcoming" },
+                { label: t('meetings.completed'), value: stats.past, tab: "past" },
+                { label: t('common.total'), value: stats.total, tab: "all" },
+              ].map(({ label, value, tab }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setActiveTab(tab)}
+                  title={`View ${label.toLowerCase()} meetings`}
+                  className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20 text-left cursor-pointer hover:bg-primary-foreground/25 transition-colors"
+                >
+                  <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{label}</p>
+                  <p className="text-lg sm:text-2xl font-bold">{value}</p>
+                </button>
+              ))}
             </div>
           </div>
         </div>

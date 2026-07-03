@@ -153,6 +153,7 @@ const PlanningPage = () => {
   const [currentEvent, setCurrentEvent] = useState<PlanningEvent | undefined>(undefined);
   const [currentTask, setCurrentTask] = useState<FutureTask | undefined>(undefined);
   const [activeFutureTab, setActiveFutureTab] = useState(CURRENT_SEMESTERS[0]?.value || "Spring 2026");
+  const [mainTab, setMainTab] = useState<"calendar" | "future">("calendar");
   const [showPastSemesters, setShowPastSemesters] = useState(false);
 
   // Semester Focus Plan state
@@ -409,30 +410,31 @@ const PlanningPage = () => {
               </div>
             </div>
 
-            {/* Quick Stats */}
+            {/* Quick Stats - click to jump to the matching view */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3">
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('analytics.thisWeek')}</p>
-                <p className="text-lg sm:text-2xl font-bold">{stats.thisWeekEvents}</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('planning.progress')}</p>
-                <p className="text-lg sm:text-2xl font-bold">{stats.taskProgress}%</p>
-              </div>
-              <div className="bg-amber-500/70 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('planning.urgent')}</p>
-                <p className="text-lg sm:text-2xl font-bold text-primary-foreground">{stats.urgentDeadlines}</p>
-              </div>
-              <div className="bg-primary-foreground/15 backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20">
-                <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{t('planning.future')}</p>
-                <p className="text-lg sm:text-2xl font-bold">{stats.totalFutureTasks}</p>
-              </div>
+              {[
+                { label: t('analytics.thisWeek'), value: `${stats.thisWeekEvents}`, tab: "calendar" as const, bg: "bg-primary-foreground/15 hover:bg-primary-foreground/25" },
+                { label: t('planning.progress'), value: `${stats.taskProgress}%`, tab: "future" as const, bg: "bg-primary-foreground/15 hover:bg-primary-foreground/25" },
+                { label: t('planning.urgent'), value: `${stats.urgentDeadlines}`, tab: "calendar" as const, bg: "bg-amber-500/70 hover:bg-amber-500/90" },
+                { label: t('planning.future'), value: `${stats.totalFutureTasks}`, tab: "future" as const, bg: "bg-primary-foreground/15 hover:bg-primary-foreground/25" },
+              ].map(({ label, value, tab, bg }) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setMainTab(tab)}
+                  title={tab === "calendar" ? "View calendar" : "View future planning"}
+                  className={`${bg} backdrop-blur-sm rounded-xl px-3 py-1.5 border border-primary-foreground/20 text-left cursor-pointer transition-colors`}
+                >
+                  <p className="text-primary-foreground/70 text-[9px] sm:text-xs uppercase tracking-wider">{label}</p>
+                  <p className="text-lg sm:text-2xl font-bold">{value}</p>
+                </button>
+              ))}
             </div>
           </div>
         </div>
 
         {/* Main Content */}
-        <Tabs defaultValue="calendar" className="space-y-6">
+        <Tabs value={mainTab} onValueChange={(v) => setMainTab(v as "calendar" | "future")} className="space-y-6">
           <TabsList className="p-1 bg-muted/70 backdrop-blur-sm rounded-xl grid w-full sm:max-w-md grid-cols-2">
             <TabsTrigger value="calendar" className="flex items-center gap-1.5 px-3 sm:px-4 py-2 rounded-lg data-[state=active]:bg-background data-[state=active]:shadow-md transition-all text-xs sm:text-sm">
               <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />

@@ -134,14 +134,23 @@ const AchievementsPage = () => {
               <div className="flex flex-wrap items-center gap-2">
                 {/* Stats inline */}
                 {[
-                  { label: t('common.total'), value: totalAchievements },
-                  { label: t('achievements.publications'), value: stats.publication },
-                  { label: t('achievements.awards'), value: stats.award_honor },
-                ].map(({ label, value }) => (
-                  <div key={label} className="bg-primary-foreground/15 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-primary-foreground/20 text-center min-w-[60px]">
+                  { label: t('common.total'), value: totalAchievements, tab: undefined as string | undefined },
+                  { label: t('achievements.publications'), value: stats.publication, tab: "publications" },
+                  { label: t('achievements.awards'), value: stats.award_honor, tab: "awards" },
+                ].map(({ label, value, tab }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    disabled={!tab}
+                    onClick={() => tab && setActiveTab(tab)}
+                    title={tab ? `View ${label.toLowerCase()}` : undefined}
+                    className={`bg-primary-foreground/15 backdrop-blur-sm rounded-lg px-3 py-1.5 border border-primary-foreground/20 text-center min-w-[60px] transition-colors ${
+                      tab ? 'cursor-pointer hover:bg-primary-foreground/25' : 'cursor-default'
+                    }`}
+                  >
                     <p className="text-primary-foreground/70 text-[10px] uppercase tracking-wider">{label}</p>
                     <p className="text-lg sm:text-2xl font-bold">{value}</p>
-                  </div>
+                  </button>
                 ))}
                 <div className="flex flex-wrap gap-2">
                   <ProGate featureKey="achievements_cv_import" variant="hide">
