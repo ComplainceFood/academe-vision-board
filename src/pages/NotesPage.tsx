@@ -44,6 +44,9 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -75,6 +78,7 @@ const NotesPage = () => {
   const [activeTab, setActiveTab] = useState<'tasks' | 'notes'>('tasks');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [showCompleted, setShowCompleted] = useState(false);
+  const [deadlineFilter, setDeadlineFilter] = useState<'all' | 'overdue' | 'today'>('all');
   const [groupByDeadline, setGroupByDeadline] = useState(true);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
   
@@ -95,9 +99,10 @@ const NotesPage = () => {
     deleteNote, 
     toggleStar, 
     toggleStatus, 
-    createNote, 
-    createFolder, 
-    updateSubtasks 
+    createNote,
+    createFolder,
+    updateSubtasks,
+    moveToFolder
   } = useNotes();
   const { user } = useAuth();
 
@@ -122,7 +127,19 @@ const NotesPage = () => {
 
       const matchesCompleted = showCompleted || task.status !== 'completed';
 
-      return matchesSearch && matchesCategory && matchesCompleted;
+      let matchesDeadline = true;
+      if (deadlineFilter !== 'all') {
+        if (!task.due_date || task.status === 'completed') {
+          matchesDeadline = false;
+        } else {
+          const due = new Date(task.due_date);
+          matchesDeadline = deadlineFilter === 'overdue'
+            ? due < new Date() && due.toDateString() !== new Date().toDateString()
+            : due.toDateString() === new Date().toDateString();
+        }
+      }
+
+      return matchesSearch && matchesCategory && matchesCompleted && matchesDeadline;
     }).sort((a, b) => {
       if (a.starred !== b.starred) return a.starred ? -1 : 1;
       const priorityOrder = { urgent: 4, high: 3, medium: 2, low: 1 };
@@ -131,7 +148,7 @@ const NotesPage = () => {
       }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
-  }, [tasks, searchQuery, selectedCategory, showCompleted]);
+  }, [tasks, searchQuery, selectedCategory, showCompleted, deadlineFilter]);
 
   // Group tasks by deadline
   const groupedTasks = useMemo(() => {
@@ -164,7 +181,8 @@ const NotesPage = () => {
   const stats = useMemo(() => {
     const overdueTasks = tasks.filter(t => {
       if (!t.due_date || t.status === 'completed') return false;
-      return new Date(t.due_date) < new Date();
+      const due = new Date(t.due_date);
+      return due < new Date() && due.toDateString() !== new Date().toDateString();
     }).length;
 
     const dueTodayTasks = tasks.filter(t => {
@@ -301,17 +319,32 @@ const NotesPage = () => {
             {/* Quick Stats */}
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 mt-3">
               {[
-                { label: t('notes.pending'),   value: stats.pendingTasks,   bg: "bg-primary-foreground/15" },
-                { label: t('notes.overdue'),   value: stats.overdueTasks,   bg: "bg-amber-500/70" },
-                { label: t('notes.dueDate'), value: stats.dueTodayTasks,  bg: "bg-primary-foreground/15" },
+                { label: t('notes.pending'),   value: stats.pendingTasks,   bg: "bg-primary-foreground/15", filter: 'all' as const },
+                { label: t('notes.overdue'),   value: stats.overdueTasks,   bg: "bg-amber-500/70", filter: 'overdue' as const },
+                { label: t('notes.dueDate'), value: stats.dueTodayTasks,  bg: "bg-primary-foreground/15", filter: 'today' as const },
                 { label: t('notes.completed'), value: stats.completedTasks, bg: "bg-primary-foreground/15" },
                 { label: t('notes.recurring'), value: stats.recurringTasks, bg: "bg-primary-foreground/15" },
                 { label: t('nav.notes'),       value: stats.totalNotes,     bg: "bg-primary-foreground/15" },
-              ].map(({ label, value, bg }) => (
-                <div key={label} className={`${bg} backdrop-blur-sm rounded-lg px-3 py-1.5 border border-primary-foreground/20 text-center`}>
+              ].map(({ label, value, bg, filter }) => (
+                <button
+                  key={label}
+                  type="button"
+                  disabled={!filter}
+                  onClick={() => {
+                    if (!filter) return;
+                    setActiveTab('tasks');
+                    setDeadlineFilter(prev => (prev === filter ? 'all' : filter));
+                  }}
+                  className={`${bg} backdrop-blur-sm rounded-lg px-3 py-1.5 border text-center transition-colors ${
+                    filter && deadlineFilter === filter && filter !== 'all'
+                      ? 'border-primary-foreground ring-1 ring-primary-foreground/60'
+                      : 'border-primary-foreground/20'
+                  } ${filter ? 'cursor-pointer hover:bg-primary-foreground/25' : 'cursor-default'}`}
+                  title={filter && filter !== 'all' ? 'Click to filter tasks' : undefined}
+                >
                   <p className="text-lg sm:text-2xl font-bold">{value}</p>
                   <p className="text-[10px] text-primary-foreground/70">{label}</p>
-                </div>
+                </button>
               ))}
             </div>
           </div>
@@ -412,6 +445,24 @@ const NotesPage = () => {
 
               {/* Task List */}
               <div className="flex-1 space-y-4">
+                {deadlineFilter !== 'all' && (
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="gap-1.5">
+                      {deadlineFilter === 'overdue' ? t('notes.overdue') : t('notes.dueDate')}
+                      <button
+                        type="button"
+                        onClick={() => setDeadlineFilter('all')}
+                        className="hover:text-destructive font-bold"
+                        title="Clear filter"
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                    <span className="text-xs text-muted-foreground">
+                      {filteredTasks.length} task{filteredTasks.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                )}
                 {/* Quick Add Task */}
                 <Card>
                   <CardContent className="p-3">
@@ -559,6 +610,31 @@ const NotesPage = () => {
                                     <Star className={`h-4 w-4 mr-2 ${note.starred ? 'fill-amber-400 text-amber-400' : ''}`} />
                                     {note.starred ? 'Unstar' : 'Star'}
                                   </DropdownMenuItem>
+                                  {folders.length > 0 && (
+                                    <DropdownMenuSub>
+                                      <DropdownMenuSubTrigger>
+                                        <FolderOpen className="h-4 w-4 mr-2" />
+                                        Move to folder
+                                      </DropdownMenuSubTrigger>
+                                      <DropdownMenuSubContent>
+                                        {note.parent_folder_id && (
+                                          <DropdownMenuItem onClick={() => moveToFolder({ noteId: note.id, folderId: null })}>
+                                            No folder
+                                          </DropdownMenuItem>
+                                        )}
+                                        {folders
+                                          .filter(f => f.id !== note.parent_folder_id)
+                                          .map(folder => (
+                                            <DropdownMenuItem
+                                              key={folder.id}
+                                              onClick={() => moveToFolder({ noteId: note.id, folderId: folder.id })}
+                                            >
+                                              {folder.title}
+                                            </DropdownMenuItem>
+                                          ))}
+                                      </DropdownMenuSubContent>
+                                    </DropdownMenuSub>
+                                  )}
                                   <DropdownMenuSeparator />
                                   <DropdownMenuItem 
                                     className="text-destructive"

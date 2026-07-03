@@ -19,6 +19,19 @@ const parseSubtasks = (subtasks: Json | null): Subtask[] => {
   });
 };
 
+// Advance a due date by one recurrence interval
+const nextDueDate = (dueDate: string, pattern: string): string => {
+  const d = new Date(dueDate);
+  switch (pattern) {
+    case 'daily': d.setDate(d.getDate() + 1); break;
+    case 'weekly': d.setDate(d.getDate() + 7); break;
+    case 'biweekly': d.setDate(d.getDate() + 14); break;
+    case 'monthly': d.setMonth(d.getMonth() + 1); break;
+    default: return dueDate;
+  }
+  return d.toISOString().split('T')[0];
+};
+
 // Helper to convert subtasks to JSON-safe format
 const subtasksToJson = (subtasks: Subtask[]): Json => {
   return subtasks.map(s => ({
@@ -271,22 +284,69 @@ export const useNotes = () => {
       if (!note) throw new Error('Note not found');
       
       const newStatus = note.status === 'completed' ? 'active' : 'completed';
-      
+
+      // Completing a recurring task spawns the next occurrence. The completed
+      // instance keeps its data but loses its recurrence so re-completing it
+      // later can't spawn duplicates.
+      const isRecurringCompletion =
+        newStatus === 'completed' && !!note.recurrence_pattern && !!note.due_date;
+
       const { data, error } = await supabase
         .from('notes')
-        .update({ status: newStatus })
+        .update({
+          status: newStatus,
+          ...(isRecurringCompletion ? { recurrence_pattern: null } : {}),
+        })
         .eq('id', id)
         .select()
         .single();
-      
+
       if (error) throw error;
+
+      let spawnedNext = false;
+      if (isRecurringCompletion) {
+        const next = nextDueDate(note.due_date!, note.recurrence_pattern!);
+        const withinEnd =
+          !note.recurrence_end_date || next <= note.recurrence_end_date;
+        if (withinEnd && user) {
+          const { error: spawnError } = await supabase.from('notes').insert([{
+            title: note.title,
+            content: note.content,
+            type: note.type,
+            course: note.course,
+            student_name: note.student_name,
+            user_id: user.id,
+            tags: note.tags || [],
+            priority: note.priority,
+            starred: note.starred,
+            due_date: next,
+            funding_source_id: note.funding_source_id || null,
+            subtasks: subtasksToJson(
+              (note.subtasks || []).map(s => ({ ...s, completed: false }))
+            ),
+            recurrence_pattern: note.recurrence_pattern,
+            recurrence_end_date: note.recurrence_end_date || null,
+            parent_folder_id: note.parent_folder_id || null,
+            is_folder: false,
+          }]);
+          if (spawnError) console.error('Failed to create next occurrence:', spawnError);
+          else spawnedNext = true;
+        }
+      }
+
       return {
-        ...data,
-        subtasks: parseSubtasks(data.subtasks),
-      } as Note;
+        note: { ...data, subtasks: parseSubtasks(data.subtasks) } as Note,
+        spawnedNext,
+      };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['notes'] });
+      if (result.spawnedNext) {
+        toast({
+          title: 'Recurring task',
+          description: 'Next occurrence has been scheduled.',
+        });
+      }
     },
   });
 
