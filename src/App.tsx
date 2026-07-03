@@ -10,6 +10,7 @@ import { useUserRole } from "@/hooks/useUserRole";
 import { createContext, useContext, lazy, Suspense } from "react";
 import { useTranslation } from "react-i18next";
 import { OAuthTokenCapture } from "@/components/auth/OAuthTokenCapture";
+import { RootErrorBoundary } from "@/components/common/RootErrorBoundary";
 
 // Eagerly loaded - needed immediately on any page load
 import AuthPage from "./pages/AuthPage";
@@ -234,6 +235,7 @@ const AppContent = () => {
 };
 
 const App = () => (
+  <RootErrorBoundary>
   <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -249,6 +251,7 @@ const App = () => (
       </AuthProvider>
     </QueryClientProvider>
   </ThemeProvider>
+  </RootErrorBoundary>
 );
 
 export default App;
