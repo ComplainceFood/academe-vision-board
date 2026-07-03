@@ -40,6 +40,7 @@ interface AnalyticsData {
     totalSupplies: number;
     totalExpenses: number;
     totalFunding: number;
+    remainingFunding: number;
     activeGrants: number;
     totalAchievements: number;
     taskCompletionRate: number;
@@ -49,6 +50,7 @@ interface AnalyticsData {
     lowSupplies: number;
   };
   trends: TrendPoint[];
+  dailyLast7: TrendPoint[];
   categories: CategoryPoint[];
   productivity: ProductivityPoint[];
   achievements: AchievementCategory[];
@@ -197,10 +199,11 @@ export const AnalyticsDashboard = () => {
         fill: ACHIEVEMENT_COLORS[cat] || '#7c3aed',
       }));
 
-      // Funding by status
+      // Funding by status (funding_sources statuses: active | expired | depleted | pending)
       const fundingByStatus: FundingStatus[] = [
         { name: 'Active', value: funding.filter((f: any) => f.status === 'active').length, color: '#10b981' },
-        { name: 'Completed', value: funding.filter((f: any) => f.status === 'completed').length, color: '#7c3aed' },
+        { name: 'Expired', value: funding.filter((f: any) => f.status === 'expired').length, color: '#7c3aed' },
+        { name: 'Depleted', value: funding.filter((f: any) => f.status === 'depleted').length, color: '#ef4444' },
         { name: 'Pending', value: funding.filter((f: any) => f.status === 'pending').length, color: '#f59e0b' },
       ].filter(f => f.value > 0);
 
@@ -220,6 +223,7 @@ export const AnalyticsDashboard = () => {
           totalSupplies: supplies.length,
           totalExpenses: expenses.reduce((s: number, e: any) => s + Number(e.amount), 0),
           totalFunding: funding.reduce((s: number, f: any) => s + Number(f.total_amount), 0),
+          remainingFunding: funding.reduce((s: number, f: any) => s + Number(f.remaining_amount), 0),
           activeGrants: funding.filter((f: any) => f.status === 'active').length,
           totalAchievements: achievements.length,
           taskCompletionRate,
@@ -228,7 +232,8 @@ export const AnalyticsDashboard = () => {
           upcomingDeadlines,
           lowSupplies: supplies.filter((s: any) => s.current_count <= s.threshold).length,
         },
-        trends: buildTrends(start, end, notes, meetings, expenses),
+        trends: buildTrends(start, new Date(end.getTime() + 86400000), notes, meetings, expenses),
+        dailyLast7: buildTrends(new Date(end.getTime() - 6 * 86400000), new Date(end.getTime() + 86400000), notes, meetings, expenses),
         categories,
         productivity: buildProductivity(tasks),
         achievements: achievementData,
@@ -243,15 +248,26 @@ export const AnalyticsDashboard = () => {
   };
 
   const buildTrends = (start: Date, end: Date, notes: any[], meetings: any[], expenses: any[]): TrendPoint[] => {
-    const days = Math.min(Math.ceil((end.getTime() - start.getTime()) / 86400000), 30);
-    return Array.from({ length: days }, (_, i) => {
-      const d = new Date(start); d.setDate(start.getDate() + i);
-      const ds = d.toISOString().split('T')[0];
+    const totalDays = Math.ceil((end.getTime() - start.getTime()) / 86400000);
+    // Bucket longer ranges into multi-day windows so the chart stays readable
+    // (~30 points max) while still covering the whole selected period.
+    const bucketDays = Math.max(1, Math.ceil(totalDays / 30));
+    const buckets = Math.ceil(totalDays / bucketDays);
+
+    const inBucket = (dateStr: string | null | undefined, bStart: Date, bEnd: Date) => {
+      if (!dateStr) return false;
+      const d = new Date(dateStr);
+      return d >= bStart && d < bEnd;
+    };
+
+    return Array.from({ length: buckets }, (_, i) => {
+      const bStart = new Date(start); bStart.setDate(start.getDate() + i * bucketDays);
+      const bEnd = new Date(bStart); bEnd.setDate(bStart.getDate() + bucketDays);
       return {
-        date: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        notes: notes.filter((n: any) => (n.due_date || n.created_at || '').startsWith(ds)).length,
-        meetings: meetings.filter((m: any) => (m.start_date || '').startsWith(ds)).length,
-        expenses: expenses.filter((e: any) => (e.date || '').startsWith(ds)).length,
+        date: bStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        notes: notes.filter((n: any) => inBucket(n.due_date || n.created_at, bStart, bEnd)).length,
+        meetings: meetings.filter((m: any) => inBucket(m.start_date, bStart, bEnd)).length,
+        expenses: expenses.filter((e: any) => inBucket(e.date, bStart, bEnd)).length,
       };
     });
   };
@@ -315,7 +331,7 @@ export const AnalyticsDashboard = () => {
     },
     {
       label: 'Total Funding', value: formatCurrency(data.overview.totalFunding),
-      sub: `${data.overview.activeGrants} active grant${data.overview.activeGrants !== 1 ? 's' : ''}`,
+      sub: `${formatCurrency(data.overview.remainingFunding)} available · ${data.overview.activeGrants} active grant${data.overview.activeGrants !== 1 ? 's' : ''}`,
       icon: TrendingUp, gradient: 'bg-gradient-to-br from-indigo-500 to-violet-600', iconBg: 'bg-white/20',
     },
     {
@@ -523,7 +539,7 @@ export const AnalyticsDashboard = () => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={220}>
-                <BarChart data={data.trends.slice(-7)} barSize={14} margin={{ left: -10 }}>
+                <BarChart data={data.dailyLast7} barSize={14} margin={{ left: -10 }}>
                   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                   <XAxis dataKey="date" tick={{ fontSize: 11 }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fontSize: 11 }} tickLine={false} axisLine={false} allowDecimals={false} />
