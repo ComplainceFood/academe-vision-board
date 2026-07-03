@@ -28,7 +28,16 @@ async function sendEmail(to: string, subject: string, html: string): Promise<voi
 }
 
 // ── Broadcast email template ─────────────────────────────────────────────────
-function broadcastTemplate(title: string, content: string, author: string, priority: string) {
+function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+}
+
+function broadcastTemplate(rawTitle: string, content: string, rawAuthor: string, rawPriority: string) {
+  const title = escapeHtml(rawTitle)
+  const author = escapeHtml(rawAuthor)
+  const priority = /^[a-z]+$/.test(rawPriority) ? rawPriority : 'normal'
   const priorityBanner: Record<string, string> = {
     urgent:  'background:#dc2626;color:#fff;',
     high:    'background:#ea580c;color:#fff;',

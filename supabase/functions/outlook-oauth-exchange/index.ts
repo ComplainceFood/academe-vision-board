@@ -45,21 +45,18 @@ serve(async (req) => {
     const { data: { user } } = await anonClient.auth.getUser();
 
     const body = await req.json();
-    const { code, state } = body;
+    const { code } = body;
 
-    // Extract userId from state param (format: nonce.userId) as fallback
-    const userIdFromState = state?.includes('.') ? state.split('.').slice(1).join('.') : null;
-    const userId = user?.id || userIdFromState;
-
+    // Security: the user must be identified by a verified JWT only. Never trust
+    // the OAuth `state` value for identity — it is caller-controlled and would
+    // let an attacker bind their Outlook account to another user's ID.
+    const userId = user?.id;
     if (!userId) {
-      console.error('No userId from JWT or state');
       return new Response(
-        JSON.stringify({ error: 'Unable to identify user' }),
+        JSON.stringify({ error: 'Authentication required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
-
-    console.log('userId resolved:', userId, 'from JWT:', !!user?.id);
 
     const MICROSOFT_CLIENT_ID = Deno.env.get('MICROSOFT_CLIENT_ID');
     const MICROSOFT_CLIENT_SECRET = Deno.env.get('MICROSOFT_CLIENT_SECRET');

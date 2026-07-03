@@ -153,11 +153,17 @@ serve(async (req) => {
     )
     if (userError || !user) throw new Error('Invalid user token')
 
-    const { name, email } = await req.json()
-    const recipientEmail = email || user.email
-    const recipientName = name || recipientEmail?.split('@')[0] || 'there'
+    const { name } = await req.json().catch(() => ({}))
 
+    // Security: always send to the authenticated user's own address — never a
+    // caller-supplied one (prevents abuse as a spam relay).
+    const recipientEmail = user.email
     if (!recipientEmail) throw new Error('No recipient email')
+
+    const escapeHtml = (v: unknown) => String(v ?? '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+    const recipientName = escapeHtml(name || recipientEmail.split('@')[0] || 'there').slice(0, 100)
 
     await sendEmail(
       recipientEmail,

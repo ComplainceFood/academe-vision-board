@@ -14,6 +14,28 @@ interface NotificationRequest {
   data?: Record<string, any>;
 }
 
+function escapeHtml(value: unknown): string {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+}
+
+function sanitizeRequest(req: NotificationRequest): NotificationRequest {
+  const data: Record<string, any> = {}
+  for (const [key, value] of Object.entries(req.data || {})) {
+    data[key] = typeof value === 'string' ? escapeHtml(value) : value
+  }
+  return {
+    ...req,
+    title: escapeHtml(req.title).slice(0, 200),
+    message: escapeHtml(req.message).slice(0, 2000),
+    data,
+  }
+}
+
 // ── Shared layout wrapper ────────────────────────────────────────────────────
 function layout(accentColor: string, iconEmoji: string, title: string, body: string) {
   return `
@@ -229,11 +251,18 @@ serve(async (req) => {
     )
     if (userError || !user) throw new Error('Invalid user token')
 
-    const notificationData: NotificationRequest = await req.json()
-    console.log('Processing notification type:', notificationData.type, 'for:', notificationData.recipient)
+    const rawRequest: NotificationRequest = await req.json()
+
+    // Security: notifications may only be sent to the authenticated user's own
+    // address — never to a caller-supplied recipient (prevents use as a spam/
+    // phishing relay from the platform's sending domain).
+    if (!user.email) throw new Error('Authenticated user has no email address')
+    const notificationData = sanitizeRequest({ ...rawRequest, recipient: user.email })
+    console.log('Processing notification type:', notificationData.type, 'for user:', user.id)
 
     const html = getTemplate(notificationData)
-    await sendEmail(notificationData.recipient, notificationData.title, html)
+    // Subject is plain text — use the raw (length-capped) title, not the HTML-escaped one
+    await sendEmail(notificationData.recipient, String(rawRequest.title ?? 'Smart-Prof Notification').slice(0, 200), html)
 
     return new Response(
       JSON.stringify({ success: true, message: 'Email sent successfully', type: notificationData.type }),
