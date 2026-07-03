@@ -175,6 +175,29 @@ serve(async (req) => {
     const now = new Date()
     const todayStr = now.toISOString().split('T')[0]
 
+    // Rate-limit runs: this function is invoked hourly by pg_cron with the anon
+    // key, which means anyone with the (public) anon key could also trigger it.
+    // The unique (reminder_type, dedupe_key) constraint makes this atomic — a
+    // second run inside the same hour fails the insert and exits.
+    const hourKey = now.toISOString().slice(0, 13) // e.g. 2026-07-03T14
+    const { error: runLockError } = await supabase
+      .from('reminder_log')
+      .insert({ reminder_type: 'run', dedupe_key: hourKey })
+    if (runLockError) {
+      return new Response(
+        JSON.stringify({ success: true, skipped: true, reason: 'Already ran this hour' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Claims a dedupe slot; returns false if this reminder was already sent.
+    const claim = async (type: string, key: string, userId: string): Promise<boolean> => {
+      const { error } = await supabase
+        .from('reminder_log')
+        .insert({ reminder_type: type, dedupe_key: key, user_id: userId })
+      return !error
+    }
+
     // ── Get all users with their emails and notification prefs ──────────────
     const { data: profiles } = await supabase
       .from('profiles')
@@ -219,6 +242,7 @@ serve(async (req) => {
         })
 
         for (const meeting of upcoming) {
+          if (!await claim('meeting', `${meeting.id}:${meeting.start_date}`, profile.user_id)) continue
           try {
             await sendEmail(
               profile.email,
@@ -241,7 +265,7 @@ serve(async (req) => {
           .lt('due_date', todayStr)
           .not('due_date', 'is', null)
 
-        if (tasks?.length) {
+        if (tasks?.length && await claim('overdue_digest', `${profile.user_id}:${todayStr}`, profile.user_id)) {
           try {
             await sendEmail(
               profile.email,
@@ -266,7 +290,7 @@ serve(async (req) => {
           .lte('end_date', in14days)
           .gte('end_date', todayStr)
 
-        if (grants?.length) {
+        if (grants?.length && await claim('grant_deadline_digest', `${profile.user_id}:${todayStr}`, profile.user_id)) {
           try {
             await sendEmail(
               profile.email,
@@ -288,7 +312,7 @@ serve(async (req) => {
           .gt('threshold', 0)
         const supplies = (allSupplies || []).filter((s: any) => s.current_count <= s.threshold)
 
-        if (supplies?.length) {
+        if (supplies?.length && await claim('low_supply_digest', `${profile.user_id}:${todayStr}`, profile.user_id)) {
           try {
             await sendEmail(
               profile.email,

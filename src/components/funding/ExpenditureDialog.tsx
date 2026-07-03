@@ -9,8 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { FundingSource, FundingExpenditure } from "@/types/funding";
-import { Upload, X, FileText, ExternalLink } from "lucide-react";
+import { FundingSource, FundingExpenditure, FundingBudgetCategory } from "@/types/funding";
+import { Upload, X, FileText, ExternalLink, AlertTriangle } from "lucide-react";
 
 interface ExpenditureDialogProps {
   open: boolean;
@@ -41,6 +41,8 @@ export const ExpenditureDialog = ({
     approval_date: "",
     notes: "",
   });
+  const [budgetCategories, setBudgetCategories] = useState<FundingBudgetCategory[]>([]);
+  const [categorySpent, setCategorySpent] = useState<Record<string, number>>({});
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [existingReceiptPath, setExistingReceiptPath] = useState<string | null>(null);
   const [removeReceipt, setRemoveReceipt] = useState(false);
@@ -96,6 +98,55 @@ export const ExpenditureDialog = ({
     };
     if (open) fetchFundingSources();
   }, [open, user]);
+
+  // Load budget categories and per-category spending for the selected source
+  useEffect(() => {
+    const sourceId = formData.funding_source_id;
+    if (!sourceId || !open) {
+      setBudgetCategories([]);
+      setCategorySpent({});
+      return;
+    }
+    const load = async () => {
+      const [{ data: cats }, { data: exps }] = await Promise.all([
+        supabase
+          .from('funding_budget_categories')
+          .select('*')
+          .eq('funding_source_id', sourceId)
+          .order('category'),
+        supabase
+          .from('funding_expenditures')
+          .select('category, amount')
+          .eq('funding_source_id', sourceId),
+      ]);
+      setBudgetCategories((cats || []) as FundingBudgetCategory[]);
+      const spent: Record<string, number> = {};
+      (exps || []).forEach(e => {
+        const key = e.category.toLowerCase();
+        spent[key] = (spent[key] || 0) + e.amount;
+      });
+      setCategorySpent(spent);
+    };
+    load();
+  }, [formData.funding_source_id, open]);
+
+  // Live over-budget check for the chosen category
+  const budgetWarning = (() => {
+    const amount = parseFloat(formData.amount);
+    if (!formData.category || isNaN(amount) || amount <= 0) return null;
+    const line = budgetCategories.find(
+      c => c.category.toLowerCase() === formData.category.trim().toLowerCase()
+    );
+    if (!line) return null;
+    const alreadySpent =
+      (categorySpent[line.category.toLowerCase()] || 0) -
+      (editingExpenditure?.category.toLowerCase() === line.category.toLowerCase()
+        ? editingExpenditure.amount ?? 0
+        : 0);
+    const afterThis = alreadySpent + amount;
+    if (afterThis <= line.allocated_amount) return null;
+    return `This exceeds the ${line.category} budget: $${afterThis.toFixed(2)} of $${line.allocated_amount.toFixed(2)} allocated.`;
+  })();
 
   const handleFileChange = (file: File | null) => {
     if (!file) return;
@@ -294,10 +345,23 @@ export const ExpenditureDialog = ({
                   value={formData.category}
                   onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   placeholder="e.g., Supplies, Equipment, Travel"
+                  list="budget-category-options"
                   required
                 />
+                <datalist id="budget-category-options">
+                  {budgetCategories.map((c) => (
+                    <option key={c.id} value={c.category} />
+                  ))}
+                </datalist>
               </div>
             </div>
+
+            {budgetWarning && (
+              <div className="flex items-start gap-2 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800 p-3">
+                <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-xs text-amber-800 dark:text-amber-300">{budgetWarning} You can still record it.</p>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="description">Description *</Label>

@@ -16,7 +16,8 @@ import {
   PieChart,
   BarChart3
 } from "lucide-react";
-import { FundingSource, FundingExpenditure } from "@/types/funding";
+import { FundingSource, FundingExpenditure, FundingBudgetCategory } from "@/types/funding";
+import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   AreaChart,
@@ -30,7 +31,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 interface FundingOverviewProps {
   sources: FundingSource[];
@@ -58,6 +59,48 @@ export const FundingOverview = ({
     thirtyDaysFromNow.setDate(thirtyDaysFromNow.getDate() + 30);
     return endDate <= thirtyDaysFromNow && source.status === 'active';
   });
+
+  const [budgetCategories, setBudgetCategories] = useState<FundingBudgetCategory[]>([]);
+
+  useEffect(() => {
+    if (sources.length === 0) {
+      setBudgetCategories([]);
+      return;
+    }
+    supabase
+      .from('funding_budget_categories')
+      .select('*')
+      .in('funding_source_id', sources.map(s => s.id))
+      .then(({ data }) => setBudgetCategories((data || []) as FundingBudgetCategory[]));
+  }, [sources]);
+
+  // Allocated vs spent per category (aggregated across all sources)
+  const categoryBudgets = useMemo(() => {
+    if (budgetCategories.length === 0) return [];
+    const allocated: Record<string, number> = {};
+    budgetCategories.forEach(b => {
+      const key = b.category.toLowerCase();
+      allocated[key] = (allocated[key] || 0) + b.allocated_amount;
+    });
+    const spent: Record<string, number> = {};
+    expenditures.forEach(e => {
+      const key = e.category.toLowerCase();
+      if (key in allocated) spent[key] = (spent[key] || 0) + e.amount;
+    });
+    // Preserve the original casing of the first occurrence for display
+    const displayName: Record<string, string> = {};
+    budgetCategories.forEach(b => {
+      const key = b.category.toLowerCase();
+      if (!(key in displayName)) displayName[key] = b.category;
+    });
+    return Object.keys(allocated)
+      .map(key => ({
+        name: displayName[key],
+        allocated: allocated[key],
+        spent: spent[key] || 0,
+      }))
+      .sort((a, b) => b.allocated - a.allocated);
+  }, [budgetCategories, expenditures]);
 
   const recentExpenditures = expenditures
     .sort((a, b) => new Date(b.expenditure_date).getTime() - new Date(a.expenditure_date).getTime())
@@ -457,6 +500,50 @@ export const FundingOverview = ({
           </CardContent>
         </Card>
       </div>
+
+      {/* Category Budgets: allocated vs spent */}
+      {categoryBudgets.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <div className="p-1.5 rounded-lg bg-secondary/10">
+                <Wallet className="h-4 w-4 text-secondary" />
+              </div>
+              Category Budgets
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {categoryBudgets.map((cat) => {
+              const usage = cat.allocated > 0 ? (cat.spent / cat.allocated) * 100 : 0;
+              const isOver = cat.spent > cat.allocated;
+              const isHigh = !isOver && usage > 80;
+              return (
+                <div key={cat.name} className="space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="font-medium capitalize">{cat.name}</span>
+                    <span className={`text-xs ${isOver ? 'text-destructive font-semibold' : isHigh ? 'text-amber-600 font-medium' : 'text-muted-foreground'}`}>
+                      {formatCurrency(cat.spent)} of {formatCurrency(cat.allocated)}
+                      {isOver && ' · over budget'}
+                    </span>
+                  </div>
+                  <div className="relative h-2 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className={`h-full transition-all duration-500 rounded-full ${
+                        isOver
+                          ? 'bg-gradient-to-r from-destructive to-destructive/70'
+                          : isHigh
+                            ? 'bg-gradient-to-r from-amber-500 to-amber-500/70'
+                            : 'bg-gradient-to-r from-secondary to-secondary/70'
+                      }`}
+                      style={{ width: `${Math.min(usage, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Expiring Soon Alert */}
       {expiringSoon.length > 0 && (

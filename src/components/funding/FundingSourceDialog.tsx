@@ -9,8 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { FundingSource } from "@/types/funding";
+
+interface BudgetLine {
+  category: string;
+  allocated_amount: string;
+}
 
 interface FundingSourceDialogProps {
   open: boolean;
@@ -39,6 +44,28 @@ export const FundingSourceDialog = ({
     reporting_requirements: "",
   });
   
+  const [budgetLines, setBudgetLines] = useState<BudgetLine[]>([]);
+
+  // Load existing budget lines when editing
+  useEffect(() => {
+    if (!open) return;
+    if (!editingSource) {
+      setBudgetLines([]);
+      return;
+    }
+    supabase
+      .from('funding_budget_categories')
+      .select('category, allocated_amount')
+      .eq('funding_source_id', editingSource.id)
+      .order('category')
+      .then(({ data }) => {
+        setBudgetLines((data || []).map(l => ({
+          category: l.category,
+          allocated_amount: l.allocated_amount.toString(),
+        })));
+      });
+  }, [editingSource, open]);
+
   // Update form data when editingSource changes
   useEffect(() => {
     if (editingSource) {
@@ -79,8 +106,28 @@ export const FundingSourceDialog = ({
     e.preventDefault();
     if (!user) return;
 
+    // Validate budget lines before saving
+    const cleanedLines = budgetLines
+      .map(l => ({ category: l.category.trim(), allocated_amount: parseFloat(l.allocated_amount) }))
+      .filter(l => l.category && !isNaN(l.allocated_amount) && l.allocated_amount > 0);
+    const categoryNames = cleanedLines.map(l => l.category.toLowerCase());
+    if (new Set(categoryNames).size !== categoryNames.length) {
+      toast({ title: "Duplicate categories", description: "Each budget category must be unique.", variant: "destructive" });
+      return;
+    }
+    const totalAllocated = cleanedLines.reduce((sum, l) => sum + l.allocated_amount, 0);
+    const totalAmount = parseFloat(formData.total_amount);
+    if (totalAllocated > totalAmount) {
+      toast({
+        title: "Over-allocated",
+        description: `Category budgets ($${totalAllocated.toFixed(2)}) exceed the total amount ($${totalAmount.toFixed(2)}).`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
-    
+
     try {
       const submitData = {
         ...formData,
@@ -90,31 +137,49 @@ export const FundingSourceDialog = ({
         end_date: formData.end_date || null,
       };
 
+      let sourceId: string;
       if (editingSource) {
         const { error } = await supabase
           .from('funding_sources')
           .update(submitData)
           .eq('id', editingSource.id);
-        
+
         if (error) throw error;
-        
+        sourceId = editingSource.id;
+
         toast({
           title: "Success",
           description: "Funding source updated successfully",
         });
       } else {
-        const { error } = await supabase
+        const { data: created, error } = await supabase
           .from('funding_sources')
-          .insert([submitData]);
-        
+          .insert([submitData])
+          .select('id')
+          .single();
+
         if (error) throw error;
-        
+        sourceId = created.id;
+
         toast({
           title: "Success",
           description: "Funding source created successfully",
         });
       }
-      
+
+      // Replace budget lines for this source with the current set
+      const { error: deleteError } = await supabase
+        .from('funding_budget_categories')
+        .delete()
+        .eq('funding_source_id', sourceId);
+      if (deleteError) throw deleteError;
+      if (cleanedLines.length > 0) {
+        const { error: insertError } = await supabase
+          .from('funding_budget_categories')
+          .insert(cleanedLines.map(l => ({ ...l, funding_source_id: sourceId, user_id: user.id })));
+        if (insertError) throw insertError;
+      }
+
       onOpenChange(false);
       onSuccess?.();
     } catch (error) {
@@ -191,6 +256,75 @@ export const FundingSourceDialog = ({
                   required
                 />
               </div>
+            </div>
+
+            {/* Per-category budget lines */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Category Budgets</Label>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-7 gap-1 text-primary"
+                  onClick={() => setBudgetLines([...budgetLines, { category: "", allocated_amount: "" }])}
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add category
+                </Button>
+              </div>
+              {budgetLines.length === 0 ? (
+                <p className="text-xs text-muted-foreground">
+                  Optionally split the total into budget categories (e.g. Travel, Equipment, Personnel) to track spending per category.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {budgetLines.map((line, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Input
+                        placeholder="Category (e.g. Travel)"
+                        value={line.category}
+                        onChange={(e) => {
+                          const next = [...budgetLines];
+                          next[idx] = { ...line, category: e.target.value };
+                          setBudgetLines(next);
+                        }}
+                        className="flex-1"
+                      />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Amount"
+                        value={line.allocated_amount}
+                        onChange={(e) => {
+                          const next = [...budgetLines];
+                          next[idx] = { ...line, allocated_amount: e.target.value };
+                          setBudgetLines(next);
+                        }}
+                        className="w-32"
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive shrink-0"
+                        onClick={() => setBudgetLines(budgetLines.filter((_, i) => i !== idx))}
+                        title="Remove category"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                  <p className="text-xs text-muted-foreground text-right">
+                    Allocated: $
+                    {budgetLines
+                      .reduce((sum, l) => sum + (parseFloat(l.allocated_amount) || 0), 0)
+                      .toFixed(2)}
+                    {formData.total_amount && ` of $${parseFloat(formData.total_amount).toFixed(2)}`}
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

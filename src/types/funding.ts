@@ -17,6 +17,16 @@ export interface FundingSource {
   updated_at: string;
 }
 
+export interface FundingBudgetCategory {
+  id: string;
+  user_id: string;
+  funding_source_id: string;
+  category: string;
+  allocated_amount: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface FundingExpenditure {
   id: string;
   user_id: string;

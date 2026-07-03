@@ -238,6 +238,44 @@ export type Database = {
           },
         ]
       }
+      funding_budget_categories: {
+        Row: {
+          allocated_amount: number
+          category: string
+          created_at: string
+          funding_source_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allocated_amount?: number
+          category: string
+          created_at?: string
+          funding_source_id: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allocated_amount?: number
+          category?: string
+          created_at?: string
+          funding_source_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "funding_budget_categories_funding_source_id_fkey"
+            columns: ["funding_source_id"]
+            isOneToOne: false
+            referencedRelation: "funding_sources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       funding_expenditures: {
         Row: {
           amount: number
