@@ -4,6 +4,19 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Meeting, CreateMeetingData, UpdateMeetingData } from '@/types/meetings';
 
+// Advance a date by one recurrence interval (date-only string in/out)
+const nextMeetingDate = (date: string, pattern: string): string => {
+  const d = new Date(date);
+  switch (pattern) {
+    case 'daily': d.setDate(d.getDate() + 1); break;
+    case 'weekly': d.setDate(d.getDate() + 7); break;
+    case 'biweekly': d.setDate(d.getDate() + 14); break;
+    case 'monthly': d.setMonth(d.getMonth() + 1); break;
+    default: return date;
+  }
+  return d.toISOString().split('T')[0];
+};
+
 export const useMeetings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -162,15 +175,58 @@ export const useMeetings = () => {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: Meeting['status'] }) => {
+      const existing = meetings.find(m => m.id === id);
+
+      // Completing a recurring meeting schedules the next occurrence. The
+      // completed instance loses its recurrence so re-completing it later
+      // can't create duplicates.
+      const isRecurringCompletion =
+        status === 'completed' && !!existing?.is_recurring &&
+        !!existing.recurring_pattern && !!existing.start_date;
+
       const { data, error } = await supabase
         .from('meetings')
-        .update({ status })
+        .update({
+          status,
+          ...(isRecurringCompletion ? { is_recurring: false, recurring_pattern: null } : {}),
+        })
         .eq('id', id)
         .select()
         .single();
-      
+
       if (error) throw error;
-      
+
+      let spawnedNext = false;
+      if (isRecurringCompletion && user && existing) {
+        const next = nextMeetingDate(existing.start_date, existing.recurring_pattern!);
+        const withinEnd = !existing.recurring_end_date || next <= existing.recurring_end_date;
+        if (withinEnd) {
+          const { error: spawnError } = await supabase.from('meetings').insert([{
+            title: existing.title,
+            description: existing.description || '',
+            type: existing.type,
+            status: 'scheduled',
+            start_date: next,
+            start_time: existing.start_time,
+            end_time: existing.end_time,
+            location: existing.location,
+            agenda: existing.agenda,
+            attendees: (existing.attendees || []).map(a => ({ ...a, status: 'pending' })) as any,
+            user_id: user.id,
+            notes: '',
+            action_items: [] as any,
+            attachments: [] as any,
+            is_recurring: true,
+            recurring_pattern: existing.recurring_pattern,
+            recurring_end_date: existing.recurring_end_date || null,
+            reminder_minutes: existing.reminder_minutes || 15,
+            funding_source_id: (existing as any).funding_source_id || null,
+          }]);
+          if (spawnError) console.error('Failed to schedule next occurrence:', spawnError);
+          else spawnedNext = true;
+        }
+      }
+
       // Transform the returned data
       const meeting = {
         ...data,
@@ -178,11 +234,17 @@ export const useMeetings = () => {
         action_items: Array.isArray(data.action_items) ? data.action_items as any : [],
         attachments: Array.isArray(data.attachments) ? data.attachments as any : [],
       };
-      
-      return meeting as unknown as Meeting;
+
+      return { meeting: meeting as unknown as Meeting, spawnedNext };
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
+      if (result.spawnedNext) {
+        toast({
+          title: 'Recurring meeting',
+          description: 'The next occurrence has been scheduled.',
+        });
+      }
     },
   });
 

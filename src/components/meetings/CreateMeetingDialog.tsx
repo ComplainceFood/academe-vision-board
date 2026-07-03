@@ -34,6 +34,8 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
   const [isLoading, setIsLoading] = useState(false);
   const [isGrantMeeting, setIsGrantMeeting] = useState(false);
   const [selectedFundingSourceId, setSelectedFundingSourceId] = useState<string>("");
+  const [recurrence, setRecurrence] = useState<"none" | "daily" | "weekly" | "biweekly" | "monthly">("none");
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState("");
 
   // AI agenda state
   const [isGeneratingAgenda, setIsGeneratingAgenda] = useState(false);
@@ -60,6 +62,8 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
     setAgenda("");
     setIsGrantMeeting(false);
     setSelectedFundingSourceId("");
+    setRecurrence("none");
+    setRecurrenceEndDate("");
     setAgendaTopics([]);
     setPrepTips([]);
     setEstimatedMinutes(null);
@@ -142,7 +146,9 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
           notes: "",
           action_items: [],
           attachments: [],
-          is_recurring: false,
+          is_recurring: recurrence !== "none",
+          recurring_pattern: recurrence !== "none" ? recurrence : null,
+          recurring_end_date: recurrence !== "none" && recurrenceEndDate ? recurrenceEndDate : null,
           reminder_minutes: 15,
           funding_source_id: isGrantMeeting && selectedFundingSourceId ? selectedFundingSourceId : null,
         }
@@ -228,6 +234,34 @@ export function CreateMeetingDialog({ isOpen, onOpenChange }: CreateMeetingDialo
               placeholder="Meeting location"
               required
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Repeats</label>
+              <Select value={recurrence} onValueChange={(v: typeof recurrence) => setRecurrence(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Does not repeat</SelectItem>
+                  <SelectItem value="daily">Daily</SelectItem>
+                  <SelectItem value="weekly">Weekly</SelectItem>
+                  <SelectItem value="biweekly">Every 2 weeks</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            {recurrence !== "none" && (
+              <div>
+                <label className="text-sm font-medium">Repeat until</label>
+                <Input
+                  type="date"
+                  value={recurrenceEndDate}
+                  onChange={(e) => setRecurrenceEndDate(e.target.value)}
+                />
+              </div>
+            )}
           </div>
 
           <div>
