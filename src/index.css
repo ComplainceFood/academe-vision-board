@@ -40,7 +40,7 @@
     --input: 158 30% 87%;
     --ring: 148 55% 33%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
     /* Sidebar - already overridden via inline styles in AppSidebar, keep consistent */
     --sidebar-background: 220 59% 15%;
@@ -52,11 +52,12 @@
     --sidebar-border: 220 40% 25%;
     --sidebar-ring: 148 50% 45%;
 
-    --chart-1: 262 83% 58%;
-    --chart-2: 148 50% 45%;
-    --chart-3: 24 94% 53%;
-    --chart-4: 336 84% 60%;
-    --chart-5: 60 88% 55%;
+    /* Brand-aligned chart palette: teal/green core with amber & navy contrast */
+    --chart-1: 158 63% 32%;   /* brand teal */
+    --chart-2: 148 55% 48%;   /* light green */
+    --chart-3: 38 92% 50%;    /* amber */
+    --chart-4: 220 59% 35%;   /* navy */
+    --chart-5: 350 65% 55%;   /* muted rose */
   }
 
   .dark {
@@ -102,11 +103,12 @@
     --sidebar-border: 220 35% 20%;
     --sidebar-ring: 148 50% 45%;
 
-    --chart-1: 262 83% 58%;
-    --chart-2: 148 50% 45%;
-    --chart-3: 24 94% 53%;
-    --chart-4: 336 84% 60%;
-    --chart-5: 60 88% 55%;
+    /* Brand-aligned chart palette: teal/green core with amber & navy contrast */
+    --chart-1: 158 63% 32%;   /* brand teal */
+    --chart-2: 148 55% 48%;   /* light green */
+    --chart-3: 38 92% 50%;    /* amber */
+    --chart-4: 220 59% 35%;   /* navy */
+    --chart-5: 350 65% 55%;   /* muted rose */
   }
 }
 
@@ -136,11 +138,6 @@
   }
 }
 
-@media (min-width: 1024px) {
-  :root {
-    font-size: 17px;
-  }
-}
 
 @layer utilities {
   .glassmorphism {

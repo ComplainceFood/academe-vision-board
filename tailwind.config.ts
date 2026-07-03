@@ -21,6 +21,7 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				display: ['Lora', 'Georgia', 'ui-serif', 'serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

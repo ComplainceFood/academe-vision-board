@@ -259,21 +259,21 @@ const LandingPreview = () => {
 
   const testimonials = [
     {
-      name: "Dr. Sarah Johnson",
+      name: "Early-access user",
       role: "Associate Professor of Biology",
       content:
         "I finished my promotion dossier in a weekend instead of a month. Every publication, talk, and service entry was already there - I just exported.",
       rating: 5,
     },
     {
-      name: "Prof. Michael Chen",
+      name: "Early-access user",
       role: "Associate Professor, Computer Science",
       content:
         "The AI Biosketch alone saved me three hours before my last NSF submission. I used to dread biosketches. Now it's a 10-minute job.",
       rating: 5,
     },
     {
-      name: "Dr. Emily Rodriguez",
+      name: "Early-access user",
       role: "Psychology Department Chair",
       content:
         "Grant reporting used to eat a full day every cycle. Now I open the dashboard, everything's current, and I'm done before lunch.",
@@ -432,7 +432,7 @@ const LandingPreview = () => {
                   <Sparkles className="h-3 w-3" style={{ color: C.tealLight }} />
                   Professors · Researchers · Lab Leads
                 </span>
-                <h1 className="text-4xl sm:text-5xl font-bold mb-4 leading-[1.1] tracking-tight">
+                <h1 className="font-display text-4xl sm:text-5xl font-bold mb-4 leading-[1.1] tracking-tight">
                   <span style={{ color: C.navy }}>The academic cockpit</span>
                   <br />
                   <span className="relative inline-block pb-2">
@@ -502,7 +502,7 @@ const LandingPreview = () => {
               <AlertTriangle className="h-3.5 w-3.5" />
               Sound familiar?
             </span>
-            <h2 className="text-2xl md:text-3xl font-bold" style={{ color: C.navy }}>
+            <h2 className="font-display text-2xl md:text-3xl font-bold" style={{ color: C.navy }}>
               Faculty admin is out of control.
             </h2>
           </motion.div>
@@ -554,7 +554,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-10">
             <SectionBadge icon={Layers} label="Smart-Prof is your academic cockpit" />
-            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Four outcomes. One platform.
             </h2>
             <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
@@ -617,7 +617,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-6">
             <SectionBadge icon={Clock} label="A typical week with Smart-Prof" />
-            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               How it fits into your week
             </h2>
             <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
@@ -660,7 +660,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-6">
             <SectionBadge icon={Zap} label="Simple, honest pricing" />
-            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Start free. Upgrade when you're ready.
             </h2>
             <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
@@ -825,7 +825,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-6">
             <SectionBadge icon={Award} label="Trusted by academics" />
-            <h2 className="text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-3" style={{ color: C.navy }}>
               Faculty who got their time back
             </h2>
             <p className="text-base md:text-lg max-w-2xl mx-auto" style={{ color: C.muted }}>
@@ -867,7 +867,7 @@ const LandingPreview = () => {
         <div className="container mx-auto px-6 max-w-2xl">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-60px" }} variants={fadeInUp} className="text-center mb-7">
             <SectionBadge icon={Brain} label="Common questions" />
-            <h2 className="text-3xl md:text-4xl font-bold mb-2" style={{ color: C.navy }}>
+            <h2 className="font-display text-3xl md:text-4xl font-bold mb-2" style={{ color: C.navy }}>
               FAQ
             </h2>
           </motion.div>
@@ -920,7 +920,7 @@ const LandingPreview = () => {
               Your cockpit is ready
             </span>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4" style={{ color: "#F0F7F4" }}>
+            <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4" style={{ color: "#F0F7F4" }}>
               Less admin. More impact.
             </h2>
 
