@@ -78,29 +78,30 @@ const Index = () => {
     enabled: !!user
   });
 
-  // If user is not authenticated, show landing page
-  if (!user) {
-    return <LandingPreview />;
-  }
-
   // Calculate stats - memoized so they don't recompute on unrelated re-renders
+  // Must run before the !user early return (React Rules of Hooks)
   const { promiseCount, upcomingMeetings, lowSuppliesCount, shoppingItemsCount, todoTasks, upcomingDeadlines } = useMemo(() => {
     const now = new Date();
     return {
-      promiseCount: notes.filter((note: any) => note.type === 'commitment').length,
-      upcomingMeetings: meetings.filter((meeting: any) =>
+      promiseCount: (notes ?? []).filter((note: any) => note.type === 'commitment').length,
+      upcomingMeetings: (meetings ?? []).filter((meeting: any) =>
         meeting.status === 'scheduled' && new Date(meeting.start_date) > now
       ).length,
-      lowSuppliesCount: supplies.filter((supply: any) =>
+      lowSuppliesCount: (supplies ?? []).filter((supply: any) =>
         supply.current_count <= supply.threshold
       ).length,
-      shoppingItemsCount: shoppingItems.filter((item: any) => !item.purchased).length,
-      todoTasks: events.filter((event: any) => event.type === 'task' && !event.completed).length,
-      upcomingDeadlines: events.filter((event: any) =>
+      shoppingItemsCount: (shoppingItems ?? []).filter((item: any) => !item.purchased).length,
+      todoTasks: (events ?? []).filter((event: any) => event.type === 'task' && !event.completed).length,
+      upcomingDeadlines: (events ?? []).filter((event: any) =>
         event.type === 'deadline' && new Date(event.date) > now
       ).length,
     };
   }, [notes, meetings, supplies, shoppingItems, events]);
+
+  // If user is not authenticated, show landing page
+  if (!user) {
+    return <LandingPreview />;
+  }
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
