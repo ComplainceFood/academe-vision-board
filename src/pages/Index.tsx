@@ -78,12 +78,8 @@ const Index = () => {
     enabled: !!user
   });
 
-  // If user is not authenticated, show landing page
-  if (!user) {
-    return <LandingPreview />;
-  }
-
   // Calculate stats - memoized so they don't recompute on unrelated re-renders
+  // (must run before the !user early return - React Rules of Hooks)
   const { promiseCount, upcomingMeetings, lowSuppliesCount, shoppingItemsCount, todoTasks, upcomingDeadlines } = useMemo(() => {
     const now = new Date();
     return {
@@ -101,6 +97,11 @@ const Index = () => {
       ).length,
     };
   }, [notes, meetings, supplies, shoppingItems, events]);
+
+  // If user is not authenticated, show landing page
+  if (!user) {
+    return <LandingPreview />;
+  }
 
   const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
