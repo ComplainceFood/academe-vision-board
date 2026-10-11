@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { motion, type Easing } from "framer-motion";
+import { AnimatePresence, motion, type Easing, useReducedMotion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -16,7 +16,6 @@ import {
   Sparkles,
   Star,
   ChevronRight,
-  Play,
   ListTodo,
   Package,
   Wallet,
@@ -40,7 +39,7 @@ import narrativePreview from "@/assets/landing/AI-Grant-Narrative.png";
 import analyticsPreview from "@/assets/landing/analytics-preview.png";
 import fundingPreview from "@/assets/landing/funding-preview.png";
 
-// Logo palette:  Navy #0D1E41  |  Teal #1B6B6B  |  Green #2C7A4B  |  Light green #3DAA6E
+// Landing palette: deep navy, restrained teal-green, and a neutral mist background.
 const easeOut: Easing = [0.16, 1, 0.3, 1];
 
 const fadeInUp = {
@@ -73,19 +72,19 @@ const scaleIn = {
 
 // ── Shared style tokens ──────────────────────────────────────────────────────
 const C = {
-  navy: "#0D1E41",
-  teal: "#1B7A5A",
-  tealLight: "#3DAA6E",
-  bg: "#F0F7F4",
-  bgAlt: "#E8F3EE",
-  muted: "#4A6B5A",
+  navy: "#142943",
+  teal: "#12634F",
+  tealLight: "#48A878",
+  bg: "#FBF9F3",
+  bgAlt: "#EAF1EB",
+  muted: "#52645A",
   mutedLight: "rgba(168,223,200,0.85)",
-  border: "rgba(27,122,90,0.15)",
-  borderMed: "rgba(27,122,90,0.25)",
+  border: "rgba(18,99,79,0.15)",
+  borderMed: "rgba(18,99,79,0.26)",
 };
 
-const gradientBtn = { background: "linear-gradient(135deg, #1B7A5A 0%, #0D5C3E 100%)", color: "#fff", border: "none" };
-const gradientDark = "linear-gradient(135deg, #0D1E41 0%, #0A3028 55%, #1B7A5A 100%)";
+const gradientBtn = { background: "linear-gradient(135deg, #12634F 0%, #0D493B 100%)", color: "#fff", border: "none" };
+const gradientDark = "linear-gradient(135deg, #142943 0%, #103D34 58%, #12634F 100%)";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -130,6 +129,7 @@ interface PriceData {
 }
 
 const LandingPreview = () => {
+  const prefersReducedMotion = useReducedMotion();
   const [showPrivacy, setShowPrivacy] = useState(false);
   const [showTerms, setShowTerms] = useState(false);
   const [showContact, setShowContact] = useState(false);
@@ -317,8 +317,9 @@ const LandingPreview = () => {
         style={{ background: `linear-gradient(135deg, ${C.navy} 0%, #0D3D2E 100%)`, borderColor: "rgba(255,255,255,0.08)" }}
       >
         <div className="container mx-auto px-6 py-3 flex justify-between items-center">
-          <motion.div whileHover={{ scale: 1.04 }} transition={{ type: "spring", stiffness: 300 }}>
-            <SmartProfLogoWide height={48} />
+          <motion.div whileHover={{ scale: 1.03 }} transition={{ type: "spring", stiffness: 300 }}
+            className="flex items-center rounded-xl bg-white px-2 py-1 shadow-md">
+            <SmartProfLogoWide height={46} className="rounded-md" />
           </motion.div>
 
           <div className="flex items-center gap-2 md:gap-7">
@@ -330,12 +331,13 @@ const LandingPreview = () => {
               </a>
             ))}
             <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} className="hidden md:block">
-              <Button asChild size="sm" className="font-semibold px-5"
-                style={{ background: C.tealLight, color: C.navy, border: "none" }}>
+              <Button asChild size="sm" className="font-semibold px-5 shadow-sm hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#142943]"
+                style={gradientBtn}>
                 <Link to="/auth">Start free <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
               </Button>
             </motion.div>
-            <button type="button" className="md:hidden p-2 rounded-lg" style={{ color: "rgba(168,223,200,0.8)" }}
+            <button type="button" className="md:hidden h-11 w-11 inline-flex items-center justify-center rounded-lg transition-colors hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+              style={{ color: "rgba(168,223,200,0.9)" }}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -354,8 +356,8 @@ const LandingPreview = () => {
                 {label}
               </a>
             ))}
-            <Button asChild size="default" className="w-full mt-1 font-semibold"
-              style={{ background: C.tealLight, color: C.navy, border: "none" }}
+            <Button asChild size="default" className="w-full mt-1 font-semibold hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#142943]"
+              style={gradientBtn}
               onClick={() => setMobileMenuOpen(false)}>
               <Link to="/auth">Start free <ArrowRight className="ml-2 h-4 w-4" /></Link>
             </Button>
@@ -363,81 +365,79 @@ const LandingPreview = () => {
         )}
       </motion.nav>
 
-      {/* ══ 1. HERO - 3-col cards: AI left · text center · logo right ═══════════ */}
+      {/* ══ 1. HERO ═════════════════════════════════════════════════════════════ */}
       <section className="relative py-10 md:py-14 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <motion.div animate={{ y: [0, -20, 0], opacity: [0.15, 0.28, 0.15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+          <motion.div animate={prefersReducedMotion ? undefined : { y: [0, -20, 0], opacity: [0.15, 0.28, 0.15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
             className="absolute -top-24 -right-24 w-[320px] h-[320px] md:w-[480px] md:h-[480px] rounded-full blur-[100px]"
             style={{ background: "radial-gradient(circle, rgba(27,122,90,0.32) 0%, transparent 70%)" }} />
-          <motion.div animate={{ y: [0, 20, 0], opacity: [0.08, 0.18, 0.08] }} transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
+          <motion.div animate={prefersReducedMotion ? undefined : { y: [0, 20, 0], opacity: [0.08, 0.18, 0.08] }} transition={{ duration: 13, repeat: Infinity, ease: "easeInOut" }}
             className="absolute -bottom-20 -left-20 w-[280px] h-[280px] md:w-[400px] md:h-[400px] rounded-full blur-[90px]"
             style={{ background: "radial-gradient(circle, rgba(13,30,65,0.2) 0%, transparent 70%)" }} />
         </div>
 
         <div className="container mx-auto px-6 relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer}
-            className="grid grid-cols-1 md:grid-cols-[4fr_8fr_4fr] gap-3 items-center">
+            className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[minmax(250px,0.9fr)_minmax(440px,1.35fr)_minmax(270px,0.9fr)] gap-8 xl:gap-6 items-center">
 
-            {/* ── Col 1: AI feature showcase card ── */}
-            <motion.div variants={fadeInLeft} className="flex md:-ml-4">
+            <motion.div variants={fadeInLeft} className="hidden xl:flex">
               <div className="w-full rounded-2xl overflow-hidden flex flex-col"
-                style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`, boxShadow: "0 20px 48px -10px rgba(13,30,65,0.3), 0 0 0 1px rgba(27,122,90,0.22)" }}>
+                style={{ background: `linear-gradient(145deg, ${C.navy} 0%, #0A3028 100%)`, boxShadow: "0 20px 48px -10px rgba(13,30,65,0.24), 0 0 0 1px rgba(27,122,90,0.2)" }}>
                 <div className="flex items-center justify-between px-4 py-3 border-b"
                   style={{ borderColor: "rgba(255,255,255,0.08)" }}>
-                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(168,223,200,0.6)" }}>AI Tools</p>
+                  <p className="text-xs font-bold tracking-widest uppercase" style={{ color: "rgba(168,223,200,0.72)" }}>AI tools</p>
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold"
                     style={{ background: "rgba(61,170,110,0.18)", border: "1px solid rgba(61,170,110,0.32)", color: C.tealLight }}>
                     <Brain className="h-3 w-3" />
-                    8 included in Pro
+                    8 in Pro
                   </span>
                 </div>
-                <div className="p-4 space-y-2.5 flex-1">
+                <div className="p-3 space-y-2 flex-1">
                   {[
-                    { icon: Brain,    label: "AI Grant Narrative Writer",  preview: "Drafting Specific Aims for your NSF proposal...", color: "#3DAA6E" },
-                    { icon: Users,    label: "AI Meeting Summarizer",       preview: "Action items extracted from today's lab meeting.", color: "#60A5FA" },
-                    { icon: Award,    label: "NIH Biosketch Generator",     preview: "Generating Section A from your achievements...",  color: "#A78BFA" },
-                    { icon: Calendar, label: "AI Smart Planner",            preview: "Balancing 3 deadlines across your week.",          color: "#FB923C" },
+                    { icon: Brain, label: "Grant Narrative Writer", preview: "Draft proposal narratives", color: "#3DAA6E" },
+                    { icon: Users, label: "Meeting Summarizer", preview: "Turn notes into action items", color: "#60A5FA" },
+                    { icon: Award, label: "NIH Biosketch Generator", preview: "Build from your achievements", color: "#A78BFA" },
+                    { icon: Calendar, label: "Smart Planner", preview: "Plan around your deadlines", color: "#FB923C" },
                   ].map((tool, i) => (
-                    <motion.div key={i}
-                      initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.3 + i * 0.15, duration: 0.5, ease: easeOut }}
+                    <motion.div key={tool.label}
+                      initial={prefersReducedMotion ? false : { opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: prefersReducedMotion ? 0 : 0.35, delay: prefersReducedMotion ? 0 : 0.25 + i * 0.08, ease: easeOut }}
+                      whileHover={prefersReducedMotion ? undefined : { x: 3 }}
                       className="rounded-xl px-3 py-2.5 flex items-start gap-2.5"
-                      style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.09)" }}>
-                      <div className="p-1.5 rounded-lg shrink-0 mt-0.5"
+                      style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.1)" }}>
+                      <div className="p-1.5 rounded-lg shrink-0"
                         style={{ background: `${tool.color}22`, border: `1px solid ${tool.color}44` }}>
                         <tool.icon className="h-3.5 w-3.5" style={{ color: tool.color }} />
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold mb-0.5 truncate" style={{ color: "rgba(240,247,244,0.95)" }}>{tool.label}</p>
-                        <p className="text-xs leading-snug" style={{ color: "rgba(168,223,200,0.55)" }}>{tool.preview}</p>
+                      <div className="min-w-0">
+                        <p className="text-xs font-semibold mb-0.5" style={{ color: "#F7F9F7" }}>{tool.label}</p>
+                        <p className="text-xs leading-snug" style={{ color: "rgba(220,235,227,0.76)" }}>{tool.preview}</p>
                       </div>
-                      <motion.div animate={{ opacity: [1, 0.3, 1] }}
-                        transition={{ duration: 1.4, repeat: Infinity, delay: i * 0.35 }}
-                        className="w-1.5 h-1.5 rounded-full shrink-0 mt-1.5"
-                        style={{ background: tool.color }} />
                     </motion.div>
                   ))}
-                  <div className="pt-0.5 text-center">
-                    <p className="text-xs" style={{ color: "rgba(168,223,200,0.4)" }}>+ 4 more AI tools in Pro</p>
-                  </div>
+                  <p className="pt-1 text-center text-xs" style={{ color: "rgba(220,235,227,0.66)" }}>More tools to support your academic work</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* ── Col 2: Hero text (center, no background) ── */}
-            <motion.div variants={fadeInUp} className="flex">
-              <div className="w-full flex flex-col items-center justify-center text-center px-6 py-8">
-                <span className="inline-flex items-center gap-2 mb-5 px-4 py-1.5 rounded-full text-xs font-semibold border"
-                  style={{ background: "rgba(27,122,90,0.08)", borderColor: C.borderMed, color: C.teal }}>
+            <motion.div variants={fadeInLeft} className="flex">
+              <div className="w-full flex flex-col items-center text-center py-4 md:py-8">
+                <div className="mb-5 rounded-2xl bg-white p-2 shadow-sm"
+                  style={{ border: `1px solid ${C.border}` }}>
+                  <SmartProfLogo size={148} className="rounded-xl" />
+                </div>
+                <span className="inline-flex items-center gap-2 mb-4 px-4 py-1.5 rounded-full text-xs font-semibold border"
+                  style={{ background: "rgba(18,99,79,0.08)", borderColor: C.borderMed, color: C.teal }}>
                   <Sparkles className="h-3 w-3" style={{ color: C.tealLight }} />
-                  Professors · Researchers · Lab Leads
+                  AI-powered tools for professors and researchers
                 </span>
-                <h1 className="font-display text-4xl sm:text-5xl font-bold mb-4 leading-[1.1] tracking-tight">
-                  <span style={{ color: C.navy }}>The academic cockpit</span>
+                <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold mb-5 leading-[1.08] tracking-tight">
+                  <span style={{ color: C.navy }}>Your academic work</span>
                   <br />
                   <span className="relative inline-block pb-2">
                     <span style={{ backgroundImage: `linear-gradient(90deg, ${C.teal} 0%, ${C.tealLight} 50%, ${C.teal} 100%)`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}>
-                      for your entire career.
+                      all in one place.
                     </span>
                     <motion.span initial={{ scaleX: 0 }} animate={{ scaleX: 1 }}
                       transition={{ delay: 0.8, duration: 0.9, ease: easeOut }}
@@ -445,31 +445,30 @@ const LandingPreview = () => {
                       style={{ background: `linear-gradient(90deg, ${C.teal}, ${C.tealLight}, ${C.teal})` }} />
                   </span>
                 </h1>
-                <p className="text-base md:text-lg mb-7 leading-relaxed" style={{ color: C.muted }}>
-                  Smart-Prof keeps your tasks, meetings, grants, lab inventory, and achievements in one
-                  organized system - so you can focus on research and teaching.
+                <p className="text-base md:text-lg mb-7 leading-relaxed max-w-xl" style={{ color: C.muted }}>
+                  Use AI to draft grant narratives, summarize meetings, and plan around deadlines. Keep tasks, grants, lab work, and career achievements organized in one place, so you can focus on research and teaching.
                 </p>
-                <div className="flex flex-col gap-3 w-full max-w-xs">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                   <motion.div whileHover={{ scale: 1.03, y: -2 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
-                    <Button asChild size="lg" className="w-full h-11 text-sm font-semibold shadow-lg" style={gradientBtn}>
-                      <Link to="/auth">Start free for this semester <ArrowRight className="ml-2 h-4 w-4" /></Link>
+                    <Button asChild size="lg" className="w-full sm:w-auto h-11 text-sm font-semibold shadow-lg hover:brightness-110 focus-visible:ring-2 focus-visible:ring-offset-2"
+                      style={gradientBtn}>
+                      <Link to="/auth">Create your free account <ArrowRight className="ml-2 h-4 w-4" /></Link>
                     </Button>
                   </motion.div>
                   <motion.div whileHover={{ x: 2 }} transition={{ type: "spring", stiffness: 400 }}>
-                    <a href="#how-it-works"
-                      className="inline-flex items-center justify-center gap-2 w-full h-10 px-5 text-sm font-medium rounded-lg border transition-all duration-200"
+                    <a href="#features"
+                      className="inline-flex items-center justify-center gap-2 w-full h-11 px-3 whitespace-nowrap text-sm font-medium rounded-lg border transition-colors hover:bg-[#EAF1EB] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#48A878] focus-visible:ring-offset-2"
                       style={{ color: C.teal, borderColor: "rgba(27,122,90,0.3)", background: "rgba(27,122,90,0.05)" }}>
-                      <Play className="h-3.5 w-3.5" />
-                      See how it fits your week
+                      Explore features
                       <ChevronRight className="h-3.5 w-3.5" />
                     </a>
                   </motion.div>
                 </div>
                 <div className="flex flex-wrap justify-center gap-2 mt-6">
                   {[
-                    { icon: Clock,  label: "Save 4+ hrs/week" },
-                    { icon: Brain,  label: "8 AI Tools" },
-                    { icon: Shield, label: "Free to start" },
+                    { icon: Brain, label: "8 AI tools in Pro" },
+                    { icon: Wallet, label: "Grants & lab" },
+                    { icon: Award, label: "Achievements & CV" },
                   ].map((item, i) => (
                     <span key={i} className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border text-xs font-medium"
                       style={{ background: "rgba(27,122,90,0.06)", borderColor: "rgba(27,122,90,0.18)", color: C.navy }}>
@@ -481,9 +480,20 @@ const LandingPreview = () => {
               </div>
             </motion.div>
 
-            {/* ── Col 3: Logo only, no background, fills the column ── */}
-            <motion.div variants={fadeInRight} className="flex items-center justify-end md:-mr-4">
-              <SmartProfLogo size={320} className="w-full h-auto max-w-full" />
+            <motion.div variants={fadeInRight} className="flex items-center">
+              <figure className="w-full rounded-2xl overflow-hidden"
+                style={{ background: "#fff", border: `1px solid ${C.border}`, boxShadow: "0 24px 64px -20px rgba(13,30,65,0.28)" }}>
+                <img
+                  src={notesPreview}
+                  alt="Smart-Prof workspace showing tasks, deadlines, notes, and categories"
+                  className="block w-full h-auto"
+                  fetchPriority="high"
+                />
+                <figcaption className="px-4 py-3 text-sm font-medium border-t"
+                  style={{ color: C.muted, borderColor: C.border, backgroundColor: "#fff" }}>
+                  A clearer view of the work behind your teaching and research.
+                </figcaption>
+              </figure>
             </motion.div>
 
           </motion.div>
@@ -675,13 +685,18 @@ const LandingPreview = () => {
                   key={interval}
                   type="button"
                   onClick={() => setBillingInterval(interval)}
-                  className="px-5 py-2 rounded-full text-sm font-semibold transition-all duration-200"
-                  style={
-                    billingInterval === interval
-                      ? { ...gradientBtn, boxShadow: "0 2px 8px rgba(27,122,90,0.3)" }
-                      : { background: "transparent", color: C.muted, border: "none" }
-                  }
+                  aria-pressed={billingInterval === interval}
+                  className="relative isolate min-h-10 px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#48A878] focus-visible:ring-offset-2"
+                  style={{ background: "transparent", color: billingInterval === interval ? "#fff" : C.muted, border: "none" }}
                 >
+                  {billingInterval === interval && (
+                    <motion.span
+                      layoutId="billing-active-indicator"
+                      transition={prefersReducedMotion ? { duration: 0 } : { type: "spring", stiffness: 420, damping: 34 }}
+                      className="absolute inset-0 -z-10 rounded-full"
+                      style={{ ...gradientBtn, boxShadow: "0 2px 8px rgba(27,122,90,0.3)" }}
+                    />
+                  )}
                   {interval === "annual" ? "Annual - save ~20%" : "Monthly"}
                 </button>
               ))}
@@ -717,8 +732,8 @@ const LandingPreview = () => {
                       </div>
                     ))}
                   </div>
-                  <Button asChild size="lg" variant="outline" className="w-full font-semibold h-11 mt-5 transition-all duration-300"
-                    style={{ borderColor: C.borderMed, color: C.teal }}>
+                  <Button asChild size="lg" variant="outline" className="w-full font-semibold h-11 mt-5 transition-colors hover:!bg-[#EAF1EB] focus-visible:ring-2 focus-visible:ring-[#48A878] focus-visible:ring-offset-2"
+                    style={{ background: "#fff", borderColor: C.borderMed, color: C.teal }}>
                     <Link to="/auth">Start free</Link>
                   </Button>
                 </CardContent>
@@ -761,9 +776,19 @@ const LandingPreview = () => {
                     ) : (
                       <div>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-5xl font-black" style={{ color: "#F0F7F4" }}>
-                            {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
-                          </span>
+                          <AnimatePresence mode="wait" initial={false}>
+                            <motion.span
+                              key={billingInterval}
+                              initial={prefersReducedMotion ? false : { opacity: 0, y: 8 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={prefersReducedMotion ? undefined : { opacity: 0, y: -8 }}
+                              transition={{ duration: prefersReducedMotion ? 0 : 0.18 }}
+                              className="text-5xl font-black"
+                              style={{ color: "#F0F7F4" }}
+                            >
+                              {formatPrice(shownPrice.unit_amount, shownPrice.currency)}
+                            </motion.span>
+                          </AnimatePresence>
                           <span className="text-base font-medium" style={{ color: C.mutedLight }}>
                             {billingInterval === "annual" ? "/ year" : "/ month"}
                           </span>
@@ -794,13 +819,13 @@ const LandingPreview = () => {
                     ))}
                   </div>
                   {promoActive ? (
-                    <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
-                      style={{ background: "linear-gradient(135deg, #16a34a 0%, #4ade80 100%)", color: "#fff", border: "none" }}>
+                    <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#142943]"
+                      style={gradientBtn}>
                       <Link to="/auth">Get Pro free - limited availability</Link>
                     </Button>
                   ) : (
-                    <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300"
-                      style={{ background: `linear-gradient(135deg, ${C.teal} 0%, ${C.tealLight} 100%)`, color: "#fff", border: "none" }}>
+                    <Button asChild size="lg" className="w-full font-semibold h-11 mt-5 shadow-lg transition-all duration-300 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#142943]"
+                      style={gradientBtn}>
                       <Link to="/auth?plan=pro">Start Pro trial</Link>
                     </Button>
                   )}
@@ -904,10 +929,10 @@ const LandingPreview = () => {
       <section className="py-10 md:py-16 relative overflow-hidden" style={{ background: gradientDark }}>
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: "radial-gradient(ellipse at center, rgba(61,170,110,0.1), transparent 60%)" }} />
-        <motion.div animate={{ y: [-20, 20, -20], x: [-15, 15, -15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        <motion.div animate={prefersReducedMotion ? undefined : { y: [-20, 20, -20], x: [-15, 15, -15] }} transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-20 left-[15%] w-3 h-3 rounded-full pointer-events-none"
           style={{ background: "rgba(168,223,200,0.3)" }} />
-        <motion.div animate={{ y: [20, -20, 20], x: [10, -10, 10] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        <motion.div animate={prefersReducedMotion ? undefined : { y: [20, -20, 20], x: [10, -10, 10] }} transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
           className="absolute bottom-24 right-[20%] w-5 h-5 rounded-full pointer-events-none"
           style={{ background: "rgba(168,223,200,0.2)" }} />
 
@@ -930,8 +955,8 @@ const LandingPreview = () => {
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
-                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300"
-                  style={{ background: "#F0F7F4", color: C.navy, border: "none" }}>
+                <Button asChild size="lg" className="h-14 px-10 text-lg font-semibold shadow-xl hover:shadow-2xl hover:brightness-110 transition-all duration-300 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#142943]"
+                  style={gradientBtn}>
                   <Link to="/auth">
                     Start free for this semester
                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -940,8 +965,8 @@ const LandingPreview = () => {
               </motion.div>
               <motion.div whileHover={{ scale: 1.04, y: -3 }} whileTap={{ scale: 0.97 }} transition={{ type: "spring", stiffness: 400 }}>
                 <Button size="lg" variant="outline" onClick={() => setShowContact(true)}
-                  className="h-14 px-10 text-lg font-semibold transition-all duration-300"
-                  style={{ borderColor: "rgba(168,223,200,0.4)", color: C.mutedLight, background: "transparent" }}>
+                  className="h-14 px-10 text-lg font-semibold transition-all duration-300 !bg-transparent hover:!bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-[#142943]"
+                  style={{ borderColor: "rgba(220,235,227,0.55)", color: "#E4F1E9" }}>
                   Talk to us
                   <ChevronRight className="ml-1 h-5 w-5" />
                 </Button>
@@ -955,17 +980,22 @@ const LandingPreview = () => {
       <footer className="py-7 border-t" style={{ background: C.bgAlt, borderColor: C.border }}>
         <div className="container mx-auto px-6">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-            <SmartProfLogoWide height={76} />
+            <span className="inline-flex items-center rounded-xl bg-white px-3 py-2 shadow-sm">
+              <SmartProfLogoWide height={42} className="rounded-md" />
+            </span>
             <p className="text-sm" style={{ color: C.muted }}>
               &copy; {new Date().getFullYear()} Smart-Prof. Built for academia.
             </p>
             <div className="flex gap-6">
               <button type="button" onClick={() => setShowPrivacy(true)}
-                className="text-sm font-medium transition-colors duration-300 hover:underline" style={{ color: C.muted }}>Privacy</button>
+                className="rounded px-1 text-sm font-medium transition-colors duration-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#48A878] focus-visible:ring-offset-2"
+                style={{ color: C.muted }}>Privacy</button>
               <button type="button" onClick={() => setShowTerms(true)}
-                className="text-sm font-medium transition-colors duration-300 hover:underline" style={{ color: C.muted }}>Terms</button>
+                className="rounded px-1 text-sm font-medium transition-colors duration-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#48A878] focus-visible:ring-offset-2"
+                style={{ color: C.muted }}>Terms</button>
               <button type="button" onClick={() => setShowContact(true)}
-                className="text-sm font-medium transition-colors duration-300 hover:underline" style={{ color: C.muted }}>Contact</button>
+                className="rounded px-1 text-sm font-medium transition-colors duration-300 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#48A878] focus-visible:ring-offset-2"
+                style={{ color: C.muted }}>Contact</button>
             </div>
           </div>
         </div>
@@ -980,7 +1010,8 @@ const LandingPreview = () => {
           </DialogHeader>
           <PrivacyPolicy />
           <div className="flex justify-end mt-4">
-            <Button type="button" variant="outline" onClick={() => setShowPrivacy(false)}>Close</Button>
+            <Button type="button" variant="outline" className="hover:!bg-[#EAF1EB] focus-visible:ring-2 focus-visible:ring-[#48A878]"
+              style={{ background: "#fff", borderColor: C.borderMed, color: C.teal }} onClick={() => setShowPrivacy(false)}>Close</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -993,7 +1024,8 @@ const LandingPreview = () => {
           </DialogHeader>
           <TermsOfService />
           <div className="flex justify-end mt-4">
-            <Button type="button" variant="outline" onClick={() => setShowTerms(false)}>Close</Button>
+            <Button type="button" variant="outline" className="hover:!bg-[#EAF1EB] focus-visible:ring-2 focus-visible:ring-[#48A878]"
+              style={{ background: "#fff", borderColor: C.borderMed, color: C.teal }} onClick={() => setShowTerms(false)}>Close</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -1015,7 +1047,8 @@ const LandingPreview = () => {
             </p>
           </div>
           <div className="flex justify-end mt-2">
-            <Button type="button" variant="outline" onClick={() => setShowContact(false)}>Close</Button>
+            <Button type="button" variant="outline" className="hover:!bg-[#EAF1EB] focus-visible:ring-2 focus-visible:ring-[#48A878]"
+              style={{ background: "#fff", borderColor: C.borderMed, color: C.teal }} onClick={() => setShowContact(false)}>Close</Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,4 @@
-# Logs
+﻿# Logs
 logs
 *.log
 npm-debug.log*
@@ -29,5 +29,9 @@ test-results/
 
 # Environment variables (contain secrets - never commit)
 .env
-.env.local
-.env.*.local
+.env.*
+!/.env.example
+
+linkedin-bot/.env
+linkedin-bot/.env.*
+!linkedin-bot/.env.example
